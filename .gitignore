@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+client_secret.json
+constants.py
+discord.log
