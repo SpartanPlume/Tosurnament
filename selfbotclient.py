@@ -5,6 +5,7 @@ import logging
 import os
 import discord
 import sqlalchemy
+import api.spreadsheet
 from databases.base import Base
 
 MODULES_DIR = "modules"
@@ -19,6 +20,7 @@ class SelfBotClient(discord.Client):
         self.init_logger()
         self.init_modules()
         self.init_db()
+        api.spreadsheet.start_service()
         print("Ready !")
 
     def init_logger(self):
@@ -50,7 +52,7 @@ class SelfBotClient(discord.Client):
         self.logger.log(level, "SelfBot: %s", message, extra={})
 
     async def on_message(self, message):
-        """Gets message written by the User who uses SelfBot"""
+        """Gets message written by any user"""
         content = message.content
         if content.startswith(self.prefix):
             print(content)

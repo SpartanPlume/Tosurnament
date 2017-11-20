@@ -21,11 +21,13 @@ class Module(modules.module.BaseModule):
         self.commands = {
             "help": self.help,
             "link": self.link,
-            "auth": self.auth
+            "auth": self.auth,
+            "register": self.register
         }
         self.help_messages = collections.OrderedDict([
             ("link", ("<username>", "Links your osu! account to your discord account")),
-            ("auth", ("", "Links your osu! account to your discord account"))
+            ("auth", ("", "Links your osu! account to your discord account")),
+            ("register", ("", "Registers you and gives you the `Player` role on discord (if you're on the player list)"))
         ])
 
     async def link(self, message, parameter):
@@ -101,3 +103,50 @@ class Module(modules.module.BaseModule):
             self.client.session.commit()
             text = "Congrats, your account has been verified."
         return (message.author, text, None)
+
+    async def register(self, message, parameter):
+        """Registers a player"""
+        if not message.server:
+            text = "This command can only be ran on a server."
+            return (message.channel, text, None)
+        discord_id = message.author.id
+        user = self.client.session.query(User).filter(User.discord_id == discord_id).first()
+        if not user:
+            text = "Your account is not linked. Please run the `"
+            text += self.client.prefix + self.prefix + "link` command."
+            return (message.channel, text, None)
+        if not user.verified:
+            text = "Your account is not verified. Please run the `"
+            text += self.client.prefix + self.prefix + "auth` command."
+            return (message.channel, text, None)
+        osu_id = user.osu_id
+        osu_users = api.osu.OsuApi.get_user(osu_id)
+        if not osu_users:
+            text = "Oops, something went wrong, retry again later."
+            return (message.channel, text, None)
+        osu_name = osu_users[0][api.osu.User.NAME]
+        try:
+            await self.client.change_nickname(message.author, osu_name)
+        except discord.Forbidden:
+            text = "Sorry, I can't change your nickname. Either you have better rights than the bot"
+            text = " or the bot doesn't have the `Change nicknames` right."
+            text += " Please contact an admin."
+            return (message.channel, text, None)
+        players = api.spreadsheet.get_range("1xRkVAPECBrH_alxfuBAhjXVjIzO0bk6CWd7P8Ch4P5k", "A2:A")
+        for player_row in players:
+            for player in player_row:
+                if osu_name == player:
+                    roles = message.server.roles
+                    for role in roles:
+                        if role.name == "Player":
+                            try:
+                                self.client.add_roles(message.author, role)
+                            except discord.Forbidden:
+                                text = "Sorry, I can't change add you the `Player` role, you have better rights than the bot."
+                                return (message.channel, text, None)
+                            text = "You're now registered. Congrats !"
+                            return (message.channel, text, None)
+                    text = "There's no `Player` role. Ask an admin to create it."
+                    return (message.channel, text, None)
+        text = "You're not on the player list. I can't register you. ='("
+        return (message.channel, text, None)

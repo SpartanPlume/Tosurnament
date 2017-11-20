@@ -103,3 +103,5 @@ ENV/
 client_secret.json
 constants.py
 discord.log
+test_spreadsheet.py
+.credentials

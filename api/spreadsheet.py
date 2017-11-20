@@ -48,6 +48,7 @@ def get_credentials():
 
 def start_service():
     """Starts Google Spreadsheet API service"""
+    global service
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
