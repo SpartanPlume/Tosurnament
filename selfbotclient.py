@@ -42,7 +42,7 @@ class SelfBotClient(discord.Client):
 
     def init_db(self):
         """Initializes the database"""
-        engine = sqlalchemy.create_engine('sqlite:///:memory:', echo=True)
+        engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
         Base.metadata.create_all(engine, checkfirst=True)
         Session = sqlalchemy.orm.sessionmaker(bind=engine)
         self.session = Session()

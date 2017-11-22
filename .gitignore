@@ -105,3 +105,4 @@ constants.py
 discord.log
 test_spreadsheet.py
 .credentials
+tosurnament.db
