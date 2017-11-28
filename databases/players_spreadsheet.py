@@ -9,13 +9,11 @@ class PlayersSpreadsheet(Base):
     __tablename__ = 'players_spreadsheet'
 
     id = Column(Integer, primary_key=True)
-    #ezrlkezrlkkzl_id = Column(Binary)
-    acronym = Column(Binary)
-    name = Column(Binary)
-    staff_channel_id = Column(Binary)
-    admin_role_id = Column(Binary)
-    referee_role_id = Column(Binary)
-    player_role_id = Column(Binary)
-    players_spreadsheet_id = Column(Integer)
-    to_hash = ["server_id"]
-    ignore = ["players_spreadsheet_id"]
+    spreadsheet_id = Column(Binary)
+    range_team_name = Column(Binary)
+    range_team = Column(Binary)
+    n_column = Column(Binary)
+    n_row = Column(Binary)
+    incr_column = Column(Integer)
+    incr_row = Column(Integer)
+    ignore = ["n_column", "n_row", "incr_column", "incr_row"]

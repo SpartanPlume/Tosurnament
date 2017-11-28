@@ -39,11 +39,11 @@ def encrypt_obj(obj):
         return None
     fields = vars(obj)
     for key, value in fields.items():
-        if not key.startswith("_") and key != "to_hash":
+        if not key.startswith("_") and key != "to_hash" and key != "ignore":
             if isinstance(value, str):
                 if obj.to_hash and key in obj.to_hash:
                     value = hash_str(value)
-                else:
+                elif not obj.ignore or key not in obj.ignore:
                     value = encrypt_str(value)
                 setattr(obj, key, value)
     return obj
@@ -54,9 +54,11 @@ def decrypt_obj(obj):
         return None
     fields = vars(obj)
     for key, value in fields.items():
-        if not key.startswith("_"):
+        if not key.startswith("_") and key != "to_hash" and key != "ignore":
             if isinstance(value, bytes):
-                if not obj.to_hash or not key in obj.to_hash:
+                if obj.to_hash and key in obj.to_hash:
+                    pass
+                elif not obj.ignore or key not in obj.ignore:
                     value = decrypt_str(value)
                     setattr(obj, key, value)
     return obj

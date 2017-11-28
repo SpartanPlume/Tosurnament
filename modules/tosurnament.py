@@ -9,6 +9,7 @@ import api.osu
 import api.spreadsheet
 import helpers.crypt
 from databases.user import User
+from databases.tournament import Tournament
 
 EMBED_COLOUR = 3447003
 
@@ -23,11 +24,15 @@ class Module(modules.module.BaseModule):
             "help": self.help,
             "link": self.link,
             "auth": self.auth,
+            "create_tournament": self.create_tournament,
+            "set_admin_role": self.set_admin_role,
             "register": self.register
         }
         self.help_messages = collections.OrderedDict([
             ("link", ("<username>", "Links your osu! account to your discord account")),
             ("auth", ("", "Links your osu! account to your discord account")),
+            ("create_tournament", ("<acronym> <name>", "Create a tournament")),
+            ("set_admin_role", ("<role>", "All of those with the role <role> can do admin command on the bot")),
             ("register", ("", "Registers you and gives you the `Player` role on discord (if you're on the player list)"))
         ])
 
@@ -106,6 +111,43 @@ class Module(modules.module.BaseModule):
             self.client.session.commit()
             text = "Congrats, your account has been verified."
         return (message.author, text, None)
+
+    async def create_tournament(self, message, parameter):
+        """Create a tournament"""
+        parameters = parameter.split(" ", 1)
+        if len(parameters) < 2:
+            text = "Usage: " + self.client.prefix + self.prefix + "create_tournament "
+            text += self.help_messages["create_tournament"][0]
+            return (message.channel, text, None)
+        if not message.server:
+            text = "This command can only be ran on a server."
+            return (message.channel, text, None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).filter(Tournament.acronym == parameters[0]).first()
+        if tournament:
+            text = "This acronym is already used by another tournament in this server."
+            return (message.channel, text, None)
+        tournament = Tournament(server_id=message.server.id, acronym=parameters[0], name=parameters[1])
+        self.client.session.add(helpers.crypt.encrypt_obj(tournament))
+        self.client.session.commit()
+        text = "Tournament created."
+        return (message.channel, text, None)
+
+    async def set_admin_role(self, message, parameter):
+        """Set the admin role"""
+        if len(message.role_mentions) == 1:
+            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+            if not tournament:
+                text = "This server does not have any tournament running."
+                return (message.channel, text, None)
+            tournament = helpers.crypt.decrypt_obj(tournament)
+            tournament.admin_role_id = message.role_mentions[0].id
+            tournament = helpers.crypt.encrypt_obj(tournament)
+            self.client.session.commit()
+        else:
+            text = "help."
+            return (message.channel, text, None)
+        text = "Admin role set."
+        return (message.channel, text, None)
 
     async def register(self, message, parameter):
         """Registers a player"""
