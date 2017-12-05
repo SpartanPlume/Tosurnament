@@ -2,6 +2,7 @@
 
 import logging
 import discord
+import helpers.load_json
 
 DEFAULT_HELP_EMBED_COLOR = 3447003
 COMMAND_NOT_FOUND_EMBED_COLOR = 3447003
@@ -44,3 +45,7 @@ class BaseModule():
             field_name = self.client.prefix + self.prefix + command + " " + parameter
             embed.add_field(name=field_name, value=help_message, inline=False)
         return (message.channel, None, embed)
+
+    def get_string(self, command_name, field_name, *args):
+        """Gets string from strings.json file"""
+        return helpers.load_json.replace_in_string(self.client.strings[self.name][command_name][field_name], *args)
