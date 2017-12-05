@@ -1,32 +1,42 @@
 {
     "tosurnament": {
         "link": {
-            "usage": "Usage: %1%2link <osu_username>\n\nExample: %1%2link Spartan Plume",
+            "parameter": "<osu_username>",
+            "help": "Links your osu! account to your discord account",
+            "usage": "Usage: %1%2link $tosurnament/link/parameter\n\nExample: %1%2link Spartan Plume",
             "already_verified": "Your account is already verified. Maybe you wanted to use the `%1%2register` command ?",
             "user_not_found": "`%1` not found.",
-            "success": "Please authenticate your osu! account by setting the following code\n\n%1\n\n as your location on your osu! profile.\n\nOnce done, send the `::auth` command."
+            "success": "Please authenticate your osu! account by setting the following code\n\n%1\n\n as your location on your osu! profile.\n\nOnce done, send the `%2%3auth` command."
         },
         "auth": {
+            "parameter": "",
+            "help": "Links your osu! account to your discord account",
             "usage": "Usage: %1%2auth",
-            "not_linked": "Your account is not linked. Please run the `%1%2link <osu_username>` command.",
-            "already_verified": "Your account is already verified. Maybe you wanted to use the `%1%2register` command ?",
+            "not_linked": "Your account is not linked. Please run the `%1%2link $tosurnament/link/parameter` command.",
+            "already_verified": "$tosurnament/link/already_verified",
             "osu_error": "Oops. An error has occured. Please try again later. If the problem persists, contact me at spartan.plume@gmail.com",
             "wrong_code": "Your location is not your given code. If you forgot your code or make a mistake in your username, please reuse the `%1%2link` command.",
             "success": "Congrats, your account has been verified."
         },
         "create_tournament": {
-            "usage": "Usage: %1%2create_tournament <acronym> <name>\n\nExample: %1%2create_tournament NC Nightshiftt Cup",
+            "parameter": "<acronym> <name>",
+            "help": "Create a tournament",
+            "usage": "Usage: %1%2create_tournament $tosurnament/create_tournament/parameter\n\nExample: %1%2create_tournament NC Nightshiftt Cup",
             "not_on_a_server": "This command can only be ran on a server.",
             "acronym_used": "This acronym is already used by another tournament in this server.",
             "success": "Tournament created."
         },
         "set_admin_role": {
-            "usage": "Usage: %1%2set_admin_role <role>\n\nExample: %1%2set_admin_role @Bot Admin",
+            "parameter": "<role>",
+            "help": "All of those with the role <role> can do admin command on the bot",
+            "usage": "Usage: %1%2set_admin_role $tosurnament/set_admin_role/parameter\n\nExample: %1%2set_admin_role @Bot Admin",
             "not_on_a_server": "This command can only be ran on a server.",
-            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament <acronym> <name>`.",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
             "success": "Admin role set."
         },
         "register": {
+            "parameter": "",
+            "help": "Registers you and gives you the `Player` role on discord (if you're on the player list)",
             "usage": "Usage: %1%2register",
             "not_on_a_server": "This command can only be ran on a server.",
             "not_linked": "Your account is not linked. Please run the `%1%2link <osu_username>` command.",
