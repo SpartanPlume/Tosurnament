@@ -1,13 +1,12 @@
 """Primary fonctions of the bot"""
 
-import sys
 import importlib
 import logging
 import os
-import json
 import discord
 import sqlalchemy
 import api.spreadsheet
+import helpers.load_json
 from databases.base import Base
 
 MODULES_DIR = "modules"
@@ -21,8 +20,8 @@ class Client(discord.Client):
         self.session = None
         self.strings = None
         self.init_logger()
-        self.init_modules()
         self.init_ressources()
+        self.init_modules()
         self.init_db()
         api.spreadsheet.start_service()
         print("Ready !")
@@ -46,14 +45,7 @@ class Client(discord.Client):
 
     def init_ressources(self):
         """Initializes all ressources"""
-        try:
-            strings_file = open("strings.json")
-        except FileNotFoundError:
-            sys.exit("strings.json not found")
-        try:
-            self.strings = json.load(strings_file)
-        except json.JSONDecodeError:
-            sys.exit("strings.json is not a valid json file.")
+        self.strings = helpers.load_json.open_file("strings.json")
 
     def init_db(self):
         """Initializes the database"""

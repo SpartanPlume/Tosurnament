@@ -2,12 +2,12 @@
 
 import sys
 import logging
-import client
+from client import Client
 import constants
 
 def main():
     """Main function"""
-    client = client.Client()
+    client = Client()
     client.log(logging.INFO, "Tosurnament Bot started")
     client.run(constants.TOKEN)
 
