@@ -16,4 +16,5 @@ class PlayersSpreadsheet(Base):
     n_row = Column(Binary)
     incr_column = Column(Integer)
     incr_row = Column(Integer)
+    to_hash = []
     ignore = ["n_column", "n_row", "incr_column", "incr_row"]

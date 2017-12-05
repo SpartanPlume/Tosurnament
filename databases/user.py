@@ -14,6 +14,7 @@ class User(Base):
     verified = Column(Boolean)
     code = Column(Binary)
     to_hash = ["discord_id"]
+    ignore = []
 
     def __repr__(self):
         return "<User(discord_id='%s', osu_id='%s', verified='%i', code='%s')>" % (self.discord_id, self.osu_id, self.verified, self.code)
