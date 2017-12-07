@@ -2,7 +2,9 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Binary, String
+from sqlalchemy import orm
 from databases.base import Base
+import helpers.crypt
 
 class Tournament(Base):
     """Tournament class"""
@@ -19,3 +21,8 @@ class Tournament(Base):
     players_spreadsheet_id = Column(Integer)
     to_hash = ["server_id"]
     ignore = ["acronym", "players_spreadsheet_id"]
+
+    @orm.reconstructor
+    def init(self):
+        """Decrypts the object after being queried"""
+        self = helpers.crypt.decrypt_obj(self)

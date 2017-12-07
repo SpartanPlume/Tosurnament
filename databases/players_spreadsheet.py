@@ -2,7 +2,9 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Binary
+from sqlalchemy import orm
 from databases.base import Base
+import helpers.crypt
 
 class PlayersSpreadsheet(Base):
     """Players spreadsheet class"""
@@ -18,3 +20,8 @@ class PlayersSpreadsheet(Base):
     incr_row = Column(Integer)
     to_hash = []
     ignore = ["n_column", "n_row", "incr_column", "incr_row"]
+
+    @orm.reconstructor
+    def init(self):
+        """Decrypts the object after being queried"""
+        self = helpers.crypt.decrypt_obj(self)

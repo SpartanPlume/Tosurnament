@@ -7,9 +7,12 @@ import discord
 import sqlalchemy
 import api.spreadsheet
 import helpers.load_json
+import helpers.crypt
 from databases.base import Base
 
 MODULES_DIR = "modules"
+engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
+Session = sqlalchemy.orm.sessionmaker(bind=engine)
 
 class Client(discord.Client):
     """Child of discord.Client to simplify event management"""
@@ -49,14 +52,20 @@ class Client(discord.Client):
 
     def init_db(self):
         """Initializes the database"""
-        engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
         Base.metadata.create_all(engine, checkfirst=True)
-        Session = sqlalchemy.orm.sessionmaker(bind=engine)
         self.session = Session()
 
     def log(self, level, message):
         """Uses to log message"""
         self.logger.log(level, "SelfBot: %s", message, extra={})
+
+    @sqlalchemy.event.listens_for(Session, "before_flush")
+    def before_flush(session, context, instances):
+        """Encrypts all dirty object before the flush"""
+        for obj in session.new:
+            obj = helpers.crypt.encrypt_obj(obj)
+        for obj in session.dirty:
+            obj = helpers.crypt.encrypt_obj(obj)
 
     async def on_message(self, message):
         """Gets message written by any user"""

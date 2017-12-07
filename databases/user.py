@@ -2,7 +2,9 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Binary, Boolean
+from sqlalchemy import orm
 from databases.base import Base
+import helpers.crypt
 
 class User(Base):
     """User class"""
@@ -16,5 +18,7 @@ class User(Base):
     to_hash = ["discord_id"]
     ignore = []
 
-    def __repr__(self):
-        return "<User(discord_id='%s', osu_id='%s', verified='%i', code='%s')>" % (self.discord_id, self.osu_id, self.verified, self.code)
+    @orm.reconstructor
+    def init(self):
+        """Decrypts the object after being queried"""
+        self = helpers.crypt.decrypt_obj(self)
