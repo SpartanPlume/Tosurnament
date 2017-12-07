@@ -23,16 +23,48 @@
             "help": "Create a tournament",
             "usage": "Usage: %1%2create_tournament $tosurnament/create_tournament/parameter\n\nExample: %1%2create_tournament NC Nightshiftt Cup",
             "not_on_a_server": "This command can only be ran on a server.",
+            "not_owner": "You need to be the owner of the server to use this command.",
             "acronym_used": "This acronym is already used by another tournament in this server.",
             "success": "Tournament created."
+        },
+        "set_staff_channel": {
+            "parameter": "<channel>",
+            "help": "Sets the staff channel to ping staff role",
+            "usage": "Usage: %1%2set_staff_channel $tosurnament/set_staff_channel/parameter\n\nExample: %1%2set_staff_channel #ping_spam",
+            "not_on_a_server": "This command can only be ran on a server.",
+            "not_owner": "You need to be the owner of the server to use this command.",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
+            "no_rights": "You don't have the rights to use this command.",
+            "success": "Staff channel set."
         },
         "set_admin_role": {
             "parameter": "<role>",
             "help": "All of those with the role <role> can do admin command on the bot",
             "usage": "Usage: %1%2set_admin_role $tosurnament/set_admin_role/parameter\n\nExample: %1%2set_admin_role @Bot Admin",
             "not_on_a_server": "This command can only be ran on a server.",
+            "not_owner": "You need to be the owner of the server to use this command.",
             "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
             "success": "Admin role set."
+        },
+        "set_referee_role": {
+            "parameter": "<role>",
+            "help": "Sets the `Referee` role to <role>",
+            "usage": "Usage: %1%2set_referee_role $tosurnament/set_referee_role/parameter\n\nExample: %1%2set_referee_role @Referee",
+            "not_on_a_server": "This command can only be ran on a server.",
+            "not_owner": "You need to be the owner of the server to use this command.",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
+            "no_rights": "You don't have the rights to use this command.",
+            "success": "Referee role set."
+        },
+        "set_player_role": {
+            "parameter": "<role>",
+            "help": "Sets the `Player` role to <role>",
+            "usage": "Usage: %1%2set_player_role $tosurnament/set_player_role/parameter\n\nExample: %1%2set_player_role @Player",
+            "not_on_a_server": "This command can only be ran on a server.",
+            "not_owner": "You need to be the owner of the server to use this command.",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
+            "no_rights": "You don't have the rights to use this command.",
+            "success": "Player role set."
         },
         "register": {
             "parameter": "",
@@ -42,6 +74,7 @@
             "not_linked": "Your account is not linked. Please run the `%1%2link <osu_username>` command.",
             "not_verified": "Your account is not verified. Please run the `%1%2auth` command.",
             "osu_error": "Oops. An error has occured. Please try again later. If the problem persists, contact me at spartan.plume@gmail.com",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
             "change_nickname_forbidden": "Sorry, I can't change your nickname. Either you have better rights than the bot or the bot doesn't have the `Change nicknames` right. Please contact an admin.",
             "change_role_forbidden": "Sorry, I can't add you the `%1` role. Either you have better rights than the bot or the bot doesn't have the `Manage roles` right. Please contact an admin.",
             "no_player_role": "There's no `Player` role. Ask an admin to create it.",
