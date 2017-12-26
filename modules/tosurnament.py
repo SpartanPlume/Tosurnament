@@ -196,7 +196,7 @@ class Module(modules.module.BaseModule):
             players_spreadsheet = PlayersSpreadsheet()
             self.client.session.add(players_spreadsheet)
         players_spreadsheet.spreadsheet_id = parameters[0]
-        if not re.match(r'^(.+!)?[A-Z]+\d+(:[A-Z]+\d*)?$', parameters[1]):
+        if not re.match(r'^((.+!)?[A-Z]+\d+(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', parameters[1]):
             return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         players_spreadsheet.range_team_name = parameters[1]
         if not re.match(r'^(.+!)?[A-Z]+\d+(:[A-Z]+\d*)?$', parameters[2]):
