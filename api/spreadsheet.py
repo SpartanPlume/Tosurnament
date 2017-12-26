@@ -1,6 +1,7 @@
 """Google Spreadsheet API wrapper"""
 
 import os
+import re
 import httplib2
 
 from apiclient import discovery
@@ -94,3 +95,21 @@ def write_ranges(spreadsheet_id, range_name_array, values_array, value_input_opt
     result = service.spreadsheets().values().batchUpdate(
         spreadsheetId=spreadsheet_id, body=body).execute()
     return 0
+
+def from_cell(cell):
+    coordinates = re.split('(\d+)', cell)
+    x = int(coordinates[0], 36) - 10
+    y = int(coordinates[1]) - 1
+    return (x, y)
+
+def to_cell(coordinates):
+    x, y = coordinates
+    cell = to_base(x, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") + str(y + 1)
+    return (cell)
+
+def to_base(n, base):
+    len_base = len(base)
+    if n < len_base:
+        return base[n]
+    else:
+        return to_base(n // len_base, base) + base[n % len_base]

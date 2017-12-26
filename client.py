@@ -71,7 +71,7 @@ class Client(discord.Client):
         """Gets message written by any user"""
         content = message.content
         if content.startswith(self.prefix):
-            print(content)
+            self.log(logging.DEBUG, "COMMAND: " + content)
             content = content[len(self.prefix):]
             for module_prefix, module in self.modules.items():
                 if content.startswith(module_prefix):

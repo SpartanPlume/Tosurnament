@@ -14,12 +14,11 @@ class PlayersSpreadsheet(Base):
     spreadsheet_id = Column(Binary)
     range_team_name = Column(Binary)
     range_team = Column(Binary)
-    n_column = Column(Binary)
-    n_row = Column(Binary)
-    incr_column = Column(Integer)
-    incr_row = Column(Integer)
+    incr_column = Column(Binary)
+    incr_row = Column(Binary)
+    n_team = Column(Integer)
     to_hash = []
-    ignore = ["n_column", "n_row", "incr_column", "incr_row"]
+    ignore = ["n_team"]
 
     @orm.reconstructor
     def init(self):

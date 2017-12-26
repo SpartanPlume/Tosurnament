@@ -2,6 +2,7 @@
 
 import collections
 import secrets
+import re
 import requests
 import discord
 import modules.module
@@ -31,7 +32,9 @@ class Module(modules.module.BaseModule):
             "set_admin_role": self.set_admin_role,
             "set_referee_role": self.set_referee_role,
             "set_player_role": self.set_player_role,
-            "register": self.register
+            "set_players_spreadsheet": self.set_players_spreadsheet,
+            "register": self.register,
+            "print_players": self.print_players
         }
         self.help_messages = collections.OrderedDict([])
         command_strings = self.client.strings[self.name]
@@ -177,6 +180,103 @@ class Module(modules.module.BaseModule):
             return (message.channel, self.get_string("set_player_role", "usage", self.client.prefix, self.prefix), None)
         return (message.channel, self.get_string("set_player_role", "success"), None)    
 
+    async def set_players_spreadsheet(self, message, parameter):
+        """Sets the players spreadsheet"""
+        if not message.server:
+            return (message.channel, self.get_string("set_players_spreadsheet", "not_on_a_server"), None)
+        parameters = parameter.split(" ")
+        if len(parameters) != 6:
+            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_players_spreadsheet", "no_tournament", self.client.prefix, self.prefix), None)
+        if tournament.players_spreadsheet_id:
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+        else:
+            players_spreadsheet = PlayersSpreadsheet()
+            self.client.session.add(players_spreadsheet)
+        players_spreadsheet.spreadsheet_id = parameters[0]
+        players_spreadsheet.range_team_name = parameters[1]
+        players_spreadsheet.range_team = parameters[2]
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        try:
+            eval(regex.sub("1", parameters[3]))
+            eval(regex.sub("1", parameters[4]))
+        except NameError:
+            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        players_spreadsheet.incr_column = parameters[3]
+        players_spreadsheet.incr_row = parameters[4]
+        try:
+            players_spreadsheet.n_team = int(parameters[5])
+        except ValueError:
+            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        self.client.session.commit()
+        tournament.players_spreadsheet_id = players_spreadsheet.id
+        self.client.session.commit()
+        return (message.channel, self.get_string("set_players_spreadsheet", "success"), None)
+
+    async def print_players(self, message, parameter):
+        """Debug function"""
+        if not message.server:
+            return (message.channel, self.get_string("register", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
+        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+        if not players_spreadsheet:
+            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        max_column = eval(regex.sub(str(players_spreadsheet.n_team), players_spreadsheet.incr_column))
+        max_row = eval(regex.sub(str(players_spreadsheet.n_team), players_spreadsheet.incr_row))
+        if "!" in players_spreadsheet.range_team_name:
+            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
+        else:
+            range_team_name = players_spreadsheet.range_team_name            
+        if "!" in players_spreadsheet.range_team:
+            sheet_team = players_spreadsheet.range_team.split("!")[0]
+            range_team = players_spreadsheet.range_team.split("!")[1]
+        else:
+            sheet_team = ""
+            range_team = players_spreadsheet.range_team
+        if range_team_name.lower() != "none":
+            cells_team_name = range_team_name.split(":")
+            cells_team = range_team.split(":")
+            x1, y1 = api.spreadsheet.from_cell(cells_team_name[0])
+            x2, y2 = api.spreadsheet.from_cell(cells_team[0])
+            if x1 <= x2 and y1 <= y2:
+                x_min = x1
+                y_min = y1
+            else:
+                x_min = x2
+                y_min = y2
+            if len(cells_team_name) > 1:
+                x1, y1 = api.spreadsheet.from_cell(cells_team_name[1])
+            if len(cells_team) > 1:
+                x2, y2 = api.spreadsheet.from_cell(cells_team[1])
+            if x1 >= x2 and y1 >= y2:
+                x_max = x1
+                y_max = y1
+            else:
+                x_max = x2
+                y_max = y2
+        else:
+            cells_team = range_team.split(":")
+            x_min, y_min = api.spreadsheet.from_cell(cells_team[0])
+            if len(cells_team) > 1:
+                x_max, y_max = api.spreadsheet.from_cell(cells_team[1])
+            else:
+                x_max, y_max = x_min, y_min
+        x_max += max_column
+        y_max += max_row
+        cell_min = api.spreadsheet.to_cell((x_min, y_min))
+        cell_max = api.spreadsheet.to_cell((x_max, y_max))
+        all_range = cell_min + ":" + cell_max
+        if sheet_team:
+            all_range = sheet_team + "!" + all_range
+        cells = api.spreadsheet.get_range(players_spreadsheet.spreadsheet_id, all_range)
+        print (cells)
+        return (message.channel, "Ok c'est print", None)
+
     async def register(self, message, parameter):
         """Registers a player"""
         if not message.server:
@@ -199,7 +299,10 @@ class Module(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
         if not tournament:
             return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
-        players = api.spreadsheet.get_range("1xRkVAPECBrH_alxfuBAhjXVjIzO0bk6CWd7P8Ch4P5k", "A2:A")
+        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+        if not players_spreadsheet:
+            return (message.channel, self.get_string("register", "no_players_spreadsheet", self.client.prefix, self.prefix), None)
+        players = api.spreadsheet.get_range(players_spreadsheet.spreadsheet_id, "A2:A")
         for player_row in players:
             for player in player_row:
                 if osu_name == player:
