@@ -225,57 +225,50 @@ class Module(modules.module.BaseModule):
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
-        regex = re.compile(re.escape("n"), re.IGNORECASE)
-        max_column = eval(regex.sub(str(players_spreadsheet.n_team), players_spreadsheet.incr_column))
-        max_row = eval(regex.sub(str(players_spreadsheet.n_team), players_spreadsheet.incr_row))
         if "!" in players_spreadsheet.range_team_name:
             range_team_name = players_spreadsheet.range_team_name.split("!")[1]
         else:
             range_team_name = players_spreadsheet.range_team_name            
         if "!" in players_spreadsheet.range_team:
-            sheet_team = players_spreadsheet.range_team.split("!")[0]
+            sheet_name = players_spreadsheet.range_team.split("!")[0]
             range_team = players_spreadsheet.range_team.split("!")[1]
         else:
-            sheet_team = ""
+            sheet_name = ""
             range_team = players_spreadsheet.range_team
-        if range_team_name.lower() != "none":
-            cells_team_name = range_team_name.split(":")
-            cells_team = range_team.split(":")
-            x1, y1 = api.spreadsheet.from_cell(cells_team_name[0])
-            x2, y2 = api.spreadsheet.from_cell(cells_team[0])
-            if x1 <= x2 and y1 <= y2:
-                x_min = x1
-                y_min = y1
-            else:
-                x_min = x2
-                y_min = y2
-            if len(cells_team_name) > 1:
-                x1, y1 = api.spreadsheet.from_cell(cells_team_name[1])
-            if len(cells_team) > 1:
-                x2, y2 = api.spreadsheet.from_cell(cells_team[1])
-            if x1 >= x2 and y1 >= y2:
-                x_max = x1
-                y_max = y1
-            else:
-                x_max = x2
-                y_max = y2
-        else:
-            cells_team = range_team.split(":")
-            x_min, y_min = api.spreadsheet.from_cell(cells_team[0])
-            if len(cells_team) > 1:
-                x_max, y_max = api.spreadsheet.from_cell(cells_team[1])
-            else:
-                x_max, y_max = x_min, y_min
-        x_max += max_column
-        y_max += max_row
-        cell_min = api.spreadsheet.to_cell((x_min, y_min))
-        cell_max = api.spreadsheet.to_cell((x_max, y_max))
-        all_range = cell_min + ":" + cell_max
-        if sheet_team:
-            all_range = sheet_team + "!" + all_range
-        cells = api.spreadsheet.get_range(players_spreadsheet.spreadsheet_id, all_range)
-        print (cells)
+        range_names = []
+        cells_team_name = range_team_name.split(":")
+        cells_team = range_team.split(":")
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        for i in range(0, players_spreadsheet.n_team):
+            incr_column = eval(regex.sub(str(i), players_spreadsheet.incr_column))
+            incr_row = eval(regex.sub(str(i), players_spreadsheet.incr_row))
+            if range_team_name.lower() != "none":
+                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
+            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
+        cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+        for a_range in cells:
+            print(a_range)
         return (message.channel, "Ok c'est print", None)
+
+    def get_incremented_range(self, cells, sheet_name, incr_column, incr_row):
+        """Returns a range from the incremented list of cells"""
+        incremented_cells = self.increment_cells(cells, incr_column, incr_row)
+        range_name = incremented_cells[0]
+        if len(incremented_cells) > 1:
+            range_name += ":" + incremented_cells[1]
+        if sheet_name:
+            range_name = sheet_name + "!" + range_name
+        return range_name
+
+    def increment_cells(self, cells, incr_column, incr_row):
+        """Returns the incremented cells"""
+        incremented_cells = []
+        for cell in cells:
+            x, y = api.spreadsheet.from_cell(cell)
+            x += incr_column
+            y += incr_row
+            incremented_cells.append(api.spreadsheet.to_cell((x, y)))
+        return incremented_cells
 
     async def register(self, message, parameter):
         """Registers a player"""

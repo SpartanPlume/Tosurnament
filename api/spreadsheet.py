@@ -65,11 +65,19 @@ def get_range(spreadsheet_id, range_name):
         spreadsheetId=spreadsheet_id, range=range_name).execute()
     return result.get('values', [])
 
-def get_ranges(spreadsheet_id, ranges_name):
+def get_ranges(spreadsheet_id, range_names):
     """Gets values of multiple ranges"""
     if not service:
         return []
-    return []
+    result = service.spreadsheets().values().batchGet(
+        spreadsheetId=spreadsheet_id, ranges=range_names).execute()
+    value_ranges = result.get('valueRanges', [])
+    if value_ranges:
+        tmp = []
+        for value_range in value_ranges:
+            tmp.append(value_range.get('values', []))
+        value_ranges = tmp
+    return value_ranges
 
 def write_range(spreadsheet_id, range_name, values, value_input_option="RAW"):
     """Writes values in a range"""
