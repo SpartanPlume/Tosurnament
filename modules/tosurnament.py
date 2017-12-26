@@ -4,6 +4,7 @@ import collections
 import secrets
 import re
 import requests
+import googleapiclient
 import discord
 import modules.module
 import api.osu
@@ -249,7 +250,10 @@ class Module(modules.module.BaseModule):
             if range_team_name.lower() != "none":
                 range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
             range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
-        cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+        try:
+            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+        except googleapiclient.errors.HttpError:
+            return (message.channel, self.get_string("register", "spreadsheet_error", self.client.prefix, self.prefix), None)
         for a_range in cells:
             print(a_range)
         return (message.channel, "Ok c'est print", None)
