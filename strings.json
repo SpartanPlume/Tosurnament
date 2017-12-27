@@ -79,6 +79,7 @@
             "help": "Registers you and gives you the `Player` role on discord (if you're on the player list)",
             "usage": "Usage: %1%2register",
             "not_on_a_server": "This command can only be ran on a server.",
+            "already_registered": "You are already registered. If you have a problem with your current roles, please contact an admin.",
             "not_linked": "Your account is not linked. Please run the `%1%2link <osu_username>` command.",
             "not_verified": "Your account is not verified. Please run the `%1%2auth` command.",
             "osu_error": "Oops. An error has occured. Please try again later. If the problem persists, contact me at spartan.plume@gmail.com",
@@ -87,6 +88,7 @@
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
             "change_nickname_forbidden": "Sorry, I can't change your nickname. Either you have better rights than the bot or the bot doesn't have the `Change nicknames` right. Please contact an admin.",
             "change_role_forbidden": "Sorry, I can't add you the `%1` role. Either you have better rights than the bot or the bot doesn't have the `Manage roles` right. Please contact an admin.",
+            "create_role_forbidden": "Sorry, I can't create the `%1` role. The bot doesn't have the `Manage roles` right. Please contact an admin.",
             "no_player_role": "There's no `Player` role. Ask an admin to create it.",
             "not_a_player": "You're not on the player list. I can't register you. ='(",
             "success": "You're now registered. Congrats !"

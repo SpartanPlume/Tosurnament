@@ -282,6 +282,12 @@ class Module(modules.module.BaseModule):
         """Registers a player"""
         if not message.server:
             return (message.channel, self.get_string("register", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
+        player_role_id = tournament.player_role_id
+        if self.get_role(message.author.roles, player_role_id, "Player"):
+            return (message.channel, self.get_string("register", "already_registered", self.client.prefix, self.prefix), None)
         discord_id = message.author.id
         user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
@@ -297,37 +303,84 @@ class Module(modules.module.BaseModule):
             await self.client.change_nickname(message.author, osu_name)
         except discord.Forbidden:
             return (message.channel, self.get_string("register", "change_nickname_forbidden"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-        if not tournament:
-            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             return (message.channel, self.get_string("register", "no_players_spreadsheet", self.client.prefix, self.prefix), None)
-        players = api.spreadsheet.get_range(players_spreadsheet.spreadsheet_id, "A2:A")
-        for player_row in players:
-            for player in player_row:
-                if osu_name == player:
-                    player_role = tournament.player_role_id
-                    roles = message.server.roles
-                    if not player_role:
-                        for role in roles:
-                            if role.name == "Player":
-                                player_role = role
-                                break
-                    else:
-                        role_id = player_role
-                        player_role = None
-                        print(role_id)
-                        for role in roles:
-                            print(role.id)
-                            if role.id == role_id:
-                                player_role = role
-                                break
-                    if not player_role:
-                        return (message.channel, self.get_string("register", "no_player_role"), None)
-                    try:
-                        await self.client.add_roles(message.author, player_role)
-                    except discord.Forbidden:
-                        return (message.channel, self.get_string("register", "change_role_forbidden", player_role.name), None)
-                    return (message.channel, self.get_string("register", "success"), None)
+        if "!" in players_spreadsheet.range_team_name:
+            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
+        else:
+            range_team_name = players_spreadsheet.range_team_name            
+        if "!" in players_spreadsheet.range_team:
+            sheet_name = players_spreadsheet.range_team.split("!")[0]
+            range_team = players_spreadsheet.range_team.split("!")[1]
+        else:
+            sheet_name = ""
+            range_team = players_spreadsheet.range_team
+        range_names = []
+        cells_team_name = range_team_name.split(":")
+        cells_team = range_team.split(":")
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        for i in range(0, players_spreadsheet.n_team):
+            incr_column = eval(regex.sub(str(i), players_spreadsheet.incr_column))
+            incr_row = eval(regex.sub(str(i), players_spreadsheet.incr_row))
+            if range_team_name.lower() != "none":
+                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
+            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
+        try:
+            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+        except googleapiclient.errors.HttpError:
+            return (message.channel, self.get_string("register", "spreadsheet_error", self.client.prefix, self.prefix), None)
+        i = 0
+        while i < len(cells):
+            team_name = ""
+            if range_team_name.lower() != "none":
+                for row in cells[i]:
+                    for cell in row:
+                        if cell:
+                            team_name = cell
+                            break
+                i += 1
+            for player_row in cells[i]:
+                for player in player_row:
+                    if osu_name == player:
+                        roles = message.server.roles
+                        player_role = self.get_role(roles, player_role_id, "Player")
+                        if not player_role:
+                            return (message.channel, self.get_string("register", "no_player_role"), None)
+                        try:
+                            await self.client.add_roles(message.author, player_role)
+                        except discord.Forbidden:
+                            return (message.channel, self.get_string("register", "change_role_forbidden", player_role.name), None)
+                        if team_name:
+                            team_role = None
+                            for role in roles:
+                                if role.name == team_name:
+                                    team_role = role
+                                    break
+                            if not team_role:
+                                try:
+                                    team_role = await self.client.create_role(message.server, name=team_name, mentionable=True)
+                                except discord.Forbidden:
+                                    return (message.channel, self.get_string("register", "create_role_forbidden", team_name), None)
+                            try:
+                                await self.client.add_roles(message.author, team_role)
+                            except discord.Forbidden:
+                                return (message.channel, self.get_string("register", "change_role_forbidden", team_name), None)        
+                        return (message.channel, self.get_string("register", "success"), None)
+            i += 1
         return (message.channel, self.get_string("register", "not_a_player"), None)
+
+    def get_role(self, roles, role_id=None, role_name=""):
+        wanted_role = None
+        if not role_id:
+            for role in roles:
+                if role.name == role_name:
+                    wanted_role = role
+                    break
+        else:
+            for role in roles:
+                if role.id == role_id:
+                    wanted_role = role
+                    break
+        return wanted_role
+
