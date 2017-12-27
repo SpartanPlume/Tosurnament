@@ -67,9 +67,9 @@
             "success": "Player role set."
         },
         "set_players_spreadsheet": {
-            "parameter": "<spreadsheet_id> <range_team_name> <range_team> <n_column> <n_row> <incr_column> <incr_row>",
+            "parameter": "<spreadsheet_id> <range_team_name> <range_team> <incr_column> <incr_row> <n_team>",
             "help": "Sets the players spreadsheet to allow registration",
-            "usage": "Usage: %1%2set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter\n\nExample: %1%2set_players_spreadsheet 1234567890 A2:A9 B1:E1 4 8 0 1",
+            "usage": "Usage: %1%2set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter\n\nExample: %1%2set_players_spreadsheet 1234567890ABCDEF A2 B2:E2 0 N 8",
             "not_on_a_server": "This command can only be ran on a server.",
             "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
             "success": "Players spreadsheet set."
