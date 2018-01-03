@@ -1,7 +1,7 @@
 """Module for all Tosurnament related commands"""
 
 import collections
-import secrets
+import base64
 import re
 import requests
 import googleapiclient
@@ -56,6 +56,7 @@ class Module(modules.module.BaseModule):
         if not osu_users:
             return (message.channel, self.get_string("link", "user_not_found", osu_name), None)
         osu_id = osu_users[0][api.osu.User.ID]
+        code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b'=').decode('ascii')
         code = secrets.token_urlsafe(16)
         if not user:
             user = User(discord_id=discord_id, osu_id=osu_id, verified=False, code=code)
