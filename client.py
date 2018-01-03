@@ -3,6 +3,7 @@
 import importlib
 import logging
 import os
+import sys
 import discord
 import sqlalchemy
 import api.spreadsheet
@@ -27,6 +28,11 @@ class Client(discord.Client):
         self.init_modules()
         self.init_db()
         api.spreadsheet.start_service()
+        self.owner_commands = {
+            "stop": 0,
+            "update": 42,
+            "restart": 43
+        }
         print("Ready !")
 
     def init_logger(self):
@@ -73,10 +79,13 @@ class Client(discord.Client):
         if content.startswith(self.prefix):
             self.log(logging.DEBUG, "COMMAND: " + content)
             content = content[len(self.prefix):]
+            if message.author.id == "100648380174192640" and content in self.owner_commands:
+                await self.delete_message(message)
+                sys.exit(self.owner_commands[content])
             for module_prefix, module in self.modules.items():
                 if content.startswith(module_prefix):
                     channel, text, embed = await module.on_message(message, content[len(module_prefix):])
-                    if not message.channel.is_private:
-                        await self.delete_message(message)
+                    #if not message.channel.is_private:
+                    #    await self.delete_message(message)
                     await self.send_message(channel, content=text, embed=embed)
                     return
