@@ -1,7 +1,7 @@
 #!/bin/bash
 
 while true; do
-    python3 main.py
+    python3 main.py --noauth_local_webserver
     code=$?
     case $code in
         1)
