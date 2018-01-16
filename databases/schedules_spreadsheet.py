@@ -14,6 +14,7 @@ class SchedulesSpreadsheet(Base):
 
     id = Column(Integer, primary_key=True)
     spreadsheet_id = Column(Binary)
+    range_name = Column(Binary)
     parameters = Column(Binary)
     to_hash = []
     ignore = []

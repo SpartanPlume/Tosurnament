@@ -2,7 +2,9 @@
 
 import collections
 import base64
+import datetime
 import re
+import os
 import requests
 import googleapiclient
 import discord
@@ -37,6 +39,7 @@ class Module(modules.module.BaseModule):
             "set_players_spreadsheet": self.set_players_spreadsheet,
             "register": self.register,
             "set_schedules_spreadsheet": self.set_schedules_spreadsheet,
+            "reschedule": self.reschedule,
             "print_players": self.print_players
         }
         self.help_messages = collections.OrderedDict([])
@@ -59,7 +62,6 @@ class Module(modules.module.BaseModule):
             return (message.channel, self.get_string("link", "user_not_found", osu_name), None)
         osu_id = osu_users[0][api.osu.User.ID]
         code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b'=').decode('ascii')
-        code = secrets.token_urlsafe(16)
         if not user:
             user = User(discord_id=discord_id, osu_id=osu_id, verified=False, code=code)
             self.client.session.add(user)
@@ -204,10 +206,10 @@ class Module(modules.module.BaseModule):
             players_spreadsheet = PlayersSpreadsheet()
             self.client.session.add(players_spreadsheet)
         players_spreadsheet.spreadsheet_id = parameters[0]
-        if not re.match(r'^((.+!)?[A-Z]+\d+(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', parameters[1]):
+        if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', parameters[1]):
             return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         players_spreadsheet.range_team_name = parameters[1]
-        if not re.match(r'^(.+!)?[A-Z]+\d+(:[A-Z]+\d*)?$', parameters[2]):
+        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', parameters[2]):
             return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         players_spreadsheet.range_team = parameters[2]
         regex = re.compile(re.escape("n"), re.IGNORECASE)
@@ -306,10 +308,10 @@ class Module(modules.module.BaseModule):
         if not osu_users:
             return (message.channel, self.get_string("register", "osu_error"), None)
         osu_name = osu_users[0][api.osu.User.NAME]
-        try:
-            await self.client.change_nickname(message.author, osu_name)
-        except discord.Forbidden:
-            return (message.channel, self.get_string("register", "change_nickname_forbidden"), None)
+        #try:
+        #    await self.client.change_nickname(message.author, osu_name)
+        #except discord.Forbidden:
+        #    return (message.channel, self.get_string("register", "change_nickname_forbidden"), None)
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             return (message.channel, self.get_string("register", "no_players_spreadsheet", self.client.prefix, self.prefix), None)
@@ -328,8 +330,8 @@ class Module(modules.module.BaseModule):
         cells_team = range_team.split(":")
         regex = re.compile(re.escape("n"), re.IGNORECASE)
         for i in range(0, players_spreadsheet.n_team):
-            incr_column = eval(regex.sub(str(i), players_spreadsheet.incr_column))
-            incr_row = eval(regex.sub(str(i), players_spreadsheet.incr_row))
+            incr_column = int(eval(regex.sub(str(i), players_spreadsheet.incr_column)))
+            incr_row = int(eval(regex.sub(str(i), players_spreadsheet.incr_row)))
             if range_team_name.lower() != "none":
                 range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
             range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
@@ -403,8 +405,8 @@ class Module(modules.module.BaseModule):
             return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
         if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
             return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
-        parameters = parameter.split(" ", 1)
-        if len(parameters) != 2:
+        parameters = parameter.split(" ", 2)
+        if len(parameters) != 3:
             return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         if tournament.schedules_spreadsheet_id:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
@@ -412,8 +414,78 @@ class Module(modules.module.BaseModule):
             schedules_spreadsheet = SchedulesSpreadsheet()
             self.client.session.add(schedules_spreadsheet)
         schedules_spreadsheet.spreadsheet_id = parameters[0]
-        schedules_spreadsheet.parameters = parameters[1]
+        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', parameters[1]):
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        schedules_spreadsheet.range_name = parameters[1]
+        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters[2]):
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        schedules_spreadsheet.parameters = parameters[2]
         self.client.session.commit()
         tournament.schedules_spreadsheet_id = schedules_spreadsheet.id
         self.client.session.commit()
         return (message.channel, self.get_string("set_schedules_spreadsheet", "success", self.client.prefix, self.prefix), None)
+
+    async def reschedule(self, message, parameter):
+        """Allows players to reschedule their matches"""
+        if not message.server:
+            return (message.channel, self.get_string("reschedule", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("reschedule", "no_tournament", self.client.prefix, self.prefix), None)
+        schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+        if not schedules_spreadsheet:
+            return (message.channel, self.get_string("reschedule", "no_schedules_spreadsheet", self.client.prefix, self.prefix), None)
+        roles = message.server.roles
+        player_role = self.get_role(roles, tournament.player_role_id, "Player")
+        if not player_role:
+            return (message.channel, self.get_string("reschedule", "no_player_role", self.client.prefix, self.prefix), None)            
+        if not any(role.id == player_role.id for role in message.author.roles):
+            return (message.channel, self.get_string("reschedule", "not_a_player", self.client.prefix, self.prefix), None)
+        parameters = parameter.split(" ", 1)
+        if len(parameters) != 2:
+            return (message.channel, self.get_string("reschedule", "usage", self.client.prefix, self.prefix), None)
+        match_id = parameters[0]
+        date = datetime.datetime.strptime(parameters[1], '%d/%m %H:%M')
+        try:
+            values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+        except googleapiclient.errors.HttpError:
+            return (message.channel, self.get_string("reschedule", "spreadsheet_error", self.client.prefix, self.prefix), None)
+        tuples = schedules_spreadsheet.parse_parameters()
+        for y, row in enumerate(values):
+            for x, value in enumerate(row):
+                if value == match_id:
+                    incr_x, incr_y = tuples[0]
+                    team_name1 = values[y + incr_y][x + incr_x]
+                    incr_x, incr_y = tuples[1]
+                    team_name2 = values[y + incr_y][x + incr_x]
+                    tuples = tuples[3:]
+                    date_string = ""
+                    date_flags = ""
+                    for tup in tuples:
+                        incr_x, incr_y, date_flag = tup
+                        date_flags += date_flag
+                        date_string += values[y + incr_y][x + incr_x]
+                    previous_date = datetime.datetime.strptime(date_string, date_flags)
+                    player_name = message.author.nick
+                    if not player_name:
+                        player_name = message.author.name
+                    role_team1 = self.get_role(roles, role_name=team_name1)
+                    role_team2 = self.get_role(roles, role_name=team_name2)
+                    if role_team1 and role_team2 and any(role_team1.id == role.id for role in message.author.roles):
+                        ally_ping = role_team1.mention
+                        enemy_ping = role_team2.mention
+                    elif role_team1 and role_team2 and any(role_team2.id == role.id for role in message.author.roles):
+                        ally_ping = role_team2.mention
+                        enemy_ping = role_team1.mention
+                    elif team_name1 == player_name:
+                        ally_ping = message.author.mention
+                        enemy_ping = message.server.get_member_named(team_name2).mention
+                    elif team_name2 == player_name:
+                        ally_ping = message.author.mention
+                        enemy_ping = message.server.get_member_named(team_name1).mention
+                    else:
+                        return (message.channel, self.get_string("reschedule", "invalid_match"), None)
+                    previous_date_string = previous_date.strftime("**%d %B** at **%H:%M UTC**")
+                    new_date_string = date.strftime("**%d %B** at **%H:%M UTC**")
+                    return (message.channel, self.get_string("reschedule", "success", enemy_ping, ally_ping, match_id, previous_date_string, new_date_string), None)
+        return (message.channel, self.get_string("reschedule", "invalid_match_id"), None)
