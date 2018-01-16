@@ -81,6 +81,7 @@ class Client(discord.Client):
             content = content[len(self.prefix):]
             if message.author.id == "100648380174192640" and content in self.owner_commands:
                 await self.delete_message(message)
+                await self.close()
                 sys.exit(self.owner_commands[content])
             for module_prefix, module in self.modules.items():
                 if content.startswith(module_prefix):
