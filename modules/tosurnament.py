@@ -14,6 +14,7 @@ import helpers.load_json
 from databases.user import User
 from databases.tournament import Tournament
 from databases.players_spreadsheet import PlayersSpreadsheet
+from databases.schedules_spreadsheet import SchedulesSpreadsheet
 
 EMBED_COLOUR = 3447003
 
