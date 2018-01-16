@@ -413,7 +413,7 @@ class Module(modules.module.BaseModule):
             self.client.session.add(schedules_spreadsheet)
         schedules_spreadsheet.spreadsheet_id = parameters[0]
         schedules_spreadsheet.parameters = parameters[1]
-        self.session.client.commit()
+        self.client.session.commit()
         tournament.schedules_spreadsheet_id = schedules_spreadsheet.id
-        self.session.client.commit()
+        self.client.session.commit()
         return (message.channel, self.get_string("set_schedules_spreadsheet", "success", self.client.prefix, self.prefix), None)
