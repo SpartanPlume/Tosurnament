@@ -72,6 +72,7 @@
             "usage": "Usage: %1%2set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter\n\nExample: %1%2set_players_spreadsheet 1234567890ABCDEF A2 B2:E2 0 N 8",
             "not_on_a_server": "This command can only be ran on a server.",
             "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
+            "no_rights": "You don't have the rights to use this command.",
             "success": "Players spreadsheet set."
         },
         "register": {
@@ -92,6 +93,15 @@
             "no_player_role": "There's no `Player` role. Ask an admin to create it.",
             "not_a_player": "You're not on the player list. I can't register you. ='(",
             "success": "You're now registered. Congrats !"
+        },
+        "set_schedules_spreadsheet": {
+            "parameter": "<spreadsheet_id> <team_name1_pos> <team_name2_pos> <referee_pos> <time_part1> <time_part2> ...",
+            "help": "Sets the schedules spreadsheet to allow reschedule",
+            "usage": "Usage: %1%2set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter\n\nExample: %1%2set_schedules_spreadsheet 1234567890ABCDEF (1, 0) (2, 0) (6, 0) (3, 0, %d) (4, 0, %b) (5, 0, %H:%M)",
+            "not_on_a_server": "This command can only be ran on a server.",
+            "no_tournament": "This server does not have any tournament running. Consider using the `%1%2create_tournament $tosurnament/create_tournament/parameter`.",
+            "no_rights": "You don't have the rights to use this command.",
+            "success": "Schedules spreadsheet set."
         }
     }
 }

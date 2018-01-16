@@ -35,6 +35,7 @@ class Module(modules.module.BaseModule):
             "set_player_role": self.set_player_role,
             "set_players_spreadsheet": self.set_players_spreadsheet,
             "register": self.register,
+            "set_schedules_spreadsheet": self.set_schedules_spreadsheet,
             "print_players": self.print_players
         }
         self.help_messages = collections.OrderedDict([])
@@ -97,13 +98,13 @@ class Module(modules.module.BaseModule):
 
     async def create_tournament(self, message, parameter):
         """Create a tournament"""
-        parameters = parameter.split(" ", 1)
-        if len(parameters) < 2:
-            return (message.channel, self.get_string("create_tournament", "usage", self.client.prefix, self.prefix), None)
         if not message.server:
             return (message.channel, self.get_string("create_tournament", "not_on_a_server"), None)
         if message.server.owner != message.author:
             return (message.channel, self.get_string("create_tournament", "not_owner"), None)
+        parameters = parameter.split(" ", 1)
+        if len(parameters) < 2:
+            return (message.channel, self.get_string("create_tournament", "usage", self.client.prefix, self.prefix), None)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).filter(Tournament.acronym == parameters[0]).first()
         if tournament:
             return (message.channel, self.get_string("create_tournament", "acronym_used"), None)
@@ -116,14 +117,14 @@ class Module(modules.module.BaseModule):
         """Set the staff channel"""
         if not message.server:
             return (message.channel, self.get_string("set_staff_channel", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_staff_channel", "no_tournament", self.client.prefix, self.prefix), None)
+        if not tournament.admin_role_id and message.server.owner != message.author:
+            return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
+        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
+            return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
         if len(message.channel_mentions) == 1:
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-            if not tournament:
-                return (message.channel, self.get_string("set_staff_channel", "no_tournament", self.client.prefix, self.prefix), None)
-            if not tournament.admin_role_id and message.server.owner != message.author:
-                return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
-            if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-                return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
             tournament.staff_channel_id = message.channel_mentions[0].id
             self.client.session.commit()
         else:
@@ -134,12 +135,12 @@ class Module(modules.module.BaseModule):
         """Set the admin role"""
         if not message.server:
             return (message.channel, self.get_string("set_admin_role", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_admin_role", "no_tournament", self.client.prefix, self.prefix), None)
         if message.server.owner != message.author:
             return (message.channel, self.get_string("set_admin_role", "not_owner"), None)
         if len(message.role_mentions) == 1:
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-            if not tournament:
-                return (message.channel, self.get_string("set_admin_role", "no_tournament", self.client.prefix, self.prefix), None)
             tournament.admin_role_id = message.role_mentions[0].id
             self.client.session.commit()
         else:
@@ -150,14 +151,14 @@ class Module(modules.module.BaseModule):
         """Set the referee role"""
         if not message.server:
             return (message.channel, self.get_string("set_referee_role", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_referee_role", "no_tournament", self.client.prefix, self.prefix), None)
+        if not tournament.admin_role_id and message.server.owner != message.author:
+            return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
+        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
+            return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
         if len(message.role_mentions) == 1:
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-            if not tournament:
-                return (message.channel, self.get_string("set_referee_role", "no_tournament", self.client.prefix, self.prefix), None)
-            if not tournament.admin_role_id and message.server.owner != message.author:
-                return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
-            if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-                return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
             tournament.player_referee_id = message.role_mentions[0].id
             self.client.session.commit()
         else:
@@ -168,14 +169,14 @@ class Module(modules.module.BaseModule):
         """Set the player role"""
         if not message.server:
             return (message.channel, self.get_string("set_player_role", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_player_role", "no_tournament", self.client.prefix, self.prefix), None)
+        if not tournament.admin_role_id and message.server.owner != message.author:
+            return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
+        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
+            return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
         if len(message.role_mentions) == 1:
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-            if not tournament:
-                return (message.channel, self.get_string("set_player_role", "no_tournament", self.client.prefix, self.prefix), None)
-            if not tournament.admin_role_id and message.server.owner != message.author:
-                return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
-            if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-                return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
             tournament.player_role_id = message.role_mentions[0].id
             self.client.session.commit()
         else:
@@ -186,12 +187,16 @@ class Module(modules.module.BaseModule):
         """Sets the players spreadsheet"""
         if not message.server:
             return (message.channel, self.get_string("set_players_spreadsheet", "not_on_a_server"), None)
-        parameters = parameter.split(" ")
-        if len(parameters) != 6:
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
         if not tournament:
             return (message.channel, self.get_string("set_players_spreadsheet", "no_tournament", self.client.prefix, self.prefix), None)
+        if not tournament.admin_role_id and message.server.owner != message.author:
+            return (message.channel, self.get_string("set_players_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
+        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
+            return (message.channel, self.get_string("set_players_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
+        parameters = parameter.split(" ")
+        if len(parameters) != 6:
+            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
         if tournament.players_spreadsheet_id:
             players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         else:
@@ -372,6 +377,7 @@ class Module(modules.module.BaseModule):
         return (message.channel, self.get_string("register", "not_a_player"), None)
 
     def get_role(self, roles, role_id=None, role_name=""):
+        """Gets a role from its id or name"""
         wanted_role = None
         if not role_id:
             for role in roles:
@@ -385,3 +391,28 @@ class Module(modules.module.BaseModule):
                     break
         return wanted_role
 
+    async def set_schedules_spreadsheet(self, message, parameter):
+        """Sets the schedules spreadsheet"""
+        if not message.server:
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "not_on_a_server"), None)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        if not tournament:
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_tournament", self.client.prefix, self.prefix), None)
+        if not tournament.admin_role_id and message.server.owner != message.author:
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
+        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
+        parameters = parameter.split(" ", 1)
+        if len(parameters) != 2:
+            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        if tournament.schedules_spreadsheet_id:
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+        else:
+            schedules_spreadsheet = SchedulesSpreadsheet()
+            self.client.session.add(schedules_spreadsheet)
+        schedules_spreadsheet.spreadsheet_id = parameters[0]
+        schedules_spreadsheet.parameters = parameters[1]
+        self.session.client.commit()
+        tournament.schedules_spreadsheet_id = schedules_spreadsheet.id
+        self.session.client.commit()
+        return (message.channel, self.get_string("set_schedules_spreadsheet", "success", self.client.prefix, self.prefix), None)
