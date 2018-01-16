@@ -19,8 +19,9 @@ class Tournament(Base):
     referee_role_id = Column(Binary)
     player_role_id = Column(Binary)
     players_spreadsheet_id = Column(Integer)
+    schedules_spreadsheet_id = Column(Integer)
     to_hash = ["server_id"]
-    ignore = ["acronym", "players_spreadsheet_id"]
+    ignore = ["acronym", "players_spreadsheet_id", "schedules_spreadsheet_id"]
 
     @orm.reconstructor
     def init(self):
