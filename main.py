@@ -1,16 +1,19 @@
 """Starts the bot"""
 
 import sys
-import logging
+import os
+import discord
+from discord.ext import commands
 from client import Client
 import constants
 
+MODULES_DIR = "modules"
+
 def main():
     """Main function"""
-    client = Client()
-    client.log(logging.INFO, "Tosurnament Bot started")
-    client.run(constants.TOKEN)
-    print("test")
+    bot = Client()
+    bot.run(constants.TOKEN, bot=True, reconnect=True)
+    return bot.error_code
 
 if __name__ == '__main__':
     sys.exit(main())
