@@ -543,31 +543,47 @@ class Tosurnament(modules.module.BaseModule):
                         player_name = ctx.author.name
                     role_team1 = self.get_role(roles, role_name=team_name1)
                     role_team2 = self.get_role(roles, role_name=team_name2)
+                    reschedule_message = RescheduleMessage()
+                    reschedule_message.ally_user_id = bytes('', 'utf-8')
+                    reschedule_message.ally_role_id = bytes('', 'utf-8')
+                    reschedule_message.enemy_user_id = bytes('', 'utf-8')
+                    reschedule_message.enemy_role_id = bytes('', 'utf-8')
                     if role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
                         ally_mention = role_team1.mention
                         enemy_mention = role_team2.mention
+                        reschedule_message.ally_role_id = str(role_team1.id)
+                        reschedule_message.enemy_role_id = str(role_team2.id)
                     elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
                         ally_mention = role_team2.mention
                         enemy_mention = role_team1.mention
+                        reschedule_message.ally_role_id = str(role_team2.id)
+                        reschedule_message.enemy_role_id = str(role_team1.id)
                     elif team_name1 == player_name:
+                        enemy = ctx.guild.get_member_named(team_name2)
                         ally_mention = ctx.author.mention
-                        enemy_mention = ctx.guild.get_member_named(team_name2).mention
+                        enemy_mention = enemy.mention
+                        reschedule_message.ally_user_id = str(ctx.author.id)
+                        reschedule_message.enemy_user_id = str(enemy.id)
                     elif team_name2 == player_name:
+                        enemy = ctx.guild.get_member_named(team_name1)
                         ally_mention = ctx.author.mention
-                        enemy_mention = ctx.guild.get_member_named(team_name1).mention
+                        enemy_mention = enemy.mention
+                        reschedule_message.ally_user_id = str(ctx.author.id)
+                        reschedule_message.enemy_user_id = str(enemy.id)
                     else:
                         await ctx.send(self.get_string("reschedule", "invalid_match"))
                         return
                     previous_date_string = previous_date.strftime("**%d %B** at **%H:%M UTC**")
                     new_date_string = date.strftime("**%d %B** at **%H:%M UTC**")
-                    reschedule_message = RescheduleMessage()
-                    reschedule_message.new_date = date
-                    reschedule_message.ally_mention = ally_mention
+                    reschedule_message.new_date = date.strftime("%d/%m/%y %H:%M")
+                    reschedule_message.ally_user_id = ally_mention
                     reschedule_message.enemy_mention = enemy_mention
                     sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_mention, match_id, previous_date_string, new_date_string))
                     reschedule_message.message_id = str(sent_message.id)
                     self.client.session.add(reschedule_message)
                     self.client.session.commit()
+                    await sent_message.add_reaction("👍")
+                    await sent_message.add_reaction("👎")
                     return
         await ctx.send(self.get_string("reschedule", "invalid_match_id"))
 

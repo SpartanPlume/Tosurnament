@@ -11,6 +11,7 @@ import api.spreadsheet
 import helpers.load_json
 import helpers.crypt
 from databases.base import Base
+from databases.reschedule_message import RescheduleMessage
 
 MODULES_DIR = "modules"
 engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
@@ -76,3 +77,28 @@ class Client(commands.Bot):
         if ctx.guild:
             await ctx.message.delete()
         await self.logout()
+
+    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
+        """Called every added reaction"""
+        channel = self.get_channel(channel_id)
+        guild = channel.guild
+        user = guild.get_member(user_id)
+        reschedule_message = self.session.query(RescheduleMessage).filter(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not reschedule_message:
+            return
+        ally_role = None
+        if str(user.id) == reschedule_message.enemy_user_id:
+            ally_role = guild.get_member(reschedule_message.ally_user_id)
+        elif any(reschedule_message.enemy_role_id == str(role.id) for role in user.roles):
+            for role in user.roles:
+                if reschedule_message.enemy_role_id == str(role.id):
+                    ally_role = role
+        if ally_role:
+            if emoji.name == "👍":
+                await channel.send(helpers.load_json.replace_in_string(self.strings["tosurnament"]["reschedule"]["accepted"], ally_role.mention))
+                self.session.delete(reschedule_message)
+                self.session.commit()
+            elif emoji.name == "👎":
+                await channel.send(helpers.load_json.replace_in_string(self.strings["tosurnament"]["reschedule"]["refused"], ally_role.mention))
+                self.session.delete(reschedule_message)
+                self.session.commit()

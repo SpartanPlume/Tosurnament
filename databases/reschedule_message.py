@@ -13,9 +13,11 @@ class RescheduleMessage(Base):
     id = Column(Integer, primary_key=True)
     message_id = Column(Binary)
     new_date = Column(Binary)
-    ally_mention = Column(Binary)
-    enemy_mention = Column(Binary)
-    to_hash = []
+    ally_user_id = Column(Binary)
+    ally_role_id = Column(Binary)
+    enemy_user_id = Column(Binary)
+    enemy_role_id = Column(Binary)
+    to_hash = ["message_id"]
     ignore = []
 
     @orm.reconstructor
