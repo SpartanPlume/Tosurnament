@@ -1,6 +1,5 @@
 """Module for all Tosurnament related commands"""
 
-import collections
 import base64
 import datetime
 import re
@@ -8,6 +7,7 @@ import os
 import requests
 import googleapiclient
 import discord
+from discord.ext import commands
 import modules.module
 import api.osu
 import api.spreadsheet
@@ -17,49 +17,44 @@ from databases.user import User
 from databases.tournament import Tournament
 from databases.players_spreadsheet import PlayersSpreadsheet
 from databases.schedules_spreadsheet import SchedulesSpreadsheet
+from databases.reschedule_message import RescheduleMessage
 
 EMBED_COLOUR = 3447003
 
-class Module(modules.module.BaseModule):
+class NotGuildOwner(commands.CheckFailure):
+    """Special exception if not guild owner"""
+    pass
+
+def is_guild_owner():
+    """Check function to know if the author is the guild owner"""
+    async def predicate(ctx):
+        if ctx.guild.owner != ctx.author:
+            raise NotGuildOwner()
+        return True
+    return commands.check(predicate)
+
+class Tosurnament(modules.module.BaseModule):
     """Class that contains commands to use"""
 
-    def __init__(self, client):
-        super(Module, self).__init__(client)
-        self.prefix = ""
+    def __init__(self, bot):
+        super().__init__(bot)
+        self.client = bot
         self.name = "tosurnament"
-        self.commands = {
-            "help": self.help,
-            "link": self.link,
-            "auth": self.auth,
-            "create_tournament": self.create_tournament,
-            "set_staff_channel": self.set_staff_channel,
-            "set_admin_role": self.set_admin_role,
-            "set_referee_role": self.set_referee_role,
-            "set_player_role": self.set_player_role,
-            "set_players_spreadsheet": self.set_players_spreadsheet,
-            "register": self.register,
-            "set_schedules_spreadsheet": self.set_schedules_spreadsheet,
-            "reschedule": self.reschedule,
-            "print_players": self.print_players
-        }
-        self.help_messages = collections.OrderedDict([])
-        command_strings = self.client.strings[self.name]
-        for key, value in command_strings.items():
-            self.help_messages[key] = (value["parameter"], value["help"])
 
-    async def link(self, message, parameter):
+    @commands.command(name='link')
+    async def link(self, ctx, *, osu_name: str):
         """Sends a private message to the command runner to link his account"""
-        discord_id = message.author.id
+        discord_id = str(ctx.author.id)
         user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if user:
             if user.verified:
-                return (message.channel, self.get_string("link", "already_verified", self.client.prefix, self.prefix), None)
-        if parameter == "":
-            return (message.channel, self.get_string("link", "usage", self.client.prefix, self.prefix), None)
-        osu_name = api.osu.User.get_from_string(parameter)
+                await ctx.send(self.get_string("link", "already_verified", ctx.prefix))
+                return
+        osu_name = api.osu.User.get_from_string(osu_name)
         osu_users = api.osu.OsuApi.get_user(osu_name)
         if not osu_users:
-            return (message.channel, self.get_string("link", "user_not_found", osu_name), None)
+            await ctx.send(self.get_string("link", "user_not_found", osu_name))
+            return
         osu_id = osu_users[0][api.osu.User.ID]
         code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b'=').decode('ascii')
         if not user:
@@ -69,203 +64,240 @@ class Module(modules.module.BaseModule):
             user.osu_id = osu_id
             user.code = code
         self.client.session.commit()
-        return (message.author, self.get_string("link", "success", code, self.client.prefix, self.prefix), None)
+        await ctx.author.send(self.get_string("link", "success", code, ctx.prefix))
 
-    async def auth(self, message, parameter):
+    @link.error
+    async def link_handler(self, ctx, error):
+        """Error handler of link function"""
+        await ctx.send(self.get_string("link", "usage", ctx.prefix))
+
+    @commands.command(name='auth')
+    async def auth(self, ctx):
         """Sends a private message to the command runner to auth his account"""
-        discord_id = message.author.id
+        discord_id = str(ctx.author.id)
         user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
-            return (message.channel, self.get_string("auth", "not_linked", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("auth", "not_linked", ctx.prefix))
+            return
         if user.verified:
-            return (message.channel, self.get_string("auth", "already_verified", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("auth", "already_verified", ctx.prefix))
+            return
         osu_id = user.osu_id
         request = requests.get("https://osu.ppy.sh/u/" + osu_id)
         if request.status_code != 200:
-            return (message.author, self.get_string("auth", "osu_error"), None)
+            await ctx.author.send(self.get_string("auth", "osu_error"))
+            return
         index = 0
         try:
             to_find = "<div title='Location'><i class='icon-map-marker'></i><div>"
             index = request.text.index(to_find)
             index += len(to_find)
         except ValueError:
-            return (message.author, self.get_string("auth", "osu_error"), None)
+            await ctx.author.send(self.get_string("auth", "osu_error"))
+            return
         location = request.text[index:]
         location = location.split("</div>", 1)[0]
         if location != user.code:
-            return (message.author, self.get_string("auth", "wrong_code", self.client.prefix, self.prefix), None)
+            await ctx.author.send(self.get_string("auth", "wrong_code", ctx.prefix))
+            return
         else:
             user.verified = True
             self.client.session.commit()
-        return (message.author, self.get_string("auth", "success"), None)
+        await ctx.author.send(self.get_string("auth", "success"))
 
-    async def create_tournament(self, message, parameter):
+    @commands.command(name='create_tournament')
+    @commands.guild_only()
+    @is_guild_owner()
+    async def create_tournament(self, ctx, acronym: str, *, name: str):
         """Create a tournament"""
-        if not message.server:
-            return (message.channel, self.get_string("create_tournament", "not_on_a_server"), None)
-        if message.server.owner != message.author:
-            return (message.channel, self.get_string("create_tournament", "not_owner"), None)
-        parameters = parameter.split(" ", 1)
-        if len(parameters) < 2:
-            return (message.channel, self.get_string("create_tournament", "usage", self.client.prefix, self.prefix), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).filter(Tournament.acronym == parameters[0]).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).filter(Tournament.acronym == acronym).first()
         if tournament:
-            return (message.channel, self.get_string("create_tournament", "acronym_used"), None)
-        tournament = Tournament(server_id=message.server.id, acronym=parameters[0], name=parameters[1])
+            await ctx.send(self.get_string("create_tournament", "acronym_used"))
+            return
+        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name)
         self.client.session.add(tournament)
         self.client.session.commit()
-        return (message.channel, self.get_string("create_tournament", "success"), None)
+        await ctx.send(self.get_string("create_tournament", "success"))
 
-    async def set_staff_channel(self, message, parameter):
+    @create_tournament.error
+    async def create_tournament_handler(self, ctx, error):
+        """Error handler of create_tournament function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("create_tournament", "not_on_a_server"))
+        elif isinstance(error, NotGuildOwner):
+            await ctx.send(self.get_string("create_tournament", "not_owner"))
+
+    @commands.command(name='set_staff_channel')
+    @commands.guild_only()
+    async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
         """Set the staff channel"""
-        if not message.server:
-            return (message.channel, self.get_string("set_staff_channel", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_staff_channel", "no_tournament", self.client.prefix, self.prefix), None)
-        if not tournament.admin_role_id and message.server.owner != message.author:
-            return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-            return (message.channel, self.get_string("set_staff_channel", "no_rights", self.client.prefix, self.prefix), None)
-        if len(message.channel_mentions) == 1:
-            tournament.staff_channel_id = message.channel_mentions[0].id
-            self.client.session.commit()
-        else:
-            return (message.channel, self.get_string("set_staff_channel", "usage", self.client.prefix, self.prefix), None)
-        return (message.channel, self.get_string("set_staff_channel", "success"), None)
+            await ctx.send(self.get_string("set_staff_channel", "no_tournament", ctx.prefix))
+            return
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            await ctx.send(self.get_string("set_staff_channel", "no_rights", ctx.prefix))
+            return
+        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+            await ctx.send(self.get_string("set_staff_channel", "no_rights", ctx.prefix))
+            return
+        tournament.staff_channel_id = str(channel.id)
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_staff_channel", "success"))
 
-    async def set_admin_role(self, message, parameter):
+    @set_staff_channel.error
+    async def set_staff_channel_handler(self, ctx, error):
+        """Error handler of set_staff_channel function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_staff_channel", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_staff_channel", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_staff_channel", "not_on_a_server"))
+
+    @commands.command(name='set_admin_role')
+    @commands.guild_only()
+    @is_guild_owner()
+    async def set_admin_role(self, ctx, *, admin_role: discord.Role):
         """Set the admin role"""
-        if not message.server:
-            return (message.channel, self.get_string("set_admin_role", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_admin_role", "no_tournament", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author:
-            return (message.channel, self.get_string("set_admin_role", "not_owner"), None)
-        if len(message.role_mentions) == 1:
-            tournament.admin_role_id = message.role_mentions[0].id
-            self.client.session.commit()
-        else:
-            return (message.channel, self.get_string("set_admin_role", "usage", self.client.prefix, self.prefix), None)
-        return (message.channel, self.get_string("set_admin_role", "success"), None)
+            await ctx.send(self.get_string("set_admin_role", "no_tournament", ctx.prefix))
+            return
+        tournament.admin_role_id = str(admin_role.id)
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_admin_role", "success"))
 
-    async def set_referee_role(self, message, parameter):
+    @set_admin_role.error
+    async def set_admin_role_handler(self, ctx, error):
+        """Error handler of set_admin_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_admin_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_admin_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_admin_role", "not_on_a_server"))
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send(self.get_string("set_admin_role", "not_owner"))
+
+    @commands.command(name='set_referee_role')
+    @commands.guild_only()
+    async def set_referee_role(self, ctx, *, referee_role: discord.Role):
         """Set the referee role"""
-        if not message.server:
-            return (message.channel, self.get_string("set_referee_role", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_referee_role", "no_tournament", self.client.prefix, self.prefix), None)
-        if not tournament.admin_role_id and message.server.owner != message.author:
-            return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-            return (message.channel, self.get_string("set_referee_role", "no_rights", self.client.prefix, self.prefix), None)
-        if len(message.role_mentions) == 1:
-            tournament.player_referee_id = message.role_mentions[0].id
-            self.client.session.commit()
-        else:
-            return (message.channel, self.get_string("set_referee_role", "usage", self.client.prefix, self.prefix), None)
-        return (message.channel, self.get_string("set_referee_role", "success"), None)
+            await ctx.send(self.get_string("set_referee_role", "no_tournament", ctx.prefix))
+            return
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            await ctx.send(self.get_string("set_referee_role", "no_rights", ctx.prefix))
+            return
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            await ctx.send(self.get_string("set_referee_role", "no_rights", ctx.prefix))
+            return
+        tournament.referee_role_id = str(referee_role.id)
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_referee_role", "success"))
 
-    async def set_player_role(self, message, parameter):
+    @set_referee_role.error
+    async def set_referee_role_handler(self, ctx, error):
+        """Error handler of set_referee_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_referee_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_referee_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_referee_role", "not_on_a_server"))
+
+    @commands.command(name='set_player_role')
+    @commands.guild_only()
+    async def set_player_role(self,ctx, *, player_role: discord.Role):
         """Set the player role"""
-        if not message.server:
-            return (message.channel, self.get_string("set_player_role", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_player_role", "no_tournament", self.client.prefix, self.prefix), None)
-        if not tournament.admin_role_id and message.server.owner != message.author:
-            return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-            return (message.channel, self.get_string("set_player_role", "no_rights", self.client.prefix, self.prefix), None)
-        if len(message.role_mentions) == 1:
-            tournament.player_role_id = message.role_mentions[0].id
-            self.client.session.commit()
-        else:
-            return (message.channel, self.get_string("set_player_role", "usage", self.client.prefix, self.prefix), None)
-        return (message.channel, self.get_string("set_player_role", "success"), None)    
+            await ctx.send(self.get_string("set_player_role", "no_tournament", ctx.prefix))
+            return
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            await ctx.send(self.get_string("set_player_role", "no_rights", ctx.prefix))
+            return
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            await ctx.send(self.get_string("set_player_role", "no_rights", ctx.prefix))
+            return
+        tournament.player_role_id = str(player_role.id)
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_player_role", "success"))  
 
-    async def set_players_spreadsheet(self, message, parameter):
+    @set_player_role.error
+    async def set_player_role_handler(self, ctx, error):
+        """Error handler of set_player_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_player_role", "not_on_a_server"))
+
+    @commands.command(name='set_players_spreadsheet')
+    @commands.guild_only()
+    async def set_players_spreadsheet(self, ctx, spreadsheet_id: str, range_team_name: str, range_team: str, incr_column: str, incr_row: str, n_team: int):
         """Sets the players spreadsheet"""
-        if not message.server:
-            return (message.channel, self.get_string("set_players_spreadsheet", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_players_spreadsheet", "no_tournament", self.client.prefix, self.prefix), None)
-        if not tournament.admin_role_id and message.server.owner != message.author:
-            return (message.channel, self.get_string("set_players_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-            return (message.channel, self.get_string("set_players_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
-        parameters = parameter.split(" ")
-        if len(parameters) != 6:
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("set_players_spreadsheet", "no_tournament", ctx.prefix))
+            return
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            await ctx.send(self.get_string("set_players_spreadsheet", "no_rights", ctx.prefix))
+            return
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            await ctx.send(self.get_string("set_players_spreadsheet", "no_rights", ctx.prefix))
+            return
+        if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', range_team_name):
+            await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
+            return
+        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', range_team):
+            await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
+            return
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        try:
+            eval(regex.sub("1", incr_column))
+            eval(regex.sub("1", incr_row))
+        except NameError:
+            await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
+            return
         if tournament.players_spreadsheet_id:
             players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         else:
             players_spreadsheet = PlayersSpreadsheet()
             self.client.session.add(players_spreadsheet)
-        players_spreadsheet.spreadsheet_id = parameters[0]
-        if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', parameters[1]):
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
-        players_spreadsheet.range_team_name = parameters[1]
-        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', parameters[2]):
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
-        players_spreadsheet.range_team = parameters[2]
-        regex = re.compile(re.escape("n"), re.IGNORECASE)
-        try:
-            eval(regex.sub("1", parameters[3]))
-            eval(regex.sub("1", parameters[4]))
-        except NameError:
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
-        players_spreadsheet.incr_column = parameters[3]
-        players_spreadsheet.incr_row = parameters[4]
-        try:
-            players_spreadsheet.n_team = int(parameters[5])
-        except ValueError:
-            return (message.channel, self.get_string("set_players_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+        players_spreadsheet.spreadsheet_id = spreadsheet_id
+        players_spreadsheet.range_team_name = range_team_name
+        players_spreadsheet.range_team = range_team
+        players_spreadsheet.incr_column = incr_column
+        players_spreadsheet.incr_row = incr_row
+        players_spreadsheet.n_team = n_team
         self.client.session.commit()
         tournament.players_spreadsheet_id = players_spreadsheet.id
         self.client.session.commit()
-        return (message.channel, self.get_string("set_players_spreadsheet", "success"), None)
+        await ctx.send(self.get_string("set_players_spreadsheet", "success"))
 
-    async def print_players(self, message, parameter):
-        """Debug function"""
-        if not message.server:
-            return (message.channel, self.get_string("register", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
-        if not tournament:
-            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
-        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
-        if not players_spreadsheet:
-            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
-        if "!" in players_spreadsheet.range_team_name:
-            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
-        else:
-            range_team_name = players_spreadsheet.range_team_name            
-        if "!" in players_spreadsheet.range_team:
-            sheet_name = players_spreadsheet.range_team.split("!")[0]
-            range_team = players_spreadsheet.range_team.split("!")[1]
-        else:
-            sheet_name = ""
-            range_team = players_spreadsheet.range_team
-        range_names = []
-        cells_team_name = range_team_name.split(":")
-        cells_team = range_team.split(":")
-        regex = re.compile(re.escape("n"), re.IGNORECASE)
-        for i in range(0, players_spreadsheet.n_team):
-            incr_column = eval(regex.sub(str(i), players_spreadsheet.incr_column))
-            incr_row = eval(regex.sub(str(i), players_spreadsheet.incr_row))
-            if range_team_name.lower() != "none":
-                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
-            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
-        try:
-            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
-        except googleapiclient.errors.HttpError:
-            return (message.channel, self.get_string("register", "spreadsheet_error", self.client.prefix, self.prefix), None)
-        for a_range in cells:
-            print(a_range)
-        return (message.channel, "Ok c'est print", None)
+    @set_players_spreadsheet.error
+    async def set_players_spreadsheet_handler(self, ctx, error):
+        """Error handler of set_players_spreadsheet function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_players_spreadsheet", "not_on_a_server"))
 
     def get_incremented_range(self, cells, sheet_name, incr_column, incr_row):
         """Returns a range from the incremented list of cells"""
@@ -287,34 +319,43 @@ class Module(modules.module.BaseModule):
             incremented_cells.append(api.spreadsheet.to_cell((x, y)))
         return incremented_cells
 
-    async def register(self, message, parameter):
+    @commands.command(name='register')
+    @commands.guild_only()
+    async def register(self, ctx):
         """Registers a player"""
-        if not message.server:
-            return (message.channel, self.get_string("register", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("register", "no_tournament", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("register", "no_tournament", ctx.prefix))
+            return
         player_role_id = tournament.player_role_id
-        if self.get_role(message.author.roles, player_role_id, "Player"):
-            return (message.channel, self.get_string("register", "already_registered", self.client.prefix, self.prefix), None)
-        discord_id = message.author.id
+        if self.get_role(ctx.author.roles, player_role_id, "Player"):
+            await ctx.send(self.get_string("register", "already_registered", ctx.prefix))
+            return
+        discord_id = str(ctx.author.id)
         user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
-            return (message.channel, self.get_string("register", "not_linked", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("register", "not_linked", ctx.prefix))
+            return
         if not user.verified:
-            return (message.channel, self.get_string("register", "not_verified", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("register", "not_verified", ctx.prefix))
+            return
         osu_id = user.osu_id
         osu_users = api.osu.OsuApi.get_user(osu_id)
         if not osu_users:
-            return (message.channel, self.get_string("register", "osu_error"), None)
+            await ctx.send(self.get_string("register", "osu_error"))
+            return
         osu_name = osu_users[0][api.osu.User.NAME]
+        print("2")
         #try:
-        #    await self.client.change_nickname(message.author, osu_name)
+        #    await ctx.author.edit(nick=osu_name)
         #except discord.Forbidden:
-        #    return (message.channel, self.get_string("register", "change_nickname_forbidden"), None)
+        #    await ctx.send(self.get_string("register", "change_nickname_forbidden"))
+        #    return
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
-            return (message.channel, self.get_string("register", "no_players_spreadsheet", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("register", "no_players_spreadsheet", ctx.prefix))
+            return
         if "!" in players_spreadsheet.range_team_name:
             range_team_name = players_spreadsheet.range_team_name.split("!")[1]
         else:
@@ -338,7 +379,8 @@ class Module(modules.module.BaseModule):
         try:
             cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
         except googleapiclient.errors.HttpError:
-            return (message.channel, self.get_string("register", "spreadsheet_error", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("register", "spreadsheet_error", ctx.prefix))
+            return
         i = 0
         while i < len(cells):
             team_name = ""
@@ -352,14 +394,16 @@ class Module(modules.module.BaseModule):
             for player_row in cells[i]:
                 for player in player_row:
                     if osu_name == player:
-                        roles = message.server.roles
+                        roles = ctx.guild.roles
                         player_role = self.get_role(roles, player_role_id, "Player")
                         if not player_role:
-                            return (message.channel, self.get_string("register", "no_player_role"), None)
+                            await ctx.send(self.get_string("register", "no_player_role"))
+                            return
                         try:
-                            await self.client.add_roles(message.author, player_role)
+                            await ctx.author.add_roles(player_role)
                         except discord.Forbidden:
-                            return (message.channel, self.get_string("register", "change_role_forbidden", player_role.name), None)
+                            await ctx.send(self.get_string("register", "change_role_forbidden", player_role.name))
+                            return
                         if team_name:
                             team_role = None
                             for role in roles:
@@ -368,16 +412,29 @@ class Module(modules.module.BaseModule):
                                     break
                             if not team_role:
                                 try:
-                                    team_role = await self.client.create_role(message.server, name=team_name, mentionable=True)
+                                    team_role = await ctx.guild.create_role(name=team_name, mentionable=True)
                                 except discord.Forbidden:
-                                    return (message.channel, self.get_string("register", "create_role_forbidden", team_name), None)
+                                    await ctx.send(self.get_string("register", "create_role_forbidden", team_name))
+                                    return
                             try:
-                                await self.client.add_roles(message.author, team_role)
+                                await ctx.author.add_roles(team_role)
                             except discord.Forbidden:
-                                return (message.channel, self.get_string("register", "change_role_forbidden", team_name), None)        
-                        return (message.channel, self.get_string("register", "success"), None)
+                                await ctx.send(self.get_string("register", "change_role_forbidden", team_name))
+                                return
+                        await ctx.send(self.get_string("register", "success"))
+                        return
             i += 1
-        return (message.channel, self.get_string("register", "not_a_player"), None)
+        await ctx.send(self.get_string("register", "not_a_player"))
+
+    @register.error
+    async def register_handler(self, ctx, error):
+        """Error handler of register function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("register", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("register", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("register", "not_on_a_server"))
 
     def get_role(self, roles, role_id=None, role_name=""):
         """Gets a role from its id or name"""
@@ -394,62 +451,77 @@ class Module(modules.module.BaseModule):
                     break
         return wanted_role
 
-    async def set_schedules_spreadsheet(self, message, parameter):
+    @commands.command(name='set_schedules_spreadsheet')
+    @commands.guild_only()
+    async def set_schedules_spreadsheet(self, ctx, spreadsheet_id: str, range_name: str, *, parameters: str):
         """Sets the schedules spreadsheet"""
-        if not message.server:
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_tournament", self.client.prefix, self.prefix), None)
-        if not tournament.admin_role_id and message.server.owner != message.author:
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
-        if message.server.owner != message.author and not any(role.id == tournament.admin_role_id for role in message.author.roles):
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "no_rights", self.client.prefix, self.prefix), None)
-        parameters = parameter.split(" ", 2)
-        if len(parameters) != 3:
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "no_tournament", ctx.prefix))
+            return
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "no_rights", ctx.prefix))
+            return
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "no_rights", ctx.prefix))
+            return
+        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', range_name):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "usage", ctx.prefix))
+            return
+        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "usage", ctx.prefix))
+            return
         if tournament.schedules_spreadsheet_id:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
         else:
             schedules_spreadsheet = SchedulesSpreadsheet()
             self.client.session.add(schedules_spreadsheet)
-        schedules_spreadsheet.spreadsheet_id = parameters[0]
-        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', parameters[1]):
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
-        schedules_spreadsheet.range_name = parameters[1]
-        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters[2]):
-            return (message.channel, self.get_string("set_schedules_spreadsheet", "usage", self.client.prefix, self.prefix), None)
-        schedules_spreadsheet.parameters = parameters[2]
+        schedules_spreadsheet.spreadsheet_id = spreadsheet_id
+        schedules_spreadsheet.range_name = range_name
+        schedules_spreadsheet.parameters = parameters
         self.client.session.commit()
         tournament.schedules_spreadsheet_id = schedules_spreadsheet.id
         self.client.session.commit()
-        return (message.channel, self.get_string("set_schedules_spreadsheet", "success", self.client.prefix, self.prefix), None)
+        await ctx.send(self.get_string("set_schedules_spreadsheet", "success", ctx.prefix))
 
-    async def reschedule(self, message, parameter):
+    @set_schedules_spreadsheet.error
+    async def set_schedules_spreadsheet_handler(self, ctx, error):
+        """Error handler of set_schedules_spreadsheet function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("set_schedules_spreadsheet", "not_on_a_server"))
+
+    @commands.command(name='reschedule')
+    @commands.guild_only()
+    async def reschedule(self, ctx, match_id: str, *, date: str):
         """Allows players to reschedule their matches"""
-        if not message.server:
-            return (message.channel, self.get_string("reschedule", "not_on_a_server"), None)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(message.server.id)).first()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
-            return (message.channel, self.get_string("reschedule", "no_tournament", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("reschedule", "no_tournament", ctx.prefix))
+            return
         schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
         if not schedules_spreadsheet:
-            return (message.channel, self.get_string("reschedule", "no_schedules_spreadsheet", self.client.prefix, self.prefix), None)
-        roles = message.server.roles
+            await ctx.send(self.get_string("reschedule", "no_schedules_spreadsheet", ctx.prefix))
+            return
+        roles = ctx.guild.roles
         player_role = self.get_role(roles, tournament.player_role_id, "Player")
         if not player_role:
-            return (message.channel, self.get_string("reschedule", "no_player_role", self.client.prefix, self.prefix), None)            
-        if not any(role.id == player_role.id for role in message.author.roles):
-            return (message.channel, self.get_string("reschedule", "not_a_player", self.client.prefix, self.prefix), None)
-        parameters = parameter.split(" ", 1)
-        if len(parameters) != 2:
-            return (message.channel, self.get_string("reschedule", "usage", self.client.prefix, self.prefix), None)
-        match_id = parameters[0]
-        date = datetime.datetime.strptime(parameters[1], '%d/%m %H:%M')
+            await ctx.send(self.get_string("reschedule", "no_player_role", ctx.prefix))
+            return
+        if not any(player_role.id == role.id for role in ctx.author.roles):
+            await ctx.send(self.get_string("reschedule", "not_a_player", ctx.prefix))
+            return
+        date = datetime.datetime.strptime(date, '%d/%m %H:%M')
         try:
             values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
         except googleapiclient.errors.HttpError:
-            return (message.channel, self.get_string("reschedule", "spreadsheet_error", self.client.prefix, self.prefix), None)
+            await ctx.send(self.get_string("reschedule", "spreadsheet_error", ctx.prefix))
+            return
         tuples = schedules_spreadsheet.parse_parameters()
         for y, row in enumerate(values):
             for x, value in enumerate(row):
@@ -466,26 +538,49 @@ class Module(modules.module.BaseModule):
                         date_flags += date_flag
                         date_string += values[y + incr_y][x + incr_x]
                     previous_date = datetime.datetime.strptime(date_string, date_flags)
-                    player_name = message.author.nick
+                    player_name = ctx.author.nick
                     if not player_name:
-                        player_name = message.author.name
+                        player_name = ctx.author.name
                     role_team1 = self.get_role(roles, role_name=team_name1)
                     role_team2 = self.get_role(roles, role_name=team_name2)
-                    if role_team1 and role_team2 and any(role_team1.id == role.id for role in message.author.roles):
-                        ally_ping = role_team1.mention
-                        enemy_ping = role_team2.mention
-                    elif role_team1 and role_team2 and any(role_team2.id == role.id for role in message.author.roles):
-                        ally_ping = role_team2.mention
-                        enemy_ping = role_team1.mention
+                    if role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
+                        ally_mention = role_team1.mention
+                        enemy_mention = role_team2.mention
+                    elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
+                        ally_mention = role_team2.mention
+                        enemy_mention = role_team1.mention
                     elif team_name1 == player_name:
-                        ally_ping = message.author.mention
-                        enemy_ping = message.server.get_member_named(team_name2).mention
+                        ally_mention = ctx.author.mention
+                        enemy_mention = ctx.guild.get_member_named(team_name2).mention
                     elif team_name2 == player_name:
-                        ally_ping = message.author.mention
-                        enemy_ping = message.server.get_member_named(team_name1).mention
+                        ally_mention = ctx.author.mention
+                        enemy_mention = ctx.guild.get_member_named(team_name1).mention
                     else:
-                        return (message.channel, self.get_string("reschedule", "invalid_match"), None)
+                        await ctx.send(self.get_string("reschedule", "invalid_match"))
+                        return
                     previous_date_string = previous_date.strftime("**%d %B** at **%H:%M UTC**")
                     new_date_string = date.strftime("**%d %B** at **%H:%M UTC**")
-                    return (message.channel, self.get_string("reschedule", "success", enemy_ping, ally_ping, match_id, previous_date_string, new_date_string), None)
-        return (message.channel, self.get_string("reschedule", "invalid_match_id"), None)
+                    reschedule_message = RescheduleMessage()
+                    reschedule_message.new_date = date
+                    reschedule_message.ally_mention = ally_mention
+                    reschedule_message.enemy_mention = enemy_mention
+                    sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_mention, match_id, previous_date_string, new_date_string))
+                    reschedule_message.message_id = str(sent_message.id)
+                    self.client.session.add(reschedule_message)
+                    self.client.session.commit()
+                    return
+        await ctx.send(self.get_string("reschedule", "invalid_match_id"))
+
+    @reschedule.error
+    async def reschedule_handler(self, ctx, error):
+        """Error handler of reschedule function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(self.get_string("reschedule", "not_on_a_server"))
+
+def setup(bot):
+    """Setups the cog"""
+    bot.add_cog(Tosurnament(bot))
