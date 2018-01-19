@@ -517,7 +517,7 @@ class Tosurnament(modules.module.BaseModule):
         if not any(player_role.id == role.id for role in ctx.author.roles):
             await ctx.send(self.get_string("reschedule", "not_a_player", ctx.prefix))
             return
-        date = datetime.datetime.strptime(date, '%d/%m %H:%M')
+        date = datetime.datetime.strptime(date + "2008", '%d/%m %H:%M%Y')
         try:
             values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
         except googleapiclient.errors.HttpError:
