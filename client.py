@@ -82,11 +82,3 @@ class Client(commands.Bot):
         if ctx.guild:
             await ctx.message.delete()
         await self.logout()
-
-    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
-        """Called every added reaction"""
-        for module in self.modules:
-            try:
-                module.on_raw_reaction_add(emoji, message_id, channel_id, user_id)
-            except AttributeError:
-                pass

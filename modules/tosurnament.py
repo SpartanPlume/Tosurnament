@@ -18,6 +18,7 @@ from databases.tournament import Tournament
 from databases.players_spreadsheet import PlayersSpreadsheet
 from databases.schedules_spreadsheet import SchedulesSpreadsheet
 from databases.reschedule_message import RescheduleMessage
+from databases.referee_notification import RefereeNotification
 
 EMBED_COLOUR = 3447003
 
@@ -535,8 +536,9 @@ class Tosurnament(modules.module.BaseModule):
                     date_flags = ""
                     for tup in tuples:
                         incr_x, incr_y, date_flag = tup
-                        date_flags += date_flag
-                        date_string += values[y + incr_y][x + incr_x]
+                        if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                            date_flags += date_flag
+                            date_string += values[y + incr_y][x + incr_x]
                     previous_date = datetime.datetime.strptime(date_string, date_flags)
                     player_name = ctx.author.nick
                     if not player_name:
@@ -600,9 +602,15 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("reschedule", "not_on_a_server"))
 
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
+        """on_raw_reaction_add of the Tosurnament module"""
         channel = self.client.get_channel(channel_id)
         guild = channel.guild
         user = guild.get_member(user_id)
+        await self.reaction_on_reschedule_message(emoji, message_id, channel, guild, user)
+        await self.reaction_on_referee_notification(emoji, message_id, channel, guild, user)        
+
+    async def reaction_on_reschedule_message(self, emoji, message_id, channel, guild, user):
+        """Reschedules a match or denies the reschedule"""
         reschedule_message = self.client.session.query(RescheduleMessage).filter(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
         if not reschedule_message:
             return
@@ -640,12 +648,16 @@ class Tosurnament(modules.module.BaseModule):
                     for x, value in enumerate(row):
                         if value == reschedule_message.match_id:
                             incr_x, incr_y = tuples[2]
-                            referee_name = values[y + incr_y][x + incr_x]
+                            referee_name = None
+                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                referee_name = values[y + incr_y][x + incr_x]
                             tuples = tuples[3:]
                             for tup in tuples:
                                 incr_x, incr_y, date_flag = tup
                                 values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
-                            referee = guild.get_member_named(referee_name)
+                            referee = None
+                            if referee_name:
+                                referee = guild.get_member_named(referee_name)
                             staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
                             try:
                                 api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
@@ -657,7 +669,12 @@ class Tosurnament(modules.module.BaseModule):
                                 previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
                                 new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
                                 if referee:
-                                    await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                    sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                    referee_notification = RefereeNotification()
+                                    referee_notification.message_id = str(sent_message.id)
+                                    referee_notification.match_id = reschedule_message.match_id
+                                    self.client.session.add(referee_notification)
+                                    self.client.session.commit()
                                 else:
                                     await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
                             self.client.session.delete(reschedule_message)
@@ -666,6 +683,45 @@ class Tosurnament(modules.module.BaseModule):
                 await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
                 self.client.session.delete(reschedule_message)
                 self.client.session.commit()
+
+    async def reaction_on_referee_notification(self, emoji, message_id, channel, guild, user):
+        """Removes the referee from the schedule spreadsheet"""
+        referee_notification = self.client.session.query(RefereeNotification).filter(RefereeNotification.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not referee_notification:
+            return
+        if emoji.name == "❌":
+            guild_id = str(guild.id)
+            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+            if not tournament:
+                await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
+                return
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+            if not schedules_spreadsheet:
+                await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
+                return
+            try:
+                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+            except googleapiclient.errors.HttpError:
+                await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                return
+            tuples = schedules_spreadsheet.parse_parameters()
+            for y, row in enumerate(values):
+                for x, value in enumerate(row):
+                    if value == referee_notification.match_id:
+                        incr_x, incr_y = tuples[2]
+                        referee_name = values[y + incr_y][x + incr_x]
+                        if referee_name == user.display_name:
+                            values[y + incr_y][x + incr_x] = ""
+                            staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                            try:
+                                api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                            except googleapiclient.errors.HttpError:
+                                await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                return
+                            if staff_channel:
+                                await channel.send(self.get_string("reschedule", "removed_from_match", referee_notification.match_id))
+                            self.client.session.delete(referee_notification)
+                            self.client.session.commit()                            
 
 def get_class(bot):
     """Returns the main class of the module"""
