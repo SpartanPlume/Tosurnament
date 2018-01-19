@@ -3,7 +3,6 @@
 import importlib
 import logging
 import os
-import sys
 import discord
 from discord.ext import commands
 import sqlalchemy
@@ -11,7 +10,6 @@ import api.spreadsheet
 import helpers.load_json
 import helpers.crypt
 from databases.base import Base
-from databases.reschedule_message import RescheduleMessage
 
 MODULES_DIR = "modules"
 engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
@@ -26,6 +24,7 @@ class Client(commands.Bot):
         self.strings = None
         self.owner_id = 100648380174192640
         self.error_code = 0
+        self.modules = []
         #self.init_logger()
         self.init_ressources()
         self.init_modules()
@@ -49,6 +48,12 @@ class Client(commands.Bot):
                     self.load_extension(MODULES_DIR + "." + filename[:-3])
                 except discord.errors.ClientException:
                     print("The module " + filename + " could not be loaded.")
+                module_file = importlib.import_module(MODULES_DIR + "." + filename[:-3])
+                try:
+                    module = module_file.get_class(self)
+                    self.modules.append(module)
+                except AttributeError:
+                    print("The module " + filename + " could not be added to the modules list.")                    
 
     def init_ressources(self):
         """Initializes all ressources"""
@@ -80,25 +85,8 @@ class Client(commands.Bot):
 
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """Called every added reaction"""
-        channel = self.get_channel(channel_id)
-        guild = channel.guild
-        user = guild.get_member(user_id)
-        reschedule_message = self.session.query(RescheduleMessage).filter(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
-        if not reschedule_message:
-            return
-        ally_role = None
-        if str(user.id) == reschedule_message.enemy_user_id:
-            ally_role = guild.get_member(reschedule_message.ally_user_id)
-        elif any(reschedule_message.enemy_role_id == str(role.id) for role in user.roles):
-            for role in user.roles:
-                if reschedule_message.enemy_role_id == str(role.id):
-                    ally_role = role
-        if ally_role:
-            if emoji.name == "👍":
-                await channel.send(helpers.load_json.replace_in_string(self.strings["tosurnament"]["reschedule"]["accepted"], ally_role.mention))
-                self.session.delete(reschedule_message)
-                self.session.commit()
-            elif emoji.name == "👎":
-                await channel.send(helpers.load_json.replace_in_string(self.strings["tosurnament"]["reschedule"]["refused"], ally_role.mention))
-                self.session.delete(reschedule_message)
-                self.session.commit()
+        for module in self.modules:
+            try:
+                module.on_raw_reaction_add(emoji, message_id, channel_id, user_id)
+            except AttributeError:
+                pass

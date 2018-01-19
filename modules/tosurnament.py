@@ -544,6 +544,7 @@ class Tosurnament(modules.module.BaseModule):
                     role_team1 = self.get_role(roles, role_name=team_name1)
                     role_team2 = self.get_role(roles, role_name=team_name2)
                     reschedule_message = RescheduleMessage()
+                    reschedule_message.match_id = match_id
                     reschedule_message.ally_user_id = bytes('', 'utf-8')
                     reschedule_message.ally_role_id = bytes('', 'utf-8')
                     reschedule_message.enemy_user_id = bytes('', 'utf-8')
@@ -573,8 +574,9 @@ class Tosurnament(modules.module.BaseModule):
                     else:
                         await ctx.send(self.get_string("reschedule", "invalid_match"))
                         return
-                    previous_date_string = previous_date.strftime("**%d %B** at **%H:%M UTC**")
-                    new_date_string = date.strftime("**%d %B** at **%H:%M UTC**")
+                    previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+                    new_date_string = date.strftime("**%d %B at %H:%M UTC**")
+                    reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
                     reschedule_message.new_date = date.strftime("%d/%m/%y %H:%M")
                     reschedule_message.ally_user_id = ally_mention
                     reschedule_message.enemy_mention = enemy_mention
@@ -596,6 +598,78 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send(self.get_string("reschedule", "not_on_a_server"))
+
+    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
+        channel = self.client.get_channel(channel_id)
+        guild = channel.guild
+        user = guild.get_member(user_id)
+        reschedule_message = self.client.session.query(RescheduleMessage).filter(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not reschedule_message:
+            return
+        ally_role = None
+        enemy_role = None
+        if str(user.id) == reschedule_message.enemy_user_id:
+            enemy_role = guild.get_member(reschedule_message.ally_user_id)
+            ally_role = user
+        elif any(reschedule_message.enemy_role_id == str(role.id) for role in user.roles):
+            for role in guild.roles:
+                if reschedule_message.ally_role_id == str(role.id):
+                    ally_role = role
+                if reschedule_message.enemy_role_id == str(role.id):
+                    enemy_role = role
+        if ally_role and enemy_role:
+            if emoji.name == "👍":
+                guild_id = str(guild.id)
+                tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+                if not tournament:
+                    await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
+                    return
+                schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+                if not schedules_spreadsheet:
+                    await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
+                    return
+                try:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                except googleapiclient.errors.HttpError:
+                    await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                    return
+                previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
+                new_date = datetime.datetime.strptime(reschedule_message.new_date, '%d/%m/%y %H:%M')
+                tuples = schedules_spreadsheet.parse_parameters()
+                for y, row in enumerate(values):
+                    for x, value in enumerate(row):
+                        if value == reschedule_message.match_id:
+                            incr_x, incr_y = tuples[2]
+                            referee_name = values[y + incr_y][x + incr_x]
+                            tuples = tuples[3:]
+                            for tup in tuples:
+                                incr_x, incr_y, date_flag = tup
+                                values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
+                            referee = guild.get_member_named(referee_name)
+                            staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                            try:
+                                api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                            except googleapiclient.errors.HttpError:
+                                await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                return
+                            await channel.send(self.get_string("reschedule", "accepted", ally_role.mention))
+                            if staff_channel:
+                                previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+                                new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
+                                if referee:
+                                    await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                else:
+                                    await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                            self.client.session.delete(reschedule_message)
+                            self.client.session.commit()
+            elif emoji.name == "👎":
+                await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
+                self.client.session.delete(reschedule_message)
+                self.client.session.commit()
+
+def get_class(bot):
+    """Returns the main class of the module"""
+    return Tosurnament(bot)
 
 def setup(bot):
     """Setups the cog"""

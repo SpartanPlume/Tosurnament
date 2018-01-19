@@ -12,7 +12,9 @@ class RescheduleMessage(Base):
 
     id = Column(Integer, primary_key=True)
     message_id = Column(Binary)
+    previous_date = Column(Binary)
     new_date = Column(Binary)
+    match_id = Column(Binary)
     ally_user_id = Column(Binary)
     ally_role_id = Column(Binary)
     enemy_user_id = Column(Binary)

@@ -116,7 +116,9 @@
             "invalid_match": "You can't reschedule a match you're not in.",
             "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
             "accepted": ":white_check_mark: %1, your reschedule has been accepted.",
-            "refused": ":x: %1, your reschedule has been refused."
+            "refused": ":x: %1, your reschedule has been refused.",
+            "referee_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6.",
+            "no_referee_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5."
         }
     }
 }
