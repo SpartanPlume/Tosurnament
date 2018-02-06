@@ -82,11 +82,9 @@
             "parameter": "<match_id> <time: dd/MM HH:mm>",
             "help": "Asks for a reschedule",
             "usage": "Usage: %1reschedule $tosurnament/reschedule/parameter\n\nExample: %1reschedule 12C 01/02 03:00",
-            "not_on_a_server": "This command can only be ran on a server.",
             "no_tournament": "This server does not have any tournament running. Consider using the `%1create_tournament $tosurnament/create_tournament/parameter`.",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
-            "not_a_player": "You're not a player, so you can't reschedule any match.",
             "invalid_match_id": "Invalid match id.",
             "invalid_match": "You can't reschedule a match you're not in.",
             "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
@@ -95,6 +93,12 @@
             "referee_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6. If you can't arbitrate this new time, please add a :x: reaction to this message.",
             "no_referee_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
             "removed_from_match": "You have successfully been removed from the match %1."
+        },
+        "name_change": {
+            "parameter": "",
+            "help": "Changes your nickname to your osu username",
+            "usage": "Usage: %1name_change",
+            "success": "Nickname successfully changed."
         }
     }
 }

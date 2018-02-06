@@ -133,6 +133,17 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("", "no_player_role"))
         elif isinstance(error, NotAPlayer):
             await ctx.send(self.get_string("", "not_a_player"))
+        elif isinstance(error, commands.BotMissingPermissions):
+            for missing_permission in error.missing_perms:
+                if missing_permission == "manage_nicknames":
+                    await ctx.send(self.get_string("", "change_nickname_forbidden"))
+                    return
+                elif missing_permission == "manage_roles":
+                    await ctx.send(self.get_string("", "change_role_forbidden"))
+                    return
+                elif missing_permission == "change_owner_nickname":
+                    await ctx.send(self.get_string("", "change_nickname_forbidden"))
+                    return
 
     @commands.command(name='link')
     async def link(self, ctx, *, osu_name: str):
@@ -481,17 +492,6 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("register", "no_players_spreadsheet", ctx.prefix))
         elif isinstance(error, SpreadsheetError):
             await ctx.send(self.get_string("register", "spreadsheet_error", ctx.prefix))
-        elif isinstance(error, commands.BotMissingPermissions):
-            for missing_permission in error.missing_perms:
-                if missing_permission == "manage_nicknames":
-                    await ctx.send(self.get_string("register", "change_nickname_forbidden"))
-                    return
-                elif missing_permission == "manage_roles":
-                    await ctx.send(self.get_string("register", "change_role_forbidden"))
-                    return
-                elif missing_permission == "change_owner_nickname":
-                    await ctx.send(self.get_string("register", "change_nickname_forbidden"))
-                    return
 
     def get_role(self, roles, role_id=None, role_name=""):
         """Gets a role from its id or name"""
@@ -643,22 +643,36 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
-        elif isinstance(error, commands.NoPrivateMessage):
-            await ctx.send(self.get_string("reschedule", "not_on_a_server"))
-        elif isinstance(error, NoTournament):
-            await ctx.send(self.get_string("reschedule", "no_tournament", ctx.prefix))
         elif isinstance(error, NoSpreadsheet):
             await ctx.send(self.get_string("reschedule", "no_schedules_spreadsheet", ctx.prefix))
-        elif isinstance(error, NoPlayerRole):
-            await ctx.send(self.get_string("reschedule", "no_player_role", ctx.prefix))
-        elif isinstance(error, NotAPlayer):
-            await ctx.send(self.get_string("reschedule", "not_a_player", ctx.prefix))
         elif isinstance(error, SpreadsheetError):
             await ctx.send(self.get_string("reschedule", "spreadsheet_error", ctx.prefix))
         elif isinstance(error, InvalidMatch):
             await ctx.send(self.get_string("reschedule", "invalid_match"))
         elif isinstance(error, InvalidMatchId):
             await ctx.send(self.get_string("reschedule", "invalid_match_id"))
+
+    @commands.command(name='name_change')
+    @commands.guild_only()
+    @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
+    async def name_change(self, ctx):
+        """Allows players to change their nickname to their osu! username"""
+        discord_id = str(ctx.author.id)
+        user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
+        if not user:
+            raise UserNotLinked()
+        if not user.verified:
+            raise UserNotVerified()
+        osu_id = user.osu_id
+        osu_users = api.osu.OsuApi.get_user(osu_id)
+        if not osu_users:
+            raise OsuError()
+        osu_name = osu_users[0][api.osu.User.NAME]
+        try:
+            await ctx.author.edit(nick=osu_name)
+        except discord.Forbidden:
+            raise commands.BotMissingPermissions(["change_owner_nickname"])
+        await ctx.send(self.get_string("name_change", "success"))
 
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """on_raw_reaction_add of the Tosurnament module"""
