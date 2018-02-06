@@ -14,4 +14,8 @@ class BaseModule():
 
     def get_string(self, command_name, field_name, *args):
         """Gets string from strings.json file"""
-        return helpers.load_json.replace_in_string(self.client.strings[self.name][command_name][field_name], *args)
+        if command_name:
+            return helpers.load_json.replace_in_string(self.client.strings[self.name][command_name][field_name], *args)
+        else:
+            return helpers.load_json.replace_in_string(self.client.strings[self.name][field_name], *args)
+            
