@@ -402,7 +402,7 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='register')
     @commands.guild_only()
-    @commands.bot_has_permissions(manage_nickname=True, manage_roles=True)
+    @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
     async def register(self, ctx):
         """Registers a player"""
         guild_id = str(ctx.guild.id)
@@ -426,8 +426,7 @@ class Tosurnament(modules.module.BaseModule):
         #try:
         #    await ctx.author.edit(nick=osu_name)
         #except discord.Forbidden:
-        #    await ctx.send(self.get_string("register", "change_nickname_forbidden"))
-        #    return
+        #    raise commands.BotMissingPermissions(["change_owner_nickname"])
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             raise NoSpreadsheet()
@@ -472,11 +471,7 @@ class Tosurnament(modules.module.BaseModule):
                         player_role = self.get_role(roles, player_role_id, "Player")
                         if not player_role:
                             raise NoPlayerRole()
-                        #try:
                         await ctx.author.add_roles(player_role)
-                        #except discord.Forbidden:
-                        #    await ctx.send(self.get_string("register", "change_role_forbidden", player_role.name))
-                        #    return
                         if team_name:
                             team_role = None
                             for role in roles:
@@ -484,16 +479,8 @@ class Tosurnament(modules.module.BaseModule):
                                     team_role = role
                                     break
                             if not team_role:
-                                #try:
                                 team_role = await ctx.guild.create_role(name=team_name, mentionable=True)
-                                #except discord.Forbidden:
-                                #    await ctx.send(self.get_string("register", "create_role_forbidden", team_name))
-                                #    return
-                            #try:
                             await ctx.author.add_roles(team_role)
-                            #except discord.Forbidden:
-                            #    await ctx.send(self.get_string("register", "change_role_forbidden", team_name))
-                            #    return
                         await ctx.send(self.get_string("register", "success"))
                         return
             i += 1
@@ -528,11 +515,14 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("register", "not_a_player"))
         elif isinstance(error, commands.BotMissingPermissions):
             for missing_permission in error.missing_perms:
-                if missing_permission.manage_nickname:
+                if missing_permission == "manage_nicknames":
                     await ctx.send(self.get_string("register", "change_nickname_forbidden"))
                     return
-                if missing_permission.manage_role:
-                    await ctx.send(self.get_string("register", "change_role_forbidden", team_name))
+                elif missing_permission == "manage_roles":
+                    await ctx.send(self.get_string("register", "change_role_forbidden"))
+                    return
+                elif missing_permission == "change_owner_nickname":
+                    await ctx.send(self.get_string("register", "change_nickname_forbidden"))
                     return
 
     def get_role(self, roles, role_id=None, role_name=""):

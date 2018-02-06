@@ -88,7 +88,7 @@
             "no_players_spreadsheet": "This tournament does not have any players spreadsheet registered. Consider using the `%1set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
             "change_nickname_forbidden": "Sorry, I can't change your nickname. Either you have better rights than the bot or the bot doesn't have the `Change nicknames` right. Please contact an admin.",
-            "change_role_forbidden": "Sorry, I can't add you the `%1` role. Either you have better rights than the bot or the bot doesn't have the `Manage roles` right. Please contact an admin.",
+            "change_role_forbidden": "Sorry, I can't add you a role. The bot doesn't have the `Manage roles` right. Please contact an admin.",
             "create_role_forbidden": "Sorry, I can't create the `%1` role. The bot doesn't have the `Manage roles` right. Please contact an admin.",
             "no_player_role": "There's no `Player` role. Ask an admin to create it.",
             "not_a_player": "You're not on the player list. I can't register you. ='(",
