@@ -5,8 +5,10 @@ import datetime
 import re
 import os
 import requests
+import urllib
 from ast import literal_eval
 import googleapiclient
+import challonge
 import discord
 from discord.ext import commands
 import modules.module
@@ -106,6 +108,14 @@ class InvalidMatchId(commands.CommandError):
 class InvalidMpLink(commands.CommandError):
     """Special exception if the match link does not exist"""
     pass
+
+class InvalidChallonge(commands.CommandError):
+    """Special exception if the challonge is invalid or that TosurnamentBot does not have the rights on it"""
+    pass
+
+class MatchNotFound(commands.CommandError):
+    """Special exception if a match in the challonge is not found"""
+    pass    
 
 def is_guild_owner():
     """Check function to know if the author is the guild owner"""
@@ -324,7 +334,7 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='set_player_role')
     @commands.guild_only()
-    async def set_player_role(self,ctx, *, player_role: discord.Role):
+    async def set_player_role(self, ctx, *, player_role: discord.Role):
         """Set the player role"""
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
@@ -345,6 +355,34 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
+
+    @commands.command(name='set_challonge')
+    @commands.guild_only()
+    async def set_challonge(self, ctx, challonge_tournament: str):
+        """Set the player role"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        if challonge_tournament.startswith('http'):
+            if challonge_tournament.endswith('/'):
+                challonge_tournament = challonge_tournament[:-1]
+            challonge_tournament = challonge_tournament.split('/')[-1]
+        tournament.challonge = challonge_tournament
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_challonge", "success"))  
+
+    @set_challonge.error
+    async def set_challonge_handler(self, ctx, error):
+        """Error handler of set_challonge function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_challonge", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_challonge", "usage", ctx.prefix))
 
     @commands.command(name='set_players_spreadsheet')
     @commands.guild_only()
@@ -846,6 +884,34 @@ class Tosurnament(modules.module.BaseModule):
                         result_string = result_string.replace("%loser_roll", loser_roll)
                         result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
                         result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
+                        if tournament.challonge:
+                            t_id = 0
+                            try:
+                                t = challonge.tournaments.show(tournament.challonge)
+                                t_id = t["id"]
+                                if not t["started-at"]:
+                                    challonge.tournaments.start(t_id)
+                                matches = challonge.matches.index(t_id)
+                            except urllib.error.HTTPError:
+                                raise InvalidChallonge()
+                            for match in matches:
+                                if match["player1-id"] and match["player2-id"]:
+                                    player1 = challonge.participants.show(t_id, match["player1-id"])
+                                    if player1["name"] == team_name1 or player1["name"] == team_name2:
+                                        player2 = challonge.participants.show(t_id, match["player2-id"])
+                                        if player2["name"] == team_name1 or player2["name"] == team_name2:
+                                            if player1["name"] == team_name1:
+                                                match_score = str(score_team1) + "-" + str(score_team2)
+                                            else:
+                                                match_score = str(score_team2) + "-" + str(score_team1)
+                                            if score_team1 > score_team2:
+                                                match_winner = player1["id"]
+                                            else:
+                                                match_winner = player2["id"]
+                                            challonge.matches.update(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
+                                            await ctx.send(result_string)
+                                            return
+                            raise MatchNotFound()
                         await ctx.send(result_string)
                         return
         raise InvalidMatchId()
@@ -871,6 +937,10 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("post_result", "invalid_match_id"))
         elif isinstance(error, InvalidMpLink):
             await ctx.send(self.get_string("post_result", "invalid_mp_link"))
+        elif isinstance(error, InvalidChallonge):
+            await ctx.send(self.get_string("post_result", "invalid_challonge"))
+        elif isinstance(error, MatchNotFound):
+            await ctx.send(self.get_string("post_result", "match_not_found"))
 
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """on_raw_reaction_add of the Tosurnament module"""

@@ -60,6 +60,12 @@
             "usage": "Usage: %1set_player_role $tosurnament/set_player_role/parameter\n\nExample: %1set_player_role @Player",
             "success": "Player role set."
         },
+        "set_challonge": {
+            "parameter": "<tournament_url>",
+            "help": "Sets the challonge",
+            "usage": "Usage: %1set_challonge $tosurnament/set_challonge/parameter\n\nExample: %1set_challonge http://challonge.com/testandroid",
+            "success": "Challonge set."
+        },
         "set_players_spreadsheet": {
             "parameter": "<spreadsheet_id> <range_team_name> <range_team> <incr_column> <incr_row> <n_team>",
             "help": "Sets the players spreadsheet to allow registration",
@@ -111,6 +117,8 @@
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
             "invalid_mp_link": "Invalid mp link.",
             "invalid_match_id": "Invalid match id.",
+            "invalid_challonge": "Either the challonge set is invalid, or you didn't give access to the challonge to `TosurnamentBot`.",
+            "match_not_found": "Match not found, there seems to be an error on the challonge.",
             "success": "**Match ID:** %match_id\n**%team1** | %score_team1 - %score_team2 | **%team2**\n**MP Link:** %mp_link\n\n**%winner_roll Bans:** %bans_winner_roll\n**%loser_roll Bans:** %bans_loser_roll"
         }
     }

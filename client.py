@@ -3,6 +3,8 @@
 import importlib
 import logging
 import os
+import constants
+import challonge
 import discord
 from discord.ext import commands
 import sqlalchemy
@@ -30,6 +32,7 @@ class Client(commands.Bot):
         self.init_modules()
         self.init_db()
         api.spreadsheet.start_service()
+        challonge.set_credentials(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY)
         print("Ready !")
 
     def init_logger(self):
