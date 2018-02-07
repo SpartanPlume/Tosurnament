@@ -14,6 +14,8 @@
         "no_rights": "You don't have the rights to use this command.",
         "no_player_role": "There's no `Player` role. Ask an admin to create it.",
         "not_a_player": "You're not on the player list. I can't register you. ='(",
+        "no_referee_role": "There's no `Referee` role set. Ask an admin to set it.",
+        "not_a_referee": "You're not a referee so you cannot use this command.",
         "link": {
             "parameter": "<osu_username>",
             "help": "Links your osu! account to your discord account",
@@ -99,6 +101,17 @@
             "help": "Changes your nickname to your osu username",
             "usage": "Usage: %1name_change",
             "success": "Nickname successfully changed."
+        },
+        "post_result": {
+            "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> [<mp_link(s)>] <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",
+            "help": "Post the result of a match",
+            "usage": "Usage: %1post_result $tosurnament/post_result/parameter\n\nExample: %1post_result 12C 2 9 42 69 [\"https://osu.ppy.sh/community/matches/123\", \"https://osu.ppy.sh/community/matches/380180\"] No Title; Stargazer",
+            "no_players_spreadsheet": "This tournament does not have any players spreadsheet registered. Consider using the `%1set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter`.",
+            "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
+            "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
+            "invalid_mp_link": "Invalid mp link.",
+            "invalid_match_id": "Invalid match id.",
+            "success": "**Match ID:** %match_id\n**%team1** | %score_team1 - %score_team2 | **%team2**\n**MP Link:** %mp_link\n\n**%winner_roll Bans:** %bans_winner_roll\n**%loser_roll Bans:** %bans_loser_roll"
         }
     }
 }

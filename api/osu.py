@@ -19,10 +19,12 @@ URL_GET_USER = "https://osu.ppy.sh/api/get_user"
 URL_GET_SCORES = "https://osu.ppy.sh/api/get_scores"
 URL_GET_USER_BEST = "https://osu.ppy.sh/api/get_user_best"
 URL_GET_USER_RECENT = "https://osu.ppy.sh/api/get_user_recent"
+URL_GET_MATCH = "https://osu.ppy.sh/api/get_match"
 
 KEY_API_KEY = 'k'
 KEY_USER = 'u'
 KEY_BEATMAP = 'b'
+KEY_MATCH = 'mp'
 KEY_LIMIT = 'limit'
 
 class OsuApi():
@@ -96,6 +98,19 @@ class OsuApi():
         except ValueError:
             return {}
         return scores
+
+    @staticmethod
+    def get_match(match_id):
+        """Returns Score dicts list of the recent scores of the user"""
+        payload = {KEY_API_KEY: constants.OSU_API_KEY, KEY_MATCH: match_id}
+        request = requests.get(URL_GET_MATCH, params=payload)
+        if request.status_code != 200:
+            return {}
+        try:
+            matches = request.json()
+        except ValueError:
+            return {}
+        return matches
 
 RANK = {
     'XH' : 'SS',
@@ -317,6 +332,16 @@ class User:
             string = string.split('#')[0]
         return string
 
+    @staticmethod
+    def names_to_ids(names):
+        ids = []
+        for name in names:
+            osu_users = OsuApi.get_user(name)
+            if not osu_users:
+                return None
+            ids.append(osu_users[0][User.ID])
+        return ids
+
     class Event:
         """Contains fields of an event"""
         DISPLAY_HTML = "display_html"
@@ -391,3 +416,66 @@ class Score:
         """Returns a formatted score"""
         value = score[Score.SCORE]
         return '{:,}'.format(int(value)).replace(',', ' ')
+
+class Match:
+    """Contains fields of a match"""
+    ID = "match_id"
+    NAME = "name"
+    START_TIME = "start_time"
+    END_TIME = "end_time"
+
+    def __setattr__(self, key, value):
+        if hasattr(self, key):
+            raise AttributeError("can't set attribute")
+        super().__setattr__(key, value)
+
+    @staticmethod
+    def get_from_string(string):
+        """Returns the id of a match from string"""
+        if string.startswith('http'):
+            if string.endswith('/'):
+                string = string[:-1]
+            string = string.split('/')[-1]
+            string = string.split('&')[0]
+            string = string.split('#')[0]
+        return string
+
+class Game:
+    """Contains fields of a game"""
+    ID = "game_id"
+    START_TIME = "start_time"
+    END_TIME = "end_time"
+    BEATMAP_ID = "beatmap_id"
+    PLAY_MODE = "play_mode"
+    MATCH_TYPE = "match_type"
+    SCORING_TYPE = "scoring_type"
+    TEAM_TYPE = "team_type"
+    MODS = "mods"
+    SCORES = "scores"
+
+    def __setattr__(self, key, value):
+        if hasattr(self, key):
+            raise AttributeError("can't set attribute")
+        super().__setattr__(key, value)
+
+    class Score:
+        """Contains fields of a game score"""
+        SLOT = "slot"
+        TEAM = "team"
+        USER_ID = "user_id"
+        SCORE = "score"
+        MAX_COMBO = "maxcombo"
+        RANK = "rank"
+        COUNT_300 = "count300"
+        COUNT_KATU = "countkatu"
+        COUNT_100 = "count100"
+        COUNT_GEKI = "countgeki"
+        COUNT_50 = "count50"
+        COUNT_MISS = "countmiss"
+        PERFECT = "perfect"
+        PASS = "pass"
+
+        def __setattr__(self, key, value):
+            if hasattr(self, key):
+                raise AttributeError("can't set attribute")
+            super().__setattr__(key, value)

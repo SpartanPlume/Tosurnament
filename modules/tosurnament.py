@@ -5,6 +5,7 @@ import datetime
 import re
 import os
 import requests
+from ast import literal_eval
 import googleapiclient
 import discord
 from discord.ext import commands
@@ -70,7 +71,9 @@ class NotBotAdmin(commands.CommandError):
 
 class NoSpreadsheet(commands.CommandError):
     """Special exception if a spreadsheet has not been set"""
-    pass
+    def __init__(self, spreadsheet=None):
+        super().__init__()
+        self.spreadsheet = spreadsheet
 
 class SpreadsheetError(commands.CommandError):
     """Special exception if an error occur with a spreadsheet"""
@@ -84,12 +87,24 @@ class NotAPlayer(commands.CommandError):
     """Special exception if the user is not a player"""
     pass
 
+class NoRefereeRole(commands.CommandError):
+    """Special exception if there is no player role on the guild"""
+    pass
+
+class NotAReferee(commands.CommandError):
+    """Special exception if the user is not a player"""
+    pass
+
 class InvalidMatch(commands.CommandError):
     """Special exception if the user is not in the match"""
     pass
 
 class InvalidMatchId(commands.CommandError):
     """Special exception if the match id does not exist"""
+    pass
+
+class InvalidMpLink(commands.CommandError):
+    """Special exception if the match link does not exist"""
     pass
 
 def is_guild_owner():
@@ -133,6 +148,10 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("", "no_player_role"))
         elif isinstance(error, NotAPlayer):
             await ctx.send(self.get_string("", "not_a_player"))
+        elif isinstance(error, NoRefereeRole):
+            await ctx.send(self.get_string("", "no_referee_role"))
+        elif isinstance(error, NotAReferee):
+            await ctx.send(self.get_string("", "not_a_referee"))
         elif isinstance(error, commands.BotMissingPermissions):
             for missing_permission in error.missing_perms:
                 if missing_permission == "manage_nicknames":
@@ -673,6 +692,185 @@ class Tosurnament(modules.module.BaseModule):
         except discord.Forbidden:
             raise commands.BotMissingPermissions(["change_owner_nickname"])
         await ctx.send(self.get_string("name_change", "success"))
+
+    @commands.command(name='post_result')
+    @commands.guild_only()
+    async def post_result(self, ctx, match_id: str, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, *, parameters: str):
+        """Allows referees to post the result of a match"""
+        if n_warmup < 0:
+            raise commands.UserInputError()
+        if (best_of < 0) or (best_of % 2 != 1):
+            raise commands.UserInputError()
+        parameters = parameters.split("] ", 1)
+        if len(parameters) != 2:
+            raise commands.UserInputError()
+        mp_links = literal_eval(parameters[0] + "]")
+        mp_ids = []
+        for mp_link in mp_links:
+            mp_ids.append(api.osu.Match.get_from_string(mp_link))
+        bans = parameters[1].split("; ")
+        if len(bans) % 2 != 0:
+            raise commands.UserInputError()
+        bans_team1 = ", ".join(bans[:int(len(bans)/2)])
+        bans_team2 = ", ".join(bans[int(len(bans)/2):])
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        roles = ctx.guild.roles
+        referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
+        if not referee_role:
+            raise NoRefereeRole()
+        if not any(referee_role.id == role.id for role in ctx.author.roles):
+            raise NotAReferee()
+        schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+        if not schedules_spreadsheet:
+            raise NoSpreadsheet("schedules_spreadsheet")
+        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+        if not players_spreadsheet:
+            raise NoSpreadsheet("players_spreadsheet")
+        if "!" in players_spreadsheet.range_team_name:
+            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
+        else:
+            range_team_name = players_spreadsheet.range_team_name            
+        if "!" in players_spreadsheet.range_team:
+            sheet_name = players_spreadsheet.range_team.split("!")[0]
+            range_team = players_spreadsheet.range_team.split("!")[1]
+        else:
+            sheet_name = ""
+            range_team = players_spreadsheet.range_team
+        range_names = []
+        cells_team_name = range_team_name.split(":")
+        cells_team = range_team.split(":")
+        regex = re.compile(re.escape("n"), re.IGNORECASE)
+        for i in range(0, players_spreadsheet.n_team):
+            incr_column = int(eval(regex.sub(str(i), players_spreadsheet.incr_column)))
+            incr_row = int(eval(regex.sub(str(i), players_spreadsheet.incr_row)))
+            if range_team_name.lower() != "none":
+                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
+            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
+        try:
+            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+        except googleapiclient.errors.HttpError:
+            raise SpreadsheetError()
+        try:
+            values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+        except googleapiclient.errors.HttpError:
+            raise SpreadsheetError()
+        tuples = schedules_spreadsheet.parse_parameters()
+        for y, row in enumerate(values):
+            for x, value in enumerate(row):
+                if value == match_id:
+                    incr_x, incr_y = tuples[0]
+                    team_name1 = values[y + incr_y][x + incr_x]
+                    incr_x, incr_y = tuples[1]
+                    team_name2 = values[y + incr_y][x + incr_x]
+                    if roll_team1 > roll_team2:
+                        winner_roll = team_name1
+                        bans_winner_roll = bans_team1
+                        loser_roll = team_name2
+                        bans_loser_roll = bans_team2
+                    else:
+                        winner_roll = team_name2
+                        bans_winner_roll = bans_team2
+                        loser_roll = team_name1
+                        bans_loser_roll = bans_team1
+                    players_team1 = []
+                    players_team2 = []
+                    if range_team_name.lower() != "none":
+                        i = 0
+                        while i < len(cells):
+                            for row in cells[i]:
+                                for cell in row:
+                                    if cell == team_name1:
+                                        for player_row in cells[i + 1]:
+                                            for player in player_row:
+                                                players_team1.append(player)
+                                    elif cell == team_name2:
+                                        for player_row in cells[i + 1]:
+                                            for player in player_row:
+                                                players_team2.append(player)
+                            i += 1
+                    else:
+                        players_team1.append(team_name1)
+                        players_team2.append(team_name2)
+                    i = 0
+                    players_team1 = api.osu.User.names_to_ids(players_team1)
+                    players_team2 = api.osu.User.names_to_ids(players_team2)
+                    score_team1 = 0
+                    score_team2 = 0
+                    for mp_id in mp_ids:
+                        matches = api.osu.OsuApi.get_match(mp_id)
+                        if not matches:
+                            raise InvalidMpLink()
+                        games = matches["games"]
+                        i = 0
+                        while i < len(games):
+                            if n_warmup > 0:
+                                n_warmup -= 1
+                            else:
+                                if i + 1 < len(games):
+                                    beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
+                                    if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
+                                        i += 1
+                                        pass
+                                total_team1 = 0
+                                total_team2 = 0
+                                for score in games[i][api.osu.Game.SCORES]:
+                                    if score[api.osu.Game.Score.PASS] == "1":
+                                        if score[api.osu.Game.Score.USER_ID] in players_team1:
+                                            total_team1 += int(score[api.osu.Game.Score.SCORE])
+                                        elif score[api.osu.Game.Score.USER_ID] in players_team2:
+                                            total_team2 += int(score[api.osu.Game.Score.SCORE])
+                                if total_team1 > total_team2:
+                                    if score_team1 < int(best_of / 2) + 1:
+                                        score_team1 += 1
+                                elif total_team1 < total_team2:
+                                    if score_team2 < int(best_of / 2) + 1:
+                                        score_team2 += 1
+                            i += 1
+                        mp_links = ""
+                        for mp_id in mp_ids:
+                            mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
+                        mp_links = mp_links[:-2]
+                        result_string = self.get_string("post_result", "success")
+                        result_string = result_string.replace("%match_id", match_id)
+                        result_string = result_string.replace("%mp_link", mp_links)
+                        result_string = result_string.replace("%team1", team_name1)
+                        result_string = result_string.replace("%team2", team_name2)
+                        result_string = result_string.replace("%score_team1", str(score_team1))
+                        result_string = result_string.replace("%score_team2", str(score_team2))
+                        result_string = result_string.replace("%bans_team1", bans_team1)
+                        result_string = result_string.replace("%bans_team2", bans_team2)                           
+                        result_string = result_string.replace("%winner_roll", winner_roll)
+                        result_string = result_string.replace("%loser_roll", loser_roll)
+                        result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
+                        result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
+                        await ctx.send(result_string)
+                        return
+        raise InvalidMatchId()
+
+    @post_result.error
+    async def post_result_handler(self, ctx, error):
+        """Error handler of post_result function"""
+        print(error)
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
+        elif isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            if error.spreadsheet == "schedules_spreadsheet":
+                await ctx.send(self.get_string("post_result", "no_schedules_spreadsheet", ctx.prefix))
+            elif error.spreadsheet == "players_spreadsheet":
+                await ctx.send(self.get_string("post_result", "no_players_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("post_result", "spreadsheet_error", ctx.prefix))
+        elif isinstance(error, InvalidMatchId):
+            await ctx.send(self.get_string("post_result", "invalid_match_id"))
+        elif isinstance(error, InvalidMpLink):
+            await ctx.send(self.get_string("post_result", "invalid_mp_link"))
 
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """on_raw_reaction_add of the Tosurnament module"""
