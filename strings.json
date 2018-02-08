@@ -16,6 +16,9 @@
         "not_a_player": "You're not on the player list. I can't register you. ='(",
         "no_referee_role": "There's no `Referee` role set. Ask an admin to set it.",
         "not_a_referee": "You're not a referee so you cannot use this command.",
+        "challonge_server_error": "Connexion error with challonge. If the problem persists, contact spartan.plume@gmail.com",
+        "challonge_no_rights": "The challonge account `TosurnamentBot` does not have the rights to modify the challonge.",
+        "challonge_not_found": "Challonge not found. Did you set the challonge correctly ?",
         "link": {
             "parameter": "<osu_username>",
             "help": "Links your osu! account to your discord account",

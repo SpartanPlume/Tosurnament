@@ -8,12 +8,12 @@ import requests
 import urllib
 from ast import literal_eval
 import googleapiclient
-import challonge
 import discord
 from discord.ext import commands
 import modules.module
 import api.osu
 import api.spreadsheet
+import api.challonge
 import helpers.crypt
 import helpers.load_json
 from databases.user import User
@@ -109,10 +109,6 @@ class InvalidMpLink(commands.CommandError):
     """Special exception if the match link does not exist"""
     pass
 
-class InvalidChallonge(commands.CommandError):
-    """Special exception if the challonge is invalid or that TosurnamentBot does not have the rights on it"""
-    pass
-
 class MatchNotFound(commands.CommandError):
     """Special exception if a match in the challonge is not found"""
     pass    
@@ -173,6 +169,12 @@ class Tosurnament(modules.module.BaseModule):
                 elif missing_permission == "change_owner_nickname":
                     await ctx.send(self.get_string("", "change_nickname_forbidden"))
                     return
+        elif isinstance(error, api.challonge.ServerError):
+            await ctx.send(self.get_string("", "challonge_server_error"))
+        elif isinstance(error, api.challonge.NoRights):
+            await ctx.send(self.get_string("", "challonge_no_rights"))
+        elif isinstance(error, api.challonge.NotFound):
+            await ctx.send(self.get_string("", "challonge_not_found"))
 
     @commands.command(name='link')
     async def link(self, ctx, *, osu_name: str):
@@ -886,31 +888,32 @@ class Tosurnament(modules.module.BaseModule):
                         result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
                         if tournament.challonge:
                             t_id = 0
-                            try:
-                                t = challonge.tournaments.show(tournament.challonge)
-                                t_id = t["id"]
-                                if not t["started-at"]:
-                                    challonge.tournaments.start(t_id)
-                                matches = challonge.matches.index(t_id)
-                            except urllib.error.HTTPError:
-                                raise InvalidChallonge()
-                            for match in matches:
-                                if match["player1-id"] and match["player2-id"]:
-                                    player1 = challonge.participants.show(t_id, match["player1-id"])
-                                    if player1["name"] == team_name1 or player1["name"] == team_name2:
-                                        player2 = challonge.participants.show(t_id, match["player2-id"])
-                                        if player2["name"] == team_name1 or player2["name"] == team_name2:
-                                            if player1["name"] == team_name1:
-                                                match_score = str(score_team1) + "-" + str(score_team2)
-                                            else:
-                                                match_score = str(score_team2) + "-" + str(score_team1)
-                                            if score_team1 > score_team2:
-                                                match_winner = player1["id"]
-                                            else:
-                                                match_winner = player2["id"]
-                                            challonge.matches.update(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
-                                            await ctx.send(result_string)
-                                            return
+                            t = api.challonge.get_tournament(tournament.challonge)
+                            t_id = t["id"]
+                            if not t["started_at"]:
+                                api.challonge.start_tournament(t_id)
+                            participants = api.challonge.get_participants(t_id)
+                            for participant in participants:
+                                if participant["name"] == team_name1:
+                                    participant1 = participant
+                                elif participant["name"] == team_name2:
+                                    participant2 = participant
+                            participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
+                            for match in participant_matches:
+                                match = match["match"]
+                                player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)
+                                if player1:
+                                    if player1["name"] == participant1["name"]:
+                                        match_score = str(score_team1) + "-" + str(score_team2)
+                                    else:
+                                        match_score = str(score_team2) + "-" + str(score_team1)
+                                    if score_team1 > score_team2:
+                                        match_winner = api.challonge.get_id_from_participant(player1)
+                                    else:
+                                        match_winner = api.challonge.get_id_from_participant(player2)
+                                    api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
+                                    await ctx.send(result_string)
+                                    return
                             raise MatchNotFound()
                         await ctx.send(result_string)
                         return
@@ -919,7 +922,6 @@ class Tosurnament(modules.module.BaseModule):
     @post_result.error
     async def post_result_handler(self, ctx, error):
         """Error handler of post_result function"""
-        print(error)
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
@@ -937,8 +939,6 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("post_result", "invalid_match_id"))
         elif isinstance(error, InvalidMpLink):
             await ctx.send(self.get_string("post_result", "invalid_mp_link"))
-        elif isinstance(error, InvalidChallonge):
-            await ctx.send(self.get_string("post_result", "invalid_challonge"))
         elif isinstance(error, MatchNotFound):
             await ctx.send(self.get_string("post_result", "match_not_found"))
 
