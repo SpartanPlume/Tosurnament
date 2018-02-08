@@ -169,8 +169,6 @@ class Tosurnament(modules.module.BaseModule):
                 elif missing_permission == "change_owner_nickname":
                     await ctx.send(self.get_string("", "change_nickname_forbidden"))
                     return
-        elif isinstance(error, api.challonge.ServerError):
-            await ctx.send(self.get_string("", "challonge_server_error"))
         elif isinstance(error, api.challonge.NoRights):
             await ctx.send(self.get_string("", "challonge_no_rights"))
         elif isinstance(error, api.challonge.NotFound):
@@ -385,6 +383,30 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("set_challonge", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_challonge", "usage", ctx.prefix))
+
+    @commands.command(name='set_post_result_message')
+    @commands.guild_only()
+    async def set_post_result_message(self, ctx, *, message: str = ""):
+        """Set the player role"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        tournament.post_result_message = message
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_post_result_message", "success"))  
+
+    @set_post_result_message.error
+    async def set_post_result_message_handler(self, ctx, error):
+        """Error handler of set_post_result_message function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
 
     @commands.command(name='set_players_spreadsheet')
     @commands.guild_only()
@@ -873,7 +895,10 @@ class Tosurnament(modules.module.BaseModule):
                         for mp_id in mp_ids:
                             mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
                         mp_links = mp_links[:-2]
-                        result_string = self.get_string("post_result", "success")
+                        if tournament.post_result_message:
+                            result_string = tournament.post_result_message
+                        else:
+                            result_string = self.get_string("post_result", "success")
                         result_string = result_string.replace("%match_id", match_id)
                         result_string = result_string.replace("%mp_link", mp_links)
                         result_string = result_string.replace("%team1", team_name1)
@@ -888,17 +913,26 @@ class Tosurnament(modules.module.BaseModule):
                         result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
                         if tournament.challonge:
                             t_id = 0
-                            t = api.challonge.get_tournament(tournament.challonge)
-                            t_id = t["id"]
-                            if not t["started_at"]:
-                                api.challonge.start_tournament(t_id)
-                            participants = api.challonge.get_participants(t_id)
-                            for participant in participants:
-                                if participant["name"] == team_name1:
-                                    participant1 = participant
-                                elif participant["name"] == team_name2:
-                                    participant2 = participant
-                            participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
+                            try:
+                                t = api.challonge.get_tournament(tournament.challonge)
+                                t_id = t["id"]
+                                if not t["started_at"]:
+                                    api.challonge.start_tournament(t_id)
+                                participants = api.challonge.get_participants(t_id)
+                                for participant in participants:
+                                    if participant["name"] == team_name1:
+                                        participant1 = participant
+                                    elif participant["name"] == team_name2:
+                                        participant2 = participant
+                                participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
+                            except api.challonge.ServerError:
+                                if tournament.staff_channel_id:
+                                    channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                else:
+                                    channel = ctx
+                                await channel.send(self.get_string("", "challonge_server_error"))
+                                await ctx.send(result_string)
+                                return
                             for match in participant_matches:
                                 match = match["match"]
                                 player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)

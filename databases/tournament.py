@@ -21,6 +21,7 @@ class Tournament(Base):
     players_spreadsheet_id = Column(Integer)
     schedules_spreadsheet_id = Column(Integer)
     challonge = Column(Binary)
+    post_result_message = Column(Binary)
     to_hash = ["server_id"]
     ignore = ["acronym", "players_spreadsheet_id", "schedules_spreadsheet_id"]
 

@@ -69,6 +69,12 @@
             "usage": "Usage: %1set_challonge $tosurnament/set_challonge/parameter\n\nExample: %1set_challonge http://challonge.com/testandroid",
             "success": "Challonge set."
         },
+        "set_post_result_message": {
+            "parameter": "<message>",
+            "help": "Sets the post_result message",
+            "usage": "Usage: %1set_post_result_message $tosurnament/set_post_result_message/parameter\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+            "success": "post_result message set."
+        },
         "set_players_spreadsheet": {
             "parameter": "<spreadsheet_id> <range_team_name> <range_team> <incr_column> <incr_row> <n_team>",
             "help": "Sets the players spreadsheet to allow registration",
