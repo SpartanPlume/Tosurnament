@@ -456,26 +456,6 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, commands.UserInputError):
             await ctx.send(self.get_string("set_players_spreadsheet", "usage", ctx.prefix))
 
-    def get_incremented_range(self, cells, sheet_name, incr_column, incr_row):
-        """Returns a range from the incremented list of cells"""
-        incremented_cells = self.increment_cells(cells, incr_column, incr_row)
-        range_name = incremented_cells[0]
-        if len(incremented_cells) > 1:
-            range_name += ":" + incremented_cells[1]
-        if sheet_name:
-            range_name = sheet_name + "!" + range_name
-        return range_name
-
-    def increment_cells(self, cells, incr_column, incr_row):
-        """Returns the incremented cells"""
-        incremented_cells = []
-        for cell in cells:
-            x, y = api.spreadsheet.from_cell(cell)
-            x += incr_column
-            y += incr_row
-            incremented_cells.append(api.spreadsheet.to_cell((x, y)))
-        return incremented_cells
-
     @commands.command(name='register')
     @commands.guild_only()
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
@@ -506,26 +486,7 @@ class Tosurnament(modules.module.BaseModule):
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             raise NoSpreadsheet()
-        if "!" in players_spreadsheet.range_team_name:
-            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
-        else:
-            range_team_name = players_spreadsheet.range_team_name            
-        if "!" in players_spreadsheet.range_team:
-            sheet_name = players_spreadsheet.range_team.split("!")[0]
-            range_team = players_spreadsheet.range_team.split("!")[1]
-        else:
-            sheet_name = ""
-            range_team = players_spreadsheet.range_team
-        range_names = []
-        cells_team_name = range_team_name.split(":")
-        cells_team = range_team.split(":")
-        regex = re.compile(re.escape("n"), re.IGNORECASE)
-        for i in range(0, players_spreadsheet.n_team):
-            incr_column = int(eval(regex.sub(str(i), players_spreadsheet.incr_column)))
-            incr_row = int(eval(regex.sub(str(i), players_spreadsheet.incr_row)))
-            if range_team_name.lower() != "none":
-                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
-            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
+        range_names = players_spreadsheet.get_ranges()
         try:
             cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
         except googleapiclient.errors.HttpError:
@@ -748,12 +709,63 @@ class Tosurnament(modules.module.BaseModule):
         osu_users = api.osu.OsuApi.get_user(osu_id)
         if not osu_users:
             raise OsuError()
+        previous_name = ctx.author.nick
+        if not previous_name:
+            previous_name = ctx.author.name
         osu_name = osu_users[0][api.osu.User.NAME]
+        guild_id = str(ctx.guild.id)
+        write_access = True
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if tournament:
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+            if players_spreadsheet:
+                range_names = players_spreadsheet.get_ranges()
+                try:
+                    cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                    i = 0
+                    while i < len(cells):
+                        if players_spreadsheet.range_team_name.lower() != "none":
+                            i += 1
+                        j, k = self.get_player_from_cells(cells[i], previous_name)
+                        if j != None:
+                            cells[i][j][k] = osu_name
+                            api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
+                            break
+                        i += 1
+                except googleapiclient.errors.HttpError:
+                    write_access = False
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+            if schedules_spreadsheet:
+                try:
+                    cells = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                    j, k = self.get_player_from_cells(cells, previous_name)
+                    if j != None:
+                        cells[j][k] = osu_name
+                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, cells)                        
+                except googleapiclient.errors.HttpError:
+                    write_access = False
+            if tournament.challonge:
+                try:
+                    participants = api.challonge.get_participants(tournament.challonge)
+                    for participant in participants:
+                        if participant["name"] == previous_name:
+                            api.challonge.update_participant(tournament.challonge, participant["id"], name=osu_name)
+                except Exception:
+                    write_access = False
         try:
             await ctx.author.edit(nick=osu_name)
         except discord.Forbidden:
             raise commands.BotMissingPermissions(["change_owner_nickname"])
         await ctx.send(self.get_string("name_change", "success"))
+        if not write_access:
+            await ctx.send(self.get_string("name_change", "no_access"))
+
+    def get_player_from_cells(self, cells, previous_name):
+        for j, player_row in enumerate(cells):
+            for k, player in enumerate(player_row):
+                if player == previous_name:
+                    return j, k
+        return None, None
 
     @commands.command(name='post_result')
     @commands.guild_only()
@@ -791,26 +803,7 @@ class Tosurnament(modules.module.BaseModule):
         players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
         if not players_spreadsheet:
             raise NoSpreadsheet("players_spreadsheet")
-        if "!" in players_spreadsheet.range_team_name:
-            range_team_name = players_spreadsheet.range_team_name.split("!")[1]
-        else:
-            range_team_name = players_spreadsheet.range_team_name            
-        if "!" in players_spreadsheet.range_team:
-            sheet_name = players_spreadsheet.range_team.split("!")[0]
-            range_team = players_spreadsheet.range_team.split("!")[1]
-        else:
-            sheet_name = ""
-            range_team = players_spreadsheet.range_team
-        range_names = []
-        cells_team_name = range_team_name.split(":")
-        cells_team = range_team.split(":")
-        regex = re.compile(re.escape("n"), re.IGNORECASE)
-        for i in range(0, players_spreadsheet.n_team):
-            incr_column = int(eval(regex.sub(str(i), players_spreadsheet.incr_column)))
-            incr_row = int(eval(regex.sub(str(i), players_spreadsheet.incr_row)))
-            if range_team_name.lower() != "none":
-                range_names.append(self.get_incremented_range(cells_team_name, sheet_name, incr_column, incr_row))
-            range_names.append(self.get_incremented_range(cells_team, sheet_name, incr_column, incr_row))
+        range_names = players_spreadsheet.get_ranges()
         try:
             cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
         except googleapiclient.errors.HttpError:

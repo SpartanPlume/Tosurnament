@@ -92,6 +92,20 @@ def get_participant(tournament, participant_id, **params):
         return p["participant"]
     raise NotFound()
 
+def update_participant(tournament, participant_id, **params):
+    new_params = {}
+    for key, value in params.items():
+        key = "participant[" + key + "]"
+        new_params[key] = value
+    try:
+        r = requests.put(CHALLONGE_URL + "tournaments/" + str(tournament) + "/participants/" + str(participant_id) + ".json", auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY), data=new_params)
+    except requests.exceptions.RequestException:
+        raise ServerError()
+    p = r.json()
+    if "participant" in p:
+        return p["participant"]
+    raise NoRights()    
+
 def is_match_containing_participants(match, participant1, participant2):
     participant_id = get_id_from_participant(participant1)
     if match["player1_id"] != participant_id and match["player2_id"] != participant_id:

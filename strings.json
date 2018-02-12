@@ -115,7 +115,8 @@
             "parameter": "",
             "help": "Changes your nickname to your osu username",
             "usage": "Usage: %1name_change",
-            "success": "Nickname successfully changed."
+            "success": "Nickname successfully changed.",
+            "no_access": "But your name couldn't be change in the spreadsheets and/or challonge. Please, contact an admin."
         },
         "post_result": {
             "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> [<mp_link(s)>] <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",
