@@ -721,41 +721,43 @@ class Tosurnament(modules.module.BaseModule):
         osu_name = osu_users[0][api.osu.User.NAME]
         write_access = True
         if tournament:
-            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
-            if players_spreadsheet:
-                range_names = players_spreadsheet.get_ranges()
-                try:
-                    cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
-                    i = 0
-                    while i < len(cells):
-                        if players_spreadsheet.range_team_name.lower() != "none":
+            if self.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
+                players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
+                if players_spreadsheet:
+                    range_names = players_spreadsheet.get_ranges()
+                    try:
+                        cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                        i = 0
+                        while i < len(cells):
+                            if players_spreadsheet.range_team_name.lower() != "none":
+                                i += 1
+                            j, k = self.get_player_from_cells(cells[i], previous_name)
+                            if j != None:
+                                cells[i][j][k] = osu_name
+                                api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
+                                break
                             i += 1
-                        j, k = self.get_player_from_cells(cells[i], previous_name)
+                    except googleapiclient.errors.HttpError:
+                        write_access = False
+                if tournament.challonge:
+                    try:
+                        participants = api.challonge.get_participants(tournament.challonge)
+                        for participant in participants:
+                            if participant["name"] == previous_name:
+                                api.challonge.update_participant(tournament.challonge, participant["id"], name=osu_name)
+                    except Exception:
+                        write_access = False
+            if self.get_role(ctx.author.roles, tournament.player_role_id, "Player") or self.get_role(ctx.author.roles, tournament.referee_role_id, "Referee"):
+                schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
+                if schedules_spreadsheet:
+                    try:
+                        cells = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                        j, k = self.get_player_from_cells(cells, previous_name)
                         if j != None:
-                            cells[i][j][k] = osu_name
-                            api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
-                            break
-                        i += 1
-                except googleapiclient.errors.HttpError:
-                    write_access = False
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == tournament.schedules_spreadsheet_id).first()
-            if schedules_spreadsheet:
-                try:
-                    cells = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
-                    j, k = self.get_player_from_cells(cells, previous_name)
-                    if j != None:
-                        cells[j][k] = osu_name
-                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, cells)                        
-                except googleapiclient.errors.HttpError:
-                    write_access = False
-            if tournament.challonge:
-                try:
-                    participants = api.challonge.get_participants(tournament.challonge)
-                    for participant in participants:
-                        if participant["name"] == previous_name:
-                            api.challonge.update_participant(tournament.challonge, participant["id"], name=osu_name)
-                except Exception:
-                    write_access = False
+                            cells[j][k] = osu_name
+                            api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, cells)                        
+                    except googleapiclient.errors.HttpError:
+                        write_access = False
         try:
             await ctx.author.edit(nick=osu_name)
         except discord.Forbidden:
