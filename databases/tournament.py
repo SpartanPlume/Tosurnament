@@ -1,7 +1,7 @@
 """Tournament class"""
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Binary, String
+from sqlalchemy import Column, Integer, Binary, String, Boolean
 from sqlalchemy import orm
 from databases.base import Base
 import helpers.crypt
@@ -14,6 +14,7 @@ class Tournament(Base):
     server_id = Column(Binary)
     acronym = Column(String)
     name = Column(Binary)
+    name_change_enabled = Column(Boolean)
     staff_channel_id = Column(Binary)
     admin_role_id = Column(Binary)
     referee_role_id = Column(Binary)

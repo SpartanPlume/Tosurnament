@@ -1,6 +1,7 @@
 {
     "tosurnament": {
         "not_on_a_server": "This command can only be ran on a server.",
+        "disabled_command": "This command has been disabled.",
         "not_owner": "You need to be the owner of the server to use this command.",
         "change_nickname_forbidden": "Sorry, I can't change your nickname. Either you have better rights than the bot or the bot doesn't have the `Change nicknames` right. Please contact an admin.",
         "change_role_forbidden": "Sorry, I can't add you a role. The bot doesn't have the `Manage roles` right. Please contact an admin.",
@@ -117,6 +118,12 @@
             "usage": "Usage: %1name_change",
             "success": "Nickname successfully changed.",
             "no_access": "But your name couldn't be change in the spreadsheets and/or challonge. Please, contact an admin."
+        },
+        "disable_name_change": {
+            "parameter": "",
+            "help": "Disabled or enables the name_change command.",
+            "usage": "Usage: %1disable_name_change",
+            "success": "name_change has successfully been %1."
         },
         "post_result": {
             "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> [<mp_link(s)>] <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",

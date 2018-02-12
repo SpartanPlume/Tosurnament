@@ -132,6 +132,8 @@ class Tosurnament(modules.module.BaseModule):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.NoPrivateMessage):
             await ctx.send(self.get_string("", "not_on_a_server"))
+        elif isinstance(error, commands.DisabledCommand):
+            await ctx.send(self.get_string("", "disabled_command"))
         elif isinstance(error, NotGuildOwner):
             await ctx.send(self.get_string("", "not_owner"))
         elif isinstance(error, UserNotFound):
@@ -248,7 +250,7 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).filter(Tournament.acronym == acronym).first()
         if tournament:
             raise AcronymAlreadyUsed()
-        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name)
+        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True)
         self.client.session.add(tournament)
         self.client.session.commit()
         await ctx.send(self.get_string("create_tournament", "success"))
@@ -699,6 +701,10 @@ class Tosurnament(modules.module.BaseModule):
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
     async def name_change(self, ctx):
         """Allows players to change their nickname to their osu! username"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if tournament and not tournament.name_change_enabled:
+            raise commands.DisabledCommand()
         discord_id = str(ctx.author.id)
         user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
@@ -713,9 +719,7 @@ class Tosurnament(modules.module.BaseModule):
         if not previous_name:
             previous_name = ctx.author.name
         osu_name = osu_users[0][api.osu.User.NAME]
-        guild_id = str(ctx.guild.id)
         write_access = True
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament:
             players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
             if players_spreadsheet:
@@ -766,6 +770,25 @@ class Tosurnament(modules.module.BaseModule):
                 if player == previous_name:
                     return j, k
         return None, None
+
+    @commands.command(name='disable_name_change', aliases=['enable_name_change'])
+    @commands.guild_only()
+    async def disable_name_change(self, ctx):
+        """Disables or enables the name_change command for a tournament"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        tournament.name_change_enabled = not tournament.name_change_enabled
+        self.client.session.commit()
+        if tournament.name_change_enabled:
+            await ctx.send(self.get_string("disable_name_change", "success", "enabled"))
+        else:
+            await ctx.send(self.get_string("disable_name_change", "success", "disabled"))
 
     @commands.command(name='post_result')
     @commands.guild_only()
