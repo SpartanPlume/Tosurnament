@@ -424,8 +424,9 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', range_team_name):
             raise commands.UserInputError()
-        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', range_team):
-            raise commands.UserInputError()
+        if not re.match(r'^\[((, )?(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?)+\]$', range_team):
+            if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', range_team):
+                raise commands.UserInputError()
         regex = re.compile(re.escape("n"), re.IGNORECASE)
         try:
             eval(regex.sub("1", incr_column))
@@ -489,6 +490,7 @@ class Tosurnament(modules.module.BaseModule):
         if not players_spreadsheet:
             raise NoSpreadsheet()
         range_names = players_spreadsheet.get_ranges()
+        n_range_team = players_spreadsheet.get_total_range_team()
         try:
             cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
         except googleapiclient.errors.HttpError:
@@ -496,33 +498,34 @@ class Tosurnament(modules.module.BaseModule):
         i = 0
         while i < len(cells):
             team_name = ""
-            if range_team_name.lower() != "none":
+            if players_spreadsheet.range_team_name.lower() != "none":
                 for row in cells[i]:
                     for cell in row:
                         if cell:
                             team_name = cell
                             break
                 i += 1
-            for player_row in cells[i]:
-                for player in player_row:
-                    if osu_name == player:
-                        roles = ctx.guild.roles
-                        player_role = self.get_role(roles, player_role_id, "Player")
-                        if not player_role:
-                            raise NoPlayerRole()
-                        await ctx.author.add_roles(player_role)
-                        if team_name:
-                            team_role = None
-                            for role in roles:
-                                if role.name == team_name:
-                                    team_role = role
-                                    break
-                            if not team_role:
-                                team_role = await ctx.guild.create_role(name=team_name, mentionable=True)
-                            await ctx.author.add_roles(team_role)
-                        await ctx.send(self.get_string("register", "success"))
-                        return
-            i += 1
+            for _ in range(n_range_team):
+                for player_row in cells[i]:
+                    for player in player_row:
+                        if osu_name == player:
+                            roles = ctx.guild.roles
+                            player_role = self.get_role(roles, player_role_id, "Player")
+                            if not player_role:
+                                raise NoPlayerRole()
+                            await ctx.author.add_roles(player_role)
+                            if team_name:
+                                team_role = None
+                                for role in roles:
+                                    if role.name == team_name:
+                                        team_role = role
+                                        break
+                                if not team_role:
+                                    team_role = await ctx.guild.create_role(name=team_name, mentionable=True)
+                                await ctx.author.add_roles(team_role)
+                            await ctx.send(self.get_string("register", "success"))
+                            return
+                i += 1
         raise NotAPlayer()
 
     @register.error
@@ -725,18 +728,21 @@ class Tosurnament(modules.module.BaseModule):
                 players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == tournament.players_spreadsheet_id).first()
                 if players_spreadsheet:
                     range_names = players_spreadsheet.get_ranges()
+                    n_range_team = players_spreadsheet.get_total_range_team()
                     try:
                         cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
                         i = 0
                         while i < len(cells):
                             if players_spreadsheet.range_team_name.lower() != "none":
                                 i += 1
-                            j, k = self.get_player_from_cells(cells[i], previous_name)
-                            if j != None:
-                                cells[i][j][k] = osu_name
-                                api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
-                                break
-                            i += 1
+                            for _ in range(n_range_team):
+                                j, k = self.get_player_from_cells(cells[i], previous_name)
+                                if j != None:
+                                    cells[i][j][k] = osu_name
+                                    api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
+                                    i = len(cells)
+                                    break
+                                i += 1
                     except googleapiclient.errors.HttpError:
                         write_access = False
                 if tournament.challonge:
@@ -829,6 +835,7 @@ class Tosurnament(modules.module.BaseModule):
         if not players_spreadsheet:
             raise NoSpreadsheet("players_spreadsheet")
         range_names = players_spreadsheet.get_ranges()
+        n_range_team = players_spreadsheet.get_total_range_team()
         try:
             cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
         except googleapiclient.errors.HttpError:
@@ -857,19 +864,21 @@ class Tosurnament(modules.module.BaseModule):
                         bans_loser_roll = bans_team1
                     players_team1 = []
                     players_team2 = []
-                    if range_team_name.lower() != "none":
+                    if players_spreadsheet.range_team_name.lower() != "none":
                         i = 0
                         while i < len(cells):
                             for row in cells[i]:
                                 for cell in row:
                                     if cell == team_name1:
-                                        for player_row in cells[i + 1]:
-                                            for player in player_row:
-                                                players_team1.append(player)
+                                        for j in range(n_range_team):
+                                            for player_row in cells[i + j + 1]:
+                                                for player in player_row:
+                                                    players_team1.append(player)
                                     elif cell == team_name2:
-                                        for player_row in cells[i + 1]:
-                                            for player in player_row:
-                                                players_team2.append(player)
+                                        for j in range(n_range_team):
+                                            for player_row in cells[i + j + 1]:
+                                                for player in player_row:
+                                                    players_team2.append(player)
                             i += 1
                     else:
                         players_team1.append(team_name1)
