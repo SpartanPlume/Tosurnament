@@ -890,96 +890,97 @@ class Tosurnament(modules.module.BaseModule):
                     players_team2 = api.osu.User.names_to_ids(players_team2)
                     score_team1 = 0
                     score_team2 = 0
+                    games = []
                     for mp_id in mp_ids:
                         matches = api.osu.OsuApi.get_match(mp_id)
                         if not matches:
                             raise InvalidMpLink()
-                        games = matches["games"]
-                        i = 0
-                        while i < len(games):
-                            if n_warmup > 0:
-                                n_warmup -= 1
-                            else:
-                                if i + 1 < len(games):
-                                    beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
-                                    if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
-                                        i += 1
-                                        pass
-                                total_team1 = 0
-                                total_team2 = 0
-                                for score in games[i][api.osu.Game.SCORES]:
-                                    if score[api.osu.Game.Score.PASS] == "1":
-                                        if score[api.osu.Game.Score.USER_ID] in players_team1:
-                                            total_team1 += int(score[api.osu.Game.Score.SCORE])
-                                        elif score[api.osu.Game.Score.USER_ID] in players_team2:
-                                            total_team2 += int(score[api.osu.Game.Score.SCORE])
-                                if total_team1 > total_team2:
-                                    if score_team1 < int(best_of / 2) + 1:
-                                        score_team1 += 1
-                                elif total_team1 < total_team2:
-                                    if score_team2 < int(best_of / 2) + 1:
-                                        score_team2 += 1
-                            i += 1
-                        mp_links = ""
-                        for mp_id in mp_ids:
-                            mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
-                        mp_links = mp_links[:-2]
-                        if tournament.post_result_message:
-                            result_string = tournament.post_result_message
+                        games += matches["games"]
+                    i = 0
+                    while i < len(games):
+                        if n_warmup > 0:
+                            n_warmup -= 1
                         else:
-                            result_string = self.get_string("post_result", "success")
-                        result_string = result_string.replace("%match_id", match_id)
-                        result_string = result_string.replace("%mp_link", mp_links)
-                        result_string = result_string.replace("%team1", team_name1)
-                        result_string = result_string.replace("%team2", team_name2)
-                        result_string = result_string.replace("%score_team1", str(score_team1))
-                        result_string = result_string.replace("%score_team2", str(score_team2))
-                        result_string = result_string.replace("%bans_team1", bans_team1)
-                        result_string = result_string.replace("%bans_team2", bans_team2)                           
-                        result_string = result_string.replace("%winner_roll", winner_roll)
-                        result_string = result_string.replace("%loser_roll", loser_roll)
-                        result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
-                        result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
-                        if tournament.challonge:
-                            t_id = 0
-                            try:
-                                t = api.challonge.get_tournament(tournament.challonge)
-                                t_id = t["id"]
-                                if not t["started_at"]:
-                                    api.challonge.start_tournament(t_id)
-                                participants = api.challonge.get_participants(t_id)
-                                for participant in participants:
-                                    if participant["name"] == team_name1:
-                                        participant1 = participant
-                                    elif participant["name"] == team_name2:
-                                        participant2 = participant
-                                participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
-                            except api.challonge.ServerError:
-                                if tournament.staff_channel_id:
-                                    channel = self.client.get_channel(int(tournament.staff_channel_id))
+                            if i + 1 < len(games):
+                                beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
+                                if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
+                                    i += 1
+                                    pass
+                            total_team1 = 0
+                            total_team2 = 0
+                            for score in games[i][api.osu.Game.SCORES]:
+                                if score[api.osu.Game.Score.PASS] == "1":
+                                    if score[api.osu.Game.Score.USER_ID] in players_team1:
+                                        total_team1 += int(score[api.osu.Game.Score.SCORE])
+                                    elif score[api.osu.Game.Score.USER_ID] in players_team2:
+                                        total_team2 += int(score[api.osu.Game.Score.SCORE])
+                            if total_team1 > total_team2:
+                                if score_team1 < int(best_of / 2) + 1:
+                                    score_team1 += 1
+                            elif total_team1 < total_team2:
+                                if score_team2 < int(best_of / 2) + 1:
+                                    score_team2 += 1
+                        i += 1
+                    mp_links = ""
+                    for mp_id in mp_ids:
+                        mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
+                    mp_links = mp_links[:-2]
+                    if tournament.post_result_message:
+                        result_string = tournament.post_result_message
+                    else:
+                        result_string = self.get_string("post_result", "success")
+                    result_string = result_string.replace("%match_id", match_id)
+                    result_string = result_string.replace("%mp_link", mp_links)
+                    result_string = result_string.replace("%team1", team_name1)
+                    result_string = result_string.replace("%team2", team_name2)
+                    result_string = result_string.replace("%score_team1", str(score_team1))
+                    result_string = result_string.replace("%score_team2", str(score_team2))
+                    result_string = result_string.replace("%bans_team1", bans_team1)
+                    result_string = result_string.replace("%bans_team2", bans_team2)                           
+                    result_string = result_string.replace("%winner_roll", winner_roll)
+                    result_string = result_string.replace("%loser_roll", loser_roll)
+                    result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
+                    result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
+                    if tournament.challonge:
+                        t_id = 0
+                        try:
+                            t = api.challonge.get_tournament(tournament.challonge)
+                            t_id = t["id"]
+                            if not t["started_at"]:
+                                api.challonge.start_tournament(t_id)
+                            participants = api.challonge.get_participants(t_id)
+                            for participant in participants:
+                                if participant["name"] == team_name1:
+                                    participant1 = participant
+                                elif participant["name"] == team_name2:
+                                    participant2 = participant
+                            participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
+                        except api.challonge.ServerError:
+                            if tournament.staff_channel_id:
+                                channel = self.client.get_channel(int(tournament.staff_channel_id))
+                            else:
+                                channel = ctx
+                            await channel.send(self.get_string("", "challonge_server_error"))
+                            await ctx.send(result_string)
+                            return
+                        for match in participant_matches:
+                            match = match["match"]
+                            player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)
+                            if player1:
+                                if player1["name"] == participant1["name"]:
+                                    match_score = str(score_team1) + "-" + str(score_team2)
                                 else:
-                                    channel = ctx
-                                await channel.send(self.get_string("", "challonge_server_error"))
+                                    match_score = str(score_team2) + "-" + str(score_team1)
+                                if score_team1 > score_team2:
+                                    match_winner = api.challonge.get_id_from_participant(player1)
+                                else:
+                                    match_winner = api.challonge.get_id_from_participant(player2)
+                                api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
                                 await ctx.send(result_string)
                                 return
-                            for match in participant_matches:
-                                match = match["match"]
-                                player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)
-                                if player1:
-                                    if player1["name"] == participant1["name"]:
-                                        match_score = str(score_team1) + "-" + str(score_team2)
-                                    else:
-                                        match_score = str(score_team2) + "-" + str(score_team1)
-                                    if score_team1 > score_team2:
-                                        match_winner = api.challonge.get_id_from_participant(player1)
-                                    else:
-                                        match_winner = api.challonge.get_id_from_participant(player2)
-                                    api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
-                                    await ctx.send(result_string)
-                                    return
-                            raise MatchNotFound()
-                        await ctx.send(result_string)
-                        return
+                        raise MatchNotFound()
+                    await ctx.send(result_string)
+                    return
         raise InvalidMatchId()
 
     @post_result.error
