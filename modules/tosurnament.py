@@ -800,20 +800,22 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='post_result')
     @commands.guild_only()
-    async def post_result(self, ctx, match_id: str, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, *, parameters: str):
+    async def post_result(self, ctx, match_id: str, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, mp_links: str, *, parameters: str):
         """Allows referees to post the result of a match"""
         if n_warmup < 0:
             raise commands.UserInputError()
         if (best_of < 0) or (best_of % 2 != 1):
             raise commands.UserInputError()
-        parameters = parameters.split("] ", 1)
-        if len(parameters) != 2:
-            raise commands.UserInputError()
-        mp_links = literal_eval(parameters[0] + "]")
+        if mp_links.startswith("["):
+            mp_links = mp_links[1:]
+            mp_links = mp_links[:-1]
+            mp_links = mp_links.split(", ")
+        else:
+            mp_links = [mp_links]
         mp_ids = []
         for mp_link in mp_links:
             mp_ids.append(api.osu.Match.get_from_string(mp_link))
-        bans = parameters[1].split("; ")
+        bans = parameters.split("; ")
         if len(bans) % 2 != 0:
             raise commands.UserInputError()
         bans_team1 = ", ".join(bans[:int(len(bans)/2)])

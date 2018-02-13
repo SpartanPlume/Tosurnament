@@ -336,7 +336,6 @@ class User:
     def names_to_ids(names):
         ids = []
         for name in names:
-            print(name)
             osu_users = OsuApi.get_user(name)
             if not osu_users:
                 return None

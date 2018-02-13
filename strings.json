@@ -126,9 +126,9 @@
             "success": "name_change has successfully been %1."
         },
         "post_result": {
-            "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> [<mp_link(s)>] <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",
+            "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> <mp_link(s)> <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",
             "help": "Post the result of a match",
-            "usage": "Usage: %1post_result $tosurnament/post_result/parameter\n\nExample: %1post_result 12C 2 9 42 69 [\"https://osu.ppy.sh/community/matches/123\", \"https://osu.ppy.sh/community/matches/380180\"] No Title; Stargazer",
+            "usage": "Usage: %1post_result $tosurnament/post_result/parameter\n\nExample: %1post_result 12C 2 9 42 69 \"[https://osu.ppy.sh/community/matches/123, https://osu.ppy.sh/community/matches/380180]\" No Title; Stargazer",
             "no_players_spreadsheet": "This tournament does not have any players spreadsheet registered. Consider using the `%1set_players_spreadsheet $tosurnament/set_players_spreadsheet/parameter`.",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
