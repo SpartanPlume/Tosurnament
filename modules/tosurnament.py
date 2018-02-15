@@ -259,7 +259,7 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='create_tournament')
     @commands.guild_only()
     @is_guild_owner()
-    async def create_tournament(self, ctx, acronym: str, *, name: str):
+    async def create_tournament(self, ctx, acronym: str, name: str, bracket_name: str = ""):
         """Create a tournament"""
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).filter(Tournament.acronym == acronym).first()
@@ -267,6 +267,12 @@ class Tosurnament(modules.module.BaseModule):
             raise AcronymAlreadyUsed()
         tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True)
         self.client.session.add(tournament)
+        self.client.session.commit()
+        if not bracket_name:
+            bracket = Bracket(tournament_id=tournament.id, name=name)
+        else:
+            bracket = Bracket(tournament_id=tournament.id, name=bracket_name)
+        self.client.session.add(bracket)
         self.client.session.commit()
         await ctx.send(self.get_string("create_tournament", "success"))
 

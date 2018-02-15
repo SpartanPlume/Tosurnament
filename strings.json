@@ -36,9 +36,9 @@
             "success": "Congrats, your account has been verified."
         },
         "create_tournament": {
-            "parameter": "<acronym> <name>",
+            "parameter": "<acronym> <name> [<bracket_name>]",
             "help": "Creates a tournament",
-            "usage": "Usage: %1create_tournament $tosurnament/create_tournament/parameter\n\nExample: %1create_tournament NC Nightshiftt Cup",
+            "usage": "Usage: %1create_tournament $tosurnament/create_tournament/parameter\n\nExample: %1create_tournament RT \"Random Tournament\" \"1k-10k\"",
             "acronym_used": "This acronym is already used by another tournament in this server.",
             "success": "Tournament created."
         },
