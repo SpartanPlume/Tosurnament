@@ -1,5 +1,6 @@
 {
     "tosurnament": {
+        "unknown_error": "Oops, something went wrong. Please contact me at spartan.plume@gmail.com",
         "not_on_a_server": "This command can only be ran on a server.",
         "disabled_command": "This command has been disabled.",
         "not_owner": "You need to be the owner of the server to use this command.",
@@ -12,6 +13,7 @@
         "already_registered": "You are already registered. If you have a problem with your current roles, please contact an admin.",
         "osu_error": "Oops. An error has occured. Please try again later. If the problem persists, contact me at spartan.plume@gmail.com",
         "no_tournament": "This server does not have any tournament running. Consider using the `%1create_tournament $tosurnament/create_tournament/parameter`.",
+        "no_bracket": "This bracket does not exists. Check existing brackets using the `%1get_bracket` command.",
         "no_rights": "You don't have the rights to use this command.",
         "no_player_role": "There's no `Player` role. Ask an admin to create it.",
         "not_a_player": "You're not on the player list. I can't register you. ='(",
@@ -35,10 +37,23 @@
         },
         "create_tournament": {
             "parameter": "<acronym> <name>",
-            "help": "Create a tournament",
+            "help": "Creates a tournament",
             "usage": "Usage: %1create_tournament $tosurnament/create_tournament/parameter\n\nExample: %1create_tournament NC Nightshiftt Cup",
             "acronym_used": "This acronym is already used by another tournament in this server.",
             "success": "Tournament created."
+        },
+        "create_bracket": {
+            "parameter": "<name>",
+            "help": "Creates a bracket",
+            "usage": "Usage: %1create_bracket $tosurnament/create_bracket/parameter\n\nExample: %1create_bracket 10k-20k",
+            "success": "Bracket created."
+        },
+        "get_bracket": {
+            "parameter": "<name>",
+            "help": "Gets a bracket",
+            "usage": "Usage: %1get_bracket $tosurnament/get_bracket/parameter\n\nExample: %1get_bracket 10k-20k",
+            "default": "List of all brackets:\n%1\nUse `%1get_bracket $tosurnament/get_bracket/parameter` to set a bracket.",
+            "success": "Bracket created."
         },
         "set_staff_channel": {
             "parameter": "<channel>",

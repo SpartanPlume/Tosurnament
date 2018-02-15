@@ -18,6 +18,7 @@ import helpers.crypt
 import helpers.load_json
 from databases.user import User
 from databases.tournament import Tournament
+from databases.bracket import Bracket
 from databases.players_spreadsheet import PlayersSpreadsheet
 from databases.schedules_spreadsheet import SchedulesSpreadsheet
 from databases.reschedule_message import RescheduleMessage
@@ -67,6 +68,10 @@ class NoTournament(commands.CommandError):
     """Special exception if a guild does not have any tournament running"""
     pass
 
+class NoBracket(commands.CommandError):
+    """Special exception if a guild does not have the requested bracket"""
+    pass
+
 class NotBotAdmin(commands.CommandError):
     """Special exception if user is not a bot admin"""
     pass
@@ -111,7 +116,13 @@ class InvalidMpLink(commands.CommandError):
 
 class MatchNotFound(commands.CommandError):
     """Special exception if a match in the challonge is not found"""
-    pass    
+    pass
+
+class UnknownError(commands.CommandError):
+    """Special exception if unknown error"""
+    def __init__(self, message=None):
+        super().__init__()
+        self.message = message
 
 def is_guild_owner():
     """Check function to know if the author is the guild owner"""
@@ -130,7 +141,9 @@ class Tosurnament(modules.module.BaseModule):
         self.name = "tosurnament"
 
     async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.NoPrivateMessage):
+        if isinstance(error, UnknownError):
+            await ctx.send(self.get_string("", "unknown_error"))
+        elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send(self.get_string("", "not_on_a_server"))
         elif isinstance(error, commands.DisabledCommand):
             await ctx.send(self.get_string("", "disabled_command"))
@@ -150,6 +163,8 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("", "osu_error"))
         elif isinstance(error, NoTournament):
             await ctx.send(self.get_string("", "no_tournament", ctx.prefix))
+        elif isinstance(error, NoBracket):
+            await ctx.send(self.get_string("", "no_bracket", ctx.prefix))
         elif isinstance(error, NotBotAdmin):
             await ctx.send(self.get_string("", "no_rights", ctx.prefix))
         elif isinstance(error, NoPlayerRole):
@@ -264,6 +279,53 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
         elif isinstance(error, AcronymAlreadyUsed):
             await ctx.send(self.get_string("create_tournament", "acronym_used"))
+
+    @commands.command(name='create_bracket')
+    @commands.guild_only()
+    async def create_bracket(self, ctx, *, name: str):
+        """Create a bracket"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        bracket = Bracket(tournament_id=tournament.id, name=name)
+        self.client.session.add(bracket)
+        self.client.session.commit()
+        tournament.current_bracket_id = bracket.id
+        self.client.session.commit()
+        await ctx.send(self.get_string("create_bracket", "success"))
+
+    @create_bracket.error
+    async def create_bracket_handler(self, ctx, error):
+        """Error handler of create_bracket function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("create_bracket", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("create_bracket", "usage", ctx.prefix))
+
+    @commands.command(name='get_bracket')
+    @commands.guild_only()
+    async def get_bracket(self, ctx, *, name: str = ""):
+        """Sets a bracket as current bracket or shows them all"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if name:
+            bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.name == helpers.crypt.encrypt_str(name)).first()
+            if not bracket:
+                raise NoBracket()
+            tournament.current_bracket_id = bracket.id
+            self.client.session.commit()
+            await ctx.send(self.get_string("get_bracket", "success"))
+        else:
+            brackets = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).all()
+            if not brackets:
+                raise UnknownError("get_bracket: query on brackets returned nothing.")
+            brackets_string = ""
+            for bracket in brackets:
+                brackets_string += bracket.name + "\n"
+            await ctx.send(self.get_string("get_bracket", "default", brackets_string))
 
     @commands.command(name='set_staff_channel')
     @commands.guild_only()
