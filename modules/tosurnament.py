@@ -295,6 +295,10 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+            raise NotBotAdmin()
         bracket = Bracket(tournament_id=tournament.id, name=name, name_hash=name)
         self.client.session.add(bracket)
         self.client.session.commit()
@@ -318,6 +322,10 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+            raise NotBotAdmin()
         if name:
             bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.name_hash == helpers.crypt.hash_str(name)).first()
             if not bracket:
@@ -345,6 +353,10 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+            raise NotBotAdmin()
         bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.id == tournament.current_bracket_id).first()
         if not bracket:
             raise NoBracket()
