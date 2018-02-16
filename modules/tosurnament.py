@@ -345,7 +345,7 @@ class Tosurnament(modules.module.BaseModule):
                 brackets_string += "\n"
             await ctx.send(self.get_string("get_bracket", "default", ctx.prefix, brackets_string))
 
-    @commands.command(name='set_bracket_name')
+    @commands.command(name='set_bracket_name', aliases=["modify_bracket_name"])
     @commands.guild_only()
     async def set_bracket_name(self, ctx, *, name: str = ""):
         """Modifies the current bracket's name"""
@@ -576,7 +576,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
         if not brackets:
-            raise UnknownError()
+            raise UnknownError("register: query on brackets returned nothing.")
         player_role_id = tournament.player_role_id
         if self.get_role(ctx.author.roles, player_role_id, "Player"):
             raise UserAlreadyRegistered()
@@ -717,7 +717,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
         if not brackets:
-            raise UnknownError()
+            raise UnknownError("reschedule: query on brackets returned nothing.")
         roles = ctx.guild.roles
         player_role = self.get_role(roles, tournament.player_role_id, "Player")
         if not player_role:
@@ -820,7 +820,7 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, InvalidMatchId):
             await ctx.send(self.get_string("reschedule", "invalid_match_id"))
 
-    @commands.command(name='name_change')
+    @commands.command(name='name_change', aliases=["change_name"])
     @commands.guild_only()
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
     async def name_change(self, ctx):
@@ -847,7 +847,7 @@ class Tosurnament(modules.module.BaseModule):
         if tournament:
             brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
             if not brackets:
-                raise UnknownError()
+                raise UnknownError("name_change: query on brackets returned nothing.")
             if self.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
                 for bracket in brackets:
                     players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
@@ -924,6 +924,154 @@ class Tosurnament(modules.module.BaseModule):
         else:
             await ctx.send(self.get_string("disable_name_change", "success", "disabled"))
 
+    @commands.command(name='take_match', aliases=["take_matches"])
+    @commands.guild_only()
+    async def take_match(self, ctx, *args):
+        """Allows referees to take matches"""
+        if not args:
+            raise commands.UserInputError()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        if not brackets:
+            raise UnknownError("take_match: query on brackets returned nothing.")
+        roles = ctx.guild.roles
+        referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
+        if not referee_role:
+            raise NoRefereeRole()
+        if not any(referee_role.id == role.id for role in ctx.author.roles):
+            raise NotAReferee()
+        referee_name = ctx.author.nick
+        if not referee_name:
+            referee_name = ctx.author.name
+        successfully_taken_matches_id = []
+        already_taken_matches_id = []
+        for bracket in brackets:
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            if not schedules_spreadsheet:
+                raise NoSpreadsheet("schedules_spreadsheet")
+            try:
+                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+            except googleapiclient.errors.HttpError:
+                raise SpreadsheetError()
+            tuples = schedules_spreadsheet.parse_parameters()
+            write_values = False
+            for match_id in args:
+                for y, row in enumerate(values):
+                    for x, value in enumerate(row):
+                        if value == match_id:
+                            incr_x, incr_y = tuples[2]
+                            while y + incr_y >= len(values):
+                                values.append([])
+                            while x + incr_x >= len(values[y + incr_y]):
+                                values[y + incr_y].append("")
+                            if not values[y + incr_y][x + incr_x]:
+                                values[y + incr_y][x + incr_x] = referee_name
+                                write_values = True
+                                successfully_taken_matches_id.append(match_id)
+                            else:
+                                already_taken_matches_id.append(match_id)
+            if write_values:
+                try:
+                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                except googleapiclient.errors.HttpError:
+                    raise SpreadsheetError()
+        string = self.get_string("take_match", "successfully_taken_matches_id")
+        for i, match_id in enumerate(successfully_taken_matches_id):
+            string += match_id
+            if i + 1 < len(successfully_taken_matches_id):
+                string += ", "
+        string += "\n" + self.get_string("take_match", "already_taken_matches_id")
+        for i, match_id in enumerate(already_taken_matches_id):
+            string += match_id
+            if i + 1 < len(already_taken_matches_id):
+                string += ", "
+        await ctx.send(string)
+
+    @take_match.error
+    async def take_match_handler(self, ctx, error):
+        """Error handler of take_match function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("take_match", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("take_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("take_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='drop_match', aliases=["drop_matches"])
+    @commands.guild_only()
+    async def drop_match(self, ctx, *args):
+        """Allows referees to drop matches"""
+        if not args:
+            raise commands.UserInputError()
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        if not brackets:
+            raise UnknownError("drop_match: query on brackets returned nothing.")
+        roles = ctx.guild.roles
+        referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
+        if not referee_role:
+            raise NoRefereeRole()
+        if not any(referee_role.id == role.id for role in ctx.author.roles):
+            raise NotAReferee()
+        referee_name = ctx.author.nick
+        if not referee_name:
+            referee_name = ctx.author.name
+        successfully_dropped_matches_id = []
+        already_dropped_matches_id = []
+        for bracket in brackets:
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            if not schedules_spreadsheet:
+                raise NoSpreadsheet("schedules_spreadsheet")
+            try:
+                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+            except googleapiclient.errors.HttpError:
+                raise SpreadsheetError()
+            tuples = schedules_spreadsheet.parse_parameters()
+            write_values = False
+            for match_id in args:
+                for y, row in enumerate(values):
+                    for x, value in enumerate(row):
+                        if value == match_id:
+                            incr_x, incr_y = tuples[2]
+                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]) and values[y + incr_y][x + incr_x] == referee_name:
+                                values[y + incr_y][x + incr_x] = ""
+                                write_values = True
+                                successfully_dropped_matches_id.append(match_id)
+                            else:
+                                already_dropped_matches_id.append(match_id)
+            if write_values:
+                try:
+                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                except googleapiclient.errors.HttpError:
+                    raise SpreadsheetError()
+        string = self.get_string("drop_match", "successfully_dropped_matches_id")
+        for i, match_id in enumerate(successfully_dropped_matches_id):
+            string += match_id
+            if i + 1 < len(successfully_dropped_matches_id):
+                string += ", "
+        string += "\n" + self.get_string("drop_match", "already_dropped_matches_id")
+        for i, match_id in enumerate(already_dropped_matches_id):
+            string += match_id
+            if i + 1 < len(already_dropped_matches_id):
+                string += ", "
+        await ctx.send(string)
+
+    @drop_match.error
+    async def drop_match_handler(self, ctx, error):
+        """Error handler of drop_match function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("drop_match", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+
     @commands.command(name='post_result')
     @commands.guild_only()
     async def post_result(self, ctx, match_id: str, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, mp_links: str, *, parameters: str):
@@ -952,7 +1100,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
         if not brackets:
-            raise UnknownError()
+            raise UnknownError("post_result: query on brackets returned nothing.")
         roles = ctx.guild.roles
         referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
         if not referee_role:
@@ -1197,7 +1345,7 @@ class Tosurnament(modules.module.BaseModule):
                                     values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
                                 referee = None
                                 if referee_name:
-                                    referee = guild.get_member_named(referee_name)                                
+                                    referee = guild.get_member_named(referee_name)
                                 try:
                                     api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
                                 except googleapiclient.errors.HttpError:

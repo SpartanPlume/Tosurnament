@@ -142,9 +142,29 @@
         },
         "disable_name_change": {
             "parameter": "",
-            "help": "Disabled or enables the name_change command.",
+            "help": "Disables or enables the name_change command.",
             "usage": "Usage: %1disable_name_change",
             "success": "name_change has successfully been %1."
+        },
+        "take_match": {
+            "parameter": "<match_id>...",
+            "help": "Gives the referee the matches wanted.",
+            "usage": "Usage: %1take_match $tosurnament/take_match/parameter\n\nExample: %1take_match 1A 2A 2B",
+            "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
+            "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
+            "successfully_taken_matches_id": "You succesfully took the matches: ",
+            "already_taken_matches_id": "Those matches were already taken: ",
+            "success": ""
+        },
+        "drop_match": {
+            "parameter": "<match_id>...",
+            "help": "Drops the matches the referee want to drop.",
+            "usage": "Usage: %1drop_match $tosurnament/drop_match/parameter\n\nExample: %1drop_match 1A 2A 2B",
+            "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
+            "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
+            "successfully_dropped_matches_id": "You succesfully dropped the matches: ",
+            "already_dropped_matches_id": "You weren't the referee for the matches: ",
+            "success": ""
         },
         "post_result": {
             "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> <mp_link(s)> <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",
