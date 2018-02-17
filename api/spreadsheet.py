@@ -57,20 +57,49 @@ def start_service():
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
 
-def get_range(spreadsheet_id, range_name):
+def get_spreadsheet_with_values(spreadsheet_id):
+    """Gets all sheets and their cells"""
+    sheets = []
+    if not service:
+        return sheets
+    result = service.spreadsheets().get(spreadsheetId=spreadsheet_id, fields="sheets.properties.title,sheets.properties.gridProperties,sheets.data.rowData.values.userEnteredValue,sheets.data.rowData.values.effectiveValue").execute()
+    for sheet in result["sheets"]:
+        values = []
+        tmp_values = sheet["data"][0]
+        if "rowData" in tmp_values:
+            tmp_values = tmp_values["rowData"]
+            for i, row in enumerate(tmp_values):
+                values.append([])
+                if "values" in row:
+                    for value in row["values"]:
+                        if "userEnteredValue" in value and "formulaValue" in value["userEnteredValue"]:
+                            values[i].append(value["userEnteredValue"]["formulaValue"])
+                        elif "effectiveValue" in value and "formattedValue" in value["effectiveValue"]:
+                            values[i].append(value["effectiveValue"]["formattedValue"])
+                        elif "effectiveValue" in value and "stringValue" in value["effectiveValue"]:
+                            values[i].append(value["effectiveValue"]["stringValue"])
+                        elif "userEnteredValue" in value and "stringValue" in value["userEnteredValue"]:
+                            values[i].append(value["userEnteredValue"]["stringValue"])
+                        else:
+                            values[i].append("")
+        sheet_range = "A1:" + to_cell((sheet["properties"]["gridProperties"]["columnCount"], sheet["properties"]["gridProperties"]["rowCount"]))
+        sheets.append({"name": sheet["properties"]["title"], "range": sheet_range, "values": values})
+    return sheets
+
+def get_range(spreadsheet_id, range_name, major_dimension="ROWS", value_render_option="FORMATTED_VALUE", date_time_render_option="SERIAL_NUMBER"):
     """Gets values of a range"""
     if not service:
         return []
     result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheet_id, range=range_name).execute()
+        spreadsheetId=spreadsheet_id, range=range_name, majorDimension=major_dimension, valueRenderOption=value_render_option, dateTimeRenderOption=date_time_render_option).execute()
     return result.get('values', [])
 
-def get_ranges(spreadsheet_id, range_names):
+def get_ranges(spreadsheet_id, range_names, major_dimension="ROWS", value_render_option="FORMATTED_VALUE", date_time_render_option="SERIAL_NUMBER"):
     """Gets values of multiple ranges"""
     if not service:
         return []
     result = service.spreadsheets().values().batchGet(
-        spreadsheetId=spreadsheet_id, ranges=range_names).execute()
+        spreadsheetId=spreadsheet_id, ranges=range_names, majorDimension=major_dimension, valueRenderOption=value_render_option, dateTimeRenderOption=date_time_render_option).execute()
     value_ranges = result.get('valueRanges', [])
     if value_ranges:
         tmp = []
@@ -79,11 +108,11 @@ def get_ranges(spreadsheet_id, range_names):
         value_ranges = tmp
     return value_ranges
 
-def write_range(spreadsheet_id, range_name, values, value_input_option="RAW"):
+def write_range(spreadsheet_id, range_name, values, value_input_option="USER_ENTERED"):
     """Writes values in a range"""
     return write_ranges(spreadsheet_id, [range_name], [values], value_input_option)
 
-def write_ranges(spreadsheet_id, range_name_array, values_array, value_input_option="RAW"):
+def write_ranges(spreadsheet_id, range_name_array, values_array, value_input_option="USER_ENTERED"):
     """Writes values in multiple ranges"""
     if not service:
         return 1

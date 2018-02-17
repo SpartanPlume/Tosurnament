@@ -668,7 +668,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
             raise NotBotAdmin()
-        if not re.match(r'^(.+!)?[A-Z]+\d*(:[A-Z]+\d*)?$', range_name):
+        if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee]|[Aa][Ll][Ll])$', range_name):
             raise commands.UserInputError()
         if not re.match(r'^((\(\d+, ?\d+)\) ?){3}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
             raise commands.UserInputError()
@@ -717,79 +717,89 @@ class Tosurnament(modules.module.BaseModule):
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet()
+            all_sheets = False
+            if not "!" in schedules_spreadsheet.range_name:
+                all_sheets = True
             try:
-                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                if all_sheets:
+                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                else:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                    sheet_range = schedules_spreadsheet.range_name.split("!")
+                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
-            for y, row in enumerate(values):
-                for x, value in enumerate(row):
-                    if value == match_id:
-                        incr_x, incr_y = tuples[0]
-                        team_name1 = values[y + incr_y][x + incr_x]
-                        incr_x, incr_y = tuples[1]
-                        team_name2 = values[y + incr_y][x + incr_x]
-                        tuples = tuples[3:]
-                        date_string = ""
-                        date_flags = ""
-                        for tup in tuples:
-                            incr_x, incr_y, date_flag = tup
-                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
-                                date_flags += date_flag
-                                date_string += values[y + incr_y][x + incr_x]
-                        previous_date = datetime.datetime.strptime(date_string, date_flags)
-                        player_name = ctx.author.nick
-                        if not player_name:
-                            player_name = ctx.author.name
-                        role_team1 = self.get_role(roles, role_name=team_name1)
-                        role_team2 = self.get_role(roles, role_name=team_name2)
-                        reschedule_message = RescheduleMessage()
-                        reschedule_message.match_id = match_id
-                        reschedule_message.ally_user_id = bytes('', 'utf-8')
-                        reschedule_message.ally_role_id = bytes('', 'utf-8')
-                        reschedule_message.enemy_user_id = bytes('', 'utf-8')
-                        reschedule_message.enemy_role_id = bytes('', 'utf-8')
-                        if role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
-                            ally_name = role_team1.name
-                            ally_mention = role_team1.mention
-                            enemy_mention = role_team2.mention
-                            reschedule_message.ally_role_id = str(role_team1.id)
-                            reschedule_message.enemy_role_id = str(role_team2.id)
-                        elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
-                            ally_name = role_team1.name
-                            ally_mention = role_team2.mention
-                            enemy_mention = role_team1.mention
-                            reschedule_message.ally_role_id = str(role_team2.id)
-                            reschedule_message.enemy_role_id = str(role_team1.id)
-                        elif team_name1 == player_name:
-                            ally_name = player_name
-                            enemy = ctx.guild.get_member_named(team_name2)
-                            ally_mention = ctx.author.mention
-                            enemy_mention = enemy.mention
-                            reschedule_message.ally_user_id = str(ctx.author.id)
-                            reschedule_message.enemy_user_id = str(enemy.id)
-                        elif team_name2 == player_name:
-                            ally_name = player_name
-                            enemy = ctx.guild.get_member_named(team_name1)
-                            ally_mention = ctx.author.mention
-                            enemy_mention = enemy.mention
-                            reschedule_message.ally_user_id = str(ctx.author.id)
-                            reschedule_message.enemy_user_id = str(enemy.id)
-                        else:
-                            raise InvalidMatch()
-                        previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
-                        new_date_string = date.strftime("**%d %B at %H:%M UTC**")
-                        reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
-                        reschedule_message.new_date = date.strftime("%d/%m/%y %H:%M")
-                        reschedule_message.ally_user_id = ally_mention
-                        reschedule_message.enemy_mention = enemy_mention
-                        sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_name, match_id, previous_date_string, new_date_string))
-                        reschedule_message.message_id = str(sent_message.id)
-                        self.client.session.add(reschedule_message)
-                        self.client.session.commit()
-                        await sent_message.add_reaction("👍")
-                        await sent_message.add_reaction("👎")
-                        return
+            for sheet in sheets:
+                values = sheet["values"]
+                for y, row in enumerate(values):
+                    for x, value in enumerate(row):
+                        if value == match_id:
+                            incr_x, incr_y = tuples[0]
+                            team_name1 = values[y + incr_y][x + incr_x]
+                            incr_x, incr_y = tuples[1]
+                            team_name2 = values[y + incr_y][x + incr_x]
+                            tuples = tuples[3:]
+                            date_string = ""
+                            date_flags = ""
+                            for tup in tuples:
+                                incr_x, incr_y, date_flag = tup
+                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                    date_flags += date_flag
+                                    date_string += values[y + incr_y][x + incr_x]
+                            previous_date = datetime.datetime.strptime(date_string, date_flags)
+                            player_name = ctx.author.nick
+                            if not player_name:
+                                player_name = ctx.author.name
+                            role_team1 = self.get_role(roles, role_name=team_name1)
+                            role_team2 = self.get_role(roles, role_name=team_name2)
+                            reschedule_message = RescheduleMessage()
+                            reschedule_message.match_id = match_id
+                            reschedule_message.ally_user_id = bytes('', 'utf-8')
+                            reschedule_message.ally_role_id = bytes('', 'utf-8')
+                            reschedule_message.enemy_user_id = bytes('', 'utf-8')
+                            reschedule_message.enemy_role_id = bytes('', 'utf-8')
+                            if role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
+                                ally_name = role_team1.name
+                                ally_mention = role_team1.mention
+                                enemy_mention = role_team2.mention
+                                reschedule_message.ally_role_id = str(role_team1.id)
+                                reschedule_message.enemy_role_id = str(role_team2.id)
+                            elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
+                                ally_name = role_team1.name
+                                ally_mention = role_team2.mention
+                                enemy_mention = role_team1.mention
+                                reschedule_message.ally_role_id = str(role_team2.id)
+                                reschedule_message.enemy_role_id = str(role_team1.id)
+                            elif team_name1 == player_name:
+                                ally_name = player_name
+                                enemy = ctx.guild.get_member_named(team_name2)
+                                ally_mention = ctx.author.mention
+                                enemy_mention = enemy.mention
+                                reschedule_message.ally_user_id = str(ctx.author.id)
+                                reschedule_message.enemy_user_id = str(enemy.id)
+                            elif team_name2 == player_name:
+                                ally_name = player_name
+                                enemy = ctx.guild.get_member_named(team_name1)
+                                ally_mention = ctx.author.mention
+                                enemy_mention = enemy.mention
+                                reschedule_message.ally_user_id = str(ctx.author.id)
+                                reschedule_message.enemy_user_id = str(enemy.id)
+                            else:
+                                raise InvalidMatch()
+                            previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+                            new_date_string = date.strftime("**%d %B at %H:%M UTC**")
+                            reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
+                            reschedule_message.new_date = date.strftime("%d/%m/%y %H:%M")
+                            reschedule_message.ally_user_id = ally_mention
+                            reschedule_message.enemy_mention = enemy_mention
+                            sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_name, match_id, previous_date_string, new_date_string))
+                            reschedule_message.message_id = str(sent_message.id)
+                            self.client.session.add(reschedule_message)
+                            self.client.session.commit()
+                            await sent_message.add_reaction("👍")
+                            await sent_message.add_reaction("👎")
+                            return
         raise InvalidMatchId()
 
     @reschedule.error
@@ -832,18 +842,21 @@ class Tosurnament(modules.module.BaseModule):
             previous_name = ctx.author.name
         osu_name = osu_users[0][api.osu.User.NAME]
         write_access = True
+        name_changed_players_spreadsheet = True
+        name_changed_schedules_spreadsheet = True
         if tournament:
             brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
             if not brackets:
                 raise UnknownError("name_change: query on brackets returned nothing.")
             if self.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
+                name_changed_players_spreadsheet = False
                 for bracket in brackets:
                     players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
                     if players_spreadsheet:
                         range_names = players_spreadsheet.get_ranges()
                         n_range_team = players_spreadsheet.get_total_range_team()
                         try:
-                            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names, "ROWS", "FORMULA")
                             i = 0
                             while i < len(cells):
                                 if players_spreadsheet.range_team_name.lower() != "none":
@@ -853,6 +866,7 @@ class Tosurnament(modules.module.BaseModule):
                                     if j != None:
                                         cells[i][j][k] = osu_name
                                         api.spreadsheet.write_ranges(players_spreadsheet.spreadsheet_id, range_names, cells)
+                                        name_changed_players_spreadsheet = True
                                         i = len(cells)
                                         break
                                     i += 1
@@ -867,15 +881,28 @@ class Tosurnament(modules.module.BaseModule):
                         except Exception:
                             write_access = False
             if self.get_role(ctx.author.roles, tournament.player_role_id, "Player") or self.get_role(ctx.author.roles, tournament.referee_role_id, "Referee"):
+                name_changed_schedules_spreadsheet = False
                 for bracket in brackets:
                     schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
                     if schedules_spreadsheet:
+                        all_sheets = False
+                        if not "!" in schedules_spreadsheet.range_name:
+                            all_sheets = True
                         try:
-                            cells = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
-                            j, k = self.get_player_from_cells(cells, previous_name)
-                            if j != None:
-                                cells[j][k] = osu_name
-                                api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, cells)                        
+                            if all_sheets:
+                                sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                            else:
+                                cells = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                                sheet_range = schedules_spreadsheet.range_name.split("!")
+                                sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": cells}]
+                            for sheet in sheets:
+                                cells = sheet["values"]
+                                j, k = self.get_player_from_cells(cells, previous_name)
+                                if j != None:
+                                    cells[j][k] = osu_name
+                                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], cells)
+                                    name_changed_schedules_spreadsheet = True
+                                    break
                         except googleapiclient.errors.HttpError:
                             write_access = False
         try:
@@ -883,7 +910,7 @@ class Tosurnament(modules.module.BaseModule):
         except discord.Forbidden:
             raise commands.BotMissingPermissions(["change_owner_nickname"])
         await ctx.send(self.get_string("name_change", "success"))
-        if not write_access:
+        if not write_access or not name_changed_players_spreadsheet or not name_changed_schedules_spreadsheet:
             await ctx.send(self.get_string("name_change", "no_access"))
 
     def get_player_from_cells(self, cells, previous_name):
@@ -940,32 +967,42 @@ class Tosurnament(modules.module.BaseModule):
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet("schedules_spreadsheet")
+            all_sheets = False
+            if not "!" in schedules_spreadsheet.range_name:
+                all_sheets = True
             try:
-                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                if all_sheets:
+                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                else:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
+                    sheet_range = schedules_spreadsheet.range_name.split("!")
+                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
-            write_values = False
-            for match_id in args:
-                for y, row in enumerate(values):
-                    for x, value in enumerate(row):
-                        if value == match_id:
-                            incr_x, incr_y = tuples[2]
-                            while y + incr_y >= len(values):
-                                values.append([])
-                            while x + incr_x >= len(values[y + incr_y]):
-                                values[y + incr_y].append("")
-                            if not values[y + incr_y][x + incr_x]:
-                                values[y + incr_y][x + incr_x] = referee_name
-                                write_values = True
-                                successfully_taken_matches_id.append(match_id)
-                            else:
-                                already_taken_matches_id.append(match_id)
-            if write_values:
-                try:
-                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                except googleapiclient.errors.HttpError:
-                    raise SpreadsheetError()
+            for sheet in sheets:
+                values = sheet["values"]
+                write_values = False
+                for match_id in args:
+                    for y, row in enumerate(values):
+                        for x, value in enumerate(row):
+                            if value == match_id:
+                                incr_x, incr_y = tuples[2]
+                                while y + incr_y >= len(values):
+                                    values.append([])
+                                while x + incr_x >= len(values[y + incr_y]):
+                                    values[y + incr_y].append("")
+                                if not values[y + incr_y][x + incr_x]:
+                                    values[y + incr_y][x + incr_x] = referee_name
+                                    write_values = True
+                                    successfully_taken_matches_id.append(match_id)
+                                else:
+                                    already_taken_matches_id.append(match_id)
+                if write_values:
+                    try:
+                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
+                    except googleapiclient.errors.HttpError:
+                        raise SpreadsheetError()
         string = self.get_string("take_match", "successfully_taken_matches_id")
         for i, match_id in enumerate(successfully_taken_matches_id):
             string += match_id
@@ -1016,28 +1053,38 @@ class Tosurnament(modules.module.BaseModule):
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet("schedules_spreadsheet")
+            all_sheets = False
+            if not "!" in schedules_spreadsheet.range_name:
+                all_sheets = True
             try:
-                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                if all_sheets:
+                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                else:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
+                    sheet_range = schedules_spreadsheet.range_name.split("!")
+                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
-            write_values = False
-            for match_id in args:
-                for y, row in enumerate(values):
-                    for x, value in enumerate(row):
-                        if value == match_id:
-                            incr_x, incr_y = tuples[2]
-                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]) and values[y + incr_y][x + incr_x] == referee_name:
-                                values[y + incr_y][x + incr_x] = ""
-                                write_values = True
-                                successfully_dropped_matches_id.append(match_id)
-                            else:
-                                already_dropped_matches_id.append(match_id)
-            if write_values:
-                try:
-                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                except googleapiclient.errors.HttpError:
-                    raise SpreadsheetError()
+            for sheet in sheets:
+                values = sheet["values"]
+                write_values = False
+                for match_id in args:
+                    for y, row in enumerate(values):
+                        for x, value in enumerate(row):
+                            if value == match_id:
+                                incr_x, incr_y = tuples[2]
+                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]) and values[y + incr_y][x + incr_x] == referee_name:
+                                    values[y + incr_y][x + incr_x] = ""
+                                    write_values = True
+                                    successfully_dropped_matches_id.append(match_id)
+                                else:
+                                    already_dropped_matches_id.append(match_id)
+                if write_values:
+                    try:
+                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
+                    except googleapiclient.errors.HttpError:
+                        raise SpreadsheetError()
         string = self.get_string("drop_match", "successfully_dropped_matches_id")
         for i, match_id in enumerate(successfully_dropped_matches_id):
             string += match_id
@@ -1108,145 +1155,155 @@ class Tosurnament(modules.module.BaseModule):
                 cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
             except googleapiclient.errors.HttpError:
                 raise SpreadsheetError()
+            all_sheets = False
+            if not "!" in schedules_spreadsheet.range_name:
+                all_sheets = True
             try:
-                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                if all_sheets:
+                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                else:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                    sheet_range = schedules_spreadsheet.range_name.split("!")
+                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
-            for y, row in enumerate(values):
-                for x, value in enumerate(row):
-                    if value == match_id:
-                        incr_x, incr_y = tuples[0]
-                        team_name1 = values[y + incr_y][x + incr_x]
-                        incr_x, incr_y = tuples[1]
-                        team_name2 = values[y + incr_y][x + incr_x]
-                        if roll_team1 > roll_team2:
-                            winner_roll = team_name1
-                            bans_winner_roll = bans_team1
-                            loser_roll = team_name2
-                            bans_loser_roll = bans_team2
-                        else:
-                            winner_roll = team_name2
-                            bans_winner_roll = bans_team2
-                            loser_roll = team_name1
-                            bans_loser_roll = bans_team1
-                        players_team1 = []
-                        players_team2 = []
-                        if players_spreadsheet.range_team_name.lower() != "none":
-                            i = 0
-                            while i < len(cells):
-                                for row in cells[i]:
-                                    for cell in row:
-                                        if cell == team_name1:
-                                            for j in range(n_range_team):
-                                                for player_row in cells[i + j + 1]:
-                                                    for player in player_row:
-                                                        players_team1.append(player)
-                                        elif cell == team_name2:
-                                            for j in range(n_range_team):
-                                                for player_row in cells[i + j + 1]:
-                                                    for player in player_row:
-                                                        players_team2.append(player)
-                                i += 1
-                        else:
-                            players_team1.append(team_name1)
-                            players_team2.append(team_name2)
-                        i = 0
-                        players_team1 = api.osu.User.names_to_ids(players_team1)
-                        players_team2 = api.osu.User.names_to_ids(players_team2)
-                        score_team1 = 0
-                        score_team2 = 0
-                        games = []
-                        for mp_id in mp_ids:
-                            matches = api.osu.OsuApi.get_match(mp_id)
-                            if not matches:
-                                raise InvalidMpLink()
-                            games += matches["games"]
-                        i = 0
-                        while i < len(games):
-                            if n_warmup > 0:
-                                n_warmup -= 1
+            for sheet in sheets:
+                values = sheet["values"]
+                for y, row in enumerate(values):
+                    for x, value in enumerate(row):
+                        if value == match_id:
+                            incr_x, incr_y = tuples[0]
+                            team_name1 = values[y + incr_y][x + incr_x]
+                            incr_x, incr_y = tuples[1]
+                            team_name2 = values[y + incr_y][x + incr_x]
+                            if roll_team1 > roll_team2:
+                                winner_roll = team_name1
+                                bans_winner_roll = bans_team1
+                                loser_roll = team_name2
+                                bans_loser_roll = bans_team2
                             else:
-                                if i + 1 < len(games):
-                                    beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
-                                    if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
-                                        i += 1
-                                        pass
-                                total_team1 = 0
-                                total_team2 = 0
-                                for score in games[i][api.osu.Game.SCORES]:
-                                    if score[api.osu.Game.Score.PASS] == "1":
-                                        if score[api.osu.Game.Score.USER_ID] in players_team1:
-                                            total_team1 += int(score[api.osu.Game.Score.SCORE])
-                                        elif score[api.osu.Game.Score.USER_ID] in players_team2:
-                                            total_team2 += int(score[api.osu.Game.Score.SCORE])
-                                if total_team1 > total_team2:
-                                    if score_team1 < int(best_of / 2) + 1:
-                                        score_team1 += 1
-                                elif total_team1 < total_team2:
-                                    if score_team2 < int(best_of / 2) + 1:
-                                        score_team2 += 1
-                            i += 1
-                        mp_links = ""
-                        for mp_id in mp_ids:
-                            mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
-                        mp_links = mp_links[:-2]
-                        if tournament.post_result_message:
-                            result_string = tournament.post_result_message
-                        else:
-                            result_string = self.get_string("post_result", "success")
-                        result_string = result_string.replace("%match_id", match_id)
-                        result_string = result_string.replace("%mp_link", mp_links)
-                        result_string = result_string.replace("%team1", team_name1)
-                        result_string = result_string.replace("%team2", team_name2)
-                        result_string = result_string.replace("%score_team1", str(score_team1))
-                        result_string = result_string.replace("%score_team2", str(score_team2))
-                        result_string = result_string.replace("%bans_team1", bans_team1)
-                        result_string = result_string.replace("%bans_team2", bans_team2)                           
-                        result_string = result_string.replace("%winner_roll", winner_roll)
-                        result_string = result_string.replace("%loser_roll", loser_roll)
-                        result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
-                        result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
-                        if bracket.challonge:
-                            t_id = 0
-                            try:
-                                t = api.challonge.get_tournament(bracket.challonge)
-                                t_id = t["id"]
-                                if not t["started_at"]:
-                                    api.challonge.start_tournament(t_id)
-                                participants = api.challonge.get_participants(t_id)
-                                for participant in participants:
-                                    if participant["name"] == team_name1:
-                                        participant1 = participant
-                                    elif participant["name"] == team_name2:
-                                        participant2 = participant
-                                participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
-                            except api.challonge.ServerError:
-                                if tournament.staff_channel_id:
-                                    channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                winner_roll = team_name2
+                                bans_winner_roll = bans_team2
+                                loser_roll = team_name1
+                                bans_loser_roll = bans_team1
+                            players_team1 = []
+                            players_team2 = []
+                            if players_spreadsheet.range_team_name.lower() != "none":
+                                i = 0
+                                while i < len(cells):
+                                    for row in cells[i]:
+                                        for cell in row:
+                                            if cell == team_name1:
+                                                for j in range(n_range_team):
+                                                    for player_row in cells[i + j + 1]:
+                                                        for player in player_row:
+                                                            players_team1.append(player)
+                                            elif cell == team_name2:
+                                                for j in range(n_range_team):
+                                                    for player_row in cells[i + j + 1]:
+                                                        for player in player_row:
+                                                            players_team2.append(player)
+                                    i += 1
+                            else:
+                                players_team1.append(team_name1)
+                                players_team2.append(team_name2)
+                            i = 0
+                            players_team1 = api.osu.User.names_to_ids(players_team1)
+                            players_team2 = api.osu.User.names_to_ids(players_team2)
+                            score_team1 = 0
+                            score_team2 = 0
+                            games = []
+                            for mp_id in mp_ids:
+                                matches = api.osu.OsuApi.get_match(mp_id)
+                                if not matches:
+                                    raise InvalidMpLink()
+                                games += matches["games"]
+                            i = 0
+                            while i < len(games):
+                                if n_warmup > 0:
+                                    n_warmup -= 1
                                 else:
-                                    channel = ctx
-                                await channel.send(self.get_string("", "challonge_server_error"))
-                                await ctx.send(result_string)
-                                return
-                            for match in participant_matches:
-                                match = match["match"]
-                                player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)
-                                if player1:
-                                    if player1["name"] == participant1["name"]:
-                                        match_score = str(score_team1) + "-" + str(score_team2)
+                                    if i + 1 < len(games):
+                                        beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
+                                        if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
+                                            i += 1
+                                            pass
+                                    total_team1 = 0
+                                    total_team2 = 0
+                                    for score in games[i][api.osu.Game.SCORES]:
+                                        if score[api.osu.Game.Score.PASS] == "1":
+                                            if score[api.osu.Game.Score.USER_ID] in players_team1:
+                                                total_team1 += int(score[api.osu.Game.Score.SCORE])
+                                            elif score[api.osu.Game.Score.USER_ID] in players_team2:
+                                                total_team2 += int(score[api.osu.Game.Score.SCORE])
+                                    if total_team1 > total_team2:
+                                        if score_team1 < int(best_of / 2) + 1:
+                                            score_team1 += 1
+                                    elif total_team1 < total_team2:
+                                        if score_team2 < int(best_of / 2) + 1:
+                                            score_team2 += 1
+                                i += 1
+                            mp_links = ""
+                            for mp_id in mp_ids:
+                                mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
+                            mp_links = mp_links[:-2]
+                            if tournament.post_result_message:
+                                result_string = tournament.post_result_message
+                            else:
+                                result_string = self.get_string("post_result", "success")
+                            result_string = result_string.replace("%match_id", match_id)
+                            result_string = result_string.replace("%mp_link", mp_links)
+                            result_string = result_string.replace("%team1", team_name1)
+                            result_string = result_string.replace("%team2", team_name2)
+                            result_string = result_string.replace("%score_team1", str(score_team1))
+                            result_string = result_string.replace("%score_team2", str(score_team2))
+                            result_string = result_string.replace("%bans_team1", bans_team1)
+                            result_string = result_string.replace("%bans_team2", bans_team2)                           
+                            result_string = result_string.replace("%winner_roll", winner_roll)
+                            result_string = result_string.replace("%loser_roll", loser_roll)
+                            result_string = result_string.replace("%bans_winner_roll", bans_winner_roll)
+                            result_string = result_string.replace("%bans_loser_roll", bans_loser_roll)
+                            if bracket.challonge:
+                                t_id = 0
+                                try:
+                                    t = api.challonge.get_tournament(bracket.challonge)
+                                    t_id = t["id"]
+                                    if not t["started_at"]:
+                                        api.challonge.start_tournament(t_id)
+                                    participants = api.challonge.get_participants(t_id)
+                                    for participant in participants:
+                                        if participant["name"] == team_name1:
+                                            participant1 = participant
+                                        elif participant["name"] == team_name2:
+                                            participant2 = participant
+                                    participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
+                                except api.challonge.ServerError:
+                                    if tournament.staff_channel_id:
+                                        channel = self.client.get_channel(int(tournament.staff_channel_id))
                                     else:
-                                        match_score = str(score_team2) + "-" + str(score_team1)
-                                    if score_team1 > score_team2:
-                                        match_winner = api.challonge.get_id_from_participant(player1)
-                                    else:
-                                        match_winner = api.challonge.get_id_from_participant(player2)
-                                    api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
+                                        channel = ctx
+                                    await channel.send(self.get_string("", "challonge_server_error"))
                                     await ctx.send(result_string)
                                     return
-                            raise MatchNotFound()
-                        await ctx.send(result_string)
-                        return
+                                for match in participant_matches:
+                                    match = match["match"]
+                                    player1, player2 = api.challonge.is_match_containing_participants(match, participant1, participant2)
+                                    if player1:
+                                        if player1["name"] == participant1["name"]:
+                                            match_score = str(score_team1) + "-" + str(score_team2)
+                                        else:
+                                            match_score = str(score_team2) + "-" + str(score_team1)
+                                        if score_team1 > score_team2:
+                                            match_winner = api.challonge.get_id_from_participant(player1)
+                                        else:
+                                            match_winner = api.challonge.get_id_from_participant(player2)
+                                        api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
+                                        await ctx.send(result_string)
+                                        return
+                                raise MatchNotFound()
+                            await ctx.send(result_string)
+                            return
         raise InvalidMatchId()
 
     @post_result.error
@@ -1312,51 +1369,65 @@ class Tosurnament(modules.module.BaseModule):
                     if not schedules_spreadsheet:
                         await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
                         return
+                    previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
+                    new_date = datetime.datetime.strptime(reschedule_message.new_date, '%d/%m/%y %H:%M')
+                    all_sheets = False
+                    if not "!" in schedules_spreadsheet.range_name:
+                        all_sheets = True
                     try:
-                        values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                        if all_sheets:
+                            sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                        else:
+                            values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
+                            sheet_range = schedules_spreadsheet.range_name.split("!")
+                            sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
                     except googleapiclient.errors.HttpError:
                         await channel.send(self.get_string("reschedule", "spreadsheet_error"))
                         return
-                    previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
-                    new_date = datetime.datetime.strptime(reschedule_message.new_date, '%d/%m/%y %H:%M')
                     tuples = schedules_spreadsheet.parse_parameters()
-                    for y, row in enumerate(values):
-                        for x, value in enumerate(row):
-                            if value == reschedule_message.match_id:
-                                incr_x, incr_y = tuples[2]
-                                referee_name = None
-                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
-                                    referee_name = values[y + incr_y][x + incr_x]
-                                tuples = tuples[3:]
-                                for tup in tuples:
-                                    incr_x, incr_y, date_flag = tup
-                                    values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
-                                referee = None
-                                if referee_name:
-                                    referee = guild.get_member_named(referee_name)
-                                try:
-                                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                                except googleapiclient.errors.HttpError:
-                                    await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                    for sheet in sheets:
+                        values = sheet["values"]
+                        for y, row in enumerate(values):
+                            for x, value in enumerate(row):
+                                if value == reschedule_message.match_id:
+                                    incr_x, incr_y = tuples[2]
+                                    referee_name = None
+                                    if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                        referee_name = values[y + incr_y][x + incr_x]
+                                    tuples = tuples[3:]
+                                    for tup in tuples:
+                                        incr_x, incr_y, date_flag = tup
+                                        while y + incr_y >= len(values):
+                                            values.append([])
+                                        while x + incr_x >= len(values[y + incr_y]):
+                                            values[y + incr_y].append("")
+                                        values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
+                                    referee = None
+                                    if referee_name:
+                                        referee = guild.get_member_named(referee_name)
+                                    try:
+                                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                                    except googleapiclient.errors.HttpError:
+                                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                        return
+                                    await channel.send(self.get_string("reschedule", "accepted", ally_role.mention))
+                                    if tournament.staff_channel_id:
+                                        staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                        if staff_channel:
+                                            previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+                                            new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
+                                            if referee:
+                                                sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                                referee_notification = RefereeNotification()
+                                                referee_notification.message_id = str(sent_message.id)
+                                                referee_notification.match_id = reschedule_message.match_id
+                                                self.client.session.add(referee_notification)
+                                                self.client.session.commit()
+                                            else:
+                                                await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                    self.client.session.delete(reschedule_message)
+                                    self.client.session.commit()
                                     return
-                                await channel.send(self.get_string("reschedule", "accepted", ally_role.mention))
-                                if tournament.staff_channel_id:
-                                    staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
-                                    if staff_channel:
-                                        previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
-                                        new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
-                                        if referee:
-                                            sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                            referee_notification = RefereeNotification()
-                                            referee_notification.message_id = str(sent_message.id)
-                                            referee_notification.match_id = reschedule_message.match_id
-                                            self.client.session.add(referee_notification)
-                                            self.client.session.commit()
-                                        else:
-                                            await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                self.client.session.delete(reschedule_message)
-                                self.client.session.commit()
-                                return
             elif emoji.name == "👎":
                 await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
                 self.client.session.delete(reschedule_message)
@@ -1382,30 +1453,44 @@ class Tosurnament(modules.module.BaseModule):
                 if not schedules_spreadsheet:
                     await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
                     return
+                all_sheets = False
+                if not "!" in schedules_spreadsheet.range_name:
+                    all_sheets = True
                 try:
-                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                    if all_sheets:
+                        sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                    else:
+                        values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
+                        sheet_range = schedules_spreadsheet.range_name.split("!")
+                        sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
                 except googleapiclient.errors.HttpError:
                     await channel.send(self.get_string("reschedule", "spreadsheet_error"))
                     return
                 tuples = schedules_spreadsheet.parse_parameters()
-                for y, row in enumerate(values):
-                    for x, value in enumerate(row):
-                        if value == referee_notification.match_id:
-                            incr_x, incr_y = tuples[2]
-                            referee_name = values[y + incr_y][x + incr_x]
-                            if referee_name == user.display_name:
-                                values[y + incr_y][x + incr_x] = ""
-                                staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
-                                try:
-                                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                                except googleapiclient.errors.HttpError:
-                                    await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                for sheet in sheets:
+                    values = sheet["values"]
+                    for y, row in enumerate(values):
+                        for x, value in enumerate(row):
+                            if value == referee_notification.match_id:
+                                incr_x, incr_y = tuples[2]
+                                referee_name = values[y + incr_y][x + incr_x]
+                                if referee_name == user.display_name:
+                                    while y + incr_y >= len(values):
+                                        values.append([])
+                                    while x + incr_x >= len(values[y + incr_y]):
+                                        values[y + incr_y].append("")
+                                    values[y + incr_y][x + incr_x] = ""
+                                    staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                    try:
+                                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                                    except googleapiclient.errors.HttpError:
+                                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                        return
+                                    if staff_channel:
+                                        await channel.send(self.get_string("reschedule", "removed_from_match", referee_notification.match_id))
+                                    self.client.session.delete(referee_notification)
+                                    self.client.session.commit()
                                     return
-                                if staff_channel:
-                                    await channel.send(self.get_string("reschedule", "removed_from_match", referee_notification.match_id))
-                                self.client.session.delete(referee_notification)
-                                self.client.session.commit()
-                                return
 
 def get_class(bot):
     """Returns the main class of the module"""
