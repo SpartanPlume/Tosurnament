@@ -349,39 +349,14 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     async def set_bracket_name(self, ctx, *, name: str = ""):
         """Modifies the current bracket's name"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.id == tournament.current_bracket_id).first()
-        if not bracket:
-            raise NoBracket()
-        bracket.name = name
-        bracket.name_hash = name
-        self.client.session.commit()
+        self.set_bracket_values(ctx, {"name": name, "name_hash": name})
         await ctx.send(self.get_string("set_bracket_name", "success"))
 
     @commands.command(name='set_bracket_role', aliases=["modify_bracket_role"])
     @commands.guild_only()
     async def set_bracket_role(self, ctx, *, role: discord.Role):
         """Modifies the current bracket's role"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.id == tournament.current_bracket_id).first()
-        if not bracket:
-            raise NoBracket()
-        bracket.bracket_role_id = str(role.id)
-        self.client.session.commit()
+        self.set_bracket_values(ctx, {"bracket_role_id": str(role.id)})
         await ctx.send(self.get_string("set_bracket_role", "success"))
 
     @set_bracket_role.error
@@ -395,17 +370,8 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='set_staff_channel')
     @commands.guild_only()
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
-        """Set the staff channel"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        tournament.staff_channel_id = str(channel.id)
-        self.client.session.commit()
+        """Sets the staff channel"""
+        self.set_tournament_values(ctx, {"staff_channel_id": str(channel.id)})
         await ctx.send(self.get_string("set_staff_channel", "success"))
 
     @set_staff_channel.error
@@ -419,13 +385,13 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='set_admin_role')
     @commands.guild_only()
     @is_guild_owner()
-    async def set_admin_role(self, ctx, *, admin_role: discord.Role):
-        """Set the admin role"""
+    async def set_admin_role(self, ctx, *, role: discord.Role):
+        """Sets the admin role"""
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        tournament.admin_role_id = str(admin_role.id)
+        tournament.admin_role_id = str(role.id)
         self.client.session.commit()
         await ctx.send(self.get_string("set_admin_role", "success"))
 
@@ -439,18 +405,9 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='set_referee_role')
     @commands.guild_only()
-    async def set_referee_role(self, ctx, *, referee_role: discord.Role):
-        """Set the referee role"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        tournament.referee_role_id = str(referee_role.id)
-        self.client.session.commit()
+    async def set_referee_role(self, ctx, *, role: discord.Role):
+        """Sets the referee role"""
+        self.set_tournament_values(ctx, {"referee_role_id": str(role.id)})
         await ctx.send(self.get_string("set_referee_role", "success"))
 
     @set_referee_role.error
@@ -463,19 +420,10 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='set_player_role')
     @commands.guild_only()
-    async def set_player_role(self, ctx, *, player_role: discord.Role):
-        """Set the player role"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        tournament.player_role_id = str(player_role.id)
-        self.client.session.commit()
-        await ctx.send(self.get_string("set_player_role", "success"))  
+    async def set_player_role(self, ctx, *, role: discord.Role):
+        """Sets the player role"""
+        self.set_tournament_values(ctx, {"player_role_id": str(role.id)})
+        await ctx.send(self.get_string("set_player_role", "success"))
 
     @set_player_role.error
     async def set_player_role_handler(self, ctx, error):
@@ -488,24 +436,12 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='set_challonge')
     @commands.guild_only()
     async def set_challonge(self, ctx, challonge_tournament: str):
-        """Set the player role"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        bracket = self.client.session.query(Bracket).filter(Bracket.id == tournament.current_bracket_id).first()
-        if not bracket:
-            raise NoBracket()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
-            raise NotBotAdmin()
+        """Sets the challonge"""
         if challonge_tournament.startswith('http'):
             if challonge_tournament.endswith('/'):
                 challonge_tournament = challonge_tournament[:-1]
             challonge_tournament = challonge_tournament.split('/')[-1]
-        bracket.challonge = challonge_tournament
-        self.client.session.commit()
+        self.set_tournament_values(ctx, {"challonge": challonge_tournament})
         await ctx.send(self.get_string("set_challonge", "success"))  
 
     @set_challonge.error
@@ -519,17 +455,8 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='set_post_result_message')
     @commands.guild_only()
     async def set_post_result_message(self, ctx, *, message: str = ""):
-        """Set the player role"""
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
-            raise NotBotAdmin()
-        tournament.post_result_message = message
-        self.client.session.commit()
+        """Sets the post result message"""
+        self.set_tournament_values(ctx, {"post_result_message": message})
         await ctx.send(self.get_string("set_post_result_message", "success"))  
 
     @set_post_result_message.error
@@ -539,6 +466,35 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
+
+    def set_tournament_values(self, ctx, values):
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        for key, value in values.items():
+            setattr(tournament, key, value)
+        self.client.session.commit()
+
+    def set_bracket_values(self, ctx, values):
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        bracket = self.client.session.query(Bracket).filter(Bracket.id == tournament.current_bracket_id).first()
+        if not bracket:
+            raise NoBracket()
+        for key, value in values.items():
+            setattr(bracket, key, value)
+        self.client.session.commit()
 
     @commands.command(name='set_players_spreadsheet')
     @commands.guild_only()
