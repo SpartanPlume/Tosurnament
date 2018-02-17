@@ -365,6 +365,33 @@ class Tosurnament(modules.module.BaseModule):
         self.client.session.commit()
         await ctx.send(self.get_string("set_bracket_name", "success"))
 
+    @commands.command(name='set_bracket_role', aliases=["modify_bracket_role"])
+    @commands.guild_only()
+    async def set_bracket_role(self, ctx, *, role: discord.Role):
+        """Modifies the current bracket's role"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
+            raise NotBotAdmin()
+        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+            raise NotBotAdmin()
+        bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.id == tournament.current_bracket_id).first()
+        if not bracket:
+            raise NoBracket()
+        bracket.bracket_role_id = str(role.id)
+        self.client.session.commit()
+        await ctx.send(self.get_string("set_bracket_role", "success"))
+
+    @set_bracket_role.error
+    async def set_bracket_role_handler(self, ctx, error):
+        """Error handler of set_bracket_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_bracket_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_bracket_role", "usage", ctx.prefix))
+
     @commands.command(name='set_staff_channel')
     @commands.guild_only()
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
@@ -633,6 +660,9 @@ class Tosurnament(modules.module.BaseModule):
                                     if not team_role:
                                         team_role = await ctx.guild.create_role(name=team_name, mentionable=True)
                                     await ctx.author.add_roles(team_role)
+                                bracket_role = self.get_role(roles, bracket.bracket_role_id)
+                                if bracket_role:
+                                    await ctx.author.add_roles(bracket_role)                                    
                                 await ctx.send(self.get_string("register", "success"))
                                 return
                     i += 1
@@ -653,14 +683,16 @@ class Tosurnament(modules.module.BaseModule):
     def get_role(self, roles, role_id=None, role_name=""):
         """Gets a role from its id or name"""
         wanted_role = None
-        if not role_id:
+        if not role_id and not role_name:
+            return wanted_role
+        elif not role_id:
             for role in roles:
                 if role.name == role_name:
                     wanted_role = role
                     break
         else:
             for role in roles:
-                if role.id == role_id:
+                if str(role.id) == role_id:
                     wanted_role = role
                     break
         return wanted_role
