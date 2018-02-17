@@ -102,6 +102,10 @@ class NotAReferee(commands.CommandError):
     """Special exception if the user is not a player"""
     pass
 
+class NotTeamCaptain(commands.CommandError):
+    """Special exception if the user is not a team captain"""
+    pass
+
 class InvalidMatch(commands.CommandError):
     """Special exception if the user is not in the match"""
     pass
@@ -176,6 +180,8 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("", "no_referee_role"))
         elif isinstance(error, NotAReferee):
             await ctx.send(self.get_string("", "not_a_referee"))
+        elif isinstance(error, NotTeamCaptain):
+            await ctx.send(self.get_string("", "not_team_captain"))
         elif isinstance(error, commands.BotMissingPermissions):
             for missing_permission in error.missing_perms:
                 if missing_permission == "manage_nicknames":
@@ -274,6 +280,8 @@ class Tosurnament(modules.module.BaseModule):
         else:
             bracket = Bracket(tournament_id=tournament.id, name=bracket_name, name_hash=bracket_name)
         self.client.session.add(bracket)
+        self.client.session.commit()
+        tournament.current_bracket_id = bracket.id
         self.client.session.commit()
         await ctx.send(self.get_string("create_tournament", "success"))
 
@@ -432,6 +440,24 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
+
+    @commands.command(name='set_team_captain_role')
+    @commands.guild_only()
+    async def set_team_captain_role(self, ctx, *, role: discord.Role = None):
+        """Sets the team captain role"""
+        if not role:
+            self.set_tournament_values(ctx, {"team_captain_role_id": ""})
+        else:
+            self.set_tournament_values(ctx, {"team_captain_role_id": str(role.id)})
+        await ctx.send(self.get_string("set_team_captain_role", "success"))
+
+    @set_team_captain_role.error
+    async def set_team_captain_role_handler(self, ctx, error):
+        """Error handler of set_team_captain_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_team_captain_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_team_captain_role", "usage", ctx.prefix))
 
     @commands.command(name='set_challonge')
     @commands.guild_only()
@@ -598,6 +624,7 @@ class Tosurnament(modules.module.BaseModule):
                                 team_name = cell
                                 break
                     i += 1
+                team_captain = self.get_team_captain_name(cells[i])
                 for _ in range(n_range_team):
                     for player_row in cells[i]:
                         for player in player_row:
@@ -618,7 +645,11 @@ class Tosurnament(modules.module.BaseModule):
                                     await ctx.author.add_roles(team_role)
                                 bracket_role = self.get_role(roles, bracket.bracket_role_id)
                                 if bracket_role:
-                                    await ctx.author.add_roles(bracket_role)                                    
+                                    await ctx.author.add_roles(bracket_role)
+                                if team_captain == osu_name:
+                                    team_captain_role = self.get_role(roles, tournament.team_captain_role_id)
+                                    if team_captain_role:
+                                        await ctx.author.add_roles(team_captain_role)
                                 await ctx.send(self.get_string("register", "success"))
                                 return
                     i += 1
@@ -635,6 +666,13 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("register", "no_players_spreadsheet", ctx.prefix))
         elif isinstance(error, SpreadsheetError):
             await ctx.send(self.get_string("register", "spreadsheet_error", ctx.prefix))
+
+    def get_team_captain_name(self, cells):
+        for player_row in cells:
+            for player in player_row:
+                if player:
+                    return player
+        return ""
 
     def get_role(self, roles, role_id=None, role_name=""):
         """Gets a role from its id or name"""
@@ -712,6 +750,37 @@ class Tosurnament(modules.module.BaseModule):
             raise NoPlayerRole()
         if not any(player_role.id == role.id for role in ctx.author.roles):
             raise NotAPlayer()
+        is_team_captain = False
+        team_captain_role = self.get_role(ctx.author.roles, tournament.team_captain_role_id)
+        if team_captain_role:
+            is_team_captain = True
+        else:
+            user_name = ctx.author.nick
+            if not user_name:
+                user_name = ctx.author.name
+            for bracket in brackets:
+                players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                if players_spreadsheet:
+                    range_names = players_spreadsheet.get_ranges()
+                    n_range_team = players_spreadsheet.get_total_range_team()
+                    try:
+                        cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                    except googleapiclient.errors.HttpError:
+                        raise SpreadsheetError()
+                    i = 0
+                    while i < len(cells):
+                        if players_spreadsheet.range_team_name.lower() == "none":
+                            break
+                        i += 1
+                        team_captain = self.get_team_captain_name(cells[i])
+                        if team_captain == user_name:
+                            is_team_captain = True
+                            break
+                        i += n_range_team
+                    if is_team_captain:
+                        break
+        if not is_team_captain:
+            raise NotTeamCaptain()
         date = datetime.datetime.strptime(date + "2008", '%d/%m %H:%M%Y')
         for bracket in brackets:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
@@ -766,7 +835,7 @@ class Tosurnament(modules.module.BaseModule):
                                 reschedule_message.ally_role_id = str(role_team1.id)
                                 reschedule_message.enemy_role_id = str(role_team2.id)
                             elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
-                                ally_name = role_team1.name
+                                ally_name = role_team2.name
                                 ally_mention = role_team2.mention
                                 enemy_mention = role_team1.mention
                                 reschedule_message.ally_role_id = str(role_team2.id)
@@ -1354,84 +1423,116 @@ class Tosurnament(modules.module.BaseModule):
                 if reschedule_message.enemy_role_id == str(role.id):
                     enemy_role = role
         if ally_role and enemy_role:
-            if emoji.name == "👍":
-                guild_id = str(guild.id)
-                tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-                if not tournament:
-                    await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
-                    return
-                brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
-                if not brackets:
-                    await channel.send(self.get_string("", "unknown_error"))
-                    return
+            guild_id = str(guild.id)
+            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+            if not tournament:
+                await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
+                return
+            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            if not brackets:
+                await channel.send(self.get_string("", "unknown_error"))
+                return
+            is_team_captain = False
+            team_captain_role = self.get_role(user.roles, tournament.team_captain_role_id)
+            if team_captain_role:
+                is_team_captain = True
+            else:
+                user_name = user.nick
+                if not user_name:
+                    user_name = user.name
                 for bracket in brackets:
-                    schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
-                    if not schedules_spreadsheet:
-                        await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
-                        return
-                    previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
-                    new_date = datetime.datetime.strptime(reschedule_message.new_date, '%d/%m/%y %H:%M')
-                    all_sheets = False
-                    if not "!" in schedules_spreadsheet.range_name:
-                        all_sheets = True
-                    try:
-                        if all_sheets:
-                            sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
-                        else:
-                            values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
-                            sheet_range = schedules_spreadsheet.range_name.split("!")
-                            sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
-                    except googleapiclient.errors.HttpError:
-                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
-                        return
-                    tuples = schedules_spreadsheet.parse_parameters()
-                    for sheet in sheets:
-                        values = sheet["values"]
-                        for y, row in enumerate(values):
-                            for x, value in enumerate(row):
-                                if value == reschedule_message.match_id:
-                                    incr_x, incr_y = tuples[2]
-                                    referee_name = None
-                                    if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
-                                        referee_name = values[y + incr_y][x + incr_x]
-                                    tuples = tuples[3:]
-                                    for tup in tuples:
-                                        incr_x, incr_y, date_flag = tup
-                                        while y + incr_y >= len(values):
-                                            values.append([])
-                                        while x + incr_x >= len(values[y + incr_y]):
-                                            values[y + incr_y].append("")
-                                        values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
-                                    referee = None
-                                    if referee_name:
-                                        referee = guild.get_member_named(referee_name)
-                                    try:
-                                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                                    except googleapiclient.errors.HttpError:
-                                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                    players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                    if players_spreadsheet:
+                        range_names = players_spreadsheet.get_ranges()
+                        n_range_team = players_spreadsheet.get_total_range_team()
+                        try:
+                            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                        except googleapiclient.errors.HttpError:
+                            raise SpreadsheetError()
+                        i = 0
+                        while i < len(cells):
+                            if players_spreadsheet.range_team_name.lower() == "none":
+                                break
+                            i += 1
+                            team_captain = self.get_team_captain_name(cells[i])
+                            if team_captain == user_name:
+                                is_team_captain = True
+                                break
+                            i += n_range_team
+                        if is_team_captain:
+                            break
+            if is_team_captain:
+                if emoji.name == "👍":
+                    for bracket in brackets:
+                        schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+                        if not schedules_spreadsheet:
+                            await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
+                            return
+                        previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
+                        new_date = datetime.datetime.strptime(reschedule_message.new_date, '%d/%m/%y %H:%M')
+                        all_sheets = False
+                        if not "!" in schedules_spreadsheet.range_name:
+                            all_sheets = True
+                        try:
+                            if all_sheets:
+                                sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                            else:
+                                values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
+                                sheet_range = schedules_spreadsheet.range_name.split("!")
+                                sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
+                        except googleapiclient.errors.HttpError:
+                            await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                            return
+                        tuples = schedules_spreadsheet.parse_parameters()
+                        for sheet in sheets:
+                            values = sheet["values"]
+                            for y, row in enumerate(values):
+                                for x, value in enumerate(row):
+                                    if value == reschedule_message.match_id:
+                                        incr_x, incr_y = tuples[2]
+                                        referee_name = None
+                                        if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                            referee_name = values[y + incr_y][x + incr_x]
+                                        tuples = tuples[3:]
+                                        for tup in tuples:
+                                            incr_x, incr_y, date_flag = tup
+                                            while y + incr_y >= len(values):
+                                                values.append([])
+                                            while x + incr_x >= len(values[y + incr_y]):
+                                                values[y + incr_y].append("")
+                                            values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
+                                        referee = None
+                                        if referee_name:
+                                            referee = guild.get_member_named(referee_name)
+                                        try:
+                                            api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
+                                        except googleapiclient.errors.HttpError:
+                                            await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                            return
+                                        await channel.send(self.get_string("reschedule", "accepted", ally_role.mention, reschedule_message.match_id))
+                                        if tournament.staff_channel_id:
+                                            staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                            if staff_channel:
+                                                previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+                                                new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
+                                                if referee:
+                                                    sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                                    referee_notification = RefereeNotification()
+                                                    referee_notification.message_id = str(sent_message.id)
+                                                    referee_notification.match_id = reschedule_message.match_id
+                                                    self.client.session.add(referee_notification)
+                                                    self.client.session.commit()
+                                                else:
+                                                    await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                        self.client.session.delete(reschedule_message)
+                                        self.client.session.commit()
                                         return
-                                    await channel.send(self.get_string("reschedule", "accepted", ally_role.mention))
-                                    if tournament.staff_channel_id:
-                                        staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
-                                        if staff_channel:
-                                            previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
-                                            new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
-                                            if referee:
-                                                sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                                referee_notification = RefereeNotification()
-                                                referee_notification.message_id = str(sent_message.id)
-                                                referee_notification.match_id = reschedule_message.match_id
-                                                self.client.session.add(referee_notification)
-                                                self.client.session.commit()
-                                            else:
-                                                await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                    self.client.session.delete(reschedule_message)
-                                    self.client.session.commit()
-                                    return
-            elif emoji.name == "👎":
-                await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
-                self.client.session.delete(reschedule_message)
-                self.client.session.commit()
+                elif emoji.name == "👎":
+                    await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
+                    self.client.session.delete(reschedule_message)
+                    self.client.session.commit()
+            else:
+                await channel.send(self.get_string("reschedule", "not_team_captain", ally_role.mention))
 
     async def reaction_on_referee_notification(self, emoji, message_id, channel, guild, user):
         """Removes the referee from the schedule spreadsheet"""

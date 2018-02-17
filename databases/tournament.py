@@ -19,6 +19,7 @@ class Tournament(Base):
     admin_role_id = Column(Binary)
     referee_role_id = Column(Binary)
     player_role_id = Column(Binary)
+    team_captain_role_id = Column(Binary)
     post_result_message = Column(Binary)
     current_bracket_id = Column(Integer)
     to_hash = ["server_id"]

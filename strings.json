@@ -19,6 +19,7 @@
         "not_a_player": "You're not on the player list. I can't register you. ='(",
         "no_referee_role": "There's no `Referee` role set. Ask an admin to set it.",
         "not_a_referee": "You're not a referee so you cannot use this command.",
+        "not_team_captain": "You're not a team captain so you cannot use this command.",
         "challonge_server_error": "Connexion error with challonge. If the problem persists, contact spartan.plume@gmail.com",
         "challonge_no_rights": "The challonge account `TosurnamentBot` does not have the rights to modify the challonge.",
         "challonge_not_found": "Challonge not found. Did you set the challonge correctly ?",
@@ -91,6 +92,12 @@
             "usage": "Usage: %1set_player_role $tosurnament/set_player_role/parameter\n\nExample: %1set_player_role @Player",
             "success": "Player role set."
         },
+        "set_team_captain_role": {
+            "parameter": "<role>",
+            "help": "Sets the `Team Captain` role to <role>",
+            "usage": "Usage: %1set_team_captain_role $tosurnament/set_team_captain_role/parameter\n\nExample: %1set_team_captain_role @Team Captain",
+            "success": "Team Captain role set."
+        },
         "set_challonge": {
             "parameter": "<tournament_url>",
             "help": "Sets the challonge",
@@ -133,8 +140,9 @@
             "invalid_match_id": "Invalid match id.",
             "invalid_match": "You can't reschedule a match you're not in.",
             "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
-            "accepted": ":white_check_mark: %1, your reschedule has been accepted.",
+            "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
             "refused": ":x: %1, your reschedule has been refused.",
+            "not_team_captain": "You're not the team captain of your team, you can't use this command.",
             "referee_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6. If you can't arbitrate this new time, please add a :x: reaction to this message.",
             "no_referee_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
             "removed_from_match": "You have successfully been removed from the match %1."
