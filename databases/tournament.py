@@ -22,8 +22,9 @@ class Tournament(Base):
     team_captain_role_id = Column(Binary)
     post_result_message = Column(Binary)
     current_bracket_id = Column(Integer)
+    ping_team = Column(Boolean)
     to_hash = ["server_id"]
-    ignore = ["acronym", "current_bracket_id"]
+    ignore = ["acronym", "current_bracket_id", "name_change_enabled", "ping_team"]
 
     @orm.reconstructor
     def init(self):

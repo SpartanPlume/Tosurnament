@@ -272,7 +272,7 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).filter(Tournament.acronym == acronym).first()
         if tournament:
             raise AcronymAlreadyUsed()
-        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True)
+        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True, ping_team=True)
         self.client.session.add(tournament)
         self.client.session.commit()
         if not bracket_name:
@@ -459,6 +459,21 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_team_captain_role", "usage", ctx.prefix))
 
+    @commands.command(name='set_ping_team')
+    @commands.guild_only()
+    async def set_ping_team(self, ctx, yes: bool):
+        """Sets if team should be pinged or team captain shouldbe pinged"""
+        self.set_tournament_values(ctx, {"ping_team": yes})
+        await ctx.send(self.get_string("set_ping_team", "success"))
+
+    @set_ping_team.error
+    async def set_ping_team_handler(self, ctx, error):
+        """Error handler of set_ping_team function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_ping_team", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_ping_team", "usage", ctx.prefix))
+
     @commands.command(name='set_challonge')
     @commands.guild_only()
     async def set_challonge(self, ctx, challonge_tournament: str):
@@ -618,11 +633,7 @@ class Tosurnament(modules.module.BaseModule):
             while i < len(cells):
                 team_name = ""
                 if players_spreadsheet.range_team_name.lower() != "none":
-                    for row in cells[i]:
-                        for cell in row:
-                            if cell:
-                                team_name = cell
-                                break
+                    team_name = self.get_team_name(cells[i])
                     i += 1
                 team_captain = self.get_team_captain_name(cells[i])
                 for _ in range(n_range_team):
@@ -666,6 +677,13 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("register", "no_players_spreadsheet", ctx.prefix))
         elif isinstance(error, SpreadsheetError):
             await ctx.send(self.get_string("register", "spreadsheet_error", ctx.prefix))
+
+    def get_team_name(self, cells):
+        for row in cells:
+            for cell in row:
+                if cell:
+                    return cell
+        return ""
 
     def get_team_captain_name(self, cells):
         for player_row in cells:
@@ -750,37 +768,6 @@ class Tosurnament(modules.module.BaseModule):
             raise NoPlayerRole()
         if not any(player_role.id == role.id for role in ctx.author.roles):
             raise NotAPlayer()
-        is_team_captain = False
-        team_captain_role = self.get_role(ctx.author.roles, tournament.team_captain_role_id)
-        if team_captain_role:
-            is_team_captain = True
-        else:
-            user_name = ctx.author.nick
-            if not user_name:
-                user_name = ctx.author.name
-            for bracket in brackets:
-                players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
-                if players_spreadsheet:
-                    range_names = players_spreadsheet.get_ranges()
-                    n_range_team = players_spreadsheet.get_total_range_team()
-                    try:
-                        cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
-                    except googleapiclient.errors.HttpError:
-                        raise SpreadsheetError()
-                    i = 0
-                    while i < len(cells):
-                        if players_spreadsheet.range_team_name.lower() == "none":
-                            break
-                        i += 1
-                        team_captain = self.get_team_captain_name(cells[i])
-                        if team_captain == user_name:
-                            is_team_captain = True
-                            break
-                        i += n_range_team
-                    if is_team_captain:
-                        break
-        if not is_team_captain:
-            raise NotTeamCaptain()
         date = datetime.datetime.strptime(date + "2008", '%d/%m %H:%M%Y')
         for bracket in brackets:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
@@ -809,6 +796,35 @@ class Tosurnament(modules.module.BaseModule):
                             incr_x, incr_y = tuples[1]
                             team_name2 = values[y + incr_y][x + incr_x]
                             tuples = tuples[3:]
+                            ally_team_captain = None
+                            enemy_team_captain = None
+                            is_team_captain = False
+                            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                            if not players_spreadsheet:
+                                raise NoSpreadsheet("players_spreadsheet")
+                            if players_spreadsheet.range_team_name.lower() != "none":
+                                range_names = players_spreadsheet.get_ranges()
+                                n_range_team = players_spreadsheet.get_total_range_team()
+                                try:
+                                    cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                                except googleapiclient.errors.HttpError:
+                                    raise SpreadsheetError()
+                                i = 0
+                                while i < len(cells):
+                                    team_name = self.get_team_name(cells[i])
+                                    i += 1
+                                    team_captain = self.get_team_captain_name(cells[i])
+                                    if team_name == team_name1 or team_name == team_name2:
+                                        if team_captain == ctx.author.display_name:
+                                            ally_team_captain = ctx.author
+                                            is_team_captain = True
+                                        elif team_captain:
+                                            enemy_team_captain = ctx.guild.get_member_named(team_captain)
+                                    i += n_range_team
+                            else:
+                                is_team_captain = True
+                            if not is_team_captain:
+                                raise NotTeamCaptain()
                             date_string = ""
                             date_flags = ""
                             for tup in tuples:
@@ -817,9 +833,7 @@ class Tosurnament(modules.module.BaseModule):
                                     date_flags += date_flag
                                     date_string += values[y + incr_y][x + incr_x]
                             previous_date = datetime.datetime.strptime(date_string, date_flags)
-                            player_name = ctx.author.nick
-                            if not player_name:
-                                player_name = ctx.author.name
+                            player_name = ctx.author.display_name
                             role_team1 = self.get_role(roles, role_name=team_name1)
                             role_team2 = self.get_role(roles, role_name=team_name2)
                             reschedule_message = RescheduleMessage()
@@ -828,29 +842,30 @@ class Tosurnament(modules.module.BaseModule):
                             reschedule_message.ally_role_id = bytes('', 'utf-8')
                             reschedule_message.enemy_user_id = bytes('', 'utf-8')
                             reschedule_message.enemy_role_id = bytes('', 'utf-8')
-                            if role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
+                            if not tournament.ping_team and ally_team_captain and enemy_team_captain:
+                                ally_name = ctx.author.display_name
+                                enemy_mention = enemy_team_captain.mention
+                                reschedule_message.ally_user_id = str(ally_team_captain.id)
+                                reschedule_message.enemy_user_id = str(enemy_team_captain.id)
+                            elif role_team1 and role_team2 and any(role_team1.id == role.id for role in ctx.author.roles):
                                 ally_name = role_team1.name
-                                ally_mention = role_team1.mention
                                 enemy_mention = role_team2.mention
                                 reschedule_message.ally_role_id = str(role_team1.id)
                                 reschedule_message.enemy_role_id = str(role_team2.id)
                             elif role_team1 and role_team2 and any(role_team2.id == role.id for role in ctx.author.roles):
                                 ally_name = role_team2.name
-                                ally_mention = role_team2.mention
                                 enemy_mention = role_team1.mention
                                 reschedule_message.ally_role_id = str(role_team2.id)
                                 reschedule_message.enemy_role_id = str(role_team1.id)
                             elif team_name1 == player_name:
                                 ally_name = player_name
                                 enemy = ctx.guild.get_member_named(team_name2)
-                                ally_mention = ctx.author.mention
                                 enemy_mention = enemy.mention
                                 reschedule_message.ally_user_id = str(ctx.author.id)
                                 reschedule_message.enemy_user_id = str(enemy.id)
                             elif team_name2 == player_name:
                                 ally_name = player_name
                                 enemy = ctx.guild.get_member_named(team_name1)
-                                ally_mention = ctx.author.mention
                                 enemy_mention = enemy.mention
                                 reschedule_message.ally_user_id = str(ctx.author.id)
                                 reschedule_message.enemy_user_id = str(enemy.id)
@@ -860,8 +875,6 @@ class Tosurnament(modules.module.BaseModule):
                             new_date_string = date.strftime("**%d %B at %H:%M UTC**")
                             reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
                             reschedule_message.new_date = date.strftime("%d/%m/%y %H:%M")
-                            reschedule_message.ally_user_id = ally_mention
-                            reschedule_message.enemy_mention = enemy_mention
                             sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_name, match_id, previous_date_string, new_date_string))
                             reschedule_message.message_id = str(sent_message.id)
                             self.client.session.add(reschedule_message)
@@ -906,9 +919,7 @@ class Tosurnament(modules.module.BaseModule):
         osu_users = api.osu.OsuApi.get_user(osu_id)
         if not osu_users:
             raise OsuError()
-        previous_name = ctx.author.nick
-        if not previous_name:
-            previous_name = ctx.author.name
+        previous_name = ctx.author.display_name
         osu_name = osu_users[0][api.osu.User.NAME]
         write_access = True
         name_changed_players_spreadsheet = True
@@ -1027,9 +1038,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoRefereeRole()
         if not any(referee_role.id == role.id for role in ctx.author.roles):
             raise NotAReferee()
-        referee_name = ctx.author.nick
-        if not referee_name:
-            referee_name = ctx.author.name
+        referee_name = ctx.author.display_name
         successfully_taken_matches_id = []
         already_taken_matches_id = []
         for bracket in brackets:
@@ -1113,9 +1122,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoRefereeRole()
         if not any(referee_role.id == role.id for role in ctx.author.roles):
             raise NotAReferee()
-        referee_name = ctx.author.nick
-        if not referee_name:
-            referee_name = ctx.author.name
+        referee_name = ctx.author.display_name
         successfully_dropped_matches_id = []
         already_dropped_matches_id = []
         for bracket in brackets:
@@ -1414,8 +1421,8 @@ class Tosurnament(modules.module.BaseModule):
         ally_role = None
         enemy_role = None
         if str(user.id) == reschedule_message.enemy_user_id:
-            enemy_role = guild.get_member(reschedule_message.ally_user_id)
-            ally_role = user
+            ally_role = guild.get_member(int(reschedule_message.ally_user_id))
+            enemy_role = user
         elif any(reschedule_message.enemy_role_id == str(role.id) for role in user.roles):
             for role in guild.roles:
                 if reschedule_message.ally_role_id == str(role.id):
@@ -1432,36 +1439,34 @@ class Tosurnament(modules.module.BaseModule):
             if not brackets:
                 await channel.send(self.get_string("", "unknown_error"))
                 return
-            is_team_captain = False
-            team_captain_role = self.get_role(user.roles, tournament.team_captain_role_id)
-            if team_captain_role:
-                is_team_captain = True
-            else:
-                user_name = user.nick
-                if not user_name:
-                    user_name = user.name
-                for bracket in brackets:
-                    players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
-                    if players_spreadsheet:
-                        range_names = players_spreadsheet.get_ranges()
-                        n_range_team = players_spreadsheet.get_total_range_team()
-                        try:
-                            cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
-                        except googleapiclient.errors.HttpError:
-                            raise SpreadsheetError()
-                        i = 0
-                        while i < len(cells):
-                            if players_spreadsheet.range_team_name.lower() == "none":
+            if tournament.ping_team:
+                is_team_captain = False
+                team_captain_role = self.get_role(user.roles, tournament.team_captain_role_id)
+                if team_captain_role:
+                    is_team_captain = True
+                else:
+                    for bracket in brackets:
+                        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                        if players_spreadsheet:
+                            range_names = players_spreadsheet.get_ranges()
+                            n_range_team = players_spreadsheet.get_total_range_team()
+                            try:
+                                cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                            except googleapiclient.errors.HttpError:
+                                raise SpreadsheetError()
+                            i = 0
+                            while i < len(cells):
+                                if players_spreadsheet.range_team_name.lower() == "none":
+                                    break
+                                i += 1
+                                team_captain = self.get_team_captain_name(cells[i])
+                                if team_captain == user.display_name:
+                                    is_team_captain = True
+                                    break
+                                i += n_range_team
+                            if is_team_captain:
                                 break
-                            i += 1
-                            team_captain = self.get_team_captain_name(cells[i])
-                            if team_captain == user_name:
-                                is_team_captain = True
-                                break
-                            i += n_range_team
-                        if is_team_captain:
-                            break
-            if is_team_captain:
+            if not tournament.ping_team or is_team_captain:
                 if emoji.name == "👍":
                     for bracket in brackets:
                         schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
@@ -1528,11 +1533,11 @@ class Tosurnament(modules.module.BaseModule):
                                         self.client.session.commit()
                                         return
                 elif emoji.name == "👎":
-                    await channel.send(self.get_string("reschedule", "refused", ally_role.mention))
+                    await channel.send(self.get_string("reschedule", "refused", ally_role.mention, reschedule_message.match_id))
                     self.client.session.delete(reschedule_message)
                     self.client.session.commit()
             else:
-                await channel.send(self.get_string("reschedule", "not_team_captain", ally_role.mention))
+                await ctx.author.send(self.get_string("reschedule", "not_team_captain"))
 
     async def reaction_on_referee_notification(self, emoji, message_id, channel, guild, user):
         """Removes the referee from the schedule spreadsheet"""
@@ -1591,7 +1596,7 @@ class Tosurnament(modules.module.BaseModule):
                                         await channel.send(self.get_string("reschedule", "removed_from_match", referee_notification.match_id))
                                     self.client.session.delete(referee_notification)
                                     self.client.session.commit()
-                                    return
+                                    return           
 
 def get_class(bot):
     """Returns the main class of the module"""
