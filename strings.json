@@ -86,6 +86,18 @@
             "usage": "Usage: %1set_referee_role $tosurnament/set_referee_role/parameter\n\nExample: %1set_referee_role @Referee",
             "success": "Referee role set."
         },
+        "set_streamer_role": {
+            "parameter": "<role>",
+            "help": "Sets the `Streamer` role to <role>",
+            "usage": "Usage: %1set_streamer_role $tosurnament/set_streamer_role/parameter\n\nExample: %1set_streamer_role @Streamer",
+            "success": "Streamer role set."
+        },
+        "set_commentator_role": {
+            "parameter": "<role>",
+            "help": "Sets the `Commentator` role to <role>",
+            "usage": "Usage: %1set_commentator_role $tosurnament/set_commentator_role/parameter\n\nExample: %1set_commentator_role @Commentator",
+            "success": "Commentator role set."
+        },
         "set_player_role": {
             "parameter": "<role>",
             "help": "Sets the `Player` role to <role>",

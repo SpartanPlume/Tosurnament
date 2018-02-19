@@ -18,6 +18,8 @@ class Tournament(Base):
     staff_channel_id = Column(Binary)
     admin_role_id = Column(Binary)
     referee_role_id = Column(Binary)
+    streamer_role_id = Column(Binary)
+    commentator_role_id = Column(Binary)
     player_role_id = Column(Binary)
     team_captain_role_id = Column(Binary)
     post_result_message = Column(Binary)

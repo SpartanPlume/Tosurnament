@@ -426,6 +426,36 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_referee_role", "usage", ctx.prefix))
 
+    @commands.command(name='set_streamer_role')
+    @commands.guild_only()
+    async def set_streamer_role(self, ctx, *, role: discord.Role):
+        """Sets the streamer role"""
+        self.set_tournament_values(ctx, {"streamer_role_id": str(role.id)})
+        await ctx.send(self.get_string("set_streamer_role", "success"))
+
+    @set_streamer_role.error
+    async def set_streamer_role_handler(self, ctx, error):
+        """Error handler of set_streamer_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_streamer_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_streamer_role", "usage", ctx.prefix))
+
+    @commands.command(name='set_commentator_role')
+    @commands.guild_only()
+    async def set_commentator_role(self, ctx, *, role: discord.Role):
+        """Sets the commentator role"""
+        self.set_tournament_values(ctx, {"commentator_role_id": str(role.id)})
+        await ctx.send(self.get_string("set_commentator_role", "success"))
+
+    @set_commentator_role.error
+    async def set_commentator_role_handler(self, ctx, error):
+        """Error handler of set_commentator_role function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_commentator_role", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_commentator_role", "usage", ctx.prefix))
+
     @commands.command(name='set_player_role')
     @commands.guild_only()
     async def set_player_role(self, ctx, *, role: discord.Role):
