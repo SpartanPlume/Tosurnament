@@ -1187,6 +1187,16 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     async def post_result(self, ctx, match_id: str, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, mp_links: str, *, parameters: str):
         """Allows referees to post the result of a match"""
+        await self.post_result_(ctx, match_id, 0, 0, n_warmup, best_of, roll_team1, roll_team2, mp_links, parameters)
+
+    @commands.command(name='post_result_with_scores')
+    @commands.guild_only()
+    async def post_result_with_scores(self, ctx, match_id: str, score_team1: int, score_team2: int, n_warmup: int, best_of: int, roll_team1: int, roll_team2: int, mp_links: str, *, parameters: str):
+        """Allows referees to post the result of a match"""
+        await self.post_result_(ctx, match_id, score_team1, score_team2, n_warmup, best_of, roll_team1, roll_team2, mp_links, parameters)
+
+    async def post_result_(self, ctx, match_id, score_team1, score_team2, n_warmup, best_of, roll_team1, roll_team2, mp_links, parameters):
+        """Allows referees to post the result of a match"""
         if n_warmup < 0:
             raise commands.UserInputError()
         if (best_of < 0) or (best_of % 2 != 1):
@@ -1287,43 +1297,52 @@ class Tosurnament(modules.module.BaseModule):
                             i = 0
                             players_team1 = api.osu.User.names_to_ids(players_team1)
                             players_team2 = api.osu.User.names_to_ids(players_team2)
-                            score_team1 = 0
-                            score_team2 = 0
-                            games = []
-                            for mp_id in mp_ids:
-                                matches = api.osu.OsuApi.get_match(mp_id)
-                                if not matches:
-                                    raise InvalidMpLink()
-                                games += matches["games"]
-                            i = 0
-                            while i < len(games):
-                                if n_warmup > 0:
-                                    n_warmup -= 1
-                                else:
-                                    if i + 1 < len(games):
-                                        beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
-                                        if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
-                                            i += 1
-                                            pass
-                                    total_team1 = 0
-                                    total_team2 = 0
-                                    for score in games[i][api.osu.Game.SCORES]:
-                                        if score[api.osu.Game.Score.PASS] == "1":
-                                            if score[api.osu.Game.Score.USER_ID] in players_team1:
-                                                total_team1 += int(score[api.osu.Game.Score.SCORE])
-                                            elif score[api.osu.Game.Score.USER_ID] in players_team2:
-                                                total_team2 += int(score[api.osu.Game.Score.SCORE])
-                                    if total_team1 > total_team2:
-                                        if score_team1 < int(best_of / 2) + 1:
-                                            score_team1 += 1
-                                    elif total_team1 < total_team2:
-                                        if score_team2 < int(best_of / 2) + 1:
-                                            score_team2 += 1
-                                i += 1
+                            if score_team1 == 0 and score_team2 == 0:
+                                score_team1 = 0
+                                score_team2 = 0
+                                games = []
+                                for mp_id in mp_ids:
+                                    matches = api.osu.OsuApi.get_match(mp_id)
+                                    if not matches:
+                                        raise InvalidMpLink()
+                                    games += matches["games"]
+                                i = 0
+                                while i < len(games):
+                                    if n_warmup > 0:
+                                        n_warmup -= 1
+                                    else:
+                                        if i + 1 < len(games):
+                                            beatmap_id = games[i][api.osu.Game.BEATMAP_ID]
+                                            if games[i + 1][api.osu.Game.BEATMAP_ID] == beatmap_id:
+                                                i += 1
+                                                pass
+                                        total_team1 = 0
+                                        total_team2 = 0
+                                        for score in games[i][api.osu.Game.SCORES]:
+                                            if score[api.osu.Game.Score.PASS] == "1":
+                                                if score[api.osu.Game.Score.USER_ID] in players_team1:
+                                                    total_team1 += int(score[api.osu.Game.Score.SCORE])
+                                                elif score[api.osu.Game.Score.USER_ID] in players_team2:
+                                                    total_team2 += int(score[api.osu.Game.Score.SCORE])
+                                        if total_team1 > total_team2:
+                                            if score_team1 < int(best_of / 2) + 1:
+                                                score_team1 += 1
+                                        elif total_team1 < total_team2:
+                                            if score_team2 < int(best_of / 2) + 1:
+                                                score_team2 += 1
+                                    i += 1
                             mp_links = ""
                             for mp_id in mp_ids:
                                 mp_links += "https://osu.ppy.sh/community/matches/" + mp_id + "; "
                             mp_links = mp_links[:-2]
+                            if score_team1 < 0:
+                                score_team1_string = "FF"
+                            else:
+                                score_team1_string = str(score_team1)
+                            if score_team2 < 0:
+                                score_team2_string = "FF"
+                            else:
+                                score_team2_string = str(score_team2)
                             if tournament.post_result_message:
                                 result_string = tournament.post_result_message
                             else:
@@ -1332,8 +1351,8 @@ class Tosurnament(modules.module.BaseModule):
                             result_string = result_string.replace("%mp_link", mp_links)
                             result_string = result_string.replace("%team1", team_name1)
                             result_string = result_string.replace("%team2", team_name2)
-                            result_string = result_string.replace("%score_team1", str(score_team1))
-                            result_string = result_string.replace("%score_team2", str(score_team2))
+                            result_string = result_string.replace("%score_team1", score_team1_string)
+                            result_string = result_string.replace("%score_team2", score_team2_string)
                             result_string = result_string.replace("%bans_team1", bans_team1)
                             result_string = result_string.replace("%bans_team2", bans_team2)                           
                             result_string = result_string.replace("%winner_roll", winner_roll)
@@ -1348,11 +1367,21 @@ class Tosurnament(modules.module.BaseModule):
                                     if not t["started_at"]:
                                         api.challonge.start_tournament(t_id)
                                     participants = api.challonge.get_participants(t_id)
+                                    participant1 = None
+                                    participant2 = None
                                     for participant in participants:
                                         if participant["name"] == team_name1:
                                             participant1 = participant
                                         elif participant["name"] == team_name2:
                                             participant2 = participant
+                                    if not participant1 or not participant2:
+                                        if tournament.staff_channel_id:
+                                            channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                        else:
+                                            channel = ctx
+                                        await channel.send(self.get_string("post_result", "participant_not_found", match_id))
+                                        await ctx.send(result_string)
+                                        return
                                     participant_matches = api.challonge.get_participant(t_id, participant1["id"], include_matches=1)["matches"]
                                 except api.challonge.ServerError:
                                     if tournament.staff_channel_id:
@@ -1368,12 +1397,16 @@ class Tosurnament(modules.module.BaseModule):
                                     if player1:
                                         if player1["name"] == participant1["name"]:
                                             match_score = str(score_team1) + "-" + str(score_team2)
+                                            if score_team1 > score_team2:
+                                                match_winner = api.challonge.get_id_from_participant(player1)
+                                            else:
+                                                match_winner = api.challonge.get_id_from_participant(player2)
                                         else:
                                             match_score = str(score_team2) + "-" + str(score_team1)
-                                        if score_team1 > score_team2:
-                                            match_winner = api.challonge.get_id_from_participant(player1)
-                                        else:
-                                            match_winner = api.challonge.get_id_from_participant(player2)
+                                            if score_team1 < score_team2:
+                                                match_winner = api.challonge.get_id_from_participant(player1)
+                                            else:
+                                                match_winner = api.challonge.get_id_from_participant(player2)
                                         api.challonge.update_match(t_id, match["id"], scores_csv=match_score, winner_id=match_winner)
                                         await ctx.send(result_string)
                                         return
@@ -1391,6 +1424,29 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
         elif isinstance(error, commands.UserInputError):
             await ctx.send(self.get_string("post_result", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            if error.spreadsheet == "schedules_spreadsheet":
+                await ctx.send(self.get_string("post_result", "no_schedules_spreadsheet", ctx.prefix))
+            elif error.spreadsheet == "players_spreadsheet":
+                await ctx.send(self.get_string("post_result", "no_players_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("post_result", "spreadsheet_error", ctx.prefix))
+        elif isinstance(error, InvalidMatchId):
+            await ctx.send(self.get_string("post_result", "invalid_match_id"))
+        elif isinstance(error, InvalidMpLink):
+            await ctx.send(self.get_string("post_result", "invalid_mp_link"))
+        elif isinstance(error, MatchNotFound):
+            await ctx.send(self.get_string("post_result", "match_not_found"))
+
+    @post_result_with_scores.error
+    async def post_result_with_scores_handler(self, ctx, error):
+        """Error handler of post_result_with_scores function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("post_result_with_scores", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("post_result_with_scores", "usage", ctx.prefix))
+        elif isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("post_result_with_scores", "usage", ctx.prefix))
         elif isinstance(error, NoSpreadsheet):
             if error.spreadsheet == "schedules_spreadsheet":
                 await ctx.send(self.get_string("post_result", "no_schedules_spreadsheet", ctx.prefix))
