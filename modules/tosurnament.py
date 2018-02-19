@@ -22,7 +22,7 @@ from databases.bracket import Bracket
 from databases.players_spreadsheet import PlayersSpreadsheet
 from databases.schedules_spreadsheet import SchedulesSpreadsheet
 from databases.reschedule_message import RescheduleMessage
-from databases.referee_notification import RefereeNotification
+from databases.staff_reschedule_message import StaffRescheduleMessage
 
 EMBED_COLOUR = 3447003
 
@@ -95,11 +95,23 @@ class NotAPlayer(commands.CommandError):
     pass
 
 class NoRefereeRole(commands.CommandError):
-    """Special exception if there is no player role on the guild"""
+    """Special exception if there is no referee role on the guild"""
     pass
 
 class NotAReferee(commands.CommandError):
-    """Special exception if the user is not a player"""
+    """Special exception if the user is not a referee"""
+    pass
+
+class NotAStreamer(commands.CommandError):
+    """Special exception if the user is not a streamer"""
+    pass
+
+class NotACommentator(commands.CommandError):
+    """Special exception if the user is not a commentator"""
+    pass
+
+class NotAStaff(commands.CommandError):
+    """Special exception if the user is not a staff member"""
     pass
 
 class NotTeamCaptain(commands.CommandError):
@@ -180,6 +192,12 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("", "no_referee_role"))
         elif isinstance(error, NotAReferee):
             await ctx.send(self.get_string("", "not_a_referee"))
+        elif isinstance(error, NotAStreamer):
+            await ctx.send(self.get_string("", "not_a_streamer"))
+        elif isinstance(error, NotACommentator):
+            await ctx.send(self.get_string("", "not_a_commmentator"))
+        elif isinstance(error, NotAStaff):
+            await ctx.send(self.get_string("", "not_a_staff"))
         elif isinstance(error, NotTeamCaptain):
             await ctx.send(self.get_string("", "not_team_captain"))
         elif isinstance(error, commands.BotMissingPermissions):
@@ -756,7 +774,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee]|[Aa][Ll][Ll])$', range_name):
             raise commands.UserInputError()
-        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
+        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}((\(\d+, ?\d+)\) ?|[Nn][Oo][Nn][Ee]){2}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
             raise commands.UserInputError()
         if bracket.schedules_spreadsheet_id:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
@@ -825,7 +843,7 @@ class Tosurnament(modules.module.BaseModule):
                             team_name1 = values[y + incr_y][x + incr_x]
                             incr_x, incr_y = tuples[1]
                             team_name2 = values[y + incr_y][x + incr_x]
-                            tuples = tuples[3:]
+                            tuples = tuples[5:]
                             ally_team_captain = None
                             enemy_team_captain = None
                             is_team_captain = False
@@ -1053,75 +1071,7 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     async def take_match(self, ctx, *args):
         """Allows referees to take matches"""
-        if not args:
-            raise commands.UserInputError()
-        guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
-        if not tournament:
-            raise NoTournament()
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
-        if not brackets:
-            raise UnknownError("take_match: query on brackets returned nothing.")
-        roles = ctx.guild.roles
-        referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
-        if not referee_role:
-            raise NoRefereeRole()
-        if not any(referee_role.id == role.id for role in ctx.author.roles):
-            raise NotAReferee()
-        referee_name = ctx.author.display_name
-        successfully_taken_matches_id = []
-        already_taken_matches_id = []
-        for bracket in brackets:
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
-            if not schedules_spreadsheet:
-                raise NoSpreadsheet("schedules_spreadsheet")
-            all_sheets = False
-            if not "!" in schedules_spreadsheet.range_name:
-                all_sheets = True
-            try:
-                if all_sheets:
-                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
-                else:
-                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, "ROWS", "FORMULA")
-                    sheet_range = schedules_spreadsheet.range_name.split("!")
-                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
-            except googleapiclient.errors.HttpError:
-                raise SpreadsheetError()
-            tuples = schedules_spreadsheet.parse_parameters()
-            for sheet in sheets:
-                values = sheet["values"]
-                write_values = False
-                for match_id in args:
-                    for y, row in enumerate(values):
-                        for x, value in enumerate(row):
-                            if value == match_id:
-                                incr_x, incr_y = tuples[2]
-                                while y + incr_y >= len(values):
-                                    values.append([])
-                                while x + incr_x >= len(values[y + incr_y]):
-                                    values[y + incr_y].append("")
-                                if not values[y + incr_y][x + incr_x]:
-                                    values[y + incr_y][x + incr_x] = referee_name
-                                    write_values = True
-                                    successfully_taken_matches_id.append(match_id)
-                                else:
-                                    already_taken_matches_id.append(match_id)
-                if write_values:
-                    try:
-                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
-                    except googleapiclient.errors.HttpError:
-                        raise SpreadsheetError()
-        string = self.get_string("take_match", "successfully_taken_matches_id")
-        for i, match_id in enumerate(successfully_taken_matches_id):
-            string += match_id
-            if i + 1 < len(successfully_taken_matches_id):
-                string += ", "
-        string += "\n" + self.get_string("take_match", "already_taken_matches_id")
-        for i, match_id in enumerate(already_taken_matches_id):
-            string += match_id
-            if i + 1 < len(already_taken_matches_id):
-                string += ", "
-        await ctx.send(string)
+        await self.take_or_drop_match(ctx, args)
 
     @take_match.error
     async def take_match_handler(self, ctx, error):
@@ -1137,7 +1087,20 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     async def drop_match(self, ctx, *args):
         """Allows referees to drop matches"""
-        if not args:
+        await self.take_or_drop_match(ctx, args, False)
+
+    @drop_match.error
+    async def drop_match_handler(self, ctx, error):
+        """Error handler of drop_match function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("drop_match", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+
+    async def take_or_drop_match(self, ctx, match_ids, take=True, as_referee=True, as_streamer=True, as_commentator=True):
+        if not match_ids:
             raise commands.UserInputError()
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
@@ -1145,16 +1108,26 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
         if not brackets:
-            raise UnknownError("drop_match: query on brackets returned nothing.")
-        roles = ctx.guild.roles
-        referee_role = self.get_role(roles, tournament.referee_role_id, "Referee")
-        if not referee_role:
-            raise NoRefereeRole()
-        if not any(referee_role.id == role.id for role in ctx.author.roles):
+            raise UnknownError("take_match: query on brackets returned nothing.")
+        roles = ctx.author.roles
+        is_referee = bool(self.get_role(roles, tournament.referee_role_id, "Referee"))
+        is_streamer = bool(self.get_role(roles, tournament.streamer_role_id, "Streamer"))
+        is_commentator = bool(self.get_role(roles, tournament.streamer_role_id, "Commentator"))
+        if not is_referee and not is_streamer and not is_commentator:
+            raise NotAStaff()
+        if as_referee and not as_streamer and not as_commentator and not is_referee:
             raise NotAReferee()
-        referee_name = ctx.author.display_name
-        successfully_dropped_matches_id = []
-        already_dropped_matches_id = []
+        if not as_referee and as_streamer and not as_commentator and not is_streamer:
+            raise NotAStreamer()
+        if not as_referee and not as_streamer and as_commentator and not is_commentator:
+            raise NotACommentator()
+        staff_name = ctx.author.display_name
+        referee_successfully_taken_matches_id = []
+        referee_already_taken_matches_id = []
+        streamer_successfully_taken_matches_id = []
+        streamer_already_taken_matches_id = []
+        commentator_successfully_taken_matches_id = []
+        commentator_already_taken_matches_id = []
         for bracket in brackets:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
@@ -1175,43 +1148,91 @@ class Tosurnament(modules.module.BaseModule):
             for sheet in sheets:
                 values = sheet["values"]
                 write_values = False
-                for match_id in args:
+                for match_id in match_ids:
                     for y, row in enumerate(values):
                         for x, value in enumerate(row):
                             if value == match_id:
-                                incr_x, incr_y = tuples[2]
-                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]) and values[y + incr_y][x + incr_x] == referee_name:
-                                    values[y + incr_y][x + incr_x] = ""
-                                    write_values = True
-                                    successfully_dropped_matches_id.append(match_id)
-                                else:
-                                    already_dropped_matches_id.append(match_id)
+                                if as_referee and is_referee:
+                                    incr_x, incr_y = tuples[2]
+                                    while y + incr_y >= len(values):
+                                        values.append([])
+                                    while x + incr_x >= len(values[y + incr_y]):
+                                        values[y + incr_y].append("")
+                                    if (take and not values[y + incr_y][x + incr_x]) or (not take and values[y + incr_y][x + incr_x] == staff_name):
+                                        if take:
+                                            values[y + incr_y][x + incr_x] = staff_name
+                                        else:
+                                            values[y + incr_y][x + incr_x] = ""
+                                        write_values = True
+                                        referee_successfully_taken_matches_id.append(match_id)
+                                    else:
+                                        referee_already_taken_matches_id.append(match_id)
+                                if as_streamer and is_streamer and not isinstance(tuples[3], str):
+                                    incr_x, incr_y = tuples[3]
+                                    while y + incr_y >= len(values):
+                                        values.append([])
+                                    while x + incr_x >= len(values[y + incr_y]):
+                                        values[y + incr_y].append("")
+                                    if (take and not values[y + incr_y][x + incr_x]) or (not take and values[y + incr_y][x + incr_x] == staff_name):
+                                        if take:
+                                            values[y + incr_y][x + incr_x] = staff_name
+                                        else:
+                                            values[y + incr_y][x + incr_x] = ""
+                                        write_values = True
+                                        streamer_successfully_taken_matches_id.append(match_id)
+                                    else:
+                                        streamer_already_taken_matches_id.append(match_id)
+                                if as_commentator and is_commentator and not isinstance(tuples[4], str):
+                                    add_commentator = False
+                                    for incr_x, incr_y in tuples[4]:
+                                        while y + incr_y >= len(values):
+                                            values.append([])
+                                        while x + incr_x >= len(values[y + incr_y]):
+                                            values[y + incr_y].append("")
+                                        if (take and not values[y + incr_y][x + incr_x]) or (not take and values[y + incr_y][x + incr_x] == staff_name):
+                                            if take:
+                                                values[y + incr_y][x + incr_x] = staff_name
+                                            else:
+                                                values[y + incr_y][x + incr_x] = ""
+                                            write_values = True
+                                            add_commentator = True
+                                            commentator_successfully_taken_matches_id.append(match_id)
+                                            break
+                                    if not add_commentator:
+                                        commentator_already_taken_matches_id.append(match_id)
                 if write_values:
                     try:
                         api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
                     except googleapiclient.errors.HttpError:
                         raise SpreadsheetError()
-        string = self.get_string("drop_match", "successfully_dropped_matches_id")
-        for i, match_id in enumerate(successfully_dropped_matches_id):
-            string += match_id
-            if i + 1 < len(successfully_dropped_matches_id):
-                string += ", "
-        string += "\n" + self.get_string("drop_match", "already_dropped_matches_id")
-        for i, match_id in enumerate(already_dropped_matches_id):
-            string += match_id
-            if i + 1 < len(already_dropped_matches_id):
-                string += ", "
+        invalid_matches_id = list(set(match_ids) - set(referee_successfully_taken_matches_id) - set(streamer_successfully_taken_matches_id) - set(commentator_successfully_taken_matches_id) - set(referee_already_taken_matches_id) - set(streamer_already_taken_matches_id) - set(commentator_already_taken_matches_id))
+        if take:
+            string = self.format_take_match_string(self.get_string("take_match", "successfully_taken_matches_id", "Referee"), referee_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("take_match", "successfully_taken_matches_id", "Streamer"), streamer_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("take_match", "successfully_taken_matches_id", "Commentator"), commentator_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("take_match", "already_taken_matches_id", "Referee"), referee_already_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("take_match", "already_taken_matches_id", "Streamer"), streamer_already_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("take_match", "already_taken_matches_id", "Commentator"), commentator_already_taken_matches_id)
+        else:
+            string = self.format_take_match_string(self.get_string("drop_match", "successfully_dropped_matches_id", "Referee"), referee_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("drop_match", "successfully_dropped_matches_id", "Streamer"), streamer_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("drop_match", "successfully_dropped_matches_id", "Commentator"), commentator_successfully_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("drop_match", "already_dropped_matches_id", "Referee"), referee_already_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("drop_match", "already_dropped_matches_id", "Streamer"), streamer_already_taken_matches_id)
+            string += self.format_take_match_string(self.get_string("drop_match", "already_dropped_matches_id", "Commentator"), commentator_already_taken_matches_id)
+        string += self.format_take_match_string(self.get_string("take_match", "invalid_matches_id"), invalid_matches_id)
         await ctx.send(string)
 
-    @drop_match.error
-    async def drop_match_handler(self, ctx, error):
-        """Error handler of drop_match function"""
-        if isinstance(error, commands.UserInputError):
-            await ctx.send(self.get_string("drop_match", "usage", ctx.prefix))
-        elif isinstance(error, NoSpreadsheet):
-            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
-        elif isinstance(error, SpreadsheetError):
-            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+    def format_take_match_string(self, string, matches_id):
+        if matches_id:
+            for i, match_id in enumerate(matches_id):
+                string += match_id
+                if i + 1 < len(matches_id):
+                    string += ", "
+                else:
+                    string += "\n"
+            return string
+        return ""
 
     @commands.command(name='post_result')
     @commands.guild_only()
@@ -1497,7 +1518,7 @@ class Tosurnament(modules.module.BaseModule):
         guild = channel.guild
         user = guild.get_member(user_id)
         await self.reaction_on_reschedule_message(emoji, message_id, channel, guild, user)
-        await self.reaction_on_referee_notification(emoji, message_id, channel, guild, user)        
+        await self.reaction_on_staff_reschedule_message(emoji, message_id, channel, guild, user)        
 
     async def reaction_on_reschedule_message(self, emoji, message_id, channel, guild, user):
         """Reschedules a match or denies the reschedule"""
@@ -1580,11 +1601,22 @@ class Tosurnament(modules.module.BaseModule):
                             for y, row in enumerate(values):
                                 for x, value in enumerate(row):
                                     if value == reschedule_message.match_id:
-                                        incr_x, incr_y = tuples[2]
                                         referee_name = None
+                                        incr_x, incr_y = tuples[2]
                                         if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
                                             referee_name = values[y + incr_y][x + incr_x]
-                                        tuples = tuples[3:]
+                                        streamer_name = None
+                                        if not isinstance(tuples[3], str):
+                                            incr_x, incr_y = tuples[3]
+                                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                                streamer_name = values[y + incr_y][x + incr_x]
+                                        commentators_name = []
+                                        if not isinstance(tuples[4], str):
+                                            for incr_x, incr_y in tuples[4]:
+                                                incr_x, incr_y = tuples[4]
+                                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                                    commentators_name.append(values[y + incr_y][x + incr_x])
+                                        tuples = tuples[5:]
                                         for tup in tuples:
                                             incr_x, incr_y, date_flag = tup
                                             while y + incr_y >= len(values):
@@ -1592,9 +1624,14 @@ class Tosurnament(modules.module.BaseModule):
                                             while x + incr_x >= len(values[y + incr_y]):
                                                 values[y + incr_y].append("")
                                             values[y + incr_y][x + incr_x] = new_date.strftime(date_flag)
-                                        referee = None
+                                        staff_to_ping = []
                                         if referee_name:
-                                            referee = guild.get_member_named(referee_name)
+                                            staff_to_ping.append(guild.get_member_named(referee_name))
+                                        if streamer_name and streamer_name != referee_name:
+                                            staff_to_ping.append(guild.get_member_named(streamer_name))
+                                        for commentator_name in commentators_name:
+                                            if commentator_name and commentator_name != streamer_name and commentator_name != referee_name:
+                                                staff_to_ping.append(guild.get_member_named(commentator_name))
                                         try:
                                             api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
                                         except googleapiclient.errors.HttpError:
@@ -1606,15 +1643,13 @@ class Tosurnament(modules.module.BaseModule):
                                             if staff_channel:
                                                 previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
                                                 new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
-                                                if referee:
-                                                    sent_message = await staff_channel.send(self.get_string("reschedule", "referee_notification", referee.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                                    referee_notification = RefereeNotification()
-                                                    referee_notification.message_id = str(sent_message.id)
-                                                    referee_notification.match_id = reschedule_message.match_id
-                                                    self.client.session.add(referee_notification)
+                                                for staff in staff_to_ping:
+                                                    sent_message = await staff_channel.send(self.get_string("reschedule", "staff_notification", staff.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                                    staff_reschedule_message = StaffRescheduleMessage(message_id=str(sent_message.id), match_id=reschedule_message.match_id, staff_id=str(staff.id))
+                                                    self.client.session.add(staff_reschedule_message)
                                                     self.client.session.commit()
                                                 else:
-                                                    await staff_channel.send(self.get_string("reschedule", "no_referee_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                                    await staff_channel.send(self.get_string("reschedule", "no_staff_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
                                         self.client.session.delete(reschedule_message)
                                         self.client.session.commit()
                                         return
@@ -1623,12 +1658,14 @@ class Tosurnament(modules.module.BaseModule):
                     self.client.session.delete(reschedule_message)
                     self.client.session.commit()
             else:
-                await ctx.author.send(self.get_string("reschedule", "not_team_captain"))
+                await user.send(self.get_string("reschedule", "not_team_captain"))
 
-    async def reaction_on_referee_notification(self, emoji, message_id, channel, guild, user):
+    async def reaction_on_staff_reschedule_message(self, emoji, message_id, channel, guild, user):
         """Removes the referee from the schedule spreadsheet"""
-        referee_notification = self.client.session.query(RefereeNotification).filter(RefereeNotification.message_id == helpers.crypt.hash_str(str(message_id))).first()
-        if not referee_notification:
+        staff_reschedule_message = self.client.session.query(StaffRescheduleMessage).filter(StaffRescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not staff_reschedule_message:
+            return
+        if str(user.id) != staff_reschedule_message.staff_id:
             return
         if emoji.name == "❌":
             guild_id = str(guild.id)
@@ -1663,26 +1700,29 @@ class Tosurnament(modules.module.BaseModule):
                     values = sheet["values"]
                     for y, row in enumerate(values):
                         for x, value in enumerate(row):
-                            if value == referee_notification.match_id:
-                                incr_x, incr_y = tuples[2]
-                                referee_name = values[y + incr_y][x + incr_x]
-                                if referee_name == user.display_name:
-                                    while y + incr_y >= len(values):
-                                        values.append([])
-                                    while x + incr_x >= len(values[y + incr_y]):
-                                        values[y + incr_y].append("")
-                                    values[y + incr_y][x + incr_x] = ""
-                                    staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
-                                    try:
-                                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                                    except googleapiclient.errors.HttpError:
-                                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
-                                        return
-                                    if staff_channel:
-                                        await channel.send(self.get_string("reschedule", "removed_from_match", referee_notification.match_id))
-                                    self.client.session.delete(referee_notification)
-                                    self.client.session.commit()
-                                    return           
+                            if value == staff_reschedule_message.match_id:
+                                cells_to_check = [tuples[2]]
+                                if not isinstance(tuples[3], str):
+                                    cells_to_check.append(tuples[3])
+                                if not isinstance(tuples[4], str):
+                                    cells_to_check += tuples[4]
+                                write = False
+                                for incr_x, incr_y in cells_to_check:
+                                    if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                        if values[y + incr_y][x + incr_x] == user.display_name:
+                                            values[y + incr_y][x + incr_x] = ""
+                                            write = True
+                                try:
+                                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                                except googleapiclient.errors.HttpError:
+                                    await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                    return
+                                staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
+                                if staff_channel:
+                                    await channel.send(self.get_string("reschedule", "removed_from_match", staff_reschedule_message.match_id))
+                                self.client.session.delete(staff_reschedule_message)
+                                self.client.session.commit()
+                                return           
 
 def get_class(bot):
     """Returns the main class of the module"""

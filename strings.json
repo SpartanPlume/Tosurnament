@@ -19,6 +19,9 @@
         "not_a_player": "You're not on the player list. I can't register you. ='(",
         "no_referee_role": "There's no `Referee` role set. Ask an admin to set it.",
         "not_a_referee": "You're not a referee so you cannot use this command.",
+        "not_a_streamer": "You're not a streamer so you cannot use this command.",
+        "not_a_commentator": "You're not a commentator so you cannot use this command.",
+        "not_a_staff": "You're not a staff member so you cannot use this command.",
         "not_team_captain": "You're not a team captain so you cannot use this command.",
         "challonge_server_error": "Connection error with challonge. If the problem persists, contact spartan.plume@gmail.com",
         "challonge_no_rights": "The challonge account `TosurnamentBot` does not have the rights to modify the challonge.",
@@ -161,8 +164,8 @@
             "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
             "refused": ":x: %1, your reschedule for the match %2 has been refused.",
             "not_team_captain": "You're not the team captain of your team, you can't use this command.",
-            "referee_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6. If you can't arbitrate this new time, please add a :x: reaction to this message.",
-            "no_referee_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
+            "staff_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6. If you can't arbitrate/stream/commentate at this new time, please add a :x: reaction to this message.",
+            "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
             "removed_from_match": "You have successfully been removed from the match %1."
         },
         "name_change": {
@@ -184,8 +187,9 @@
             "usage": "Usage: %1take_match $tosurnament/take_match/parameter\n\nExample: %1take_match 1A 2A 2B",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
-            "successfully_taken_matches_id": "You succesfully took the matches: ",
-            "already_taken_matches_id": "Those matches were already taken: ",
+            "successfully_taken_matches_id": "As a %1, you **succesfully** took the matches: ",
+            "already_taken_matches_id": "As a %1, those matches were **already taken**: ",
+            "invalid_matches_id": "Those matches does not exist: ",
             "success": ""
         },
         "drop_match": {
@@ -194,8 +198,8 @@
             "usage": "Usage: %1drop_match $tosurnament/drop_match/parameter\n\nExample: %1drop_match 1A 2A 2B",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
-            "successfully_dropped_matches_id": "You succesfully dropped the matches: ",
-            "already_dropped_matches_id": "You weren't the referee for the matches: ",
+            "successfully_dropped_matches_id": "As a %1, you **succesfully** dropped the matches: ",
+            "already_dropped_matches_id": "As a %1, you **weren't on** the matches: ",
             "success": ""
         },
         "post_result": {

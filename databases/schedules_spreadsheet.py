@@ -29,4 +29,6 @@ class SchedulesSpreadsheet(Base):
         tuples = []
         for tup in strings:
             tuples.append(literal_eval(tup))
+        if isinstance(tuples[4], tuple):
+            tuples[4] = [tuples[4]]
         return tuples
