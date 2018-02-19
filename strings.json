@@ -183,7 +183,7 @@
         },
         "take_match": {
             "parameter": "<match_id>...",
-            "help": "Gives the referee the matches wanted.",
+            "help": "Gives the staff member the matches wanted.",
             "usage": "Usage: %1take_match $tosurnament/take_match/parameter\n\nExample: %1take_match 1A 2A 2B",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
@@ -192,15 +192,45 @@
             "invalid_matches_id": "Those matches does not exist: ",
             "success": ""
         },
+        "take_match_as_referee": {
+            "parameter": "<match_id>...",
+            "help": "Gives the referee the matches wanted.",
+            "usage": "Usage: %1take_match_as_referee $tosurnament/take_match_as_referee/parameter\n\nExample: %1take_match_as_referee 1A 2A 2B"
+        },
+        "take_match_as_streamer": {
+            "parameter": "<match_id>...",
+            "help": "Gives the streamer the matches wanted.",
+            "usage": "Usage: %1take_match_as_streamer $tosurnament/take_match_as_streamer/parameter\n\nExample: %1take_match_as_streamer 1A 2A 2B"
+        },
+        "take_match_as_commentator": {
+            "parameter": "<match_id>...",
+            "help": "Gives the commentator the matches wanted.",
+            "usage": "Usage: %1take_match_as_commentator $tosurnament/take_match_as_commentator/parameter\n\nExample: %1take_match_as_commentator 1A 2A 2B"
+        },
         "drop_match": {
             "parameter": "<match_id>...",
-            "help": "Drops the matches the referee want to drop.",
+            "help": "Drops the matches the staff member want to drop.",
             "usage": "Usage: %1drop_match $tosurnament/drop_match/parameter\n\nExample: %1drop_match 1A 2A 2B",
             "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
             "successfully_dropped_matches_id": "As a %1, you **succesfully** dropped the matches: ",
             "already_dropped_matches_id": "As a %1, you **weren't on** the matches: ",
             "success": ""
+        },
+        "drop_match_as_referee": {
+            "parameter": "<match_id>...",
+            "help": "Drops the matches the referee want to drop.",
+            "usage": "Usage: %1drop_match_as_referee $tosurnament/drop_match_as_referee/parameter\n\nExample: %1drop_match_as_referee 1A 2A 2B"
+        },
+        "drop_match_as_streamer": {
+            "parameter": "<match_id>...",
+            "help": "Drops the matches the streamer want to drop.",
+            "usage": "Usage: %1drop_match_as_streamer $tosurnament/drop_match_as_streamer/parameter\n\nExample: %1drop_match_as_streamer 1A 2A 2B"
+        },
+        "drop_match_as_commentator": {
+            "parameter": "<match_id>...",
+            "help": "Drops the matches the commentator want to drop.",
+            "usage": "Usage: %1drop_match_as_commentator $tosurnament/drop_match_as_commentator/parameter\n\nExample: %1drop_match_as_commentator 1A 2A 2B"
         },
         "post_result": {
             "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> <mp_link(s)> <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",

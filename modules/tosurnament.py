@@ -1070,7 +1070,7 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='take_match', aliases=["take_matches"])
     @commands.guild_only()
     async def take_match(self, ctx, *args):
-        """Allows referees to take matches"""
+        """Allows staffs to take matches"""
         await self.take_or_drop_match(ctx, args)
 
     @take_match.error
@@ -1083,10 +1083,58 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, SpreadsheetError):
             await ctx.send(self.get_string("take_match", "spreadsheet_error", ctx.prefix))
 
+    @commands.command(name='take_match_as_referee', aliases=["take_matches_as_referee"])
+    @commands.guild_only()
+    async def take_match_as_referee(self, ctx, *args):
+        """Allows referees to take matches"""
+        await self.take_or_drop_match(ctx, args, True, True, False, False)
+
+    @take_match_as_referee.error
+    async def take_match_as_referee_handler(self, ctx, error):
+        """Error handler of take_match_as_referee function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("take_match_as_referee", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("take_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("take_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='take_match_as_streamer', aliases=["take_matches_as_streamer"])
+    @commands.guild_only()
+    async def take_match_as_streamer(self, ctx, *args):
+        """Allows streamers to take matches"""
+        await self.take_or_drop_match(ctx, args, True, False, True, False)
+
+    @take_match_as_streamer.error
+    async def take_match_as_streamer_handler(self, ctx, error):
+        """Error handler of take_match_as_streamer function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("take_match_as_streamer", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("take_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("take_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='take_match_as_commentator', aliases=["take_matches_as_commentator"])
+    @commands.guild_only()
+    async def take_match_as_commentator(self, ctx, *args):
+        """Allows commentators to take matches"""
+        await self.take_or_drop_match(ctx, args, True, False, False, True)
+
+    @take_match_as_commentator.error
+    async def take_match_as_commentator_handler(self, ctx, error):
+        """Error handler of take_match_as_commentator function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("take_match_as_commentator", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("take_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("take_match", "spreadsheet_error", ctx.prefix))
+
     @commands.command(name='drop_match', aliases=["drop_matches"])
     @commands.guild_only()
     async def drop_match(self, ctx, *args):
-        """Allows referees to drop matches"""
+        """Allows staffs to drop matches"""
         await self.take_or_drop_match(ctx, args, False)
 
     @drop_match.error
@@ -1094,6 +1142,54 @@ class Tosurnament(modules.module.BaseModule):
         """Error handler of drop_match function"""
         if isinstance(error, commands.UserInputError):
             await ctx.send(self.get_string("drop_match", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='drop_match_as_referee', aliases=["drop_matches_as_referee"])
+    @commands.guild_only()
+    async def drop_match_as_referee(self, ctx, *args):
+        """Allows referees to drop matches"""
+        await self.take_or_drop_match(ctx, args, False, True, False, False)
+
+    @drop_match_as_referee.error
+    async def drop_match_as_referee_handler(self, ctx, error):
+        """Error handler of drop_match_as_referee function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("drop_match_as_referee", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='drop_match_as_streamer', aliases=["drop_matches_as_streamer"])
+    @commands.guild_only()
+    async def drop_match_as_streamer(self, ctx, *args):
+        """Allows streamers to drop matches"""
+        await self.take_or_drop_match(ctx, args, False, False, True, False)
+
+    @drop_match_as_streamer.error
+    async def drop_match_as_streamer_handler(self, ctx, error):
+        """Error handler of drop_match_as_streamer function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("drop_match_as_streamer", "usage", ctx.prefix))
+        elif isinstance(error, NoSpreadsheet):
+            await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
+        elif isinstance(error, SpreadsheetError):
+            await ctx.send(self.get_string("drop_match", "spreadsheet_error", ctx.prefix))
+
+    @commands.command(name='drop_match_as_commentator', aliases=["drop_matches_as_commentator"])
+    @commands.guild_only()
+    async def drop_match_as_commentator(self, ctx, *args):
+        """Allows commentators to drop matches"""
+        await self.take_or_drop_match(ctx, args, False, False, False, True)
+
+    @drop_match_as_commentator.error
+    async def drop_match_as_commentator_handler(self, ctx, error):
+        """Error handler of drop_match_as_commentator function"""
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("drop_match_as_commentator", "usage", ctx.prefix))
         elif isinstance(error, NoSpreadsheet):
             await ctx.send(self.get_string("drop_match", "no_schedules_spreadsheet", ctx.prefix))
         elif isinstance(error, SpreadsheetError):
