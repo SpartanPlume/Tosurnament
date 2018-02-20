@@ -774,7 +774,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee]|[Aa][Ll][Ll])$', range_name):
             raise commands.UserInputError()
-        if not re.match(r'^((\(\d+, ?\d+)\) ?){3}((\(\d+, ?\d+)\) ?|[Nn][Oo][Nn][Ee]){2}( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
+        if not re.match(r'^(\(\d+, ?\d+\) ?){3}(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?)(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?|\[(\(\d+, ?\d+\)(, )?)+\] ?)( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
             raise commands.UserInputError()
         if bracket.schedules_spreadsheet_id:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
@@ -826,12 +826,15 @@ class Tosurnament(modules.module.BaseModule):
                 all_sheets = True
             try:
                 if all_sheets:
+                    print("1")
                     sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
                 else:
+                    print("2")
                     values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
                     sheet_range = schedules_spreadsheet.range_name.split("!")
                     sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
+                print("test")
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
             for sheet in sheets:
@@ -856,6 +859,7 @@ class Tosurnament(modules.module.BaseModule):
                                 try:
                                     cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
                                 except googleapiclient.errors.HttpError:
+                                    print("test2")
                                     raise SpreadsheetError()
                                 i = 0
                                 while i < len(cells):
@@ -1285,6 +1289,8 @@ class Tosurnament(modules.module.BaseModule):
                                             values.append([])
                                         while x + incr_x >= len(values[y + incr_y]):
                                             values[y + incr_y].append("")
+                                        if take and values[y + incr_y][x + incr_x] == staff_name:
+                                            break
                                         if (take and not values[y + incr_y][x + incr_x]) or (not take and values[y + incr_y][x + incr_x] == staff_name):
                                             if take:
                                                 values[y + incr_y][x + incr_x] = staff_name
@@ -1642,8 +1648,8 @@ class Tosurnament(modules.module.BaseModule):
             if not brackets:
                 await channel.send(self.get_string("", "unknown_error"))
                 return
+            is_team_captain = False
             if tournament.ping_team:
-                is_team_captain = False
                 team_captain_role = self.get_role(user.roles, tournament.team_captain_role_id)
                 if team_captain_role:
                     is_team_captain = True
@@ -1709,7 +1715,6 @@ class Tosurnament(modules.module.BaseModule):
                                         commentators_name = []
                                         if not isinstance(tuples[4], str):
                                             for incr_x, incr_y in tuples[4]:
-                                                incr_x, incr_y = tuples[4]
                                                 if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
                                                     commentators_name.append(values[y + incr_y][x + incr_x])
                                         tuples = tuples[5:]
@@ -1808,11 +1813,12 @@ class Tosurnament(modules.module.BaseModule):
                                         if values[y + incr_y][x + incr_x] == user.display_name:
                                             values[y + incr_y][x + incr_x] = ""
                                             write = True
-                                try:
-                                    api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
-                                except googleapiclient.errors.HttpError:
-                                    await channel.send(self.get_string("reschedule", "spreadsheet_error"))
-                                    return
+                                if write:
+                                    try:
+                                        api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name, values)
+                                    except googleapiclient.errors.HttpError:
+                                        await channel.send(self.get_string("reschedule", "spreadsheet_error"))
+                                        return
                                 staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
                                 if staff_channel:
                                     await channel.send(self.get_string("reschedule", "removed_from_match", staff_reschedule_message.match_id))

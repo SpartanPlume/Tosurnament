@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, Binary
 from sqlalchemy import orm
 from databases.base import Base
 import helpers.crypt
+from helpers.parser import Parser
 
 class SchedulesSpreadsheet(Base):
     """Schedules spreadsheet class"""
@@ -25,10 +26,13 @@ class SchedulesSpreadsheet(Base):
         self = helpers.crypt.decrypt_obj(self)
 
     def parse_parameters(self):
-        strings = re.split(r"\s+(?=[^()]*(?:\(|$))", self.parameters)
+        strings = Parser.split(self.parameters, " ", ["()", "[]"])
         tuples = []
         for tup in strings:
-            tuples.append(literal_eval(tup))
+            if tup.lower() != "none":
+                tuples.append(literal_eval(tup))
+            else:
+                tuples.append(tup)
         if isinstance(tuples[4], tuple):
             tuples[4] = [tuples[4]]
         return tuples
