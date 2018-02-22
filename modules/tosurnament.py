@@ -60,12 +60,12 @@ class WrongCodeError(commands.CommandError):
     """Special exception if a code is wrong"""
     pass
 
-class AcronymAlreadyUsed(commands.CommandError):
-    """Special exception if a tournament acronym is already used"""
-    pass
-
 class NoTournament(commands.CommandError):
     """Special exception if a guild does not have any tournament running"""
+    pass
+
+class TournamentAlreadyCreated(commands.CommandError):
+    """Special exception if a guild already have a tournament running"""
     pass
 
 class NoBracket(commands.CommandError):
@@ -287,9 +287,9 @@ class Tosurnament(modules.module.BaseModule):
     async def create_tournament(self, ctx, acronym: str, name: str, bracket_name: str = ""):
         """Create a tournament"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).filter(Tournament.acronym == acronym).first()
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament:
-            raise AcronymAlreadyUsed()
+            raise TournamentAlreadyCreated()
         tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True, ping_team=True)
         self.client.session.add(tournament)
         self.client.session.commit()
@@ -310,8 +310,8 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
-        elif isinstance(error, AcronymAlreadyUsed):
-            await ctx.send(self.get_string("create_tournament", "acronym_used"))
+        elif isinstance(error, TournamentAlreadyCreated):
+            await ctx.send(self.get_string("create_tournament", "tournament_already_created", ctx.prefix))
 
     @commands.command(name='create_bracket')
     @commands.guild_only()
