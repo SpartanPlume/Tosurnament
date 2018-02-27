@@ -1,4 +1,4 @@
-"""Staff reschedule message class"""
+"""End tournament message class"""
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Binary
@@ -6,17 +6,14 @@ from sqlalchemy import orm
 from databases.base import Base
 import helpers.crypt
 
-class StaffRescheduleMessage(Base):
-    """Staff reschedule message class"""
-    __tablename__ = 'staff_reschedule_message'
+class EndTournamentMessage(Base):
+    """End tournament message class"""
+    __tablename__ = 'end_tournament_message'
 
     id = Column(Integer, primary_key=True)
-    tournament_id = Column(Binary)
     message_id = Column(Binary)
-    match_id = Column(Binary)
-    staff_id = Column(Binary)
     to_hash = ["message_id"]
-    ignore = ["staff_type", "tournament_id"]
+    ignore = []
 
     @orm.reconstructor
     def init(self):

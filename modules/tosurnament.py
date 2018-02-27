@@ -23,6 +23,7 @@ from databases.players_spreadsheet import PlayersSpreadsheet
 from databases.schedules_spreadsheet import SchedulesSpreadsheet
 from databases.reschedule_message import RescheduleMessage
 from databases.staff_reschedule_message import StaffRescheduleMessage
+from databases.end_tournament_message import EndTournamentMessage
 
 EMBED_COLOUR = 3447003
 
@@ -285,7 +286,7 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     @is_guild_owner()
     async def create_tournament(self, ctx, acronym: str, name: str, bracket_name: str = ""):
-        """Create a tournament"""
+        """Creates a tournament"""
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament:
@@ -312,6 +313,28 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("create_tournament", "usage", ctx.prefix))
         elif isinstance(error, TournamentAlreadyCreated):
             await ctx.send(self.get_string("create_tournament", "tournament_already_created", ctx.prefix))
+
+    @commands.command(name='end_tournament')
+    @commands.guild_only()
+    @is_guild_owner()
+    async def end_tournament(self, ctx):
+        """Ends a tournament"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        message = await ctx.send(self.get_string("end_tournament", "are_you_sure"))
+        end_tournament_message = EndTournamentMessage(message_id=helpers.crypt.hash_str(str(message.id)))
+        self.client.session.add(end_tournament_message)
+        self.client.session.commit()
+
+    @end_tournament.error
+    async def end_tournament_handler(self, ctx, error):
+        """Error handler of end_tournament function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("end_tournament", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("end_tournament", "usage", ctx.prefix))
 
     @commands.command(name='create_bracket')
     @commands.guild_only()
@@ -888,7 +911,7 @@ class Tosurnament(modules.module.BaseModule):
                             player_name = ctx.author.display_name
                             role_team1 = self.get_role(roles, role_name=team_name1)
                             role_team2 = self.get_role(roles, role_name=team_name2)
-                            reschedule_message = RescheduleMessage()
+                            reschedule_message = RescheduleMessage(tournament_id=tournament.id)
                             reschedule_message.match_id = match_id
                             reschedule_message.ally_user_id = bytes('', 'utf-8')
                             reschedule_message.ally_role_id = bytes('', 'utf-8')
@@ -1620,7 +1643,8 @@ class Tosurnament(modules.module.BaseModule):
         guild = channel.guild
         user = guild.get_member(user_id)
         await self.reaction_on_reschedule_message(emoji, message_id, channel, guild, user)
-        await self.reaction_on_staff_reschedule_message(emoji, message_id, channel, guild, user)        
+        await self.reaction_on_staff_reschedule_message(emoji, message_id, channel, guild, user)
+        await self.reaction_on_end_tournament_message(emoji, message_id, channel, guild, user)
 
     async def reaction_on_reschedule_message(self, emoji, message_id, channel, guild, user):
         """Reschedules a match or denies the reschedule"""
@@ -1744,11 +1768,12 @@ class Tosurnament(modules.module.BaseModule):
                                             if staff_channel:
                                                 previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
                                                 new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
-                                                for staff in staff_to_ping:
-                                                    sent_message = await staff_channel.send(self.get_string("reschedule", "staff_notification", staff.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                                    staff_reschedule_message = StaffRescheduleMessage(message_id=str(sent_message.id), match_id=reschedule_message.match_id, staff_id=str(staff.id))
-                                                    self.client.session.add(staff_reschedule_message)
-                                                    self.client.session.commit()
+                                                if staff_to_ping:
+                                                    for staff in staff_to_ping:
+                                                        sent_message = await staff_channel.send(self.get_string("reschedule", "staff_notification", staff.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
+                                                        staff_reschedule_message = StaffRescheduleMessage(tournament_id=tournament.id, message_id=str(sent_message.id), match_id=reschedule_message.match_id, staff_id=str(staff.id))
+                                                        self.client.session.add(staff_reschedule_message)
+                                                        self.client.session.commit()
                                                 else:
                                                     await staff_channel.send(self.get_string("reschedule", "no_staff_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
                                         self.client.session.delete(reschedule_message)
@@ -1821,10 +1846,40 @@ class Tosurnament(modules.module.BaseModule):
                                         return
                                 staff_channel = self.client.get_channel(int(tournament.staff_channel_id))
                                 if staff_channel:
-                                    await channel.send(self.get_string("reschedule", "removed_from_match", staff_reschedule_message.match_id))
+                                    await staff_channel.send(self.get_string("reschedule", "removed_from_match", staff_reschedule_message.match_id))
                                 self.client.session.delete(staff_reschedule_message)
                                 self.client.session.commit()
-                                return           
+                                return
+
+    async def reaction_on_end_tournament_message(self, emoji, message_id, channel, guild, user):
+        """Ends a tournament"""
+        end_tournament_message = self.client.session.query(EndTournamentMessage).filter(EndTournamentMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not end_tournament_message:
+            return
+        if user.id != guild.owner.id:
+            return
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(str(guild.id))).first()
+        if not tournament:
+            self.client.session.delete(end_tournament_message)
+            self.client.session.commit()
+            return
+        if emoji.name == "✅":
+            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            if brackets:
+                for bracket in brackets:
+                    self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).delete()
+                    self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).delete()
+                    self.client.session.delete(bracket)
+            self.client.session.query(RescheduleMessage).filter(RescheduleMessage.tournament_id == tournament.id).delete()
+            self.client.session.query(StaffRescheduleMessage).filter(StaffRescheduleMessage.tournament_id == tournament.id).delete()
+            self.client.session.delete(tournament)
+            self.client.session.delete(end_tournament_message)
+            self.client.session.commit()
+            await channel.send(self.get_string("end_tournament", "success"))
+        elif emoji.name == "❎":
+            self.client.session.delete(end_tournament_message)
+            self.client.session.commit()
+            await channel.send(self.get_string("end_tournament", "refused"))
 
 def get_class(bot):
     """Returns the main class of the module"""

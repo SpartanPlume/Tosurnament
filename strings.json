@@ -46,6 +46,14 @@
             "tournament_already_created": "This server already has a tournament running. If you want to create a new one, please end this one with the %1end_tournament command.",
             "success": "Tournament created."
         },
+        "end_tournament": {
+            "parameter": "",
+            "help": "Ends a tournament",
+            "usage": "Usage: %1end_tournament",
+            "are_you_sure": "Are you sure you want to end the tournament ? If yes, react with :white_check_mark:, else react with :negative_squared_cross_mark:.",
+            "refused": "You refused to end the tournament.",
+            "success": "Tournament ended successfully. You can now create a new one."
+        },
         "create_bracket": {
             "parameter": "<name>",
             "help": "Creates a bracket",
