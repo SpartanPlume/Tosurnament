@@ -1454,7 +1454,7 @@ class Tosurnament(modules.module.BaseModule):
         string += self.get_matches_as_string(referee_matches, "Referee")
         string += self.get_matches_as_string(streamer_matches, "Streamer")
         string += self.get_matches_as_string(commentator_matches, "Commentator")
-        await ctx.send(string)
+        await ctx.author.send(string)
         
     def get_team_name_of_player(self, cells, n_range_team, player_name):
         i = 0
