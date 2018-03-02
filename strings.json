@@ -154,9 +154,9 @@
             "success": "You're now registered. Congrats !"
         },
         "set_schedules_spreadsheet": {
-            "parameter": "<spreadsheet_id> <range> <team_name1_pos> <team_name2_pos> <referee_pos> <time_part1> <time_part2> ...",
+            "parameter": "<spreadsheet_id> <range> <range_match_id> <team_name1_pos> <team_name2_pos> <referee_pos> <time_part1> <time_part2> ...",
             "help": "Sets the schedules spreadsheet to allow reschedule",
-            "usage": "Usage: %1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter\n\nExample: %1set_schedules_spreadsheet 1234567890ABCDEF Sheet1!A:Z (1, 0) (2, 0) (6, 0) (3, 0, \"%d\") (4, 0, \"%b\") (5, 0, \"%H:%M\")",
+            "usage": "Usage: %1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter\n\nExample: %1set_schedules_spreadsheet 1234567890ABCDEF Sheet1!A:Z Sheet1!:A (1, 0) (2, 0) (6, 0) (7, 0) (8, 0) (3, 0, \"%d\") (4, 0, \"%b\") (5, 0, \"%H:%M\")",
             "success": "Schedules spreadsheet set."
         },
         "reschedule": {
@@ -239,6 +239,15 @@
             "parameter": "<match_id>...",
             "help": "Drops the matches the commentator want to drop.",
             "usage": "Usage: %1drop_match_as_commentator $tosurnament/drop_match_as_commentator/parameter\n\nExample: %1drop_match_as_commentator 1A 2A 2B"
+        },
+        "get_matches": {
+            "parameter": "",
+            "help": "Gets a list of taken matches.",
+            "usage": "Usage: %1get_matches",
+            "no_schedules_spreadsheet": "This tournament does not have any schedules spreadsheet registered. Consider using the `%1set_schedules_spreadsheet $tosurnament/set_schedules_spreadsheet/parameter`.",
+            "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
+            "matches": "As a **__%1__**:\n",
+            "success": "**%1: %2** | List of matches\n\n"
         },
         "post_result": {
             "parameter": "<match_id> <n_warmup> <best_of> <roll_team1> <roll_team2> <mp_link(s)> <ban1_team1>; <ban2_team1>; ...; <ban1_team2>; <ban2_team2>; ...",

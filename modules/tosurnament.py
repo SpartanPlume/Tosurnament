@@ -782,7 +782,7 @@ class Tosurnament(modules.module.BaseModule):
 
     @commands.command(name='set_schedules_spreadsheet')
     @commands.guild_only()
-    async def set_schedules_spreadsheet(self, ctx, spreadsheet_id: str, range_name: str, *, parameters: str):
+    async def set_schedules_spreadsheet(self, ctx, spreadsheet_id: str, range_name: str, range_match_id: str, *, parameters: str):
         """Sets the schedules spreadsheet"""
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
@@ -797,6 +797,8 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee]|[Aa][Ll][Ll])$', range_name):
             raise commands.UserInputError()
+        if not re.match(r'^((.+!)?[A-Z]+\d*:[A-Z]+\d*)$', range_match_id):
+            raise commands.UserInputError()
         if not re.match(r'^(\(\d+, ?\d+\) ?){3}(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?)(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?|\[(\(\d+, ?\d+\)(, )?)+\] ?)( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
             raise commands.UserInputError()
         if bracket.schedules_spreadsheet_id:
@@ -806,6 +808,7 @@ class Tosurnament(modules.module.BaseModule):
             self.client.session.add(schedules_spreadsheet)
         schedules_spreadsheet.spreadsheet_id = spreadsheet_id
         schedules_spreadsheet.range_name = range_name
+        schedules_spreadsheet.range_match_id = range_match_id
         schedules_spreadsheet.parameters = parameters
         self.client.session.commit()
         bracket.schedules_spreadsheet_id = schedules_spreadsheet.id
@@ -849,15 +852,12 @@ class Tosurnament(modules.module.BaseModule):
                 all_sheets = True
             try:
                 if all_sheets:
-                    print("1")
                     sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
                 else:
-                    print("2")
                     values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
                     sheet_range = schedules_spreadsheet.range_name.split("!")
                     sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
             except googleapiclient.errors.HttpError:
-                print("test")
                 raise SpreadsheetError()
             tuples = schedules_spreadsheet.parse_parameters()
             for sheet in sheets:
@@ -882,7 +882,6 @@ class Tosurnament(modules.module.BaseModule):
                                 try:
                                     cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
                                 except googleapiclient.errors.HttpError:
-                                    print("test2")
                                     raise SpreadsheetError()
                                 i = 0
                                 while i < len(cells):
@@ -1358,6 +1357,168 @@ class Tosurnament(modules.module.BaseModule):
                     string += "\n"
             return string
         return ""
+
+    @commands.command(name='get_matches', aliases=['get_match', 'list_matches', 'list_match', 'see_matches', 'see_match'])
+    @commands.guild_only()
+    async def get_matches(self, ctx):
+        """Allows to see your matches"""
+        guild_id = str(ctx.guild.id)
+        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        if not tournament:
+            raise NoTournament()
+        player_matches = []
+        referee_matches = []
+        streamer_matches = []
+        commentator_matches = []
+        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        if not brackets:
+            raise UnknownError("post_result: query on brackets returned nothing.")
+        for bracket in brackets:
+            bracket_name = bracket.name
+            if bracket_name == tournament.name:
+                bracket_name = ""
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+            if not players_spreadsheet:
+                raise NoSpreadsheet("players_spreadsheet")
+            if players_spreadsheet.range_team_name.lower() == "none":
+                team_name = ctx.author.display_name
+            else:
+                range_names = players_spreadsheet.get_ranges()
+                n_range_team = players_spreadsheet.get_total_range_team()
+                try:
+                    cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
+                except googleapiclient.errors.HttpError:
+                    raise SpreadsheetError()
+                team_name = self.get_team_name_of_player(cells, n_range_team, ctx.author.display_name)
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            if not schedules_spreadsheet:
+                raise NoSpreadsheet("schedules_spreadsheet")
+            all_sheets = False
+            if not "!" in schedules_spreadsheet.range_name:
+                all_sheets = True
+            try:
+                if all_sheets:
+                    sheets = api.spreadsheet.get_spreadsheet_with_values(schedules_spreadsheet.spreadsheet_id)
+                else:
+                    values = api.spreadsheet.get_range(schedules_spreadsheet.spreadsheet_id, schedules_spreadsheet.range_name)
+                    sheet_range = schedules_spreadsheet.range_name.split("!")
+                    sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
+            except googleapiclient.errors.HttpError:
+                raise SpreadsheetError()
+            tuples = schedules_spreadsheet.parse_parameters()
+            for sheet in sheets:
+                values = sheet["values"]
+                match_ids = self.get_match_ids_from_cells(schedules_spreadsheet, values)
+                if match_ids:
+                    for match_id, x, y in match_ids:
+                        incr_x, incr_y = tuples[0]
+                        if y + incr_y >= len(values) or x + incr_x >= len(values[y + incr_y]):
+                            continue
+                        team_name1 = values[y + incr_y][x + incr_x]
+                        incr_x, incr_y = tuples[1]
+                        if y + incr_y >= len(values) or x + incr_x >= len(values[y + incr_y]):
+                            continue
+                        team_name2 = values[y + incr_y][x + incr_x]
+                        date_string = ""
+                        date_flags = ""
+                        times = tuples[5:]
+                        for tup in times:
+                            incr_x, incr_y, date_flag = tup
+                            if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                date_flags += date_flag
+                                date_string += values[y + incr_y][x + incr_x]
+                        try:
+                            match_date = datetime.datetime.strptime(date_string, date_flags)
+                        except ValueError:
+                            continue
+                        if team_name == team_name1:
+                            player_matches.append((match_id, team_name1, team_name2, match_date, bracket_name))                       
+                        if team_name == team_name2:
+                            player_matches.append((match_id, team_name1, team_name2, match_date, bracket_name))
+                        incr_x, incr_y = tuples[2]
+                        if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                            if values[y + incr_y][x + incr_x] == ctx.author.display_name:
+                                referee_matches.append((match_id, team_name1, team_name2, match_date, bracket_name))
+                        incr_x, incr_y = tuples[3]
+                        if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                            if values[y + incr_y][x + incr_x] == ctx.author.display_name:
+                                streamer_matches.append((match_id, team_name1, team_name2, match_date, bracket_name))
+                        if not isinstance(tuples[4], str):
+                            for incr_x, incr_y in tuples[4]:
+                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                    if values[y + incr_y][x + incr_x] == ctx.author.display_name:
+                                        commentator_matches.append((match_id, team_name1, team_name2, match_date, bracket_name))
+                                        break
+        string = self.get_string("get_matches", "success", tournament.acronym, tournament.name)
+        string += self.get_matches_as_string(player_matches, "Player")
+        string += self.get_matches_as_string(referee_matches, "Referee")
+        string += self.get_matches_as_string(streamer_matches, "Streamer")
+        string += self.get_matches_as_string(commentator_matches, "Commentator")
+        await ctx.send(string)
+        
+    def get_team_name_of_player(self, cells, n_range_team, player_name):
+        i = 0
+        while i < len(cells):
+            team_name = self.get_team_name(cells[i])
+            i += 1
+            for _ in range(n_range_team):
+                for player_row in cells[i]:
+                    for player in player_row:
+                        if player == player_name:
+                            return team_name
+            i += 1
+        return ""
+
+    def get_matches_as_string(self, matches, role_name):
+        string = ""
+        if matches:
+            matches.sort(key=lambda tup: tup[3])
+            string = self.get_string("get_matches", "matches", role_name)
+            for match_id, team_name1, team_name2, match_date, bracket_name in matches:
+                string += match_date.strftime("**%d %B at %H:%M UTC**") + " | "
+                if bracket_name:
+                    string += bracket_name + " | "
+                string += "**" + match_id + "**:\n" + team_name1 + " vs " + team_name2 + "\n"
+            string += "\n"
+        return string
+
+    def get_match_ids_from_cells(self, schedules_spreadsheet, cells):
+        """Returns an array with the match ids and their position in cells"""
+        splitted_range_name = (schedules_spreadsheet.range_name.split("!")[-1]).split(":")
+        if len(splitted_range_name) == 1:
+            begin_x = 0
+            begin_y = 0
+        else:
+            begin_x, begin_y = api.spreadsheet.from_cell(splitted_range_name[0])
+        splitted_range_match_id = (schedules_spreadsheet.range_match_id.split("!")[-1]).split(":")
+        end_x, end_y = api.spreadsheet.from_cell(splitted_range_match_id[1])
+        x, y = api.spreadsheet.from_cell(splitted_range_match_id[0])
+        if begin_x < 0:
+            begin_x = 0
+        if begin_y < 0:
+            begin_y = 0
+        if x < 0:
+            x = 0
+        if y < 0:
+            y = 0
+        end_x = end_x - begin_x
+        end_y = end_y - begin_y
+        x = x - begin_x
+        y = y - begin_y
+        tmp_x = x
+        match_ids = []
+        if end_y < 0:
+            end_y = len(cells)
+        while y <= end_y:
+            if end_x < 0:
+                end_x = len(cells[y]) - 1
+            while x <= end_x:
+                if y < len(cells) and x < len(cells[y]):
+                    match_ids.append((cells[y][x], x, y))
+                x += 1
+            x = tmp_x
+            y += 1
+        return match_ids
 
     @commands.command(name='post_result')
     @commands.guild_only()

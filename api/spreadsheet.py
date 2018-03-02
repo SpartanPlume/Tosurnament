@@ -136,12 +136,17 @@ def write_ranges(spreadsheet_id, range_name_array, values_array, value_input_opt
 def from_cell(cell):
     coordinates = re.split('(\d+)', cell)
     x = int(coordinates[0], 36) - 10
-    y = int(coordinates[1]) - 1
+    if len(coordinates) == 1:
+        y = -1
+    else:
+        y = int(coordinates[1]) - 1
     return (x, y)
 
 def to_cell(coordinates):
     x, y = coordinates
-    cell = to_base(x, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") + str(y + 1)
+    cell = to_base(x, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    if y >= 0:
+        cell += str(y + 1)
     return (cell)
 
 def to_base(n, base):
