@@ -135,6 +135,14 @@ class MatchNotFound(commands.CommandError):
     """Special exception if a match in the challonge is not found"""
     pass
 
+class PastDeadline(commands.CommandError):
+    """Special exception if the deadline is passed"""
+    pass
+
+class ImpossibleReschedule(commands.CommandError):
+    """Special exception if the rescheduled time is not acceptable"""
+    pass
+
 class UnknownError(commands.CommandError):
     """Special exception if unknown error"""
     def __init__(self, message=None):
@@ -291,7 +299,7 @@ class Tosurnament(modules.module.BaseModule):
         tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament:
             raise TournamentAlreadyCreated()
-        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True, ping_team=True)
+        tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True, ping_team=True, reschedule_hours_deadline=24)
         self.client.session.add(tournament)
         self.client.session.commit()
         if not bracket_name:
@@ -533,7 +541,7 @@ class Tosurnament(modules.module.BaseModule):
     @commands.command(name='set_ping_team')
     @commands.guild_only()
     async def set_ping_team(self, ctx, yes: bool):
-        """Sets if team should be pinged or team captain shouldbe pinged"""
+        """Sets if team should be pinged or team captain should be pinged"""
         self.set_tournament_values(ctx, {"ping_team": yes})
         await ctx.send(self.get_string("set_ping_team", "success"))
 
@@ -578,6 +586,61 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_post_result_message", "usage", ctx.prefix))
+
+    @commands.command(name='set_reschedule_hours_deadline', aliases=['set_reschedule_deadline'])
+    @commands.guild_only()
+    async def set_reschedule_hours_deadline(self, ctx, hours: int):
+        """Allows to change the deadline (in hours before the match) to reschedule a match"""
+        self.set_tournament_values(ctx, {"reschedule_hours_deadline": hours})
+        await ctx.send(self.get_string("set_reschedule_hours_deadline", "success"))
+
+    @set_reschedule_hours_deadline.error
+    async def set_reschedule_hours_deadline_handler(self, ctx, error):
+        """Error handler of set_reschedule_hours_deadline function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_reschedule_hours_deadline", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_reschedule_hours_deadline", "usage", ctx.prefix))
+
+    @commands.command(name='set_reschedule_range_begin', aliases=['set_reschedule_range_start'])
+    @commands.guild_only()
+    async def set_reschedule_range_begin(self, ctx, *, date):
+        """Allows to change the range of the deadline by week"""
+        date = date.lower()
+        if not re.match(r'^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$', date):
+            raise commands.UserInputError()
+        self.set_tournament_values(ctx, {"reschedule_range_begin": date})
+        await ctx.send(self.get_string("set_reschedule_range_begin", "success"))
+
+    @set_reschedule_range_begin.error
+    async def set_reschedule_range_begin_handler(self, ctx, error):
+        """Error handler of set_reschedule_range_begin function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_reschedule_range_begin", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_reschedule_range_begin", "usage", ctx.prefix))
+        elif isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("set_reschedule_range_begin", "usage", ctx.prefix))
+
+    @commands.command(name='set_reschedule_range_end')
+    @commands.guild_only()
+    async def set_reschedule_range_end(self, ctx, *, date):
+        """Allows to change the range of the deadline by week"""
+        date = date.lower()
+        if not re.match(r'^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$', date):
+            raise commands.UserInputError()
+        self.set_tournament_values(ctx, {"reschedule_range_end": date})
+        await ctx.send(self.get_string("set_reschedule_range_end", "success"))
+
+    @set_reschedule_range_end.error
+    async def set_reschedule_range_end_handler(self, ctx, error):
+        """Error handler of set_reschedule_range_end function"""
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(self.get_string("set_reschedule_range_end", "usage", ctx.prefix))
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("set_reschedule_range_end", "usage", ctx.prefix))
+        elif isinstance(error, commands.UserInputError):
+            await ctx.send(self.get_string("set_reschedule_range_end", "usage", ctx.prefix))
 
     def set_tournament_values(self, ctx, values):
         guild_id = str(ctx.guild.id)
@@ -842,7 +905,16 @@ class Tosurnament(modules.module.BaseModule):
             raise NoPlayerRole()
         if not any(player_role.id == role.id for role in ctx.author.roles):
             raise NotAPlayer()
-        date = datetime.datetime.strptime(date + "2008", '%d/%m %H:%M%Y')
+        now = datetime.datetime.utcnow()
+        date = datetime.datetime.strptime(date + str(now.year), '%d/%m %H:%M%Y')
+        if now.month == 12 and date.month == 1 and date < now:
+            try:
+                date = date.replace(year = date.year + 1)
+            except ValueError:
+                date = date + (datetime.date(date.year + 1, 1, 1) - datetime.date(date.year, 1, 1))
+        deadline = date - datetime.timedelta(hours=tournament.reschedule_hours_deadline)
+        if now > deadline:
+            raise ImpossibleReschedule()
         for bracket in brackets:
             schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
@@ -870,6 +942,43 @@ class Tosurnament(modules.module.BaseModule):
                             incr_x, incr_y = tuples[1]
                             team_name2 = values[y + incr_y][x + incr_x]
                             tuples = tuples[5:]
+                            date_string = ""
+                            date_flags = ""
+                            for tup in tuples:
+                                incr_x, incr_y, date_flag = tup
+                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
+                                    date_flags += date_flag
+                                    date_string += values[y + incr_y][x + incr_x]
+                            previous_date = datetime.datetime.strptime(date_string + str(now.year), date_flags + "%Y")
+                            if previous_date < now:
+                                try:
+                                    previous_date = previous_date.replace(year = previous_date.year + 1)
+                                except ValueError:
+                                    previous_date = previous_date + (datetime.date(previous_date.year + 1, 1, 1) - datetime.date(previous_date.year, 1, 1))
+                            deadline = previous_date - datetime.timedelta(hours=tournament.reschedule_hours_deadline)
+                            if now > deadline:
+                                raise PastDeadline()
+                            if tournament.reschedule_range_begin:
+                                deadline_begin = None
+                                day_name, time = tournament.reschedule_range_begin.split(" ")
+                                hours, minutes = time.split(":")
+                                weekday = self.get_weekday_from_day_name(day_name)
+                                deadline_begin = previous_date - datetime.timedelta(days=(previous_date.weekday()-weekday)%7)
+                                deadline_begin = deadline_begin.replace(hour=int(hours), minute=int(minutes))
+                                if date < deadline_begin:
+                                    raise ImpossibleReschedule()
+                            if tournament.reschedule_range_end:
+                                deadline_end = None
+                                day_name, time = tournament.reschedule_range_end.split(" ")
+                                hours, minutes = time.split(":")
+                                weekday = self.get_weekday_from_day_name(day_name)
+                                deadline_end = previous_date + datetime.timedelta(days=(weekday-previous_date.weekday())%7)
+                                deadline_end = deadline_end.replace(hour=int(hours), minute=int(minutes))
+                                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                print(deadline_end)
+                                print(date)
+                                if date > deadline_end:
+                                    raise ImpossibleReschedule()
                             ally_team_captain = None
                             enemy_team_captain = None
                             is_team_captain = False
@@ -899,14 +1008,6 @@ class Tosurnament(modules.module.BaseModule):
                                 is_team_captain = True
                             if not is_team_captain:
                                 raise NotTeamCaptain()
-                            date_string = ""
-                            date_flags = ""
-                            for tup in tuples:
-                                incr_x, incr_y, date_flag = tup
-                                if y + incr_y < len(values) and x + incr_x < len(values[y + incr_y]):
-                                    date_flags += date_flag
-                                    date_string += values[y + incr_y][x + incr_x]
-                            previous_date = datetime.datetime.strptime(date_string, date_flags)
                             player_name = ctx.author.display_name
                             role_team1 = self.get_role(roles, role_name=team_name1)
                             role_team2 = self.get_role(roles, role_name=team_name2)
@@ -973,6 +1074,14 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("reschedule", "invalid_match"))
         elif isinstance(error, InvalidMatchId):
             await ctx.send(self.get_string("reschedule", "invalid_match_id"))
+        elif isinstance(error, PastDeadline):
+            await ctx.send(self.get_string("reschedule", "past_deadline"))
+        elif isinstance(error, ImpossibleReschedule):
+            await ctx.send(self.get_string("reschedule", "impossible_reschedule"))
+
+    def get_weekday_from_day_name(self, day_name):
+        days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        return days.index(day_name)
 
     @commands.command(name='name_change', aliases=["change_name"])
     @commands.guild_only()

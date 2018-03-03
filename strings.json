@@ -139,6 +139,24 @@
             "usage": "Usage: %1set_post_result_message $tosurnament/set_post_result_message/parameter\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
             "success": "post_result message set."
         },
+        "set_reschedule_hours_deadline": {
+            "parameter": "<hours>",
+            "help": "Sets the deadline to reschedule a match (in hours before the match)",
+            "usage": "Usage: %1set_reschedule_hours_deadline $tosurnament/set_reschedule_hours_deadline/parameter\n\nExample: %1set_reschedule_hours_deadline 24",
+            "success": "Deadline to reschedule a match set."
+        },
+        "set_reschedule_range_begin": {
+            "parameter": "<day_name> <hour: HH:mm>",
+            "help": "Sets a range to reschedule a match",
+            "usage": "Usage: %1set_reschedule_range_begin $tosurnament/set_reschedule_range_begin/parameter\n\nExample: %1set_reschedule_range_begin Tuesday 12:00",
+            "success": "Deadline range begin set."
+        },
+        "set_reschedule_range_end": {
+            "parameter": "<day_name> <hour: HH:mm>",
+            "help": "Sets a range to reschedule a match",
+            "usage": "Usage: %1set_reschedule_range_end $tosurnament/set_reschedule_range_end/parameter\n\nExample: %1set_reschedule_range_end Tuesday 12:00",
+            "success": "Deadline range end set."
+        },
         "set_players_spreadsheet": {
             "parameter": "<spreadsheet_id> <range_team_name> <range_team> <incr_column> <incr_row> <n_team>",
             "help": "Sets the players spreadsheet to allow registration",
@@ -168,6 +186,8 @@
             "spreadsheet_error": "Either the spreadsheet's id is incorrect, or the ranges are incorrect, or we couldn't connect to the spreadsheet. If you are sure that it is a connection problem and that the problem persists, contact me at spartan.plume@gmail.com",
             "invalid_match_id": "Invalid match id.",
             "invalid_match": "You can't reschedule a match you're not in.",
+            "past_deadline": "Sorry, the deadline to reschedule your match is passed. You can try contacting an admin to reschedule your match.",
+            "impossible_reschedule": "Sorry, the time to which you want to reschedule your match is not acceptable. You can try contacting an admin to reschedule your match.",
             "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
             "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
             "refused": ":x: %1, your reschedule for the match %2 has been refused.",
