@@ -974,9 +974,6 @@ class Tosurnament(modules.module.BaseModule):
                                 weekday = self.get_weekday_from_day_name(day_name)
                                 deadline_end = previous_date + datetime.timedelta(days=(weekday-previous_date.weekday())%7)
                                 deadline_end = deadline_end.replace(hour=int(hours), minute=int(minutes))
-                                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                                print(deadline_end)
-                                print(date)
                                 if date > deadline_end:
                                     raise ImpossibleReschedule()
                             ally_team_captain = None
