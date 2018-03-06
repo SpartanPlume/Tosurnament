@@ -5,15 +5,14 @@ import logging
 import os
 import discord
 from discord.ext import commands
-import sqlalchemy
 import api.spreadsheet
 import helpers.load_json
 import helpers.crypt
-from databases.base import Base
+import mysql_wrapper
+import constants
+import asyncio
 
 MODULES_DIR = "modules"
-engine = sqlalchemy.create_engine('sqlite:///tosurnament.db', echo=True)
-Session = sqlalchemy.orm.sessionmaker(bind=engine)
 
 class Client(commands.Bot):
     """Child of discord.Client to simplify event management"""
@@ -30,6 +29,7 @@ class Client(commands.Bot):
         self.init_modules()
         self.init_db()
         api.spreadsheet.start_service()
+        self.loop.create_task(self.background_task())
         print("Ready !")
 
     def init_logger(self):
@@ -61,20 +61,11 @@ class Client(commands.Bot):
 
     def init_db(self):
         """Initializes the database"""
-        Base.metadata.create_all(engine, checkfirst=True)
-        self.session = Session()
+        self.session = mysql_wrapper.Session(constants.DATABASE_USERNAME, constants.DATABASE_PASSWORD, "tosurnament")
 
     def log(self, level, message):
         """Uses to log message"""
         self.logger.log(level, "SelfBot: %s", message, extra={})
-
-    @sqlalchemy.event.listens_for(Session, "before_flush")
-    def before_flush(session, context, instances):
-        """Encrypts all dirty object before the flush"""
-        for obj in session.new:
-            obj = helpers.crypt.encrypt_obj(obj)
-        for obj in session.dirty:
-            obj = helpers.crypt.encrypt_obj(obj)
 
     async def stop(self, ctx, code):
         """Stops the bot"""
@@ -82,3 +73,11 @@ class Client(commands.Bot):
         if ctx.guild:
             await ctx.message.delete()
         await self.logout()
+
+    async def background_task(self):
+        await self.wait_until_ready()
+        while not self.is_closed():
+            for module in self.modules:
+                if hasattr(module, "background_task"):
+                    await module.background_task()
+            await asyncio.sleep(60)

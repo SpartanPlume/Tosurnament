@@ -143,6 +143,10 @@ class ImpossibleReschedule(commands.CommandError):
     """Special exception if the rescheduled time is not acceptable"""
     pass
 
+class SameDate(commands.CommandError):
+    """Special exception if the rescheduled time is the same date than the previous one"""
+    pass
+
 class UnknownError(commands.CommandError):
     """Special exception if unknown error"""
     def __init__(self, message=None):
@@ -229,7 +233,7 @@ class Tosurnament(modules.module.BaseModule):
     async def link(self, ctx, *, osu_name: str):
         """Sends a private message to the command runner to link his account"""
         discord_id = str(ctx.author.id)
-        user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
+        user = self.client.session.query(User).where(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if user:
             if user.verified:
                 raise UserAlreadyVerified()
@@ -245,7 +249,7 @@ class Tosurnament(modules.module.BaseModule):
         else:
             user.osu_id = osu_id
             user.code = code
-        self.client.session.commit()
+            self.client.session.update(user)
         await ctx.author.send(self.get_string("link", "success", code, ctx.prefix))
 
     @link.error
@@ -260,7 +264,7 @@ class Tosurnament(modules.module.BaseModule):
     async def auth(self, ctx):
         """Sends a private message to the command runner to auth his account"""
         discord_id = str(ctx.author.id)
-        user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
+        user = self.client.session.query(User).where(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
             raise UserNotLinked()
         if user.verified:
@@ -282,7 +286,7 @@ class Tosurnament(modules.module.BaseModule):
             raise WrongCodeError()
         else:
             user.verified = True
-            self.client.session.commit()
+            self.client.session.update(user)
         await ctx.author.send(self.get_string("auth", "success"))
 
     @auth.error
@@ -296,20 +300,18 @@ class Tosurnament(modules.module.BaseModule):
     async def create_tournament(self, ctx, acronym: str, name: str, bracket_name: str = ""):
         """Creates a tournament"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament:
             raise TournamentAlreadyCreated()
         tournament = Tournament(server_id=guild_id, acronym=acronym, name=name, name_change_enabled=True, ping_team=True, reschedule_hours_deadline=24)
         self.client.session.add(tournament)
-        self.client.session.commit()
         if not bracket_name:
             bracket = Bracket(tournament_id=tournament.id, name=name, name_hash=name)
         else:
             bracket = Bracket(tournament_id=tournament.id, name=bracket_name, name_hash=bracket_name)
         self.client.session.add(bracket)
-        self.client.session.commit()
         tournament.current_bracket_id = bracket.id
-        self.client.session.commit()
+        self.client.session.update(tournament)
         await ctx.send(self.get_string("create_tournament", "success"))
 
     @create_tournament.error
@@ -328,13 +330,12 @@ class Tosurnament(modules.module.BaseModule):
     async def end_tournament(self, ctx):
         """Ends a tournament"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         message = await ctx.send(self.get_string("end_tournament", "are_you_sure"))
         end_tournament_message = EndTournamentMessage(message_id=helpers.crypt.hash_str(str(message.id)))
         self.client.session.add(end_tournament_message)
-        self.client.session.commit()
 
     @end_tournament.error
     async def end_tournament_handler(self, ctx, error):
@@ -349,7 +350,7 @@ class Tosurnament(modules.module.BaseModule):
     async def create_bracket(self, ctx, *, name: str):
         """Create a bracket"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -358,9 +359,8 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         bracket = Bracket(tournament_id=tournament.id, name=name, name_hash=name)
         self.client.session.add(bracket)
-        self.client.session.commit()
         tournament.current_bracket_id = bracket.id
-        self.client.session.commit()
+        self.client.session.update(tournament)
         await ctx.send(self.get_string("create_bracket", "success"))
 
     @create_bracket.error
@@ -376,7 +376,7 @@ class Tosurnament(modules.module.BaseModule):
     async def get_bracket(self, ctx, *, name: str = ""):
         """Sets a bracket as current bracket or shows them all"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -384,14 +384,14 @@ class Tosurnament(modules.module.BaseModule):
         if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
             raise NotBotAdmin()
         if name:
-            bracket = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).filter(Bracket.name_hash == helpers.crypt.hash_str(name)).first()
+            bracket = self.client.session.query(Bracket).where(Tournament.id == tournament.id).where(Bracket.name_hash == helpers.crypt.hash_str(name)).first()
             if not bracket:
                 raise NoBracket()
             tournament.current_bracket_id = bracket.id
-            self.client.session.commit()
+            self.client.session.update(tournament)
             await ctx.send(self.get_string("get_bracket", "success"))
         else:
-            brackets = self.client.session.query(Bracket).filter(Tournament.id == tournament.id).all()
+            brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
             if not brackets:
                 raise UnknownError("get_bracket: query on brackets returned nothing.")
             brackets_string = ""
@@ -445,11 +445,11 @@ class Tosurnament(modules.module.BaseModule):
     async def set_admin_role(self, ctx, *, role: discord.Role):
         """Sets the admin role"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         tournament.admin_role_id = str(role.id)
-        self.client.session.commit()
+        self.client.session.update(tournament)
         await ctx.send(self.get_string("set_admin_role", "success"))
 
     @set_admin_role.error
@@ -644,7 +644,7 @@ class Tosurnament(modules.module.BaseModule):
 
     def set_tournament_values(self, ctx, values):
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -653,33 +653,33 @@ class Tosurnament(modules.module.BaseModule):
             raise NotBotAdmin()
         for key, value in values.items():
             setattr(tournament, key, value)
-        self.client.session.commit()
+        self.client.session.update(tournament)
 
     def set_bracket_values(self, ctx, values):
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
         if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
             raise NotBotAdmin()
-        bracket = self.client.session.query(Bracket).filter(Bracket.id == tournament.current_bracket_id).first()
+        bracket = self.client.session.query(Bracket).where(Bracket.id == tournament.current_bracket_id).first()
         if not bracket:
             raise NoBracket()
         for key, value in values.items():
             setattr(bracket, key, value)
-        self.client.session.commit()
+        self.client.session.update(bracket)
 
     @commands.command(name='set_players_spreadsheet')
     @commands.guild_only()
     async def set_players_spreadsheet(self, ctx, spreadsheet_id: str, range_team_name: str, range_team: str, incr_column: str, incr_row: str, n_team: int):
         """Sets the players spreadsheet"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        bracket = self.client.session.query(Bracket).filter(Bracket.id == tournament.current_bracket_id).first()
+        bracket = self.client.session.query(Bracket).where(Bracket.id == tournament.current_bracket_id).first()
         if not bracket:
             raise NoBracket()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -698,7 +698,7 @@ class Tosurnament(modules.module.BaseModule):
         except NameError:
             raise commands.UserInputError()
         if bracket.players_spreadsheet_id:
-            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
         else:
             players_spreadsheet = PlayersSpreadsheet()
             self.client.session.add(players_spreadsheet)
@@ -708,9 +708,9 @@ class Tosurnament(modules.module.BaseModule):
         players_spreadsheet.incr_column = incr_column
         players_spreadsheet.incr_row = incr_row
         players_spreadsheet.n_team = n_team
-        self.client.session.commit()
+        self.client.session.update(players_spreadsheet)
         bracket.players_spreadsheet_id = players_spreadsheet.id
-        self.client.session.commit()
+        self.client.session.update(bracket)
         await ctx.send(self.get_string("set_players_spreadsheet", "success"))
 
     @set_players_spreadsheet.error
@@ -729,17 +729,17 @@ class Tosurnament(modules.module.BaseModule):
     async def register(self, ctx):
         """Registers a player"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
         if not brackets:
             raise UnknownError("register: query on brackets returned nothing.")
         player_role_id = tournament.player_role_id
         if self.get_role(ctx.author.roles, player_role_id, "Player"):
             raise UserAlreadyRegistered()
         discord_id = str(ctx.author.id)
-        user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
+        user = self.client.session.query(User).where(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
             raise UserNotLinked()
         if not user.verified:
@@ -754,7 +754,7 @@ class Tosurnament(modules.module.BaseModule):
         #except discord.Forbidden:
         #    raise commands.BotMissingPermissions(["change_owner_nickname"])
         for bracket in brackets:
-            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
             if not players_spreadsheet:
                 raise NoSpreadsheet()
             range_names = players_spreadsheet.get_ranges()
@@ -848,10 +848,10 @@ class Tosurnament(modules.module.BaseModule):
     async def set_schedules_spreadsheet(self, ctx, spreadsheet_id: str, range_name: str, range_match_id: str, *, parameters: str):
         """Sets the schedules spreadsheet"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        bracket = self.client.session.query(Bracket).filter(Bracket.id == tournament.current_bracket_id).first()
+        bracket = self.client.session.query(Bracket).where(Bracket.id == tournament.current_bracket_id).first()
         if not bracket:
             raise NoBracket()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -865,7 +865,7 @@ class Tosurnament(modules.module.BaseModule):
         if not re.match(r'^(\(\d+, ?\d+\) ?){3}(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?)(\(\d+, ?\d+\) ?|[Nn][Oo][Nn][Ee] ?|\[(\(\d+, ?\d+\)(, )?)+\] ?)( ?\((\d+, ?){2}"(?:[^"\\]|\\.)*"\))*$', parameters):
             raise commands.UserInputError()
         if bracket.schedules_spreadsheet_id:
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
         else:
             schedules_spreadsheet = SchedulesSpreadsheet()
             self.client.session.add(schedules_spreadsheet)
@@ -873,9 +873,9 @@ class Tosurnament(modules.module.BaseModule):
         schedules_spreadsheet.range_name = range_name
         schedules_spreadsheet.range_match_id = range_match_id
         schedules_spreadsheet.parameters = parameters
-        self.client.session.commit()
+        self.client.session.update(schedules_spreadsheet)
         bracket.schedules_spreadsheet_id = schedules_spreadsheet.id
-        self.client.session.commit()
+        self.client.session.update(bracket)
         await ctx.send(self.get_string("set_schedules_spreadsheet", "success", ctx.prefix))
 
     @set_schedules_spreadsheet.error
@@ -893,10 +893,10 @@ class Tosurnament(modules.module.BaseModule):
     async def reschedule(self, ctx, match_id: str, *, date: str):
         """Allows players to reschedule their matches"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
         if not brackets:
             raise UnknownError("reschedule: query on brackets returned nothing.")
         roles = ctx.guild.roles
@@ -916,7 +916,7 @@ class Tosurnament(modules.module.BaseModule):
         if now > deadline:
             raise ImpossibleReschedule()
         for bracket in brackets:
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet()
             all_sheets = False
@@ -950,7 +950,7 @@ class Tosurnament(modules.module.BaseModule):
                                     date_flags += date_flag
                                     date_string += values[y + incr_y][x + incr_x]
                             previous_date = datetime.datetime.strptime(date_string + str(now.year), date_flags + "%Y")
-                            if previous_date < now:
+                            if now.month == 12 and date.month == 1 and previous_date < now:
                                 try:
                                     previous_date = previous_date.replace(year = previous_date.year + 1)
                                 except ValueError:
@@ -958,6 +958,8 @@ class Tosurnament(modules.module.BaseModule):
                             deadline = previous_date - datetime.timedelta(hours=tournament.reschedule_hours_deadline)
                             if now > deadline:
                                 raise PastDeadline()
+                            if previous_date == date:
+                                raise SameDate()
                             if tournament.reschedule_range_begin:
                                 deadline_begin = None
                                 day_name, time = tournament.reschedule_range_begin.split(" ")
@@ -979,7 +981,7 @@ class Tosurnament(modules.module.BaseModule):
                             ally_team_captain = None
                             enemy_team_captain = None
                             is_team_captain = False
-                            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
                             if not players_spreadsheet:
                                 raise NoSpreadsheet("players_spreadsheet")
                             if players_spreadsheet.range_team_name.lower() != "none":
@@ -1008,7 +1010,7 @@ class Tosurnament(modules.module.BaseModule):
                             player_name = ctx.author.display_name
                             role_team1 = self.get_role(roles, role_name=team_name1)
                             role_team2 = self.get_role(roles, role_name=team_name2)
-                            reschedule_message = RescheduleMessage(tournament_id=tournament.id)
+                            reschedule_message = RescheduleMessage(tournament_id=tournament.id, in_use=False)
                             reschedule_message.match_id = match_id
                             reschedule_message.ally_user_id = bytes('', 'utf-8')
                             reschedule_message.ally_role_id = bytes('', 'utf-8')
@@ -1050,7 +1052,6 @@ class Tosurnament(modules.module.BaseModule):
                             sent_message = await ctx.send(self.get_string("reschedule", "success", enemy_mention, ally_name, match_id, previous_date_string, new_date_string))
                             reschedule_message.message_id = str(sent_message.id)
                             self.client.session.add(reschedule_message)
-                            self.client.session.commit()
                             await sent_message.add_reaction("👍")
                             await sent_message.add_reaction("👎")
                             return
@@ -1075,6 +1076,8 @@ class Tosurnament(modules.module.BaseModule):
             await ctx.send(self.get_string("reschedule", "past_deadline"))
         elif isinstance(error, ImpossibleReschedule):
             await ctx.send(self.get_string("reschedule", "impossible_reschedule"))
+        elif isinstance(error, SameDate):
+            await ctx.send(self.get_string("reschedule", "same_date"))
 
     def get_weekday_from_day_name(self, day_name):
         days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
@@ -1086,11 +1089,11 @@ class Tosurnament(modules.module.BaseModule):
     async def name_change(self, ctx):
         """Allows players to change their nickname to their osu! username"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if tournament and not tournament.name_change_enabled:
             raise commands.DisabledCommand()
         discord_id = str(ctx.author.id)
-        user = self.client.session.query(User).filter(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
+        user = self.client.session.query(User).where(User.discord_id == helpers.crypt.hash_str(discord_id)).first()
         if not user:
             raise UserNotLinked()
         if not user.verified:
@@ -1105,13 +1108,13 @@ class Tosurnament(modules.module.BaseModule):
         name_changed_players_spreadsheet = True
         name_changed_schedules_spreadsheet = True
         if tournament:
-            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
             if not brackets:
                 raise UnknownError("name_change: query on brackets returned nothing.")
             if self.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
                 name_changed_players_spreadsheet = False
                 for bracket in brackets:
-                    players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                    players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
                     if players_spreadsheet:
                         range_names = players_spreadsheet.get_ranges()
                         n_range_team = players_spreadsheet.get_total_range_team()
@@ -1143,7 +1146,7 @@ class Tosurnament(modules.module.BaseModule):
             if self.get_role(ctx.author.roles, tournament.player_role_id, "Player") or self.get_role(ctx.author.roles, tournament.referee_role_id, "Referee"):
                 name_changed_schedules_spreadsheet = False
                 for bracket in brackets:
-                    schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+                    schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
                     if schedules_spreadsheet:
                         all_sheets = False
                         if not "!" in schedules_spreadsheet.range_name:
@@ -1185,7 +1188,7 @@ class Tosurnament(modules.module.BaseModule):
     async def disable_name_change(self, ctx):
         """Disables or enables the name_change command for a tournament"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
@@ -1193,7 +1196,7 @@ class Tosurnament(modules.module.BaseModule):
         if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
             raise NotBotAdmin()
         tournament.name_change_enabled = not tournament.name_change_enabled
-        self.client.session.commit()
+        self.client.session.update(tournament)
         if tournament.name_change_enabled:
             await ctx.send(self.get_string("disable_name_change", "success", "enabled"))
         else:
@@ -1331,10 +1334,10 @@ class Tosurnament(modules.module.BaseModule):
         if not match_ids:
             raise commands.UserInputError()
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
         if not brackets:
             raise UnknownError("take_match: query on brackets returned nothing.")
         roles = ctx.author.roles
@@ -1357,7 +1360,7 @@ class Tosurnament(modules.module.BaseModule):
         commentator_successfully_taken_matches_id = []
         commentator_already_taken_matches_id = []
         for bracket in brackets:
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet("schedules_spreadsheet")
             all_sheets = False
@@ -1469,21 +1472,21 @@ class Tosurnament(modules.module.BaseModule):
     async def get_matches(self, ctx):
         """Allows to see your matches"""
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
         player_matches = []
         referee_matches = []
         streamer_matches = []
         commentator_matches = []
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
         if not brackets:
             raise UnknownError("post_result: query on brackets returned nothing.")
         for bracket in brackets:
             bracket_name = bracket.name
             if bracket_name == tournament.name:
                 bracket_name = ""
-            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
             if not players_spreadsheet:
                 raise NoSpreadsheet("players_spreadsheet")
             if players_spreadsheet.range_team_name.lower() == "none":
@@ -1496,7 +1499,7 @@ class Tosurnament(modules.module.BaseModule):
                 except googleapiclient.errors.HttpError:
                     raise SpreadsheetError()
                 team_name = self.get_team_name_of_player(cells, n_range_team, ctx.author.display_name)
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet("schedules_spreadsheet")
             all_sheets = False
@@ -1659,10 +1662,10 @@ class Tosurnament(modules.module.BaseModule):
         bans_team1 = ", ".join(bans[:int(len(bans)/2)])
         bans_team2 = ", ".join(bans[int(len(bans)/2):])
         guild_id = str(ctx.guild.id)
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
             raise NoTournament()
-        brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+        brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
         if not brackets:
             raise UnknownError("post_result: query on brackets returned nothing.")
         roles = ctx.guild.roles
@@ -1672,10 +1675,10 @@ class Tosurnament(modules.module.BaseModule):
         if not any(referee_role.id == role.id for role in ctx.author.roles):
             raise NotAReferee()
         for bracket in brackets:
-            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+            schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
             if not schedules_spreadsheet:
                 raise NoSpreadsheet("schedules_spreadsheet")
-            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+            players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
             if not players_spreadsheet:
                 raise NoSpreadsheet("players_spreadsheet")
             range_names = players_spreadsheet.get_ranges()
@@ -1915,9 +1918,11 @@ class Tosurnament(modules.module.BaseModule):
 
     async def reaction_on_reschedule_message(self, emoji, message_id, channel, guild, user):
         """Reschedules a match or denies the reschedule"""
-        reschedule_message = self.client.session.query(RescheduleMessage).filter(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
-        if not reschedule_message:
+        reschedule_message = self.client.session.query(RescheduleMessage).where(RescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        if not reschedule_message or reschedule_message.in_use:
             return
+        reschedule_message.in_use = True
+        self.client.session.update(reschedule_message)
         ally_role = None
         enemy_role = None
         if str(user.id) == reschedule_message.enemy_user_id:
@@ -1931,12 +1936,16 @@ class Tosurnament(modules.module.BaseModule):
                     enemy_role = role
         if ally_role and enemy_role:
             guild_id = str(guild.id)
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+            tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
             if not tournament:
+                reschedule_message.in_use = False
+                self.client.session.update(reschedule_message)
                 await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
                 return
-            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
             if not brackets:
+                reschedule_message.in_use = False
+                self.client.session.update(reschedule_message)
                 await channel.send(self.get_string("", "unknown_error"))
                 return
             is_team_captain = False
@@ -1946,13 +1955,15 @@ class Tosurnament(modules.module.BaseModule):
                     is_team_captain = True
                 else:
                     for bracket in brackets:
-                        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
+                        players_spreadsheet = self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).first()
                         if players_spreadsheet:
                             range_names = players_spreadsheet.get_ranges()
                             n_range_team = players_spreadsheet.get_total_range_team()
                             try:
                                 cells = api.spreadsheet.get_ranges(players_spreadsheet.spreadsheet_id, range_names)
                             except googleapiclient.errors.HttpError:
+                                reschedule_message.in_use = False
+                                self.client.session.update(reschedule_message)
                                 raise SpreadsheetError()
                             i = 0
                             while i < len(cells):
@@ -1969,8 +1980,10 @@ class Tosurnament(modules.module.BaseModule):
             if not tournament.ping_team or is_team_captain:
                 if emoji.name == "👍":
                     for bracket in brackets:
-                        schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+                        schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
                         if not schedules_spreadsheet:
+                            reschedule_message.in_use = False
+                            self.client.session.update(reschedule_message)
                             await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
                             return
                         previous_date = datetime.datetime.strptime(reschedule_message.previous_date, '%d/%m/%y %H:%M')
@@ -1986,6 +1999,8 @@ class Tosurnament(modules.module.BaseModule):
                                 sheet_range = schedules_spreadsheet.range_name.split("!")
                                 sheets = [{"name": sheet_range[0], "range": sheet_range[1], "values": values}]
                         except googleapiclient.errors.HttpError:
+                            reschedule_message.in_use = False
+                            self.client.session.update(reschedule_message)
                             await channel.send(self.get_string("reschedule", "spreadsheet_error"))
                             return
                         tuples = schedules_spreadsheet.parse_parameters()
@@ -2027,6 +2042,8 @@ class Tosurnament(modules.module.BaseModule):
                                         try:
                                             api.spreadsheet.write_range(schedules_spreadsheet.spreadsheet_id, sheet["name"] + "!" + sheet["range"], values)
                                         except googleapiclient.errors.HttpError:
+                                            reschedule_message.in_use = False
+                                            self.client.session.update(reschedule_message)
                                             await channel.send(self.get_string("reschedule", "spreadsheet_error"))
                                             return
                                         await channel.send(self.get_string("reschedule", "accepted", ally_role.mention, reschedule_message.match_id))
@@ -2038,40 +2055,39 @@ class Tosurnament(modules.module.BaseModule):
                                                 if staff_to_ping:
                                                     for staff in staff_to_ping:
                                                         sent_message = await staff_channel.send(self.get_string("reschedule", "staff_notification", staff.mention, reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
-                                                        staff_reschedule_message = StaffRescheduleMessage(tournament_id=tournament.id, message_id=str(sent_message.id), match_id=reschedule_message.match_id, staff_id=str(staff.id))
+                                                        staff_reschedule_message = StaffRescheduleMessage(tournament_id=tournament.id, message_id=str(sent_message.id), match_id=reschedule_message.match_id, new_date=reschedule_message.new_date, staff_id=str(staff.id))
                                                         self.client.session.add(staff_reschedule_message)
-                                                        self.client.session.commit()
                                                 else:
                                                     await staff_channel.send(self.get_string("reschedule", "no_staff_notification", reschedule_message.match_id, ally_role.name, enemy_role.name, previous_date_string, new_date_string))
                                         self.client.session.delete(reschedule_message)
-                                        self.client.session.commit()
                                         return
                 elif emoji.name == "👎":
                     await channel.send(self.get_string("reschedule", "refused", ally_role.mention, reschedule_message.match_id))
                     self.client.session.delete(reschedule_message)
-                    self.client.session.commit()
             else:
                 await user.send(self.get_string("reschedule", "not_team_captain"))
+        reschedule_message.in_use = False
+        self.client.session.update(reschedule_message)
 
     async def reaction_on_staff_reschedule_message(self, emoji, message_id, channel, guild, user):
         """Removes the referee from the schedule spreadsheet"""
-        staff_reschedule_message = self.client.session.query(StaffRescheduleMessage).filter(StaffRescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        staff_reschedule_message = self.client.session.query(StaffRescheduleMessage).where(StaffRescheduleMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
         if not staff_reschedule_message:
             return
         if str(user.id) != staff_reschedule_message.staff_id:
             return
         if emoji.name == "❌":
             guild_id = str(guild.id)
-            tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
+            tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
             if not tournament:
                 await channel.send(self.get_string("reschedule", "no_tournament", self.client.command_prefix))
                 return
-            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
             if not brackets:
                 await channel.send(self.get_string("", "unknown_error"))
                 return
             for bracket in brackets:
-                schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
+                schedules_spreadsheet = self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).first()
                 if not schedules_spreadsheet:
                     await channel.send(self.get_string("reschedule", "no_schedule_spreadsheet", self.client.command_prefix))
                     return
@@ -2115,38 +2131,54 @@ class Tosurnament(modules.module.BaseModule):
                                 if staff_channel:
                                     await staff_channel.send(self.get_string("reschedule", "removed_from_match", staff_reschedule_message.match_id))
                                 self.client.session.delete(staff_reschedule_message)
-                                self.client.session.commit()
                                 return
 
     async def reaction_on_end_tournament_message(self, emoji, message_id, channel, guild, user):
         """Ends a tournament"""
-        end_tournament_message = self.client.session.query(EndTournamentMessage).filter(EndTournamentMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
+        end_tournament_message = self.client.session.query(EndTournamentMessage).where(EndTournamentMessage.message_id == helpers.crypt.hash_str(str(message_id))).first()
         if not end_tournament_message:
             return
         if user.id != guild.owner.id:
             return
-        tournament = self.client.session.query(Tournament).filter(Tournament.server_id == helpers.crypt.hash_str(str(guild.id))).first()
+        tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(str(guild.id))).first()
         if not tournament:
             self.client.session.delete(end_tournament_message)
-            self.client.session.commit()
             return
         if emoji.name == "✅":
-            brackets = self.client.session.query(Bracket).filter(Bracket.tournament_id == tournament.id).all()
+            brackets = self.client.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
             if brackets:
                 for bracket in brackets:
-                    self.client.session.query(SchedulesSpreadsheet).filter(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).delete()
-                    self.client.session.query(PlayersSpreadsheet).filter(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).delete()
+                    self.client.session.query(SchedulesSpreadsheet).where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id).delete()
+                    self.client.session.query(PlayersSpreadsheet).where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id).delete()
                     self.client.session.delete(bracket)
-            self.client.session.query(RescheduleMessage).filter(RescheduleMessage.tournament_id == tournament.id).delete()
-            self.client.session.query(StaffRescheduleMessage).filter(StaffRescheduleMessage.tournament_id == tournament.id).delete()
+            self.client.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
+            self.client.session.query(StaffRescheduleMessage).where(StaffRescheduleMessage.tournament_id == tournament.id).delete()
             self.client.session.delete(tournament)
             self.client.session.delete(end_tournament_message)
-            self.client.session.commit()
             await channel.send(self.get_string("end_tournament", "success"))
         elif emoji.name == "❎":
             self.client.session.delete(end_tournament_message)
-            self.client.session.commit()
             await channel.send(self.get_string("end_tournament", "refused"))
+
+    async def background_task(self):
+        await self.background_task_empty_db()
+
+    async def background_task_empty_db(self):
+        reschedule_messages = self.client.session.query(RescheduleMessage).all()
+        if reschedule_messages:
+            for reschedule_message in reschedule_messages:
+                previous_date = datetime.datetime.strptime(reschedule_message.previous_date, "%d/%m/%y %H:%M")
+                new_date = datetime.datetime.strptime(reschedule_message.new_date, "%d/%m/%y %H:%M")
+                now = datetime.datetime.utcnow()
+                if previous_date < now or new_date < now:
+                    self.client.session.delete(reschedule_message)
+        staff_reschedule_messages = self.client.session.query(StaffRescheduleMessage).all()
+        if staff_reschedule_messages:
+            for reschedule_message in staff_reschedule_messages:
+                new_date = datetime.datetime.strptime(reschedule_message.new_date, "%d/%m/%y %H:%M")
+                now = datetime.datetime.utcnow()
+                if new_date < now:
+                    self.client.session.delete(reschedule_message)        
 
 def get_class(bot):
     """Returns the main class of the module"""

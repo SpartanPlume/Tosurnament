@@ -1,24 +1,19 @@
 """Staff reschedule message class"""
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Binary
-from sqlalchemy import orm
-from databases.base import Base
-import helpers.crypt
+from mysql_wrapper import Base
 
 class StaffRescheduleMessage(Base):
     """Staff reschedule message class"""
     __tablename__ = 'staff_reschedule_message'
 
-    id = Column(Integer, primary_key=True)
-    tournament_id = Column(Binary)
-    message_id = Column(Binary)
-    match_id = Column(Binary)
-    staff_id = Column(Binary)
+    id = int()
+    tournament_id = bytes()
+    message_id = bytes()
+    match_id = bytes()
+    new_date = bytes()
+    staff_id = bytes()
     to_hash = ["message_id"]
     ignore = ["staff_type", "tournament_id"]
 
-    @orm.reconstructor
-    def init(self):
-        """Decrypts the object after being queried"""
-        self = helpers.crypt.decrypt_obj(self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

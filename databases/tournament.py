@@ -1,37 +1,31 @@
 """Tournament class"""
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Binary, String, Boolean
-from sqlalchemy import orm
-from databases.base import Base
-import helpers.crypt
+from mysql_wrapper import Base
 
 class Tournament(Base):
     """Tournament class"""
     __tablename__ = 'tournaments'
 
-    id = Column(Integer, primary_key=True)
-    server_id = Column(Binary)
-    acronym = Column(String)
-    name = Column(Binary)
-    name_change_enabled = Column(Boolean)
-    staff_channel_id = Column(Binary)
-    admin_role_id = Column(Binary)
-    referee_role_id = Column(Binary)
-    streamer_role_id = Column(Binary)
-    commentator_role_id = Column(Binary)
-    player_role_id = Column(Binary)
-    team_captain_role_id = Column(Binary)
-    post_result_message = Column(Binary)
-    reschedule_hours_deadline = Column(Integer)
-    reschedule_range_begin = Column(Binary)
-    reschedule_range_end = Column(Binary)
-    current_bracket_id = Column(Integer)
-    ping_team = Column(Boolean)
+    id = int()
+    server_id = bytes()
+    acronym = bytes()
+    name = bytes()
+    name_change_enabled = bool()
+    staff_channel_id = bytes()
+    admin_role_id = bytes()
+    referee_role_id = bytes()
+    streamer_role_id = bytes()
+    commentator_role_id = bytes()
+    player_role_id = bytes()
+    team_captain_role_id = bytes()
+    post_result_message = bytes()
+    reschedule_hours_deadline = int()
+    reschedule_range_begin = bytes()
+    reschedule_range_end = bytes()
+    current_bracket_id = int()
+    ping_team = bool()
     to_hash = ["server_id"]
-    ignore = ["acronym", "current_bracket_id", "name_change_enabled", "ping_team", "reschedule_hours_deadline"]
+    ignore = ["current_bracket_id", "name_change_enabled", "ping_team", "reschedule_hours_deadline"]
 
-    @orm.reconstructor
-    def init(self):
-        """Decrypts the object after being queried"""
-        self = helpers.crypt.decrypt_obj(self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

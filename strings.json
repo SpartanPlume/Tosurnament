@@ -188,6 +188,7 @@
             "invalid_match": "You can't reschedule a match you're not in.",
             "past_deadline": "Sorry, the deadline to reschedule your match is passed. You can try contacting an admin to reschedule your match.",
             "impossible_reschedule": "Sorry, the time to which you want to reschedule your match is not acceptable. You can try contacting an admin to reschedule your match.",
+            "same_date": "You can't reschedule your match to the time it is already scheduled to.",
             "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
             "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
             "refused": ":x: %1, your reschedule for the match %2 has been refused.",
