@@ -2,29 +2,23 @@
 
 import re
 from ast import literal_eval
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Binary
-from sqlalchemy import orm
-from databases.base import Base
-import helpers.crypt
+from mysql_wrapper import Base
 from helpers.parser import Parser
 
 class SchedulesSpreadsheet(Base):
     """Schedules spreadsheet class"""
     __tablename__ = 'schedules_spreadsheet'
 
-    id = Column(Integer, primary_key=True)
-    spreadsheet_id = Column(Binary)
-    range_name = Column(Binary)
-    range_match_id = Column(Binary)
-    parameters = Column(Binary)
+    id = int()
+    spreadsheet_id = bytes()
+    range_name = bytes()
+    range_match_id = bytes()
+    parameters = bytes()
     to_hash = []
     ignore = []
 
-    @orm.reconstructor
-    def init(self):
-        """Decrypts the object after being queried"""
-        self = helpers.crypt.decrypt_obj(self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def parse_parameters(self):
         strings = Parser.split(self.parameters, " ", ["()", "[]"])
