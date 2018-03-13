@@ -2,6 +2,7 @@
 
 import sys
 import os
+import asyncio
 import discord
 from discord.ext import commands
 from client import Client
@@ -13,6 +14,8 @@ def main():
     """Main function"""
     bot = Client()
     bot.run(constants.TOKEN, bot=True, reconnect=True)
+    for task in asyncio.Task.all_tasks():
+        task.cancel()
     return bot.error_code
 
 if __name__ == '__main__':

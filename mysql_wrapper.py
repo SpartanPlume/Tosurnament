@@ -30,6 +30,9 @@ class Base(metaclass=BaseMetaclass):
             for key, value in arg.items():
                 if key in dic:
                     setattr(self, key, value)
+        for key, value in kwargs:
+            if key in dic:
+                setattr(self, key, value)
 
 class BaseOperator:
     """For operator operations"""
