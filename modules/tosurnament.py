@@ -250,10 +250,7 @@ class Tosurnament(modules.module.BaseModule):
             user.osu_id = osu_id
             user.code = code
             self.client.session.update(user)
-        channel = ctx.author
-        if ctx.guild:
-            await ctx.message.delete()
-        await channel.send(self.get_string("link", "success", code, ctx.prefix))
+        await ctx.author.send(self.get_string("link", "success", code, ctx.prefix))
 
     @link.error
     async def link_handler(self, ctx, error):
@@ -290,10 +287,7 @@ class Tosurnament(modules.module.BaseModule):
         else:
             user.verified = True
             self.client.session.update(user)
-        channel = ctx.author
-        if ctx.guild:
-            await ctx.message.delete()
-        await channel.send(self.get_string("auth", "success"))
+        await ctx.author.send(self.get_string("auth", "success"))
 
     @auth.error
     async def auth_handler(self, ctx, error):
