@@ -24,7 +24,7 @@ class Client(commands.Bot):
         self.owner_id = 100648380174192640
         self.error_code = 0
         self.modules = []
-        #self.init_logger()
+        self.init_logger()
         self.init_ressources()
         self.init_modules()
         self.init_db()
@@ -65,7 +65,15 @@ class Client(commands.Bot):
 
     def log(self, level, message):
         """Uses to log message"""
-        self.logger.log(level, "SelfBot: %s", message, extra={})
+        self.logger.log(level, "%s", message, extra={})
+
+    async def on_command(self, ctx):
+        """Logs the command used"""
+        self.log(logging.DEBUG, ctx.command)
+
+    async def on_command_error(self, ctx, error):
+        """Logs the error"""
+        self.log(logging.ERROR, ctx.command + " --> " + error.message)
 
     async def stop(self, ctx, code):
         """Stops the bot"""
