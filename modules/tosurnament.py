@@ -250,7 +250,10 @@ class Tosurnament(modules.module.BaseModule):
             user.osu_id = osu_id
             user.code = code
             self.client.session.update(user)
-        await ctx.author.send(self.get_string("link", "success", code, ctx.prefix))
+        channel = ctx.author
+        if ctx.guild:
+            await ctx.message.delete()
+        await channel.send(self.get_string("link", "success", code, ctx.prefix))
 
     @link.error
     async def link_handler(self, ctx, error):
@@ -287,7 +290,10 @@ class Tosurnament(modules.module.BaseModule):
         else:
             user.verified = True
             self.client.session.update(user)
-        await ctx.author.send(self.get_string("auth", "success"))
+        channel = ctx.author
+        if ctx.guild:
+            await ctx.message.delete()
+        await channel.send(self.get_string("auth", "success"))
 
     @auth.error
     async def auth_handler(self, ctx, error):
@@ -520,7 +526,7 @@ class Tosurnament(modules.module.BaseModule):
         elif isinstance(error, commands.BadArgument):
             await ctx.send(self.get_string("set_player_role", "usage", ctx.prefix))
 
-    @commands.command(name='set_team_captain_role')
+    @commands.command(name='set_team_captain_role', aliases=['set_team_leader_role'])
     @commands.guild_only()
     async def set_team_captain_role(self, ctx, *, role: discord.Role = None):
         """Sets the team captain role"""
@@ -892,6 +898,8 @@ class Tosurnament(modules.module.BaseModule):
     @commands.guild_only()
     async def reschedule(self, ctx, match_id: str, *, date: str):
         """Allows players to reschedule their matches"""
+        if not re.match(r'^[0-3]?[0-9]\/[01]?[0-9] [0-2]?[0-9]:[0-5][0-9]$', date):
+            raise commands.UserInputError()
         guild_id = str(ctx.guild.id)
         tournament = self.client.session.query(Tournament).where(Tournament.server_id == helpers.crypt.hash_str(guild_id)).first()
         if not tournament:
@@ -1063,6 +1071,8 @@ class Tosurnament(modules.module.BaseModule):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
         elif isinstance(error, commands.BadArgument):
+            await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
+        elif isinstance(error, commands.UserInputError):
             await ctx.send(self.get_string("reschedule", "usage", ctx.prefix))
         elif isinstance(error, NoSpreadsheet):
             await ctx.send(self.get_string("reschedule", "no_schedules_spreadsheet", ctx.prefix))
