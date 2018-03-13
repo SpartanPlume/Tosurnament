@@ -334,7 +334,7 @@ class Tosurnament(modules.module.BaseModule):
         if not tournament:
             raise NoTournament()
         message = await ctx.send(self.get_string("end_tournament", "are_you_sure"))
-        end_tournament_message = EndTournamentMessage(message_id=helpers.crypt.hash_str(str(message.id)))
+        end_tournament_message = EndTournamentMessage(message_id=str(message.id))
         self.client.session.add(end_tournament_message)
 
     @end_tournament.error

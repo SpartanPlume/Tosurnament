@@ -80,7 +80,6 @@ class Query:
         else:
             cursor.execute(self.query)
         result = cursor.fetchone()
-        print(result)
         if not result:
             return None
         return helpers.crypt.decrypt_obj(self.obj(result))
