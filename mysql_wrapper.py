@@ -26,17 +26,10 @@ class Base(metaclass=BaseMetaclass):
     def __init__(self, *args, **kwargs):
         dic = diff(type(self))
         for k, v in dic.items(): setattr(self, k, v)
-        i = 0
-        for key in dic.keys():
-            if i >= len(args):
-                break
-            if not key.startswith("_"):
-                setattr(self, key, args[i])
-                i += 1
-        for key, value in kwargs.items():
-            if not key in dic:
-                raise Exception
-            setattr(self, key, value)
+        for arg in args:
+            for key, value in arg.items():
+                if key in dic:
+                    setattr(self, key, value)
 
 class BaseOperator:
     """For operator operations"""
@@ -81,20 +74,21 @@ class Query:
     def first(self):
         self.query += ";"
         print(self.query)
-        cursor = self.db.cursor()
+        cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
         if self.all_values:
             cursor.execute(self.query, self.all_values)
         else:
             cursor.execute(self.query)
         result = cursor.fetchone()
+        print(result)
         if not result:
             return None
-        return helpers.crypt.decrypt_obj(self.obj(*result))
+        return helpers.crypt.decrypt_obj(self.obj(result))
 
     def all(self):
         self.query += ";"
         print(self.query)
-        cursor = self.db.cursor()
+        cursor = self.db.cursor(MySQLdb.cursors.DictCursor)
         if self.all_values:
             cursor.execute(self.query, self.all_values)
         else:
@@ -104,7 +98,7 @@ class Query:
             return None
         to_return = []
         for result in results:
-            to_return.append(helpers.crypt.decrypt_obj(self.obj(*result)))
+            to_return.append(helpers.crypt.decrypt_obj(self.obj(result)))
         return to_return
 
     def delete(self):

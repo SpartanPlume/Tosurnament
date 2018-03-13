@@ -29,6 +29,7 @@ def decrypt_str(obj):
     iv = obj[0:AES.block_size]
     obj = obj[AES.block_size:]
     cipher = AES.new(constants.ENCRYPTION_KEY, AES.MODE_CFB, iv)
+    print(obj)
     obj = cipher.decrypt(obj).decode('utf-8')
     return obj
 
@@ -55,9 +56,9 @@ def decrypt_obj(obj):
     for key, value in fields.items():
         if not key.startswith("_") and key != "to_hash" and key != "ignore":
             if isinstance(value, bytes):
-                if obj.to_hash and key in obj.to_hash:
+                if (obj.to_hash and key in obj.to_hash) or (obj.ignore and key in obj.ignore):
                     pass
-                elif not obj.ignore or key not in obj.ignore:
+                else:
                     value = decrypt_str(value)
                     setattr(obj, key, value)
     return obj
