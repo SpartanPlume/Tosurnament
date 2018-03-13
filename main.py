@@ -14,8 +14,6 @@ def main():
     """Main function"""
     bot = Client()
     bot.run(constants.TOKEN, bot=True, reconnect=True)
-    for task in asyncio.Task.all_tasks():
-        task.cancel()
     return bot.error_code
 
 if __name__ == '__main__':

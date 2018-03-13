@@ -30,7 +30,9 @@ class Base(metaclass=BaseMetaclass):
             for key, value in arg.items():
                 if key in dic:
                     setattr(self, key, value)
+        print(kwargs)
         for key, value in kwargs.items():
+            print("test")
             if key in dic:
                 setattr(self, key, value)
 
