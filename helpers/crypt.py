@@ -13,7 +13,6 @@ def hash_str(obj):
     sha.update(str.encode(obj, 'utf-8'))
     return sha.digest()
 
-
 def encrypt_str(obj):
     """Encrypts a string"""
     if not obj:

@@ -12,7 +12,7 @@ class User(Base):
     verified = bool()
     code = bytes()
     to_hash = ["discord_id"]
-    ignore = []
+    ignore = ["verified"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
