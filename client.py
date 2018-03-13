@@ -73,7 +73,7 @@ class Client(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         """Logs the error"""
-        self.log(logging.ERROR, ctx.command + " --> " + error.message)
+        self.log(logging.ERROR, ctx.command)
 
     async def stop(self, ctx, code):
         """Stops the bot"""
