@@ -275,13 +275,16 @@ class Tosurnament(modules.module.BaseModule):
             raise OsuError()
         index = 0
         try:
-            to_find = '<span class="profile-header-extra__fancy-link-text u-ellipsis-overflow">'
+            to_find = 'location":"'
             index = request.text.index(to_find)
             index += len(to_find)
         except ValueError:
             raise OsuError()
         location = request.text[index:]
-        location = location.split("</div>", 1)[0]
+        index = 0
+        while location[index] != '"':
+            index += 1
+        location = location[:index]
         if location != user.code:
             raise WrongCodeError()
         else:
