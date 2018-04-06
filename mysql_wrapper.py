@@ -30,9 +30,7 @@ class Base(metaclass=BaseMetaclass):
             for key, value in arg.items():
                 if key in dic:
                     setattr(self, key, value)
-        print(kwargs)
         for key, value in kwargs.items():
-            print("test")
             if key in dic:
                 setattr(self, key, value)
 
@@ -106,19 +104,7 @@ class Query:
         return to_return
 
     def delete(self):
-        self.query += ";"
-        print(self.query)
-        cursor = self.db.cursor()
-        if self.all_values:
-            cursor.execute(self.query, self.all_values)
-        else:
-            cursor.execute(self.query)
-        results = list(cursor.fetchall())
-        if not results:
-            return None
-        to_return = []
-        for result in results:
-            to_return.append(helpers.crypt.decrypt_obj(self.obj(*result)))
+        to_return = self.all()
         for o in to_return:
             delete(self.db, o)
 

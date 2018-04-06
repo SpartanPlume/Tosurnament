@@ -29,7 +29,6 @@ def decrypt_str(obj):
     iv = obj[0:AES.block_size]
     obj = obj[AES.block_size:]
     cipher = AES.new(constants.ENCRYPTION_KEY, AES.MODE_CFB, iv)
-    print(obj)
     obj = cipher.decrypt(obj).decode('utf-8')
     return obj
 

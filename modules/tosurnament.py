@@ -275,7 +275,7 @@ class Tosurnament(modules.module.BaseModule):
             raise OsuError()
         index = 0
         try:
-            to_find = "<div title='Location'><i class='icon-map-marker'></i><div>"
+            to_find = '<span class="profile-header-extra__fancy-link-text u-ellipsis-overflow">'
             index = request.text.index(to_find)
             index += len(to_find)
         except ValueError:
