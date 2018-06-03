@@ -358,7 +358,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         bracket = Bracket(tournament_id=tournament.id, name=name, name_hash=name)
         self.client.session.add(bracket)
@@ -384,7 +384,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(role.id == tournament.admin_role_id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         if name:
             bracket = self.client.session.query(Bracket).where(Tournament.id == tournament.id).where(Bracket.name_hash == helpers.crypt.hash_str(name)).first()
@@ -652,7 +652,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         for key, value in values.items():
             setattr(tournament, key, value)
@@ -665,7 +665,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         bracket = self.client.session.query(Bracket).where(Bracket.id == tournament.current_bracket_id).first()
         if not bracket:
@@ -687,7 +687,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoBracket()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee])$', range_team_name):
             raise commands.UserInputError()
@@ -859,7 +859,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoBracket()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         if not re.match(r'^((.+!)?[A-Z]+\d*(:[A-Z]+\d*)?|[Nn][Oo][Nn][Ee]|[Aa][Ll][Ll])$', range_name):
             raise commands.UserInputError()
@@ -1200,7 +1200,7 @@ class Tosurnament(modules.module.BaseModule):
             raise NoTournament()
         if not tournament.admin_role_id and ctx.guild.owner != ctx.author:
             raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == role.id for role in ctx.author.roles):
+        if ctx.guild.owner != ctx.author and not any(tournament.admin_role_id == str(role.id) for role in ctx.author.roles):
             raise NotBotAdmin()
         tournament.name_change_enabled = not tournament.name_change_enabled
         self.client.session.update(tournament)
