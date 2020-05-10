@@ -1,11 +1,8 @@
-#!/usr/bin/bash
-
 echo "Installing necessary packages... (Your sudo password might be needed)"
 sudo pacman -S jq --needed
 echo "Installing necessary packages... DONE"
 
 DB_NAME=$(jq -r '.DB_NAME' constants.json)
-DB_TEST=$(jq -r '.DB_TEST' constants.json)
 DB_USERNAME=$(jq -r '.DB_USERNAME' constants.json)
 DB_PASSWORD=$(jq -r '.DB_PASSWORD' constants.json)
 

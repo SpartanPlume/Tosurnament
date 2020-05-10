@@ -26,6 +26,11 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             raise tosurnament.NotBotAdmin()
         return True
 
+    @commands.command(aliases=["ctn"])
+    async def change_tournament_name(self, ctx, *, name: str):
+        """Changes the tournament name."""
+        await self.set_tournament_values(ctx, {"name": name})
+
     @commands.command(aliases=["cb"])
     async def create_bracket(self, ctx, *, name: str):
         """Creates a bracket and sets it as current bracket (for bracket settings purpose)."""
