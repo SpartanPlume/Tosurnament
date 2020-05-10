@@ -1,0 +1,17 @@
+{
+  "name_change": {
+    "help": "Changes your nickname to your osu username",
+    "parameter": "",
+    "usage": "Usage: %0name_change",
+    "osu_get_user_error": "Couldn't get your username from osu!. If you already used this command on another server you can ignore this message.",
+    "success": "Nickname successfully changed.",
+    "change_name_unneeded": "You didn't change name."
+  },
+  "get_matches": {
+    "help": "Gets a list of taken matches.",
+    "parameter": "",
+    "success": "**%1: %2** | List of matches",
+    "role_match": "As a **__%1__**:\n",
+    "usage": "Usage: %0get_matches"
+  }
+}

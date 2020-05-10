@@ -1,0 +1,20 @@
+{
+  "no_tournament": "This server does not have any tournament running. Consider using the `%0create_tournament $tosurnament/guild_owner/create_tournament/parameter`.",
+  "already_registered": "You are already registered. If you have a problem with your current roles, please contact an admin.",
+  "no_bracket": "This bracket does not exists. Check existing brackets using the `%0get_bracket` command.",
+  "no_spreadsheet": "This tournament does not have any %1 spreadsheet set. Please contact an admin.",
+  "invalid_worksheet": "The worksheet %1 does not exist. Please contact an admin.",
+  "invalid_challonge": "Either the challonge set is invalid, or you didn't give access to the challonge to `TosurnamentBot`.",
+  "invalid_match_id": "Invalid match id.",
+  "invalid_mp_link": "Invalid mp link.",
+  "match_not_found": "Match not found, there seems to be an error on the challonge.",
+  "participant_not_found": "The match %1 could not be updated in the challonge. Please, make sure that the participant names in the challonge are correct.",
+  "no_read_access": "Uh-oh, seems like I can't read the %1. Please contact an admin.",
+  "no_write_access": "Uh-oh, seems like I don't have write access on the %1. Please contact an admin.",
+  "duplicate_player": "Uh-oh, it seems like the player **%1** is present multiple times on the players spreadsheet. Please contact an admin.",
+  "duplicate_team": "Uh-oh, it seems like the team **%1** is present multiples times on the players spreadsheet. Please contact an admin.",
+  "opponent_not_found": "Sorry %1, it seems I cannot find your opponent in the guild. Your action has been cancelled. Please contact an admin.",
+  "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %3 spreadsheet of the bracket %2.",
+  "contact_admin": "The command failed, please contact an admin.",
+  "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin."
+}

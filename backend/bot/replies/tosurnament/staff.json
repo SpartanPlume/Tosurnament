@@ -1,0 +1,67 @@
+{
+  "take_match": {
+    "help": "Puts the staff member's name on the spreadsheet in all roles column (only for roles they have) for the corresponding matches.",
+    "parameter": "<match_id>...",
+    "success": "",
+    "taken_match_ids": "As a __%1__, you **succesfully** took the matches: ",
+    "not_taken_match_ids": "As a __%1__, those matches were **already taken**: ",
+    "invalid_matches_id": "Those matches does not exist: ",
+    "usage": "Usage: `%0take_match $./parameter`\n\nExample: `%0take_match 1A 2A 2B`"
+  },
+  "take_match_as_referee": {
+    "help": "Puts the staff member's name on the spreadsheet in the Referee column for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids",
+    "usage": "Usage: `%0take_match_as_referee $../take_match/parameter`\n\nExample: `%0take_match_as_referee 1A 2A 2B`"
+  },
+  "take_match_as_streamer": {
+    "help": "Puts the staff member's name on the spreadsheet in the Streamer column for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids",
+    "usage": "Usage: `%0take_match_as_streamer $../take_match/parameter`\n\nExample: `%0take_match_as_streamer 1A 2A 2B`"
+  },
+  "take_match_as_commentator": {
+    "help": "Puts the staff member's name on the spreadsheet in the Commentator column for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids",
+    "usage": "Usage: `%0take_match_as_commentator $../take_match/parameter`\n\nExample: `%0take_match_as_commentator 1A 2A 2B`"
+  },
+  "drop_match": {
+    "help": "Removes the staff member's name on the spreadsheet of all roles column (only for roles they have) for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "As a __%1__, you **succesfully** dropped the matches: ",
+    "not_taken_match_ids": "As a __%1__, you **weren't on** the matches: ",
+    "invalid_match_ids": "Those matches does not exist: ",
+    "usage": "Usage: `%0drop_match $../take_match/parameter`\n\nExample: `%0drop_match 1A 2A 2B`"
+  },
+  "drop_match_as_referee": {
+    "help": "Removes the staff member's name on the spreadsheet of the Referee column for the corresponding matches.",
+    "success": "$../drop_match/success",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids",
+    "usage": "Usage: `%0drop_match_as_referee $../take_match/parameter`\n\nExample: `%0drop_match_as_referee 1A 2A 2B`"
+  },
+  "drop_match_as_streamer": {
+    "help": "Removes the staff member's name on the spreadsheet of the Streamer column for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids",
+    "usage": "Usage: `%0drop_match_as_streamer $../take_match/parameter`\n\nExample: `%0drop_match_as_streamer 1A 2A 2B`"
+  },
+  "drop_match_as_commentator": {
+    "help": "Removes the staff member's name on the spreadsheet of the Commentator column for the corresponding matches.",
+    "success": "",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids",
+    "usage": "Usage: `%0drop_match_as_commentator $../take_match/parameter`\n\nExample: `%0drop_match_as_commentator 1A 2A 2B`"
+  }
+}
