@@ -1,7 +1,8 @@
 #!/bin/bash
 
+cd backend
 while true; do
-    python3 main.py --noauth_local_webserver
+    python3 start_bot.py
     code=$?
     case $code in
         1)
