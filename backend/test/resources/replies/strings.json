@@ -1,0 +1,22 @@
+{
+  "main": {
+    "two": "2",
+    "absolute": {
+      "not_absolute": "in_absolute",
+      "two_and_four": "$strings/main/two and 4",
+      "two_two": "$strings/main/two $strings/main/two",
+      "sub": "$strings/sub"
+    },
+    "relative": {
+      "two": "$../two",
+      "sub_and_not_absolute": "$../../sub and $./.././absolute/not_absolute",
+      "not_relative": "same_level",
+      "same_level": "$not_relative"
+    }
+  },
+  "sub": "sub",
+  "from_others": {
+    "absolute_hot_food": "$others/hot/food",
+    "relative_cold": "$../../others/cold"
+  }
+}

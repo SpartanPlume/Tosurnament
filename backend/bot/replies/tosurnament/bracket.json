@@ -1,0 +1,50 @@
+{
+  "set_bracket_name": {
+    "help": "Modifies the current bracket's name",
+    "parameter": "<name>",
+    "success": "Bracket name changed.",
+    "usage": "Usage: `%0set_bracket_name $./parameter`\n\nExample: `%0set_bracket_name 10k-20k`"
+  },
+  "set_bracket_role": {
+    "help": "Role to add when a player registers and is in this bracket",
+    "parameter": "<role>",
+    "success": "Bracket role set.",
+    "usage": "Usage: `%0set_bracket_role $./parameter`\n\nExample: `%0set_bracket_role 1k-10k`"
+  },
+  "set_challonge": {
+    "help": "Sets the challonge",
+    "parameter": "<tournament_url>",
+    "success": "Challonge set.",
+    "usage": "Usage: `%0set_challonge $./parameter`\n\nExample: `%0set_challonge http://challonge.com/testandroid`"
+  },
+  "set_players_spreadsheet": {
+    "help": "Sets the players spreadsheet to allow registration",
+    "parameter": "<spreadsheet_id> [<sheet_name>]",
+    "success": "Players spreadsheet set.",
+    "usage": "Usage: `%0set_players_spreadsheet $./parameter`\n\nExample: `%0set_players_spreadsheet 1234567890ABCDEF`"
+  },
+  "set_schedules_spreadsheet": {
+    "help": "Sets the schedules spreadsheet to allow reschedule",
+    "parameter": "<spreadsheet_id> [<sheet_name>]",
+    "success": "Schedules spreadsheet set.",
+    "usage": "Usage: `%0set_schedules_spreadsheet $./parameter`\n\nExample: `%0set_schedules_spreadsheet 1234567890ABCDEF`"
+  },
+  "set_schedules_spreadsheet_sheet_name": {
+    "help": "Sets the sheet name of the schedules spreadsheet",
+    "parameter": "<sheet_name>",
+    "success": "Schedules spreadsheet sheet name set.",
+    "usage": "Usage: `%set_schedules_spreadsheet_sheet_name $./parameter`\n\nExample: `%set_schedules_spreadsheet_sheet_name My Sheet Name`"
+  },
+  "set_schedules_spreadsheet_date_format": {
+    "help": "Sets the date format used in the date range of the schedules spreadsheet",
+    "parameter": "<date_format>",
+    "success": "Schedules spreadsheet date format set.",
+    "usage": "Usage: `%set_schedules_spreadsheet_date_format $./parameter`\n\nExample: `%set_schedules_spreadsheet_date_format %d %B`\nThis flag example corresponds to a string like `01 April`.\n\nFor more information about the possible flags, check https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes."
+  },
+  "set_schedules_spreadsheet_staff_is_range": {
+    "help": "Sets the staff_is_range of the schedules spreadsheet",
+    "parameter": "<staff_is_range>",
+    "success": "Schedules spreadsheet staff_is_range set.",
+    "usage": "Usage: `%set_schedules_spreadsheet_staff_is_range $./parameter`\n\nExample: `%set_schedules_spreadsheet_staff_is_range True`"
+  }
+}

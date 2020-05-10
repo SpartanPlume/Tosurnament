@@ -101,8 +101,10 @@ ENV/
 .mypy_cache/
 
 client_secret.json
+service_account.json
 constants.py
-discord.log
-test_spreadsheet.py
+constants.json
+log
+*.log
 .credentials
-tosurnament.db
+.vscode
