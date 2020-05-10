@@ -53,7 +53,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def get_player_role_for_bracket(self, guild, tournament, bracket, user, user_name, player_role):
         """Gives the player role of the bracket to the user, if he is a player of this bracket."""
         try:
-            is_player, team_info = await self.is_a_player(bracket, user.display_name)
+            is_player, team_info = await self.is_a_player(bracket, user_name)
         except HttpError as e:
             raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
         if not is_player:
@@ -150,7 +150,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         # )
         # if new_date < reschedule_allowed_begin or now > reschedule_allowed_end:
         #     raise tosurnament.ImpossibleReschedule()
-        user_name = ctx.author.display_name
+        tosurnament_user = self.get_verified_user(ctx.author.id)
+        user_name = tosurnament_user.osu_name
         for bracket in brackets:
             schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
             if not schedules_spreadsheet:
@@ -172,7 +173,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
             previous_date = dateparser.parse(
                 match_info.date.value + " " + match_info.time.value,
-                date_formats=filter("", [schedules_spreadsheet.date_format]),
+                date_formats=list(filter(None, [schedules_spreadsheet.date_format])),
             )
             if not previous_date:
                 raise tosurnament.InvalidDateOrFormat()
@@ -183,9 +184,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 raise tosurnament.SameDate()
 
             players_spreadsheet = self.get_players_spreadsheet(bracket)
-            if not players_spreadsheet:
-                continue
-            if players_spreadsheet.range_team_name:
+            if players_spreadsheet and players_spreadsheet.range_team_name:
                 try:
                     _, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
                 except HttpError as e:
@@ -244,7 +243,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 ctx.command.name,
                 "success",
                 opponent_to_ping.mention,
-                ctx.author.display_name,
+                user_name,
                 match_id,
                 previous_date_string,
                 new_date_string,
@@ -345,12 +344,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         staff_cells = match_info.referees + match_info.streamers + match_info.commentators
         for staff_cell in staff_cells:
             if schedules_spreadsheet.use_range:
-                staff_name_to_ping.append(staff_cell.value)
+                staff_name_to_ping.add(staff_cell.value)
             else:
                 staffs = staff_cell.value.split("/")
                 for staff in staffs:
-                    staff_name_to_ping.append(staff.strip())
-        staff_to_ping = filter(None, [guild.get_member_named(name) for name in staff_name_to_ping])
+                    staff_name_to_ping.add(staff.strip())
+        staff_to_ping = list(filter(None, [guild.get_member_named(name) for name in staff_name_to_ping]))
 
         try:
             spreadsheet.update()
@@ -430,6 +429,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return
         if emoji.name != "❌":
             return
+        tosurnament_user = self.get_verified_user(user.id)
         staff_reschedule_message.in_use = True
         self.bot.session.update(staff_reschedule_message)
         try:
@@ -447,16 +447,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, staff_reschedule_message.match_id)
             staff_cells = match_info.referees + match_info.streamers + match_info.commentators
             for staff_cell in staff_cells:
-                if staff_cell.has_value(user.display_name):
+                if staff_cell.has_value(tosurnament_user.osu_name):
                     if schedules_spreadsheet.use_range:
                         staff_cell.value = ""
                     else:
                         staffs = staff_cell.split("/")
-                        if len(staffs) == 2 and staffs[0].strip() == user.display_name:
+                        if len(staffs) == 2 and staffs[0].strip() == tosurnament_user.osu_name:
                             staff_cell.value = staffs[1].strip()
-                        elif len(staffs) == 2 and staffs[1].strip == user.display_name:
+                        elif len(staffs) == 2 and staffs[1].strip == tosurnament_user.osu_name:
                             staff_cell.value = staffs[0].strip()
-                        elif len(staffs) == 1 and staffs[0].strip() == user.display_name:
+                        elif len(staffs) == 1 and staffs[0].strip() == tosurnament_user.osu_name:
                             staff_cell.value = ""
             try:
                 spreadsheet.update()

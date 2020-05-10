@@ -267,10 +267,10 @@ class TosurnamentBaseModule(BaseModule):
         worksheet = sp.get_worksheet(spreadsheet.sheet_name)
         return sp, worksheet
 
-    def find_player_identification(self, ctx, bracket):
+    def find_player_identification(self, ctx, bracket, user_name):
         players_spreadsheet = self.get_players_spreadsheet(bracket)
         if not players_spreadsheet:
-            return ctx.author.display_name
+            return user_name
         if players_spreadsheet.range_team_name:
             try:
                 _, worksheet = self.get_spreadsheet_worksheet(ctx, players_spreadsheet)
@@ -279,10 +279,10 @@ class TosurnamentBaseModule(BaseModule):
             cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
             for cell in cells:
                 team_info = TeamInfo.get_from_team_name(cell.value)
-                if ctx.author.display_name in [cell.value for cell in team_info.players]:
+                if user_name in [cell.value for cell in team_info.players]:
                     return team_info.team_name.value
         else:
-            return ctx.author.display_name
+            return user_name
 
     def get_spreadsheet_error(self, error_code):  # TODO
         return "spreadsheet_rights"

@@ -175,7 +175,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             raise commands.UserInputError()
         tournament = self.get_tournament(ctx.guild.id)
         brackets = self.get_all_brackets(tournament)
-        staff_name = ctx.author.display_name
+        tosurnament_user = self.get_verified_user(ctx.author.id)
+        staff_name = tosurnament_user.osu_name
         invalid_match_ids = []
         for bracket in brackets:
             spreadsheet = self.take_matches(bracket, match_ids, staff_name, user_roles, take, invalid_match_ids)

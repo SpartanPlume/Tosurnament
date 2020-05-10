@@ -109,11 +109,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    def fill_matches_info_for_roles(self, ctx, bracket, user_roles):
-        user_name = ctx.author.display_name
+    def fill_matches_info_for_roles(self, ctx, bracket, user_roles, user_name):
         team_name = None
         if user_roles.player:
-            team_name = self.find_player_identification(ctx, bracket)
+            team_name = self.find_player_identification(ctx, bracket, user_name)
         schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
         if not schedules_spreadsheet:
             return
@@ -143,9 +142,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         tournament = self.get_tournament(ctx.guild.id)
         brackets = self.get_all_brackets(tournament)
         user_roles = tosurnament.UserRoles.get_from_context(ctx)
+        tosurnament_user = self.get_verified_user(ctx.author.id)
         for bracket in brackets:
             try:
-                self.fill_matches_info_for_roles(ctx, bracket, user_roles)
+                self.fill_matches_info_for_roles(ctx, bracket, user_roles, tosurnament_user.osu_name)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"

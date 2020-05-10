@@ -26,9 +26,9 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             raise tosurnament.NotBotAdmin()
         return True
 
-    @commands.command(aliases=["ctn"])
-    async def change_tournament_name(self, ctx, *, name: str):
-        """Changes the tournament name."""
+    @commands.command(aliases=["stn"])
+    async def set_tournament_name(self, ctx, *, name: str):
+        """Sets the tournament name."""
         await self.set_tournament_values(ctx, {"name": name})
 
     @commands.command(aliases=["cb"])
