@@ -16,5 +16,7 @@
   "opponent_not_found": "Sorry %1, it seems I cannot find your opponent in the guild. Your action has been cancelled. Please contact an admin.",
   "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %3 spreadsheet of the bracket %2.",
   "contact_admin": "The command failed, please contact an admin.",
-  "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin."
+  "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin.",
+  "already_player": "You are already a player.",
+  "not_a_player": "Either you are not a player, you didn't use the `%0name_change` command or the players spreadsheet is not set. If it is not one the first two, please contact an admin."
 }

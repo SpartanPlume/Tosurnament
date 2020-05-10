@@ -331,6 +331,10 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "duplicate_player", error.player)
         elif isinstance(error, InvalidDateOrFormat):
             await self.send_reply(channel, command_name, "invalid_date_or_format")
+        elif isinstance(error, UserAlreadyPlayer):
+            await self.send_reply(channel, command_name, "already_player")
+        elif isinstance(error, NotAPlayer):
+            await self.send_reply(channel, command_name, "not_a_player")
         else:
             return False
         return True

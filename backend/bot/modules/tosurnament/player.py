@@ -90,7 +90,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         roles = guild.roles
         player_role = tosurnament.get_role(roles, player_role_id, "Player")
         if not player_role:
-            raise tosurnament.RoleDoesNotExist("player")
+            raise tosurnament.RoleDoesNotExist("Player")
         got_role = False
         for bracket in brackets:
             try:
