@@ -73,9 +73,6 @@ def compare_table_objects(self, other):
             crypt.is_encrypted(self, key) or (isinstance(getattr(type(self)(), key), crypt.Id) and key != "id")
         ):
             if getattr(self, key) != getattr(other, key):
-                print(key)
-                print(getattr(self, key))
-                print(getattr(other, key))
                 return False
     return True
 

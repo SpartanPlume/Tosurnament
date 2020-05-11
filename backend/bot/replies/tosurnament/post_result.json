@@ -26,11 +26,11 @@
   "post_result_one_liner": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <n_warmup> <mp_link(s)> [|'| <bans>][ |'| <tb_bans>]",
-    "usage": "Usage: `%post_result_one_liner $./parameter`\n\nExample: `%post_result_one_liner 12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "usage": "Usage: `%0post_result_one_liner $./parameter`\n\nExample: `%0post_result_one_liner 12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
   },
   "post_result_one_liner_with_rolls": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <roll_team1> <roll_team2> <n_warmup> <mp_link(s)> [|'| <bans>][ |'| <tb_bans>]",
-    "usage": "Usage: `%post_result_one_liner_with_rolls $./parameter`\n\nExample: `%post_result_one_liner_with_rolls 12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "usage": "Usage: `%0post_result_one_liner_with_rolls $./parameter`\n\nExample: `%0post_result_one_liner_with_rolls 12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
   }
 }

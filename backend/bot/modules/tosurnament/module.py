@@ -344,6 +344,8 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "already_player")
         elif isinstance(error, NotAPlayer):
             await self.send_reply(channel, command_name, "not_a_player")
+        elif isinstance(error, InvalidMatchId):
+            await self.send_reply(channel, command_name, "invalid_match_id")
         else:
             return False
         return True
