@@ -93,7 +93,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         if sheet_name:
             any_spreadsheet.sheet_name = sheet_name
         self.bot.session.update(any_spreadsheet)
-        await self.send_reply(ctx, ctx.command.name, "success", any_spreadsheet.id)
+        await self.send_reply(ctx, ctx.command.name, "success", spreadsheet_id)
 
     @commands.command(aliases=["ssssn"])
     async def set_schedules_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):

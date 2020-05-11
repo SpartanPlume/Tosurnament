@@ -225,7 +225,6 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                     bans.append(other)
                 else:
                     tb_bans.append(other)
-                tb_bans.append(other)
             i += 1
         mp_links = [osu.get_from_string(mp_link) for mp_link in mp_links]
         bans_team1 = []
@@ -469,6 +468,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         prbuilder.roll_team2 = post_result_message.roll_team2
         prbuilder.bans_team1 = post_result_message.bans_team1
         prbuilder.bans_team2 = post_result_message.bans_team2
+        prbuilder.tb_bans_team1 = post_result_message.tb_bans_team1
+        prbuilder.tb_bans_team2 = post_result_message.tb_bans_team2
 
         players_spreadsheet = self.get_players_spreadsheet(bracket)
         if players_spreadsheet:
