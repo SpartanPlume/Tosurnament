@@ -3,13 +3,13 @@
     "usage": "Usage: `%0set_admin_role $./parameter`\n\nExample: `%0set_admin_role Admin`",
     "help": "All of those with the <role> role can do admin command on the bot.",
     "parameter": "<role>",
-    "success": "Admin role set."
+    "success": "Admin role set to `%1`."
   },
   "set_verified_role": {
     "usage": "Usage: `%0set_verified_role $./parameter`\n\nExample: `%0set_verified_role Verified`",
     "help": "All of those with the <role> role have been verified, meaning they have their osu! account linked to their Discord account.",
     "parameter": "<role>",
-    "success": "Verified role set."
+    "success": "Verified role set to `%1`."
   },
   "setup_verification_channel": {
     "usage": "Usage: `%setup_verification_channel $./parameter`\n\nExample: `%setup_verification_channel #verify`",

@@ -39,7 +39,7 @@ class GuildCog(base.BaseModule, name="guild"):
         for key, value in values.items():
             setattr(guild, key, value)
         self.bot.session.update(guild)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, ctx.command.name, "success", value)
 
     @commands.command(aliases=["svc"])
     async def setup_verification_channel(self, ctx, channel: discord.TextChannel):
