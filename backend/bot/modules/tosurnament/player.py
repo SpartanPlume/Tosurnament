@@ -172,8 +172,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 continue
 
             previous_date = dateparser.parse(
-                match_info.date.value + " " + match_info.time.value,
-                date_formats=list(filter(None, [schedules_spreadsheet.date_format])),
+                match_info.get_datetime(),
+                date_formats=list(filter(None, [schedules_spreadsheet.date_format + " %H:%M"])),
             )
             if not previous_date:
                 raise tosurnament.InvalidDateOrFormat()

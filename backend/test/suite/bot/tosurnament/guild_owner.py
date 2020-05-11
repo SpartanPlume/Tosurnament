@@ -45,7 +45,9 @@ class GuildOwnerTestCase(unittest.IsolatedAsyncioTestCase):
         bracket_matcher = tosurnament_mock.Matcher(Bracket(tournament_id=1, name=TOURNAMENT_NAME))
         expected = [mock.call(tournament_matcher), mock.call(bracket_matcher)]
         assert bot_mock.session.add.call_args_list == expected
-        cog.send_reply.assert_called_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_with(
+            mock.ANY, mock.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, TOURNAMENT_NAME
+        )
 
     async def test_create_tournament_with_bracket_name(self):
         """Creates a tournament with a specified bracket name."""
@@ -62,7 +64,9 @@ class GuildOwnerTestCase(unittest.IsolatedAsyncioTestCase):
         bracket_matcher = tosurnament_mock.Matcher(Bracket(tournament_id=1, name=BRACKET_NAME))
         expected = [mock.call(tournament_matcher), mock.call(bracket_matcher)]
         assert bot_mock.session.add.call_args_list == expected
-        cog.send_reply.assert_called_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_with(
+            mock.ANY, mock.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, BRACKET_NAME
+        )
 
     async def test_end_tournament(self):
         """Sends a message to react on in order to end the tournament."""

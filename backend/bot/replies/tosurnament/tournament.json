@@ -2,68 +2,68 @@
   "create_bracket": {
     "help": "Creates a bracket",
     "parameter": "<name>",
-    "success": "Bracket created.",
+    "success": "Bracket created with the name `%1`.",
     "usage": "Usage: `%0create_bracket $./parameter`\n\nExample: `%0create_bracket 10k-20k`"
   },
   "get_bracket": {
     "default": "List of all brackets:\n%1\nUse `%0get_bracket $./parameter` to change the current bracket.",
     "help": "Gets a bracket",
     "parameter": "<index>",
-    "success": "Current bracket changed.",
+    "success": "Current bracket changed to `%1`.",
     "usage": "Usage: `%0get_bracket $./parameter`\n\nExample: `%0get_bracket 2`"
   },
   "set_staff_channel": {
     "help": "Sets the staff channel to ping staff role",
     "parameter": "<channel>",
-    "success": "Staff channel set.",
+    "success": "Staff channel set to `%1`.",
     "usage": "Usage: `%0set_staff_channel $./parameter`\n\nExample: `%0set_staff_channel #ping_spam`"
   },
   "set_player_role": {
     "help": "Sets the `Player` role to <role>",
     "parameter": "<role>",
-    "success": "Player role set.",
+    "success": "Player role set to `%1`.",
     "usage": "Usage: `%0set_player_role $./parameter`\n\nExample: `%0set_player_role Player`"
   },
   "set_team_captain_role": {
     "help": "Sets the `Team Captain` role to <role>",
     "parameter": "<role>",
-    "success": "Team Captain role set.",
+    "success": "Team Captain role set to `%1`.",
     "usage": "Usage: `%0set_team_captain_role $./parameter`\n\nExample: `%0set_team_captain_role Team Captain`"
   },
   "set_referee_role": {
     "help": "Sets the `Referee` role to <role>",
     "parameter": "<role>",
-    "success": "Referee role set.",
+    "success": "Referee role set to `%1`.",
     "usage": "Usage: `%0set_referee_role $./parameter`\n\nExample: `%0set_referee_role Referee`"
   },
   "set_streamer_role": {
     "help": "Sets the `Streamer` role to <role>",
     "parameter": "<role>",
-    "success": "Streamer role set.",
+    "success": "Streamer role set to `%1`.",
     "usage": "Usage: `%0set_streamer_role $./parameter`\n\nExample: `%0set_streamer_role Streamer`"
   },
   "set_commentator_role": {
     "help": "Sets the `Commentator` role to <role>",
     "parameter": "<role>",
-    "success": "Commentator role set.",
+    "success": "Commentator role set to `%1`.",
     "usage": "Usage: `%0set_commentator_role $./parameter`\n\nExample: `%0set_commentator_role Commentator`"
   },
   "set_ping_team": {
     "help": "Sets if the team or the team captain shoule be pinged for reschedule.",
     "parameter": "<bool>",
-    "success": "Ping team set.",
+    "success": "Ping team set to `%1`.",
     "usage": "Usage: `%0set_ping_team $./parameter`\n\nExample: `%0set_ping_team True`"
   },
   "set_post_result_message": {
     "help": "Sets the post_result message",
     "parameter": "<message>",
-    "success": "post_result message set.",
+    "success": "post_result message set to\n```\n%1\n```",
     "usage": "Usage: `%0set_post_result_message $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
   },
   "set_reschedule_hours_deadline": {
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<hours>",
-    "success": "Deadline to reschedule a match set.",
+    "success": "Deadline to reschedule a match set to `%1`.",
     "usage": "Usage: `%0set_reschedule_hours_deadline $./parameter`\n\nExample: `%0set_reschedule_hours_deadline 24`"
   }
 }

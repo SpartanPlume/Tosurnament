@@ -195,6 +195,15 @@ class UserRoles:
         user_roles.player = UserRoles.Role()
         return user_roles
 
+    @staticmethod
+    def get_as_all():
+        user_roles = UserRoles()
+        user_roles.referee = UserRoles.Role()
+        user_roles.streamer = UserRoles.Role()
+        user_roles.commentator = UserRoles.Role()
+        user_roles.player = UserRoles.Role()
+        return user_roles
+
     def is_staff(self):
         return bool(self.referee) | bool(self.streamer) | bool(self.commentator)
 

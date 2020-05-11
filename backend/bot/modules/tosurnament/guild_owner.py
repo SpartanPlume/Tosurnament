@@ -38,13 +38,12 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         tournament = Tournament(guild_id=guild_id, acronym=acronym, name=name)
         self.bot.session.add(tournament)
         if not bracket_name:
-            bracket = Bracket(tournament_id=tournament.id, name=name)
-        else:
-            bracket = Bracket(tournament_id=tournament.id, name=bracket_name)
+            bracket_name = name
+        bracket = Bracket(tournament_id=tournament.id, name=bracket_name)
         self.bot.session.add(bracket)
         tournament.current_bracket_id = bracket.id
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, ctx.command.name, "success", acronym, name, bracket_name)
 
     @create_tournament.error
     async def create_tournament_handler(self, ctx, error):

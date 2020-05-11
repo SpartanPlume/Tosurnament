@@ -3,7 +3,7 @@
     "usage": "Usage: `%0create_tournament $./parameter`\n\nExample: `%0create_tournament TT \"Tosurnament Tourney\" \"The bots\"`",
     "help": "Creates a tournament.",
     "parameter": "<acronym> <name> [<bracket_name>]",
-    "success": "Tournament created.",
+    "success": "Tournament created with the acronym `%1`, the name `%2` and the bracket_name `%3`.",
     "tournament_already_created": "This server already has a tournament running. If you want to create a new one, please end this one with the `%0end_tournament` command. You can also add new brackets with `%0create_bracket <bracket_name>`."
   },
   "end_tournament": {

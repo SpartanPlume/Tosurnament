@@ -31,7 +31,7 @@ class TournamentTestCase(unittest.IsolatedAsyncioTestCase):
         bot_mock.session.update.assert_called_once_with(
             tosurnament_mock.Matcher(Tournament(id=1, current_bracket_id=1))
         )
-        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success", BRACKET_NAME)
 
     async def test_set_tournament_values(self):
         """Puts the input values into the corresponding tournament."""
@@ -41,7 +41,7 @@ class TournamentTestCase(unittest.IsolatedAsyncioTestCase):
 
         await cog.set_tournament_values(tosurnament_mock.CtxMock(bot_mock), {"current_bracket_id": 1})
         bot_mock.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(current_bracket_id=1)))
-        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success", 1)
 
     async def test_set_team_captain_role(self):
         """Sets the team captain role."""
@@ -87,7 +87,7 @@ class TournamentTestCase(unittest.IsolatedAsyncioTestCase):
 
         await cog.get_bracket(cog, tosurnament_mock.CtxMock(bot_mock), number=2)
         bot_mock.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(current_bracket_id=2)))
-        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success", BRACKET_NAME_2)
 
     async def test_get_a_bracket_that_does_not_exist(self):
         """Sets a bracket as current bracket but it does not exist."""

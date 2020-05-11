@@ -213,6 +213,8 @@ class Worksheet:
     def get_range_name(self):
         """Gets the entire range of the cells array."""
         max_y = len(self.cells)
+        if max_y == 0:
+            max_y = 1
         max_x = 0
         for row in self.cells:
             if max_x < (row_length := len(row)):

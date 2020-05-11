@@ -39,7 +39,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         self.bot.session.add(bracket)
         tournament.current_bracket_id = bracket.id
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, ctx.command.name, "success", name)
 
     @commands.command(aliases=["get_brackets", "gb"])
     async def get_bracket(self, ctx, *, number: int = None):
@@ -52,7 +52,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()
             tournament.current_bracket_id = brackets[number].id
             self.bot.session.update(tournament)
-            await self.send_reply(ctx, ctx.command.name, "success")
+            await self.send_reply(ctx, ctx.command.name, "success", brackets[number].name)
         else:
             brackets_string = ""
             for i, bracket in enumerate(brackets):
@@ -116,7 +116,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         for key, value in values.items():
             setattr(tournament, key, value)
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, ctx.command.name, "success", value)
 
 
 def get_class(bot):

@@ -123,17 +123,25 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         match_ids_cells = worksheet.get_cells_with_value_in_range(schedules_spreadsheet.range_match_id)
         for match_id_cell in match_ids_cells:
             match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, worksheet, match_id_cell)
-            if team_name and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name)):
-                user_roles.player.taken_matches.append((bracket.name, match_info))
+            match_date = dateparser.parse(
+                match_info.get_datetime(),
+                date_formats=list(filter(None, [schedules_spreadsheet.date_format + " %H:%M"])),
+            ).strftime("%d %B at %H:%M UTC")
+            if (
+                user_roles.player
+                and team_name
+                and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name))
+            ):
+                user_roles.player.taken_matches.append((bracket.name, match_info, match_date))
             for referee_cell in match_info.referees:
-                if referee_cell.has_value(user_name):
-                    user_roles.referee.taken_matches.append((bracket.name, match_info))
+                if user_roles.referee and referee_cell.has_value(user_name):
+                    user_roles.referee.taken_matches.append((bracket.name, match_info, match_date))
             for streamer_cell in match_info.streamers:
-                if streamer_cell.has_value(user_name):
-                    user_roles.streamer.taken_matches.append((bracket.name, match_info))
+                if user_roles.streamer and streamer_cell.has_value(user_name):
+                    user_roles.streamer.taken_matches.append((bracket.name, match_info, match_date))
             for commentator_cell in match_info.commentators:
-                if commentator_cell.has_value(user_name):
-                    user_roles.commentator.taken_matches.append((bracket.name, match_info))
+                if user_roles.commentator and commentator_cell.has_value(user_name):
+                    user_roles.commentator.taken_matches.append((bracket.name, match_info, match_date))
 
     @commands.command(aliases=["get_match", "gm", "list_matches", "list_match", "lm", "see_matches", "see_match", "sm"])
     @commands.guild_only()
@@ -141,8 +149,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         """Sends a private message to the author with the list of matches they are in (as a player or staff)."""
         tournament = self.get_tournament(ctx.guild.id)
         brackets = self.get_all_brackets(tournament)
-        user_roles = tosurnament.UserRoles.get_from_context(ctx)
         tosurnament_user = self.get_verified_user(ctx.author.id)
+        user_roles = tosurnament.UserRoles.get_as_all()
         for bracket in brackets:
             try:
                 self.fill_matches_info_for_roles(ctx, bracket, user_roles, tosurnament_user.osu_name)
@@ -150,13 +158,11 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
         for role_name, role_store in user_roles.get_as_dict().items():
-            if role_store.taken_matches:
+            if role_store and role_store.taken_matches:
                 reply_string += "\n"
                 reply_string += self.get_string(ctx.command.name, "role_match", role_name)
-                for bracket_name, match_info in role_store.taken_matches:
-                    reply_string += (
-                        "**" + dateparser.parse(match_info.get_datetime()).strftime("%d %B at %H:%M UTC") + "**"
-                    )
+                for bracket_name, match_info, match_date in role_store.taken_matches:
+                    reply_string += "**" + match_date + "**"
                     if bracket_name and bracket_name != tournament.name:
                         reply_string += " | " + bracket_name
                     reply_string += " | **" + match_info.match_id.value + "**:\n"
