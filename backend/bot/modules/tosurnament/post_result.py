@@ -565,7 +565,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     async def reaction_on_setup_message(self, message_id, emoji, guild, channel, user):
         """Change the setup message step"""
-        tournament = self.get_tournament(guild.id)
+        try:
+            tournament = self.get_tournament(guild.id)
+        except tosurnament.NoTournament:
+            return
         post_result_message = (
             self.bot.session.query(PostResultMessage)
             .where(PostResultMessage.tournament_id == tournament.id)

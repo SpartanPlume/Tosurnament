@@ -149,6 +149,18 @@ class Client(commands.Bot):
             if hasattr(module, "on_raw_reaction_add"):
                 await module.on_raw_reaction_add(payload.message_id, payload.emoji, guild, channel, user)
 
+    async def on_raw_reaction_remove(self, payload):
+        if not payload.guild_id:
+            return
+        channel = self.get_channel(payload.channel_id)
+        guild = channel.guild
+        user = guild.get_member(payload.user_id)
+        if user.bot:
+            return
+        for module in self.modules:
+            if hasattr(module, "on_raw_reaction_remove"):
+                await module.on_raw_reaction_remove(payload.message_id, payload.emoji, guild, channel, user)
+
     async def on_member_join(self, member):
         try:
             self.get_verified_user(member.id)
