@@ -211,6 +211,13 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_team": cell_range})
 
+    @commands.command(aliases=["spsrd"])
+    async def set_players_spreadsheet_range_discord(self, ctx, cell_range: str):
+        """Sets the players spreadsheet range team."""
+        if not self.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_discord": cell_range})
+
     async def set_players_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)

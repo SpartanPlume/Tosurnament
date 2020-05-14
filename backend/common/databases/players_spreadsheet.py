@@ -1,7 +1,7 @@
 """Players spreadsheet table"""
 
 from mysqldb_wrapper import Base, Id
-from common.api.spreadsheet import find_corresponding_cells_best_effort
+from common.api.spreadsheet import find_corresponding_cell_best_effort, find_corresponding_cells_best_effort
 
 
 class PlayersSpreadsheet(Base):
@@ -14,6 +14,7 @@ class PlayersSpreadsheet(Base):
     sheet_name = str("")
     range_team_name = str("")
     range_team = str("B2:B")
+    range_discord = str("")
 
 
 class TeamNotFound(Exception):
@@ -36,12 +37,37 @@ class TeamInfo:
     def __init__(self, team_name_cell):
         self.team_name = team_name_cell
         self.players = [team_name_cell]
+        self.discord = [""]
 
     def set_players(self, players_cells):
         if players_cells:
             self.players = players_cells
         else:
             self.players = [self.team_name]
+
+    def set_discord(self, discord_id):
+        self.discord = [discord_id]
+
+    @staticmethod
+    def from_player_name(players_spreadsheet, worksheet, player_name):
+        player_cells = worksheet.find_cells(players_spreadsheet.range_team, player_name)
+        if not player_cells:
+            raise TeamNotFound(player_name)
+        if len(player_cells) > 1:
+            raise DuplicateTeam(player_name)
+        player_cell = player_cells[0]
+        return TeamInfo.from_player_cell(players_spreadsheet, worksheet, player_cell)
+
+    @staticmethod
+    def from_player_cell(players_spreadsheet, worksheet, player_cell):
+        team_info = TeamInfo(player_cell)
+        team_best_effort_y = player_cell.y
+        team_info.set_discord(
+            find_corresponding_cell_best_effort(
+                worksheet.get_range(players_spreadsheet.range_discord), [team_best_effort_y], team_best_effort_y,
+            ).value
+        )
+        return team_info
 
     @staticmethod
     def from_team_name(players_spreadsheet, worksheet, team_name):
@@ -53,7 +79,7 @@ class TeamInfo:
         if len(team_name_cells) > 1:
             raise DuplicateTeam(team_name)
         team_name_cell = team_name_cells[0]
-        return TeamInfo.from_player_cell(players_spreadsheet, worksheet, team_name_cell)
+        return TeamInfo.from_team_name_cell(players_spreadsheet, worksheet, team_name_cell)
 
     @staticmethod
     def from_team_name_cell(players_spreadsheet, worksheet, team_name_cell):
@@ -61,7 +87,7 @@ class TeamInfo:
         team_info = TeamInfo(team_name_cell)
         team_info.set_players(
             find_corresponding_cells_best_effort(
-                worksheet.get_range(players_spreadsheet.range_team), team_name_best_effort_ys,
+                worksheet.get_range(players_spreadsheet.range_team), team_name_best_effort_ys, team_name_cell.y
             )
         )
         return team_info

@@ -124,5 +124,11 @@
     "parameter": "<range>",
     "success": "Players spreadsheet range team set to `%1`.",
     "usage": "Usage: `%set_players_spreadsheet_range_team $./parameter`\n\nExample: `%set_players_spreadsheet_range_team D2:D`"
+  },
+  "set_players_spreadsheet_range_discord": {
+    "help": "Sets the players spreadsheet range discord.",
+    "parameter": "<range>",
+    "success": "Players spreadsheet range discord set to `%1`.",
+    "usage": "Usage: `%set_players_spreadsheet_range_discord $./parameter`\n\nExample: `%set_players_spreadsheet_range_discord D2:D`"
   }
 }
