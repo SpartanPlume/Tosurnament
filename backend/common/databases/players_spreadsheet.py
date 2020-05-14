@@ -49,14 +49,16 @@ class TeamInfo:
         self.discord = [discord_id]
 
     @staticmethod
-    def from_player_name(players_spreadsheet, worksheet, player_name):
+    def from_player_name(players_spreadsheet, spreadsheet, worksheet, player_name):
         player_cells = worksheet.find_cells(players_spreadsheet.range_team, player_name)
         if not player_cells:
             raise TeamNotFound(player_name)
         if len(player_cells) > 1:
             raise DuplicateTeam(player_name)
         player_cell = player_cells[0]
-        return TeamInfo.from_player_cell(players_spreadsheet, worksheet, player_cell)
+        return TeamInfo.from_player_cell(
+            players_spreadsheet, spreadsheet.get_worksheet("Form Responses 4"), player_cell
+        )
 
     @staticmethod
     def from_player_cell(players_spreadsheet, worksheet, player_cell):

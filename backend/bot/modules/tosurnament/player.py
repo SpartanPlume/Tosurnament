@@ -512,7 +512,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 team_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
                 for cell in team_cells:
                     try:
-                        team_info = TeamInfo.from_player_name(players_spreadsheet, worksheet, cell.value)
+                        team_info = TeamInfo.from_player_name(players_spreadsheet, spreadsheet, worksheet, cell.value)
                         if team_info.discord[0]:
                             user = guild.get_member_named(team_info.discord[0])
                         else:
