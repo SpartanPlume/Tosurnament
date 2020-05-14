@@ -509,21 +509,20 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     if user:
                         await user.add_roles(player_role)
             else:
-                team_cells = worksheet.get_range(players_spreadsheet.range_team)
-                for row in team_cells:
-                    for cell in row:
-                        try:
-                            team_info = TeamInfo.from_player_name(players_spreadsheet, worksheet, cell.value)
-                            if team_info.discord[0]:
-                                user = guild.get_member_named(team_info.discord[0])
-                            else:
-                                user = guild.get_member_named(team_info.team_name.value)
-                            if user:
-                                await user.add_roles(player_role)
-                        except Exception as e:
-                            if isinstance(e, asyncio.CancelledError):
-                                raise e
-                            continue
+                team_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
+                for cell in team_cells:
+                    try:
+                        team_info = TeamInfo.from_player_name(players_spreadsheet, worksheet, cell.value)
+                        if team_info.discord[0]:
+                            user = guild.get_member_named(team_info.discord[0])
+                        else:
+                            user = guild.get_member_named(team_info.team_name.value)
+                        if user:
+                            await user.add_roles(player_role)
+                    except Exception as e:
+                        if isinstance(e, asyncio.CancelledError):
+                            raise e
+                        continue
 
     async def background_task(self):
         try:
