@@ -520,7 +520,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                                 user = guild.get_member_named(team_info.team_name.value)
                             if user:
                                 await user.add_roles(player_role)
-                        except Exception:
+                        except Exception as e:
+                            if isinstance(e, asyncio.CancelledError):
+                                raise e
                             continue
 
     async def background_task(self):
