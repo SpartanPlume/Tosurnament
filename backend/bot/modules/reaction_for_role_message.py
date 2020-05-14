@@ -47,7 +47,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         if reaction_for_role_message and reaction_for_role_message.setup_channel_id:
             await self.delete_setup_messages(reaction_for_role_message)
             self.bot.session.delete(reaction_for_role_message)
-        setup_message = await self.send_reply(ctx, ctx.command.name, "success", "None")
+        setup_message = await self.send_reply(ctx, ctx.command.name, "success", "None\n")
         preview_message = await ctx.send(message_text)
         reaction_for_role_message = ReactionForRoleMessage(
             guild_id=ctx.guild.id,
@@ -76,6 +76,19 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         if new_emoji in emojis:
             await self.send_reply(ctx, ctx.command.name, "emoji_duplicate")
             return
+        try:
+            await ctx.message.add_reaction(new_emoji)
+        except discord.InvalidArgument:
+            await self.send_reply(ctx, ctx.command.name, "invalid_emoji", new_emoji)
+            return
+        except discord.NotFound:
+            await self.send_reply(ctx, ctx.command.name, "emoji_not_found", new_emoji)
+            return
+        except discord.HTTPException as e:
+            if e.status == 400:
+                await self.send_reply(ctx, ctx.command.name, "emoji_not_found", new_emoji)
+                return
+            raise e
         roles = list(filter(None, reaction_for_role_message.roles.split("\n")))
         current_emoji_role_pairs = ""
         for emoji, role_id in zip(emojis, roles):
@@ -135,7 +148,10 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         self.bot.session.update(reaction_for_role_message)
 
         for emoji in filter(None, reaction_for_role_message.emojis.split("\n")):
-            await message.add_reaction(emoji)
+            try:
+                await message.add_reaction(emoji)
+            except Exception:
+                continue
 
     @commands.command(aliases=["crfrmc"])
     async def cancel_reaction_for_role_message_creation(self, ctx):
@@ -180,10 +196,13 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         role = guild.get_role(int(roles[index]))
         if not role:
             return
-        if add:
-            await user.add_roles(role)
-        else:
-            await user.remove_roles(role)
+        try:
+            if add:
+                await user.add_roles(role)
+            else:
+                await user.remove_roles(role)
+        except Exception:
+            return
 
 
 def get_class(bot):
