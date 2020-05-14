@@ -512,13 +512,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 team_cells = worksheet.get_range(players_spreadsheet.range_team)
                 for row in team_cells:
                     for cell in row:
-                        team_info = TeamInfo.from_player_name(players_spreadsheet, worksheet, cell.value)
-                        if team_info.discord[0]:
-                            user = guild.get_member_named(team_info.discord[0])
-                        else:
-                            user = guild.get_member_named(team_info.team_name.value)
-                        if user:
-                            await user.add_roles(player_role)
+                        try:
+                            team_info = TeamInfo.from_player_name(players_spreadsheet, worksheet, cell.value)
+                            if team_info.discord[0]:
+                                user = guild.get_member_named(team_info.discord[0])
+                            else:
+                                user = guild.get_member_named(team_info.team_name.value)
+                            if user:
+                                await user.add_roles(player_role)
+                        except Exception:
+                            continue
 
     async def background_task(self):
         try:
