@@ -1,5 +1,6 @@
 """Player commands"""
 
+import asyncio
 import datetime
 import dateparser
 import discord
@@ -86,7 +87,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         player_role_id = tournament.player_role_id
         if tosurnament.get_role(user.roles, player_role_id, "Player"):
             raise tosurnament.UserAlreadyPlayer()
-        tosurnament_user = self.get_verified_user(user.id)
+        try:
+            tosurnament_user = self.get_verified_user(user.id)
+            user_name = tosurnament_user.osu_name
+        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):
+            user_name = user.display_name
         roles = guild.roles
         player_role = tosurnament.get_role(roles, player_role_id, "Player")
         if not player_role:
@@ -95,7 +100,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         for bracket in brackets:
             try:
                 got_role |= await self.get_player_role_for_bracket(
-                    guild, tournament, bracket, user, tosurnament_user.osu_name, player_role,
+                    guild, tournament, bracket, user, user_name, player_role,
                 )
             except Exception as e:
                 if channel:
@@ -480,6 +485,51 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     async def on_verified_user(self, guild, user):
         await self.get_player_role_for_user(guild, user)
+
+    async def give_player_role(self, guild):
+        tournament = self.get_tournament(guild.id)
+        player_role = tosurnament.get_role(guild.roles, tournament.player_role_id, "Player")
+        if not player_role:
+            return
+        brackets = self.get_all_brackets(tournament)
+        for bracket in brackets:
+            players_spreadsheet = self.get_players_spreadsheet(bracket)
+            if not players_spreadsheet:
+                continue
+            spreadsheet, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
+            if players_spreadsheet.range_team_name:
+                team_name_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
+                team_info = None
+                for team_name_cell in team_name_cells:
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, worksheet, team_name_cell.value)
+                if not team_info:
+                    continue
+                for player_cell in team_info.players:
+                    user = guild.get_member_named(player_cell.value)
+                    if user:
+                        await user.add_roles(player_role)
+            else:
+                team_cells = worksheet.get_range(players_spreadsheet.range_team)
+                for row in team_cells:
+                    for cell in row:
+                        user = guild.get_member_named(cell.value)
+                        if user:
+                            await user.add_roles(player_role)
+
+    async def background_task(self):
+        try:
+            await self.bot.wait_until_ready()
+            while not self.bot.is_closed():
+                for guild in self.bot.guilds:
+                    try:
+                        await self.give_player_role(guild)
+                    except Exception as e:
+                        if isinstance(e, asyncio.CancelledError):
+                            return
+                        continue
+                await asyncio.sleep(18000)
+        except asyncio.CancelledError:
+            return
 
 
 def get_class(bot):

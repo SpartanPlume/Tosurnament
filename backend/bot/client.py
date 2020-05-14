@@ -35,7 +35,7 @@ class Client(commands.Bot):
         self.init_modules()
         self.init_db()
         self.init_spreadsheet_service()
-        self.task = self.loop.create_task(self.background_task())
+        self.init_background_tasks()
         if self.error_code != 0:
             return
         self.before_invoke(add_command_feedback)
@@ -115,27 +115,23 @@ class Client(commands.Bot):
 
     async def stop(self, code, ctx=None):
         """Stops the bot"""
-        self.task.cancel()
-        try:
-            await self.task
-        except asyncio.CancelledError:
-            self.log(logging.DEBUG, "Background task cancelled.")
+        for task in self.tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                self.log(logging.DEBUG, "Background task cancelled.")
         self.error_code = code
         if ctx and ctx.guild:
             await ctx.message.delete()
         self.log(logging.INFO, "Closing the bot...\n")
         await self.close()
 
-    async def background_task(self):
-        try:
-            await self.wait_until_ready()
-            while not self.is_closed():
-                for module in self.modules:
-                    if hasattr(module, "background_task"):
-                        await module.background_task()
-                await asyncio.sleep(600)
-        except asyncio.CancelledError:
-            return
+    def init_background_tasks(self):
+        self.tasks = []
+        for module in self.modules:
+            if hasattr(module, "background_task"):
+                self.tasks.append(self.loop.create_task(module.background_task()))
 
     async def on_raw_reaction_add(self, payload):
         if not payload.guild_id:
