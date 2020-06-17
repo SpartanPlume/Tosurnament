@@ -524,20 +524,20 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                             raise e
                         continue
 
-    async def background_task(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                for guild in self.bot.guilds:
-                    try:
-                        await self.give_player_role(guild)
-                    except Exception as e:
-                        if isinstance(e, asyncio.CancelledError):
-                            return
-                        continue
-                await asyncio.sleep(18000)
-        except asyncio.CancelledError:
-            return
+    # async def background_task(self):
+    #     try:
+    #         await self.bot.wait_until_ready()
+    #         while not self.bot.is_closed():
+    #             for guild in self.bot.guilds:
+    #                 try:
+    #                     await self.give_player_role(guild)
+    #                 except Exception as e:
+    #                     if isinstance(e, asyncio.CancelledError):
+    #                         return
+    #                     continue
+    #             await asyncio.sleep(18000)
+    #     except asyncio.CancelledError:
+    #         return
 
 
 def get_class(bot):
