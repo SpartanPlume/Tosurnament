@@ -111,6 +111,12 @@ class SpreadsheetError(commands.CommandError):
     pass
 
 
+class InvalidMinute(commands.CommandError):
+    """Special exception in case the minutes are not multiple of a quarter of an hour."""
+
+    pass
+
+
 class InvalidMatch(commands.CommandError):
     """Special exception in case the user is not in the match."""
 

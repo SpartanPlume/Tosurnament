@@ -131,6 +131,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not tosurnament.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
             raise tosurnament.NotRequiredRole("Player")
         now = datetime.datetime.utcnow()
+        # if new_date.minute != 0 and new_date.minute != 15 and new_date.minute != 30 and new_date.minute != 45:
+        #     raise tosurnament.InvalidMinute()
+        if new_date.hour == 0 and new_date.minute == 0:
+            new_date = new_date + datetime.timedelta(minutes=1)
         if now.month == 12 and new_date.month == 1 and new_date < now:
             try:
                 new_date = new_date.replace(year=new_date.year + 1)
@@ -212,12 +216,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 except tosurnament.SpreadsheetHttpError as e:
                     await self.on_cog_command_error(ctx, ctx.command.name, e)
                     continue
-                except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
+                except (InvalidWorksheet, DuplicateTeam):
                     continue
+                except TeamNotFound:
+                    raise tosurnament.InvalidMatch()
                 if team1_info.discord[0] == str(ctx.author):
                     user_name = team1_info.players[0].value
+                    opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0])
                 else:
                     user_name = team2_info.players[0].value
+                    opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0])
                 # ! Temporary
                 team_name = user_name
                 if match_info.team1.value == user_name:
@@ -227,9 +235,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     opponent_team_name = match_info.team1.value
                     opponent_team_captain_name = opponent_team_name
                 else:
-                    continue
+                    raise tosurnament.InvalidMatch()
 
-            opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
+            if not opponent_team_captain:  # ! Temporary
+                opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
             if not opponent_team_captain:
                 raise tosurnament.OpponentNotFound(ctx.author.mention)
 
@@ -271,7 +280,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     @reschedule.error
     async def reschedule_handler(self, ctx, error):
         """Error handler of reschedule function."""
-        if isinstance(error, tosurnament.InvalidMatch):
+        if isinstance(error, tosurnament.InvalidMinute):
+            await self.send_reply(ctx, ctx.command.name, "invalid_minute")
+        elif isinstance(error, tosurnament.InvalidMatch):
             await self.send_reply(ctx, ctx.command.name, "invalid_match")
         elif isinstance(error, tosurnament.PastDeadline):
             await self.send_reply(ctx, ctx.command.name, "past_deadline")
