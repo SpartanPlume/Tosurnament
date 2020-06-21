@@ -155,26 +155,7 @@ class Participant(Base):
     @property
     def matches(self):
         if self._matches is None:
-            try:
-                r = requests.get(
-                    CHALLONGE_URL
-                    + "tournaments/"
-                    + str(self.tournament_id)
-                    + "/participants/"
-                    + str(self.id)
-                    + ".json",
-                    auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-                    params={"include_matches": "1"},
-                )
-            except requests.exceptions.RequestException:
-                raise ServerError()
-            p = r.json()
-            if "participant" not in p:
-                raise NotFound()
-            self._matches = []
-            if "matches" in p["participant"]:
-                for m in p["participant"]["matches"]:
-                    self._matches.append(Match(m["match"]))
+            self._matches = get_participant_with_matches(self.tournament_id, self.id)
         return self._matches
 
 
@@ -207,3 +188,22 @@ def get_participants(tournament_id):
     for participant in p:
         participants.append(Participant(participant["participant"]))
     return participants
+
+
+def get_participant_with_matches(tournament_id, participant_id):
+    try:
+        r = requests.get(
+            CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants/" + str(participant_id) + ".json",
+            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
+            params={"include_matches": "1"},
+        )
+    except requests.exceptions.RequestException:
+        raise ServerError()
+    p = r.json()
+    if "participant" not in p:
+        raise NotFound()
+    matches = []
+    if "matches" in p["participant"]:
+        for m in p["participant"]["matches"]:
+            matches.append(Match(m["match"]))
+    return matches

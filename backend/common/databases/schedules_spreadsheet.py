@@ -1,6 +1,6 @@
 """Schedules spreadsheet table"""
 
-from mysqldb_wrapper import Base, Id
+from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     Cell,
     find_corresponding_cell_best_effort,
@@ -8,14 +8,15 @@ from common.api.spreadsheet import (
 )
 
 
-class SchedulesSpreadsheet(Base):
+class SchedulesSpreadsheet(BaseSpreadsheet):
     """Schedules spreadsheet class"""
+
+    def __init__(self, session=None, *args, **kwargs):
+        super().__init__(session, *args, **kwargs)
+        self._type = "schedules"
 
     __tablename__ = "schedules_spreadsheet"
 
-    id = Id()
-    spreadsheet_id = str()
-    sheet_name = str("")
     range_match_id = str("A2:A")
     range_team1 = str("B2:B")
     range_score_team1 = str("C2:C")
@@ -68,20 +69,21 @@ class MatchInfo:
         return " ".join(filter(None, [self.date.value, self.time.value]))
 
     @staticmethod
-    def from_id(schedules_spreadsheet, worksheet, match_id, filled_only=True):
-        match_id_cells = worksheet.get_range(schedules_spreadsheet.range_match_id)
-        corresponding_match_id_cells = worksheet.find_cells(match_id_cells, match_id)
+    def from_id(schedules_spreadsheet, match_id, filled_only=True):
+        match_id_cells = schedules_spreadsheet.worksheet.get_range(schedules_spreadsheet.range_match_id)
+        corresponding_match_id_cells = schedules_spreadsheet.worksheet.find_cells(match_id_cells, match_id)
         if not corresponding_match_id_cells:
             raise MatchIdNotFound(match_id)
         if len(corresponding_match_id_cells) > 1:
             raise DuplicateMatchId(match_id)
         match_id_cell = corresponding_match_id_cells[0]
-        return MatchInfo.from_match_id_cell(schedules_spreadsheet, worksheet, match_id_cell, filled_only)
+        return MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell, filled_only)
 
     @staticmethod
-    def from_match_id_cell(schedules_spreadsheet, worksheet, match_id_cell, filled_only=True):
+    def from_match_id_cell(schedules_spreadsheet, match_id_cell, filled_only=True):
         match_id_best_effort_ys = match_id_cell.y_merge_range
         match_info = MatchInfo(match_id_cell)
+        worksheet = schedules_spreadsheet.worksheet
         match_info.team1 = find_corresponding_cell_best_effort(
             worksheet.get_range(schedules_spreadsheet.range_team1), match_id_best_effort_ys, match_id_cell.y,
         )

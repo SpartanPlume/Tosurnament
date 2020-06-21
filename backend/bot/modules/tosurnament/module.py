@@ -3,139 +3,17 @@
 from discord.ext import commands
 from bot.modules.module import *
 from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
 from common.databases.schedules_spreadsheet import (
-    SchedulesSpreadsheet,
     DuplicateMatchId,
     MatchIdNotFound,
 )
 from common.databases.players_spreadsheet import (
-    PlayersSpreadsheet,
     TeamInfo,
     DuplicateTeam,
     TeamNotFound,
 )
-from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
-
-
-class UserAlreadyPlayer(commands.CommandError):
-    """Special exception in case the user is already a player."""
-
-    pass
-
-
-class NoTournament(commands.CommandError):
-    """Special exception in case a guild does not have any tournament running."""
-
-    pass
-
-
-class TournamentAlreadyCreated(commands.CommandError):
-    """Special exception in case a guild already has a tournament running."""
-
-    pass
-
-
-class NoBracket(commands.CommandError):
-    """Special exception in case a guild does not have the requested bracket."""
-
-    pass
-
-
-class NoSpreadsheet(commands.CommandError):
-    """Special exception in case a spreadsheet has not been set."""
-
-    def __init__(self, spreadsheet=None):
-        super().__init__()
-        self.spreadsheet = spreadsheet
-
-
-class SpreadsheetError(commands.CommandError):
-    """Special exception in case an error occurs with a spreadsheet."""
-
-    pass
-
-
-class InvalidMatch(commands.CommandError):
-    """Special exception in case the user is not in the match."""
-
-    pass
-
-
-class InvalidMatchId(commands.CommandError):
-    """Special exception in case the match id does not exist."""
-
-    pass
-
-
-class InvalidMpLink(commands.CommandError):
-    """Special exception in case the match link does not exist."""
-
-    pass
-
-
-class MatchNotFound(commands.CommandError):
-    """Special exception in case a match in the challonge is not found."""
-
-    pass
-
-
-class PastDeadline(commands.CommandError):
-    """Special exception in case the deadline is passed."""
-
-    pass
-
-
-class ImpossibleReschedule(commands.CommandError):
-    """Special exception in case the rescheduled time is not acceptable."""
-
-    pass
-
-
-class SameDate(commands.CommandError):
-    """Special exception in case the rescheduled time
-    is the same date than the previous one."""
-
-    pass
-
-
-class NotAPlayer(commands.CommandError):
-    """Special exception in case the player is not found in the player spreadsheets."""
-
-    pass
-
-
-class OpponentNotFound(commands.CommandError):
-    """Special exception in case the opponent in not found in the guild."""
-
-    def __init__(self, mention):
-        super().__init__()
-        self.mention = mention
-
-
-class SpreadsheetHttpError(commands.CommandError):
-    """Special exception in case there is an http error when reading or writing on the spreadsheet."""
-
-    def __init__(self, code, operation, bracket_name, spreadsheet):
-        super().__init__()
-        self.code = code
-        self.operation = operation
-        self.bracket_name = bracket_name
-        self.spreadsheet = spreadsheet
-
-
-class DuplicatePlayer(commands.CommandError):
-    """Special exception in case the player in found multiple times in the players spreadsheet."""
-
-    def __init__(self, player):
-        super().__init__()
-        self.player = player
-
-
-class InvalidDateOrFormat(commands.CommandError):
-    """Special exception in case the date or format used in the schedules spreadsheet is wrong."""
-
-    pass
+from common.api.spreadsheet import InvalidWorksheet
+from common.databases.base_spreadsheet import SpreadsheetHttpError
 
 
 class UserRoles:
@@ -228,7 +106,6 @@ class TosurnamentBaseModule(BaseModule):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.bot = bot
 
     def get_tournament(self, guild_id):
         """
@@ -240,52 +117,12 @@ class TosurnamentBaseModule(BaseModule):
             raise NoTournament()
         return tournament
 
-    def get_current_bracket(self, tournament):
-        """Gets the current bracket of the tournament."""
-        bracket = self.bot.session.query(Bracket).where(Bracket.id == tournament.current_bracket_id).first()
-        if not bracket:
-            raise UnknownError("No bracket found")
-        return bracket
-
-    def get_all_brackets(self, tournament):
-        """Gets all brackets of the tournament."""
-        brackets = self.bot.session.query(Bracket).where(Bracket.tournament_id == tournament.id).all()
-        if not brackets:
-            raise UnknownError("No brackets found")
-        return brackets
-
-    def get_players_spreadsheet(self, bracket):
-        """Gets the bracket's players spreadsheet."""
-        return (
-            self.bot.session.query(PlayersSpreadsheet)
-            .where(PlayersSpreadsheet.id == bracket.players_spreadsheet_id)
-            .first()
-        )
-
-    def get_schedules_spreadsheet(self, bracket):
-        """Gets the bracket's schedules spreadsheet."""
-        return (
-            self.bot.session.query(SchedulesSpreadsheet)
-            .where(SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id)
-            .first()
-        )
-
-    def get_spreadsheet_worksheet(self, spreadsheet):
-        """Retrieves the spreadsheet and its main worksheet."""
-        sp = Spreadsheet.get_from_id(spreadsheet.spreadsheet_id)
-        worksheet = sp.get_worksheet(spreadsheet.sheet_name)
-        return sp, worksheet
-
     def find_player_identification(self, ctx, bracket, user_name):
-        players_spreadsheet = self.get_players_spreadsheet(bracket)
+        players_spreadsheet = bracket.players_spreadsheet
         if not players_spreadsheet:
             return user_name
         if players_spreadsheet.range_team_name:
-            try:
-                _, worksheet = self.get_spreadsheet_worksheet(ctx, players_spreadsheet)
-            except HttpError as e:
-                raise SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
-            cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
+            cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
             for cell in cells:
                 team_info = TeamInfo.get_from_team_name(cell.value)
                 if user_name in [cell.value for cell in team_info.players]:
@@ -299,9 +136,6 @@ class TosurnamentBaseModule(BaseModule):
     async def handle_spreadsheet_error(self, ctx, error_code, error_type, spreadsheet_type):  # TODO
         """Sends an appropriate error message in case of error with the spreadsheet api."""
         await self.send_reply(ctx, ctx.command.name, "spreadsheet_error", error_type, spreadsheet_type)
-
-    async def cog_command_error(self, ctx, error):  # ? To Remove ?
-        await self.on_cog_command_error(ctx, ctx.command.name, error)
 
     async def on_cog_command_error(self, channel, command_name, error):
         error_found = await super().on_cog_command_error(channel, command_name, error)
@@ -346,6 +180,14 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "not_a_player")
         elif isinstance(error, InvalidMatchId):
             await self.send_reply(channel, command_name, "invalid_match_id")
+        elif isinstance(error, InvalidMatch):
+            await self.send_reply(channel, command_name, "invalid_match")
+        elif isinstance(error, PastDeadline):
+            await self.send_reply(channel, command_name, "past_deadline")
+        elif isinstance(error, ImpossibleReschedule):
+            await self.send_reply(channel, command_name, "impossible_reschedule")
+        elif isinstance(error, SameDate):
+            await self.send_reply(channel, command_name, "same_date")
         else:
             return False
         return True

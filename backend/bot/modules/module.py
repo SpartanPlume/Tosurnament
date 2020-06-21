@@ -3,82 +3,13 @@
 import inspect
 import discord
 from discord.ext import commands
+from common.exceptions import *
 from common.utils import load_json
 from common.databases.guild import Guild
 from common.databases.user import User
 
 DEFAULT_HELP_EMBED_COLOR = 3447003
 COMMAND_NOT_FOUND_EMBED_COLOR = 3447003
-
-
-class NotGuildOwner(commands.CheckFailure):
-    """Special exception in case the user is not guild owner."""
-
-    pass
-
-
-class NotBotAdmin(commands.CommandError):
-    """Special exception in case the user is not a bot admin."""
-
-    pass
-
-
-class UnknownError(commands.CommandError):
-    """Special exception in case there is an unknown error."""
-
-    def __init__(self, message=None):
-        super().__init__()
-        self.message = message
-
-
-class InvalidRoleName(commands.CommandError):
-    """Special exception in case the role name specified during the creation in invalid."""
-
-    def __init__(self, role_name=""):
-        super().__init__()
-        self.role_name = role_name
-
-
-class RoleDoesNotExist(commands.CommandError):
-    """Special exception in case the role does not exist."""
-
-    def __init__(self, role):
-        super().__init__()
-        self.role = role
-
-
-class NotRequiredRole(commands.CommandError):
-    """Special exception in case the user does not have the required role."""
-
-    def __init__(self, role):
-        super().__init__()
-        self.role = role
-
-
-class UserNotFound(commands.CommandError):
-    """Special exception in case the user is not found."""
-
-    def __init__(self, username):
-        super().__init__()
-        self.username = username
-
-
-class UserNotLinked(commands.CommandError):
-    """Special exception in case the user is not linked."""
-
-    pass
-
-
-class UserNotVerified(commands.CommandError):
-    """Special exception in case the user is not verified."""
-
-    pass
-
-
-class OsuError(commands.CommandError):  # TODO move in api
-    """Special exception in case osu api returns an error or is not reachable."""
-
-    pass
 
 
 class BaseModule(commands.Cog):

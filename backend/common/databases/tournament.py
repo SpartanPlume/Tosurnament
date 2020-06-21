@@ -2,12 +2,19 @@
 
 import datetime
 from mysqldb_wrapper import Base, Id
+from common.databases.bracket import Bracket
+from common.exceptions import UnknownError
 
 
 class Tournament(Base):
     """Tournament class"""
 
     __tablename__ = "tournament"
+
+    def __init__(self, session=None, *args, **kwargs):
+        super().__init__(session, *args, **kwargs)
+        self._current_bracket = None
+        self._brackets = None
 
     id = Id()
     guild_id = bytes()
@@ -31,6 +38,23 @@ class Tournament(Base):
     reschedule_ping_team = bool(True)
     current_bracket_id = Id()
     created_at = int()
+
+    @property
+    def current_bracket(self):
+        if self._current_bracket is None:
+            for bracket in self.brackets:
+                if bracket.id == self.current_bracket_id:
+                    self._current_bracket = bracket
+                    break
+        return self._current_bracket
+
+    @property
+    def brackets(self):
+        if self._brackets is None:
+            self._brackets = self._session.query(Bracket).where(Bracket.tournament_id == self.id).all()
+            if not self._brackets:
+                raise UnknownError("No brackets found")
+        return self._brackets
 
     def get_role_id(self, role_name):
         field = role_name.lower().replace(" ", "_") + "_role_id"

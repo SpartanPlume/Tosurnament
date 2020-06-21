@@ -45,7 +45,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def get_bracket(self, ctx, *, number: int = None):
         """Sets a bracket as current bracket or shows them all."""
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
+        brackets = tournament.brackets
         if number or number == 0:
             number -= 1
             if not (number >= 0 and number < len(brackets)):

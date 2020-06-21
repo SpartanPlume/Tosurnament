@@ -262,17 +262,12 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def init_post_result(self, ctx, match_id):
         """Allows referees to post the result of a match"""
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
-        for bracket in brackets:
-            schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        for bracket in tournament.brackets:
+            schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
             try:
-                spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-            try:
-                MatchInfo.from_id(schedules_spreadsheet, worksheet, match_id)
+                MatchInfo.from_id(schedules_spreadsheet, match_id)
             except MatchIdNotFound:
                 continue
             return tournament, bracket
@@ -363,14 +358,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not bracket:
             self.bot.session.delete(post_result_message)
             raise tosurnament.NoBracket()
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-        match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, post_result_message.match_id, False)
+        match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         prbuilder = self.create_prbuilder(post_result_message, tournament, bracket, match_info)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
@@ -410,7 +401,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         self.bot.session.update(post_result_message)
         await self.add_reaction_to_setup_message(message)
 
-    async def step8_write_in_spreadsheet(self, bracket, schedules_spreadsheet, spreadsheet, match_info, prbuilder):
+    async def step8_write_in_spreadsheet(self, bracket, match_info, prbuilder):
         match_info.score_team1.value = prbuilder.get_score_team1()
         match_info.score_team2.value = prbuilder.get_score_team2()
         mp_links = osu.build_mp_links(prbuilder.mp_links.split("\n"))
@@ -422,18 +413,52 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 match_info.mp_links[i].value = mp_links[i]
             i += 1
         try:
-            spreadsheet.update()
+            bracket.schedules_spreadsheet.spreadsheet.update()
         except HttpError as e:
             raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
 
-    async def step8_challonge(self, ctx, challonge_id, error_channel, prbuilder):
+    async def step8_remove_player_role(self, ctx, error_channel, tournament, challonge_tournament, loser_participant):
+        if challonge_tournament.state == "group_stages_underway":
+            for match in challonge_tournament.matches:
+                if not match.state == "complete":
+                    return
+            self.send_reply(error_channel, "post_result", "group_stages_complete")
+        elif challonge_tournament.state == "underway":
+            matches = challonge.get_participant_with_matches(challonge_tournament.id, loser_participant.id)
+            for match in matches:
+                if not match.state == "complete":
+                    return
+            bracket = tournament.current_bracket
+            try:
+                team_info = TeamInfo.from_team_name(bracket.players_spreadsheet, loser_participant.name)
+                player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
+                roles_to_remove = [player_role]
+                bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
+                if bracket_role:
+                    roles_to_remove.append(bracket_role)
+                team_name = team_info.team_name.value
+                team_role = tosurnament.get_role(ctx.guild.roles, None, team_name)
+                if team_role:
+                    roles_to_remove.append(team_role)
+                if team_info.discord[0]:
+                    member = ctx.guild.get_member_named(team_info.discord[0])
+                    if member:
+                        member.remove_roles(*roles_to_remove)
+                for player_cell in team_info.players:
+                    member = ctx.guild.get_member_named(player_cell.value)
+                    if member:
+                        member.remove_roles(*roles_to_remove)
+            except Exception:
+                return
+
+    async def step8_challonge(self, ctx, tournament, error_channel, prbuilder):
         try:
-            tournament = challonge.get_tournament(challonge_id)
-            if tournament.state == "pending":
-                tournament.start()
+            challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+            if challonge_tournament.state == "pending":
+                challonge_tournament.start()
             participant1 = None
             participant2 = None
-            for participant in tournament.participants:
+            for participant in challonge_tournament.participants:
                 if participant.name == prbuilder.team_name1:
                     participant1 = participant
                 elif participant.name == prbuilder.team_name2:
@@ -456,11 +481,18 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await self.on_cog_command_error(error_channel, "post_result", e)
             return
 
+    def get_teams_infos(self, bracket, team_name1, team_name2):
+        if not bracket.players_spreadsheet:
+            return None, None
+        team1_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name1)
+        team2_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name2)
+        return team1_info, team2_info
+
     def create_prbuilder(self, post_result_message, tournament, bracket, match_info):
         prbuilder = PostResultBuilder()
         prbuilder.tournament_acronym = tournament.acronym
         prbuilder.tournament_name = tournament.name
-        prbuilder.bracket_name = bracket.name
+        prbuilder.bracket_name = tournament.current_bracket.name
         prbuilder.match_id = post_result_message.match_id
         prbuilder.team_name1 = match_info.team1.value
         prbuilder.team_name2 = match_info.team2.value
@@ -471,38 +503,29 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         prbuilder.tb_bans_team1 = post_result_message.tb_bans_team1
         prbuilder.tb_bans_team2 = post_result_message.tb_bans_team2
 
-        players_spreadsheet = self.get_players_spreadsheet(bracket)
-        if players_spreadsheet:
-            try:
-                p_spreadsheet, p_worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
-            team1_info = TeamInfo.from_team_name(prbuilder.team_name1)
-            team2_info = TeamInfo.from_team_name(prbuilder.team_name2)
-            players_id_team1 = get_players_id(team1_info)
-            players_id_team2 = get_players_id(team2_info)
-        else:
-            players_id_team1 = osu.usernames_to_ids([prbuilder.team_name1])
-            players_id_team2 = osu.usernames_to_ids([prbuilder.team_name2])
-
         score_team1 = post_result_message.score_team1
         score_team2 = post_result_message.score_team2
         if score_team1 < 0 and score_team2 < 0:
+            team1_info, team2_info = self.get_teams_infos(bracket, match_info.team1.value, match_info.team2.value)
+            if team1_info and team2_info:
+                players_id_team1 = get_players_id(team1_info)
+                players_id_team2 = get_players_id(team2_info)
+            else:
+                players_id_team1 = osu.usernames_to_ids([prbuilder.team_name1])
+                players_id_team2 = osu.usernames_to_ids([prbuilder.team_name2])
             score_team1, score_team2 = calc_match_score(post_result_message, players_id_team1, players_id_team2)
+
         prbuilder.score_team1 = score_team1
         prbuilder.score_team2 = score_team2
         prbuilder.mp_links = post_result_message.mp_links
         return prbuilder
 
-    async def step8_per_bracket(self, ctx, post_result_message, tournament, bracket):
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+    async def step8_per_bracket(self, ctx, post_result_message, tournament):
+        bracket = tournament.current_bracket
+        schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-        match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, post_result_message.match_id, False)
+        match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         prbuilder = self.create_prbuilder(post_result_message, tournament, bracket, match_info)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
@@ -514,8 +537,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 error_channel = self.bot.get_channel(tournament.staff_channel_id)
             else:
                 error_channel = ctx
-            await self.step8_challonge(ctx, bracket.challonge, error_channel, prbuilder)
-        await self.step8_write_in_spreadsheet(bracket, schedules_spreadsheet, spreadsheet, match_info, prbuilder)
+            await self.step8_challonge(ctx, tournament, error_channel, prbuilder)
+        await self.step8_write_in_spreadsheet(bracket, match_info, prbuilder)
         post_result_channel = ctx
         if bracket.post_result_channel_id:
             post_result_channel = self.bot.get_channel(bracket.post_result_channel_id)
@@ -524,10 +547,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def step8(self, ctx, tournament, post_result_message, parameter):
         """Step 8 of the post_result command"""
         if parameter == "post":
-            bracket = self.bot.session.query(Bracket).where(Bracket.id == post_result_message.bracket_id).first()
-            if not bracket:
+            tournament.current_bracket_id = post_result_message.bracket_id
+            if not tournament.current_bracket:
                 raise tosurnament.NoBracket()
-            await self.step8_per_bracket(ctx, post_result_message, tournament, bracket)
+            await self.step8_per_bracket(ctx, post_result_message, tournament)
             self.bot.session.delete(post_result_message)
             message = await ctx.channel.fetch_message(post_result_message.setup_message_id)
             await message.delete()

@@ -10,7 +10,6 @@
     "help": "Asks for a reschedule",
     "impossible_reschedule": "Sorry, the time to which you want to reschedule your match is not acceptable. You can try contacting an admin to reschedule your match.",
     "invalid_match": "You can't reschedule a match you're not in.",
-    "invalid_match_id": "Invalid match id.",
     "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
     "no_tournament": "This server does not have any tournament running. Consider using the `%1create_tournament $tosurnament/create_tournament/parameter`.",
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",

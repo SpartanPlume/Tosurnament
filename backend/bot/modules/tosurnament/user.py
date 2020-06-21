@@ -24,31 +24,24 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         return True
 
     async def change_name_in_player_spreadsheet(self, ctx, bracket, previous_name, new_name):
-        players_spreadsheet = self.get_players_spreadsheet(bracket)
-        if not players_spreadsheet:
+        players_spreadsheet = bracket.players_spreadsheet
+        if not bracket.players_spreadsheet:
             return
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
-        changed_name = worksheet.change_value_in_range(players_spreadsheet.range_team, previous_name, new_name)
+        changed_name = players_spreadsheet.worksheet.change_value_in_range(
+            players_spreadsheet.range_team, previous_name, new_name
+        )
         if changed_name:
             try:
-                spreadsheet.update()
+                players_spreadsheet.spreadsheet.update()
             except HttpError as e:
                 raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
 
     async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_roles):
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-        if not spreadsheet:
-            return
         changed_name = False
+        worksheet = schedules_spreadsheet.worksheet
         if user_roles.player:
             changed_name |= worksheet.change_value_in_range(schedules_spreadsheet.range_team1, previous_name, new_name)
             changed_name |= worksheet.change_value_in_range(schedules_spreadsheet.range_team2, previous_name, new_name)
@@ -59,7 +52,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 )
         if changed_name:
             try:
-                spreadsheet.update()
+                schedules_spreadsheet.spreadsheet.update()
             except HttpError as e:
                 raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
 
@@ -79,12 +72,11 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not previous_name:
             await self.send_reply(ctx, ctx.command.name, "change_name_unneeded")
             return
-        tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
         user_roles = tosurnament.UserRoles.get_from_context(ctx)
 
         if user_roles.is_user():
-            for bracket in brackets:
+            tournament = self.get_tournament(ctx.guild.id)
+            for bracket in tournament.brackets:
                 try:
                     if user_roles.player:
                         await self.change_name_in_player_spreadsheet(ctx, bracket, previous_name, new_name)
@@ -113,16 +105,14 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         team_name = None
         if user_roles.player:
             team_name = self.find_player_identification(ctx, bracket, user_name)
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-        match_ids_cells = worksheet.get_cells_with_value_in_range(schedules_spreadsheet.range_match_id)
+        match_ids_cells = schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
+            schedules_spreadsheet.range_match_id
+        )
         for match_id_cell in match_ids_cells:
-            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, worksheet, match_id_cell)
+            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
             match_date = dateparser.parse(
                 match_info.get_datetime(),
                 date_formats=list(filter(None, [schedules_spreadsheet.date_format + " %H:%M"])),
@@ -148,10 +138,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
     async def get_matches(self, ctx):
         """Sends a private message to the author with the list of matches they are in (as a player or staff)."""
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
         tosurnament_user = self.get_verified_user(ctx.author.id)
         user_roles = tosurnament.UserRoles.get_as_all()
-        for bracket in brackets:
+        for bracket in tournament.brackets:
             try:
                 self.fill_matches_info_for_roles(ctx, bracket, user_roles, tosurnament_user.osu_name)
             except Exception as e:

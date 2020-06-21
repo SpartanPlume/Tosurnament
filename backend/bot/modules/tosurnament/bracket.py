@@ -61,22 +61,21 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     async def set_bracket_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        bracket = self.get_current_bracket(tournament)
         for key, value in values.items():
-            setattr(bracket, key, value)
-        self.bot.session.update(bracket)
+            setattr(tournament.current_bracket, key, value)
+        self.bot.session.update(tournament.current_bracket)
         await self.send_reply(ctx, ctx.command.name, "success")
 
     async def set_bracket_spreadsheet(self, ctx, spreadsheet_type, spreadsheet_id, sheet_name):
         """Puts the input spreadsheet into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        bracket = self.get_current_bracket(tournament)
+        bracket = tournament.current_bracket
         spreadsheet_id = spreadsheet.extract_spreadsheet_id(spreadsheet_id)
         if getattr(bracket, spreadsheet_type + "_spreadsheet_id") > 0:
             if spreadsheet_type == "players":
-                any_spreadsheet = self.get_players_spreadsheet(bracket)
+                any_spreadsheet = bracket.players_spreadsheet
             elif spreadsheet_type == "schedules":
-                any_spreadsheet = self.get_schedules_spreadsheet(bracket)
+                any_spreadsheet = bracket.schedules_spreadsheet
             else:
                 return
         else:
@@ -190,8 +189,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        bracket = self.get_current_bracket(tournament)
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
         for key, value in values.items():
             setattr(schedules_spreadsheet, key, value)
         self.bot.session.update(schedules_spreadsheet)
@@ -221,8 +219,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     async def set_players_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        bracket = self.get_current_bracket(tournament)
-        players_spreadsheet = self.get_players_spreadsheet(bracket)
+        players_spreadsheet = tournament.current_bracket.players_spreadsheet
         for key, value in values.items():
             setattr(players_spreadsheet, key, value)
         self.bot.session.update(players_spreadsheet)

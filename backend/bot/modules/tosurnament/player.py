@@ -29,30 +29,32 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     async def is_a_player(self, bracket, user_name):
         """Returns if the user is a player in the bracket and its team_info if he is."""
-        players_spreadsheet = self.get_players_spreadsheet(bracket)
+        players_spreadsheet = bracket.players_spreadsheet
         if not players_spreadsheet:
             return False, None
-        _, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
         if players_spreadsheet.range_team_name:
-            team_name_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
+            team_name_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(
+                players_spreadsheet.range_team_name
+            )
             team_info = None
             for team_name_cell in team_name_cells:
-                team_info = TeamInfo.from_team_name(players_spreadsheet, worksheet, team_name_cell.value)
+                team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
             if not team_info:
                 return False, None
             if user_name not in [cell.value for cell in team_info.players]:
                 return False, None
             return True, team_info
         else:
-            team_cells = worksheet.find_cells(players_spreadsheet.range_team, user_name)
+            team_cells = players_spreadsheet.worksheet.find_cells(players_spreadsheet.range_team, user_name)
             if len(team_cells) < 1:
                 return False, None
             elif len(team_cells) > 1:
                 raise tosurnament.DuplicatePlayer(user_name)
             return True, None
 
-    async def get_player_role_for_bracket(self, guild, tournament, bracket, user, user_name, player_role):
+    async def get_player_role_for_bracket(self, guild, tournament, user, user_name, player_role):
         """Gives the player role of the bracket to the user, if he is a player of this bracket."""
+        bracket = tournament.current_bracket
         try:
             is_player, team_info = await self.is_a_player(bracket, user_name)
         except HttpError as e:
@@ -83,7 +85,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def get_player_role_for_user(self, guild, user, channel=None):
         """Gives the corresponding player role to the user."""
         tournament = self.get_tournament(guild.id)
-        brackets = self.get_all_brackets(tournament)
         player_role_id = tournament.player_role_id
         if tosurnament.get_role(user.roles, player_role_id, "Player"):
             raise tosurnament.UserAlreadyPlayer()
@@ -97,11 +98,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not player_role:
             raise tosurnament.RoleDoesNotExist("Player")
         got_role = False
-        for bracket in brackets:
+        for bracket in tournament.brackets:
+            tournament.current_bracket_id = bracket.id
             try:
-                got_role |= await self.get_player_role_for_bracket(
-                    guild, tournament, bracket, user, user_name, player_role,
-                )
+                got_role |= await self.get_player_role_for_bracket(guild, tournament, user, user_name, player_role,)
             except Exception as e:
                 if channel:
                     await self.on_cog_command_error(channel, "get_player_role", e)
@@ -125,7 +125,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         except ValueError:
             raise commands.UserInputError()
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
         player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
         if not player_role:
             raise tosurnament.RoleDoesNotExist("Player")
@@ -155,25 +154,24 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         # )
         # if new_date < reschedule_allowed_begin or now > reschedule_allowed_end:
         #     raise tosurnament.ImpossibleReschedule()
-        tosurnament_user = self.get_verified_user(ctx.author.id)
-        user_name = tosurnament_user.osu_name
-        for bracket in brackets:
-            schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        try:
+            tosurnament_user = self.get_verified_user(ctx.author.id)
+            user_name = tosurnament_user.osu_name
+        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):  # ! Temporary for nik's tournament
+            user_name = ""
+        for bracket in tournament.brackets:
+            schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
             try:
-                spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-                continue
-            except InvalidWorksheet:
-                continue
-            try:
-                match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, match_id)
-            except MatchIdNotFound:
+                match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
+            except tosurnament.SpreadsheetHttpError as e:
+                await self.on_cog_command_error(ctx, ctx.command.name, e)
                 continue
             except DuplicateMatchId:
                 await self.send_reply(ctx, ctx.command.name, "duplicate_match_id", match_id)
+                continue
+            except (InvalidWorksheet, MatchIdNotFound):
                 continue
 
             previous_date = dateparser.parse(
@@ -188,19 +186,15 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if previous_date == new_date:
                 raise tosurnament.SameDate()
 
-            players_spreadsheet = self.get_players_spreadsheet(bracket)
+            players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet and players_spreadsheet.range_team_name:
                 try:
-                    _, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
-                except HttpError as e:
-                    raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
+                    team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
+                    team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
+                except tosurnament.SpreadsheetHttpError as e:
+                    await self.on_cog_command_error(ctx, ctx.command.name, e)
                     continue
-                except InvalidWorksheet:
-                    continue
-                try:
-                    team1_info = TeamInfo.from_team_name(players_spreadsheet, worksheet, match_info.team1.value)
-                    team2_info = TeamInfo.from_team_name(players_spreadsheet, worksheet, match_info.team2.value)
-                except (TeamNotFound, DuplicateTeam):
+                except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
                     continue
                 if user_name in [cell.value for cell in team1_info.players]:
                     team_name = team1_info.team_name.value
@@ -211,6 +205,20 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     opponent_team_name = team1_info.team_name.value
                     opponent_team_captain_name = team1_info.players[0].value
             else:
+                # ! Temporary
+                try:
+                    team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
+                    team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
+                except tosurnament.SpreadsheetHttpError as e:
+                    await self.on_cog_command_error(ctx, ctx.command.name, e)
+                    continue
+                except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
+                    continue
+                if team1_info.discord[0] == str(ctx.author):
+                    user_name = team1_info.players[0].value
+                else:
+                    user_name = team2_info.players[0].value
+                # ! Temporary
                 team_name = user_name
                 if match_info.team1.value == user_name:
                     opponent_team_name = match_info.team2.value
@@ -265,8 +273,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         """Error handler of reschedule function."""
         if isinstance(error, tosurnament.InvalidMatch):
             await self.send_reply(ctx, ctx.command.name, "invalid_match")
-        elif isinstance(error, tosurnament.InvalidMatchId):
-            await self.send_reply(ctx, ctx.command.name, "invalid_match_id")
         elif isinstance(error, tosurnament.PastDeadline):
             await self.send_reply(ctx, ctx.command.name, "past_deadline")
         elif isinstance(error, tosurnament.ImpossibleReschedule):
@@ -293,11 +299,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         bracket = None
         try:
             tournament = self.get_tournament(guild.id)
-            bracket = self.bot.session.query(Bracket).where(Bracket.id == reschedule_message.bracket_id).first()
-            if not bracket:
+            tournament.current_bracket_id = reschedule_message.bracket_id
+            if not tournament.current_bracket:
                 raise tosurnament.UnknownError("Bracket not found")
             if emoji.name == "👍":
-                await self.agree_to_reschedule(reschedule_message, guild, channel, user, tournament, bracket)
+                await self.agree_to_reschedule(reschedule_message, guild, channel, user, tournament)
             elif emoji.name == "👎":
                 self.bot.session.delete(reschedule_message)
                 ally_to_mention = None
@@ -319,16 +325,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             self.bot.session.update(reschedule_message)
             await self.reaction_on_reschedule_message_handler(channel, e, bracket)
 
-    async def agree_to_reschedule(self, reschedule_message, guild, channel, user, tournament, bracket):
+    async def agree_to_reschedule(self, reschedule_message, guild, channel, user, tournament):
         """Updates the schedules spreadsheet with reschedule time."""
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
-            raise tosurnament.NoSpreadsheet(bracket.name, "schedules")
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-        match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, reschedule_message.match_id)
+            raise tosurnament.NoSpreadsheet(tournament.current_bracket.name, "schedules")
+        match_info = MatchInfo.from_id(schedules_spreadsheet, reschedule_message.match_id)
 
         previous_date = datetime.datetime.strptime(reschedule_message.previous_date, "%d/%m/%y %H:%M")
         new_date = datetime.datetime.strptime(reschedule_message.new_date, "%d/%m/%y %H:%M")
@@ -357,9 +359,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         staff_to_ping = list(filter(None, [guild.get_member_named(name) for name in staff_name_to_ping]))
 
         try:
-            spreadsheet.update()
+            schedules_spreadsheet.spreadsheet.update()
         except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
+            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, tournament.current_bracket.name, "schedules")
 
         self.bot.session.delete(reschedule_message)
 
@@ -399,7 +401,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
                 staff_reschedule_message = StaffRescheduleMessage(
                     tournament_id=reschedule_message.tournament_id,
-                    bracket_id=bracket.id,
+                    bracket_id=tournament.current_bracket.id,
                     message_id=sent_message.id,
                     match_id=reschedule_message.match_id,
                     new_date=reschedule_message.new_date,
@@ -434,7 +436,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return
         if emoji.name != "❌":
             return
-        tosurnament_user = self.get_verified_user(user.id)
+        try:
+            tosurnament_user = self.get_verified_user(user.id)
+            osu_name = tosurnament_user.osu_name
+        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):  # ! Temporary for nik's tournament
+            osu_name = user.display_name
         staff_reschedule_message.in_use = True
         self.bot.session.update(staff_reschedule_message)
         try:
@@ -442,29 +448,25 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             bracket = self.bot.session.query(Bracket).where(Bracket.id == staff_reschedule_message.bracket_id).first()
             if not bracket:
                 raise tosurnament.UnknownError("Bracket not found")
-            schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+            schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 raise tosurnament.NoSpreadsheet()
-            try:
-                spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
-            match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, staff_reschedule_message.match_id)
+            match_info = MatchInfo.from_id(schedules_spreadsheet, staff_reschedule_message.match_id)
             staff_cells = match_info.referees + match_info.streamers + match_info.commentators
             for staff_cell in staff_cells:
-                if staff_cell.has_value(tosurnament_user.osu_name):
+                if staff_cell.has_value(osu_name):
                     if schedules_spreadsheet.use_range:
                         staff_cell.value = ""
                     else:
-                        staffs = staff_cell.split("/")
-                        if len(staffs) == 2 and staffs[0].strip() == tosurnament_user.osu_name:
+                        staffs = staff_cell.value.split("/")
+                        if len(staffs) == 2 and staffs[0].strip() == osu_name:
                             staff_cell.value = staffs[1].strip()
-                        elif len(staffs) == 2 and staffs[1].strip == tosurnament_user.osu_name:
+                        elif len(staffs) == 2 and staffs[1].strip == osu_name:
                             staff_cell.value = staffs[0].strip()
-                        elif len(staffs) == 1 and staffs[0].strip() == tosurnament_user.osu_name:
+                        elif len(staffs) == 1 and staffs[0].strip() == osu_name:
                             staff_cell.value = ""
             try:
-                spreadsheet.update()
+                schedules_spreadsheet.spreadsheet.update()
             except HttpError as e:
                 raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
             to_channel = channel
@@ -491,17 +493,17 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         player_role = tosurnament.get_role(guild.roles, tournament.player_role_id, "Player")
         if not player_role:
             return
-        brackets = self.get_all_brackets(tournament)
-        for bracket in brackets:
-            players_spreadsheet = self.get_players_spreadsheet(bracket)
+        for bracket in tournament.brackets:
+            players_spreadsheet = bracket.players_spreadsheet
             if not players_spreadsheet:
                 continue
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(players_spreadsheet)
             if players_spreadsheet.range_team_name:
-                team_name_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
+                team_name_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team_name
+                )
                 team_info = None
                 for team_name_cell in team_name_cells:
-                    team_info = TeamInfo.from_team_name(players_spreadsheet, worksheet, team_name_cell.value)
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
                 if not team_info:
                     continue
                 for player_cell in team_info.players:
@@ -509,10 +511,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     if user:
                         await user.add_roles(player_role)
             else:
-                team_cells = worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
+                team_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
                 for cell in team_cells:
                     try:
-                        team_info = TeamInfo.from_player_name(players_spreadsheet, spreadsheet, worksheet, cell.value)
+                        team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
                         if team_info.discord[0]:
                             user = guild.get_member_named(team_info.discord[0])
                         else:

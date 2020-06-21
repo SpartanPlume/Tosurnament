@@ -4,8 +4,6 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.players_spreadsheet import PlayersSpreadsheet
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.end_tournament_message import EndTournamentMessage
@@ -78,14 +76,9 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             self.bot.session.delete(end_tournament_message)
             return
         if emoji.name == "✅":
-            brackets = self.get_all_brackets(tournament)
-            for bracket in brackets:
-                self.bot.session.query(SchedulesSpreadsheet).where(
-                    SchedulesSpreadsheet.id == bracket.schedules_spreadsheet_id
-                ).delete()
-                self.bot.session.query(PlayersSpreadsheet).where(
-                    PlayersSpreadsheet.id == bracket.players_spreadsheet_id
-                ).delete()
+            for bracket in tournament.brackets:
+                self.bot.session.delete(bracket.players_spreadsheet)
+                self.bot.session.delete(bracket.schedules_spreadsheet)
                 self.bot.session.delete(bracket)
             self.bot.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
             self.bot.session.query(StaffRescheduleMessage).where(

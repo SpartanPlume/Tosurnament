@@ -121,26 +121,20 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     def take_matches(self, bracket, match_ids, staff_name, user_roles, take, invalid_match_ids):
         """Takes or drops matches of a bracket, if possible."""
-        schedules_spreadsheet = self.get_schedules_spreadsheet(bracket)
+        schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
-        try:
-            spreadsheet, worksheet = self.get_spreadsheet_worksheet(schedules_spreadsheet)
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
         write_cells = False
         for match_id in match_ids:
             try:
-                match_info = MatchInfo.from_id(schedules_spreadsheet, worksheet, match_id, False)
+                match_info = MatchInfo.from_id(schedules_spreadsheet, match_id, False)
             except MatchIdNotFound:
                 invalid_match_ids.append(match_id)
                 continue
             write_cells |= self.take_match_for_roles(
                 schedules_spreadsheet, match_id, match_info, staff_name, user_roles, take,
             )
-        if not write_cells:
-            return None
-        return spreadsheet
+        return write_cells
 
     def format_take_match_string(self, string, match_ids):
         """Appends the match ids separated by a comma to the string."""
@@ -174,15 +168,16 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not match_ids:
             raise commands.UserInputError()
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = self.get_all_brackets(tournament)
-        tosurnament_user = self.get_verified_user(ctx.author.id)
-        staff_name = tosurnament_user.osu_name
+        try:
+            tosurnament_user = self.get_verified_user(ctx.author.id)
+            staff_name = tosurnament_user.osu_name
+        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):  # ! Temporary for nik's tournament
+            staff_name = ctx.author.display_name
         invalid_match_ids = []
-        for bracket in brackets:
-            spreadsheet = self.take_matches(bracket, match_ids, staff_name, user_roles, take, invalid_match_ids)
-            if spreadsheet:
+        for bracket in tournament.brackets:
+            if self.take_matches(bracket, match_ids, staff_name, user_roles, take, invalid_match_ids):
                 try:
-                    spreadsheet.update()
+                    bracket.schedules_spreadsheet.spreadsheet.update()
                 except HttpError as e:
                     raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
         await ctx.send(self.build_take_match_reply(ctx, user_roles, invalid_match_ids))
