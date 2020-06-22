@@ -8,6 +8,7 @@
   "reschedule": {
     "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
     "help": "Asks for a reschedule",
+    "duplicate_match_id": "There are multiple matches with this ID. Please contact an admin.",
     "impossible_reschedule": "Sorry, the time to which you want to reschedule your match is not acceptable. You can try contacting an admin to reschedule your match.",
     "invalid_minute": "Invalid minutes. You can use either 00, 15, 30 or 45. Example: `17:15` is valid, `17:16` is not.",
     "invalid_match": "You can't reschedule a match you're not in.",
