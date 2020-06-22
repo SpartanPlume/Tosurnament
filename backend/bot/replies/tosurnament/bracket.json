@@ -17,6 +17,11 @@
     "success": "Challonge set to `%1`.",
     "usage": "Usage: `%0set_challonge $./parameter`\n\nExample: `%0set_challonge http://challonge.com/testandroid`"
   },
+  "clear_player_role": {
+    "help": "Removes the player role of users not present in the challonge",
+    "success": "%2 player roles removed from users not present in the challonge for the bracket **%1**.",
+    "usage": "Usage: `%0clear_player_role"
+  },
   "set_players_spreadsheet": {
     "help": "Sets the players spreadsheet to allow registration",
     "parameter": "<spreadsheet_id> [<sheet_name>]",

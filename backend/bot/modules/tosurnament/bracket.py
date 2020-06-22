@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import spreadsheet
-from common.databases.players_spreadsheet import PlayersSpreadsheet
+from common.api import challonge
+from common.databases.players_spreadsheet import PlayersSpreadsheet, TeamInfo
 from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
 
 
@@ -48,6 +49,38 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             challonge_tournament = challonge_tournament.split("/")[-1]
         await self.set_bracket_values(ctx, {"challonge": challonge_tournament})
 
+    @commands.command(aliases=["cpr"])
+    async def clear_player_role(self, ctx, *, number: int = None):
+        """Removes the player role of users not present in the challonge."""
+        # TODO improve to handle teams, bracket roles, team captain role and remove special code for nik's tournament
+        tournament = self.get_tournament(ctx.guild.id)
+        for bracket in tournament.brackets:
+            player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
+            if not player_role:
+                return
+            players_spreadsheet = bracket.players_spreadsheet
+            if not bracket.challonge or not players_spreadsheet:
+                continue
+            challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+            participants = [participant.name for participant in challonge_tournament.participants]
+            team_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
+            n_role_removed = 0
+            for cell in team_cells:
+                try:
+                    team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
+                    for player_cell in team_info.players:
+                        if player_cell.value not in participants:
+                            if team_info.discord[0]:
+                                user = ctx.guild.get_member_named(team_info.discord[0])
+                            else:
+                                user = ctx.guild.get_member_named(team_info.team_name.value)
+                            if user:
+                                await user.remove_roles(player_role)
+                                n_role_removed += 1
+                except Exception:
+                    continue
+            await self.send_reply(ctx, ctx.command.name, "success", bracket.name, n_role_removed)
+
     @commands.command(aliases=["sps"])
     async def set_players_spreadsheet(self, ctx, spreadsheet_id: str, *, sheet_name: str = ""):
         """Sets the players spreadsheet."""
@@ -64,7 +97,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         for key, value in values.items():
             setattr(tournament.current_bracket, key, value)
         self.bot.session.update(tournament.current_bracket)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, ctx.command.name, "success", value)
 
     async def set_bracket_spreadsheet(self, ctx, spreadsheet_type, spreadsheet_id, sheet_name):
         """Puts the input spreadsheet into the corresponding bracket."""
