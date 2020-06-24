@@ -55,8 +55,9 @@ class TeamInfo:
         player_cells = players_spreadsheet.worksheet.find_cells(players_spreadsheet.range_team, player_name)
         if not player_cells:
             raise TeamNotFound(player_name)
-        if len(player_cells) > 1:
-            raise DuplicateTeam(player_name)
+        # ? To keep ?
+        # if len(player_cells) > 1:
+        #    raise DuplicateTeam(player_name)
         player_cell = player_cells[0]
         return TeamInfo.from_player_cell(
             players_spreadsheet, players_spreadsheet.spreadsheet.get_worksheet("Form Responses 4"), player_cell
@@ -80,8 +81,9 @@ class TeamInfo:
         team_name_cells = players_spreadsheet.worksheet.find_cells(players_spreadsheet.range_team_name, team_name)
         if not team_name_cells:
             raise TeamNotFound(team_name)
-        if len(team_name_cells) > 1:
-            raise DuplicateTeam(team_name)
+        # ? To keep ?
+        # if len(team_name_cells) > 1:
+        #    raise DuplicateTeam(team_name)
         team_name_cell = team_name_cells[0]
         return TeamInfo.from_team_name_cell(players_spreadsheet, team_name_cell)
 

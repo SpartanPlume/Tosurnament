@@ -49,37 +49,67 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             challonge_tournament = challonge_tournament.split("/")[-1]
         await self.set_bracket_values(ctx, {"challonge": challonge_tournament})
 
+    def is_player_in_challonge(self, member_id, teams_info, participants):
+        for team_info in teams_info:
+            if member_id == team_info.discord[0]:
+                player_name = team_info.players[0].value
+                if player_name in participants:
+                    return player_name
+                else:
+                    return None
+        return None
+
     @commands.command(aliases=["cpr"])
     async def clear_player_role(self, ctx, *, number: int = None):
         """Removes the player role of users not present in the challonge."""
-        # TODO improve to handle teams, bracket roles, team captain role and remove special code for nik's tournament
+        # TODO improve to handle teams, bracket roles, team captain role
+        # TODO and remove special code for nik's tournament and handle challonge error
         tournament = self.get_tournament(ctx.guild.id)
+        player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
+        if not player_role:
+            return
         for bracket in tournament.brackets:
-            player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
-            if not player_role:
-                return
             players_spreadsheet = bracket.players_spreadsheet
             if not bracket.challonge or not players_spreadsheet:
                 continue
             challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
             participants = [participant.name for participant in challonge_tournament.participants]
             team_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
-            n_role_removed = 0
+            teams_info = []
             for cell in team_cells:
                 try:
                     team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
-                    for player_cell in team_info.players:
-                        if player_cell.value not in participants:
-                            if team_info.discord[0]:
-                                user = ctx.guild.get_member_named(team_info.discord[0])
-                            else:
-                                user = ctx.guild.get_member_named(team_info.team_name.value)
-                            if user:
-                                await user.remove_roles(player_role)
-                                n_role_removed += 1
+                    teams_info.append(team_info)
                 except Exception:
                     continue
-            await self.send_reply(ctx, ctx.command.name, "success", bracket.name, n_role_removed)
+
+            players_found = []
+            users_role_not_removed = []
+            n_roles_removed = 0
+            for member in ctx.guild.members:
+                member_id = str(member)
+                if player_name := self.is_player_in_challonge(member_id, teams_info, participants):
+                    players_found.append(player_name)
+                else:
+                    try:
+                        user = ctx.guild.get_member_named(member_id)
+                        if user and tosurnament.get_role(user.roles, player_role.id, "Player"):
+                            await user.remove_roles(player_role)
+                            n_roles_removed += 1
+                    except Exception:
+                        users_role_not_removed.append(member_id)
+                        continue
+            success_extra = ""
+            players_not_found = "\n".join(list(set(participants) - set(players_found)))
+            if players_not_found:
+                success_extra += self.get_string(ctx.command.name, "players_not_found", players_not_found)
+            if users_role_not_removed:
+                success_extra += self.get_string(
+                    ctx.command.name, "users_role_not_removed", "\n".join(users_role_not_removed)
+                )
+            await self.send_reply(
+                ctx, ctx.command.name, "success", bracket.name, n_roles_removed, len(players_found), success_extra,
+            )
 
     @commands.command(aliases=["sps"])
     async def set_players_spreadsheet(self, ctx, spreadsheet_id: str, *, sheet_name: str = ""):

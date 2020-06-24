@@ -19,7 +19,9 @@
   },
   "clear_player_role": {
     "help": "Removes the player role of users not present in the challonge",
-    "success": "%2 player roles removed from users not present in the challonge for the bracket **%1**.",
+    "success": "__Bracket:__ **%1**\n\n__Player's role removed:__ %2\n__Player's role kept:__ %3%4",
+    "players_not_found": "\n\n__List of players not found:__\n%1",
+    "users_role_not_removed": "\n\n__List of users that kept the role due to a system error:__\n%1",
     "usage": "Usage: `%0clear_player_role"
   },
   "set_players_spreadsheet": {

@@ -28,7 +28,7 @@ class BracketTestCase(unittest.IsolatedAsyncioTestCase):
 
         await cog.set_bracket_values(tosurnament_mock.CtxMock(bot_mock), {"name": BRACKET_NAME_2})
         bot_mock.session.update.assert_called_once_with(tosurnament_mock.Matcher(Bracket(name=BRACKET_NAME_2)))
-        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success")
+        cog.send_reply.assert_called_once_with(mock.ANY, mock.ANY, "success", BRACKET_NAME_2)
 
     async def test_set_bracket_name_no_name(self):
         """Changes current bracket's name to empty (invalid)."""

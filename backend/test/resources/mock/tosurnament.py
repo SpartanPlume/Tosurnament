@@ -53,6 +53,7 @@ class SessionMock:
     def add_stub(self, stub):
         """Adds a stub in the mock. The added stubs will be used when retrieving an object."""
         tablename = stub.__tablename__
+        stub._session = self
         if tablename in self.tables:
             self.tables[tablename].append(stub)
         else:
