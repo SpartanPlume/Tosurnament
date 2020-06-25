@@ -468,7 +468,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                     error_channel, "post_result", "participant_not_found", prbuilder.match_id,
                 )
                 return
-            participant_matches = participant1.matches
+            participant_matches = [match for match in participant1.matches if match.state == "open"]
             for match in participant_matches:
                 if participant1.has_id(match.player1_id) and participant2.has_id(match.player2_id):
                     match.update_score(prbuilder.score_team1, prbuilder.score_team2)
@@ -476,7 +476,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 elif participant2.has_id(match.player1_id) and participant1.has_id(match.player2_id):
                     match.update_score(prbuilder.score_team2, prbuilder.score_team1)
                     return
-            raise tosurnament.MatchNotFound()
+            await self.send_reply(
+                ctx, "post_result", "match_not_found", prbuilder.match_id, prbuilder.team_name1, prbuilder.team_name2
+            )
         except challonge.ChallongeException as e:
             await self.on_cog_command_error(error_channel, "post_result", e)
             return
@@ -650,8 +652,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await self.send_reply(ctx, "post_result", "invalid_match_id")
         elif isinstance(error, tosurnament.InvalidMpLink):
             await self.send_reply(ctx, "post_result", "invalid_mp_link")
-        elif isinstance(error, tosurnament.MatchNotFound):
-            await self.send_reply(ctx, "post_result", "match_not_found")
+
+    @answer.error
+    async def answer_handler(self, ctx, error):
+        """Error handler of answer function"""
+        await self.post_result_common_handler(ctx, error)
 
     @post_result.error
     async def post_result_handler(self, ctx, error):

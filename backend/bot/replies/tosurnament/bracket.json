@@ -11,6 +11,12 @@
     "success": "Bracket role set to `%1`.",
     "usage": "Usage: `%0set_bracket_role $./parameter`\n\nExample: `%0set_bracket_role 1k-10k`"
   },
+  "set_post_result_channel": {
+    "help": "Channel where the match results will be posted",
+    "parameter": "<channel>",
+    "success": "Post result channel set to `%1`.",
+    "usage": "Usage: `%set_post_result_channel $./parameter`\n\nExample: `%set_post_result_channel #match_results`"
+  },
   "set_challonge": {
     "help": "Sets the challonge",
     "parameter": "<tournament_url>",

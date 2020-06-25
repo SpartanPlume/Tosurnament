@@ -16,7 +16,10 @@
     "default_bans": "\n**%team1 Bans:** %bans_team1\n**%team2 Bans:** %bans_team2\n",
     "default_tb_bans": "\n**%team1 TB Ban:** %tb_bans_team1\n**%team2 TB Ban:** %tb_bans_team2\n",
     "success": "",
-    "usage": "Usage: `%0post_result $./parameter`\n\nExample: `%0post_result 12C`"
+    "usage": "Usage: `%0post_result $./parameter`\n\nExample: `%0post_result 12C`",
+    "invalid_match_id": "Match not found with the ID: %1",
+    "invalid_mp_link": "Invalid mp link(s)",
+    "match_not_found": "Challonge error: Match %1 (%2 vs %3) not found. Maybe the score has already been filled ?"
   },
   "post_result_with_scores": {
     "help": "Post the result of a match",

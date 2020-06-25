@@ -135,12 +135,6 @@ class InvalidMpLink(commands.CommandError):
     pass
 
 
-class MatchNotFound(commands.CommandError):
-    """Special exception in case a match in the challonge is not found."""
-
-    pass
-
-
 class PastDeadline(commands.CommandError):
     """Special exception in case the deadline is passed."""
 
