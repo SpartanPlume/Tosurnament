@@ -125,7 +125,6 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 continue
             if match_date < now:
                 continue
-            match_date = match_date.strftime("%d %B at %H:%M UTC")
             if (
                 user_roles.player
                 and team_name
@@ -161,7 +160,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             if role_store and role_store.taken_matches:
                 reply_string += "\n"
                 reply_string += self.get_string(ctx.command.name, "role_match", role_name)
-                for bracket_name, match_info, match_date in role_store.taken_matches:
+                for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
+                    match_date = match_date.strftime("%d %B at %H:%M UTC")
                     reply_string += "**" + match_date + "**"
                     if bracket_name and bracket_name != tournament.name:
                         reply_string += " | " + bracket_name
