@@ -1,5 +1,6 @@
 """User commands"""
 
+import datetime
 import dateparser
 import discord
 from discord.ext import commands
@@ -113,10 +114,18 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         )
         for match_id_cell in match_ids_cells:
             match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
+            date_format = "%d %B"
+            if schedules_spreadsheet.date_format:
+                date_format = schedules_spreadsheet.date_format
             match_date = dateparser.parse(
-                match_info.get_datetime(),
-                date_formats=list(filter(None, [schedules_spreadsheet.date_format + " %H:%M"])),
-            ).strftime("%d %B at %H:%M UTC")
+                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
+            )
+            if not match_date:
+                continue
+            now = datetime.datetime.utcnow()
+            if match_date < now:
+                continue
+            match_date = match_date.strftime("%d %B at %H:%M UTC")
             if (
                 user_roles.player
                 and team_name
@@ -138,11 +147,13 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
     async def get_matches(self, ctx):
         """Sends a private message to the author with the list of matches they are in (as a player or staff)."""
         tournament = self.get_tournament(ctx.guild.id)
-        tosurnament_user = self.get_verified_user(ctx.author.id)
+        # ! Temporary for nik's tournament
+        # tosurnament_user = self.get_verified_user(ctx.author.id)
+        osu_name = ctx.author.display_name
         user_roles = tosurnament.UserRoles.get_as_all()
         for bracket in tournament.brackets:
             try:
-                self.fill_matches_info_for_roles(ctx, bracket, user_roles, tosurnament_user.osu_name)
+                self.fill_matches_info_for_roles(ctx, bracket, user_roles, osu_name)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
