@@ -112,6 +112,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         match_ids_cells = schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
+        now = datetime.datetime.utcnow()
         for match_id_cell in match_ids_cells:
             match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
             date_format = "%d %B"
@@ -122,7 +123,6 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             )
             if not match_date:
                 continue
-            now = datetime.datetime.utcnow()
             if match_date < now:
                 continue
             match_date = match_date.strftime("%d %B at %H:%M UTC")
