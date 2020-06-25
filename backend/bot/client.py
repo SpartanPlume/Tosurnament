@@ -131,7 +131,7 @@ class Client(commands.Bot):
         self.tasks = []
         for module in self.modules:
             if hasattr(module, "background_task"):
-                self.tasks.append(self.loop.create_task(module.background_task()))
+                module.background_task()
 
     async def on_raw_reaction_add(self, payload):
         if not payload.guild_id:

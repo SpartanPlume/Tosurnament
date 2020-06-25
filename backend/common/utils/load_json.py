@@ -104,4 +104,16 @@ def replace_in_object(dictionnary, *args):
             dictionnary[key] = value
         elif isinstance(value, dict):
             dictionnary[key] = replace_in_object(value, *args)
+        elif isinstance(value, list):
+            new_value = []
+            for subvalue in value:
+                if isinstance(subvalue, str):
+                    i_args = len(args) - 1
+                    while i_args >= 0:
+                        subvalue = subvalue.replace("%" + str(i_args), str(args[i_args]))
+                        i_args -= 1
+                    new_value.append(subvalue)
+                if isinstance(subvalue, dict):
+                    new_value.append(replace_in_object(subvalue, *args))
+            dictionnary[key] = new_value
     return dictionnary

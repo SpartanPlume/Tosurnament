@@ -18,6 +18,12 @@
     "success": "Staff channel set to `%1`.",
     "usage": "Usage: `%0set_staff_channel $./parameter`\n\nExample: `%0set_staff_channel #ping_spam`"
   },
+  "set_match_notification_channel": {
+    "help": "Sets the match notification channel",
+    "parameter": "<channel>",
+    "success": "Match notification channel set to `%1`.",
+    "usage": "Usage: `%0set_staff_channel $./parameter`\n\nExample: `%0set_staff_channel #ping_spam`"
+  },
   "set_player_role": {
     "help": "Sets the `Player` role to <role>",
     "parameter": "<role>",

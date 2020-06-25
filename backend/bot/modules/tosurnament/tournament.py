@@ -67,6 +67,11 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Sets the staff channel."""
         await self.set_tournament_values(ctx, {"staff_channel_id": channel.id})
 
+    @commands.command(aliases=["smnc"])
+    async def set_match_notification_channel(self, ctx, *, channel: discord.TextChannel):
+        """Sets the match notification channel."""
+        await self.set_tournament_values(ctx, {"match_notification_channel_id": channel.id})
+
     @commands.command(aliases=["srr"])
     async def set_referee_role(self, ctx, *, role: discord.Role):
         """Sets the referee role."""

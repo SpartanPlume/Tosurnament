@@ -21,6 +21,7 @@ class Tournament(Base):
     acronym = str()
     name = str()
     staff_channel_id = int()
+    match_notification_channel_id = int()
     referee_role_id = int()
     streamer_role_id = int()
     commentator_role_id = int()
