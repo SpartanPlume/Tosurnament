@@ -66,10 +66,10 @@
     "success": "post_result message set to\n```\n%1\n```",
     "usage": "Usage: `%0set_post_result_message $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
   },
-  "set_reschedule_hours_deadline": {
+  "set_reschedule_deadline_hours": {
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<hours>",
-    "success": "Deadline to reschedule a match set to `%1`.",
+    "success": "Deadline hours set to `%1`.",
     "usage": "Usage: `%0set_reschedule_hours_deadline $./parameter`\n\nExample: `%0set_reschedule_hours_deadline 24`"
   }
 }

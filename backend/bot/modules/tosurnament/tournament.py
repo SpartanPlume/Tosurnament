@@ -113,7 +113,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     @commands.command(aliases=["srdh", "set_reschedule_deadline", "srd"])
     async def set_reschedule_deadline_hours(self, ctx, hours: int):
         """Allows to change the deadline (in hours) to reschedule a match."""
-        await self.set_tournament_values(ctx, {"reschedule_hours_deadline": hours})
+        await self.set_tournament_values(ctx, {"reschedule_deadline_hours": hours})
 
     async def set_tournament_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""
