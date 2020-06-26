@@ -260,9 +260,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             reschedule_message.match_id = match_id
             reschedule_message.ally_user_id = ctx.author.id
             reschedule_message.opponent_user_id = opponent_team_captain.id
-            previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
+            previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
             reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
-            new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
+            new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
             reschedule_message.new_date = new_date.strftime("%d/%m/%y %H:%M")
             sent_message = await self.send_reply(
                 ctx,
@@ -392,8 +392,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         else:
             raise tosurnament.OpponentNotFound(user.mention)
 
-        previous_date_string = previous_date.strftime("**%d %B at %H:%M UTC**")
-        new_date_string = new_date.strftime("**%d %B at %H:%M UTC**")
+        previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+        new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
@@ -625,9 +625,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             except Exception:
                 return
 
-    async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta):
+    async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta, match_date):
         if not list(filter(None, [cell.value for cell in match_info.referees])):
-            if delta.days == 0 and delta.seconds >= 85500 and delta.seconds < 86400:
+            if delta.days == 0 and delta.seconds >= 20700 and delta.seconds < 21600:
                 referee_role = tosurnament.get_role(guild.roles, tournament.referee_role_id, "Referee")
                 if referee_role:
                     referee = referee_role.mention
@@ -638,6 +638,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     "referee_match_notification",
                     "notification",
                     match_info.match_id.value,
+                    match_date.strftime(tosurnament.PRETTY_DATE_FORMAT),
                     match_info.team1.value,
                     match_info.team2.value,
                     referee,
@@ -680,7 +681,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                         )
                     if staff_channel:
                         await self.referee_match_notification(
-                            guild, tournament, bracket, staff_channel, match_info, delta
+                            guild, tournament, bracket, staff_channel, match_info, delta, match_date
                         )
 
     async def background_task_match_notification(self):

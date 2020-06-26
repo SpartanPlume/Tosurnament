@@ -28,6 +28,6 @@
     "notification": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ %4\n\nThis match will start in %5 minutes."
   },
   "referee_match_notification": {
-    "notification": "_ _\n**__Match %1__**\n%2 vs %3\n\n**%4, this match will start in less than 24 hours and does not have any referee.**"
+    "notification": "_ _\n**__Match %1__**\n%2\n%3 vs %4\n\n**%5, this match will start in \\~6 hours and does not have any referee.**"
   }
 }

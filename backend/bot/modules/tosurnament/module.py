@@ -15,6 +15,8 @@ from common.databases.players_spreadsheet import (
 from common.api.spreadsheet import InvalidWorksheet
 from common.databases.base_spreadsheet import SpreadsheetHttpError
 
+PRETTY_DATE_FORMAT = "**%A %d %B at %H:%M UTC**"
+
 
 class UserRoles:
     class Role:
