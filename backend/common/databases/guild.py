@@ -12,3 +12,4 @@ class Guild(Base):
     guild_id = bytes()
     verified_role_id = int()
     admin_role_id = int()
+    last_notification_date = str()

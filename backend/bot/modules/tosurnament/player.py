@@ -11,6 +11,7 @@ from common.databases.players_spreadsheet import TeamInfo, TeamNotFound, Duplica
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.guild import Guild
 from common.api.spreadsheet import HttpError, InvalidWorksheet
 
 
@@ -261,9 +262,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             reschedule_message.ally_user_id = ctx.author.id
             reschedule_message.opponent_user_id = opponent_team_captain.id
             previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
-            reschedule_message.previous_date = previous_date.strftime("%d/%m/%y %H:%M")
+            reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
             new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
-            reschedule_message.new_date = new_date.strftime("%d/%m/%y %H:%M")
+            reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
             sent_message = await self.send_reply(
                 ctx,
                 ctx.command.name,
@@ -347,8 +348,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.NoSpreadsheet(tournament.current_bracket.name, "schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, reschedule_message.match_id)
 
-        previous_date = datetime.datetime.strptime(reschedule_message.previous_date, "%d/%m/%y %H:%M")
-        new_date = datetime.datetime.strptime(reschedule_message.new_date, "%d/%m/%y %H:%M")
+        previous_date = datetime.datetime.strptime(reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT)
+        new_date = datetime.datetime.strptime(reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
@@ -618,7 +619,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 team1,
                 team2,
                 referee,
-                int(delta.seconds / 60),
+                int(delta.seconds / 60) + 1,
             )
             try:
                 await message.add_reaction("👀")
@@ -684,21 +685,55 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                             guild, tournament, bracket, staff_channel, match_info, delta, match_date
                         )
 
+    async def match_notification_wrapper(self, guild):
+        previous_notification_date = None
+        try:
+            now = datetime.datetime.utcnow()
+            tosurnament_guild = self.get_guild(guild.id)
+            if not tosurnament_guild:
+                tosurnament_guild = Guild(guild_id=guild.id)
+                self.bot.session.add(tosurnament_guild)
+            elif tosurnament_guild.last_notification_date:
+                previous_notification_date = datetime.datetime.strptime(
+                    tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT
+                )
+                delta = now - previous_notification_date
+                if (
+                    delta.days == 0
+                    and delta.seconds < 900
+                    and int(now.minute / 15) == int(previous_notification_date.minute / 15)
+                ):
+                    return
+            tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
+            self.bot.session.update(tosurnament_guild)
+            await self.match_notification(guild, now)
+        except asyncio.CancelledError:
+            if previous_notification_date:
+                tosurnament_guild.last_notification_date = previous_notification_date.strftime(
+                    tosurnament.DATABASE_DATE_FORMAT
+                )
+                self.bot.session.update(tosurnament_guild)
+            return
+
     async def background_task_match_notification(self):
         try:
             await self.bot.wait_until_ready()
             while not self.bot.is_closed():
-                now = datetime.datetime.utcnow()
-                for guild in self.bot.guilds:
-                    try:
-                        await self.match_notification(guild, now)
-                    except Exception as e:
-                        if isinstance(e, asyncio.CancelledError):
-                            return
-                        continue
-                now = datetime.datetime.utcnow()
-                delta_minutes = 15 - now.minute % 15
-                await asyncio.sleep(delta_minutes * 60)
+                tasks = []
+                try:
+                    for guild in self.bot.guilds:
+                        tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild)))
+                    now = datetime.datetime.utcnow()
+                    delta_minutes = 15 - now.minute % 15
+                    await asyncio.sleep(delta_minutes * 60)
+                except asyncio.CancelledError:
+                    for task in tasks:
+                        task.cancel()
+                        try:
+                            await task
+                        except asyncio.CancelledError:
+                            continue
+                    return
         except asyncio.CancelledError:
             return
 

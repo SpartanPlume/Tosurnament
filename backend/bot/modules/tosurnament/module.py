@@ -16,6 +16,7 @@ from common.api.spreadsheet import InvalidWorksheet
 from common.databases.base_spreadsheet import SpreadsheetHttpError
 
 PRETTY_DATE_FORMAT = "**%A %d %B at %H:%M UTC**"
+DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
 
 
 class UserRoles:

@@ -19,7 +19,10 @@ MODULES_DIR = "bot/modules"
 
 async def add_command_feedback(ctx):
     """Adds a :white_check_mark: reaction to any command."""
-    await ctx.message.add_reaction("✅")
+    try:
+        await ctx.message.add_reaction("✅")
+    except Exception:
+        return
 
 
 class Client(commands.Bot):
