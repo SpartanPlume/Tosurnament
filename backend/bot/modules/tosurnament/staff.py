@@ -23,7 +23,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def take_match(self, ctx, *args):
         """Allows staffs to take matches"""
         user_roles = tosurnament.UserRoles.get_from_context(ctx)
-        if user_roles.is_staff():
+        if not user_roles.is_staff():
             await self.send_reply(ctx, ctx.command.name, "not_staff")
         else:
             await self.take_or_drop_match(ctx, args, True, user_roles)
@@ -50,7 +50,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def drop_match(self, ctx, *args):
         """Allows staffs to drop matches"""
         user_roles = tosurnament.UserRoles.get_from_context(ctx)
-        if user_roles.is_staff():
+        if not user_roles.is_staff():
             await self.send_reply(ctx, ctx.command.name, "not_staff")
         else:
             await self.take_or_drop_match(ctx, args, False, user_roles)

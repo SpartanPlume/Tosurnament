@@ -36,8 +36,7 @@ class UserRoles:
         tournament = ctx.bot.session.query(Tournament).where(Tournament.guild_id == ctx.guild.id).first()
         if not tournament:
             raise NoTournament()
-        roles = ctx.author.roles
-        return UserRoles.get_from_roles(roles, tournament)
+        return UserRoles.get_from_roles(ctx.author.roles, tournament)
 
     @staticmethod
     def get_from_roles(roles, tournament):
@@ -183,14 +182,6 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "not_a_player")
         elif isinstance(error, InvalidMatchId):
             await self.send_reply(channel, command_name, "invalid_match_id")
-        elif isinstance(error, InvalidMatch):
-            await self.send_reply(channel, command_name, "invalid_match")
-        elif isinstance(error, PastDeadline):
-            await self.send_reply(channel, command_name, "past_deadline")
-        elif isinstance(error, ImpossibleReschedule):
-            await self.send_reply(channel, command_name, "impossible_reschedule")
-        elif isinstance(error, SameDate):
-            await self.send_reply(channel, command_name, "same_date")
         else:
             return False
         return True

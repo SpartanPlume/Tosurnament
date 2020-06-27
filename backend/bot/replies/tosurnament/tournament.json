@@ -70,7 +70,7 @@
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<hours>",
     "success": "Deadline hours set to `%1`.",
-    "usage": "Usage: `%0set_reschedule_hours_deadline $./parameter`\n\nExample: `%0set_reschedule_hours_deadline 24`"
+    "usage": "Usage: `%0set_reschedule_deadline_hours $./parameter`\n\nExample: `%0set_reschedule_deadline_hours 24`"
   },
   "add_match_to_ignore": {
     "help": "Adds matches in the list of matches to ignore in other commands",
