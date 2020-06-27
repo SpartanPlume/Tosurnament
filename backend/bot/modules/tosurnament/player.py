@@ -118,20 +118,23 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         else:
             raise tosurnament.NotAPlayer()
 
-    @commands.command(aliases=["r"])
-    async def reschedule(self, ctx, match_id: str, *, date: str):
-        """Allows players to reschedule their matches."""
-        try:
-            new_date = dateparser.parse(date)
-        except ValueError:
-            raise commands.UserInputError()
-        tournament = self.get_tournament(ctx.guild.id)
-        player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
-        if not player_role:
-            raise tosurnament.RoleDoesNotExist("Player")
-        if not tosurnament.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
-            raise tosurnament.NotRequiredRole("Player")
-        now = datetime.datetime.utcnow()
+    def validate_reschedule_feasibility(self, tournament, schedules_spreadsheet, match_info, now, new_date):
+        date_format = "%d %B"
+        if schedules_spreadsheet.date_format:
+            date_format = schedules_spreadsheet.date_format
+        previous_date = dateparser.parse(
+            match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
+        )
+        if not previous_date:
+            raise tosurnament.InvalidDateOrFormat()
+        deadline = previous_date - datetime.timedelta(hours=tournament.reschedule_deadline_hours)
+        if now > deadline:
+            raise tosurnament.PastDeadline(tournament.reschedule_deadline_hours)
+        if previous_date == new_date:
+            raise tosurnament.SameDate()
+        return previous_date
+
+    def validate_new_date(self, tournament, now, new_date):
         # if new_date.minute != 0 and new_date.minute != 15 and new_date.minute != 30 and new_date.minute != 45:
         #     raise tosurnament.InvalidMinute()
         if new_date.hour == 0 and new_date.minute == 0:
@@ -145,7 +148,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
         deadline = new_date - datetime.timedelta(hours=tournament.reschedule_deadline_hours)
         if now > deadline:
-            raise tosurnament.ImpossibleReschedule()
+            raise tosurnament.ImpossibleReschedule(tournament.reschedule_deadline_hours)
         # ? is this really a good idea ?
         # reschedule_deadline_begin, reschedule_deadline_end = tournament.create_date_from_week_times(
         #     tournament.reschedule_deadline_begin,
@@ -159,6 +162,18 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         # )
         # if new_date < reschedule_allowed_begin or now > reschedule_allowed_end:
         #     raise tosurnament.ImpossibleReschedule()
+
+    @commands.command(aliases=["r"])
+    @tosurnament.has_tournament_role("Player")
+    async def reschedule(self, ctx, match_id: str, *, date: str):
+        """Allows players to reschedule their matches."""
+        try:
+            new_date = dateparser.parse(date)
+        except ValueError:
+            raise commands.UserInputError()
+        tournament = self.get_tournament(ctx.guild.id)
+        now = datetime.datetime.utcnow()
+        self.validate_new_date(tournament, now, new_date)
         try:
             tosurnament_user = self.get_verified_user(ctx.author.id)
             user_name = tosurnament_user.osu_name
@@ -178,20 +193,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 continue
             except (InvalidWorksheet, MatchIdNotFound):
                 continue
-
-            date_format = "%d %B"
-            if schedules_spreadsheet.date_format:
-                date_format = schedules_spreadsheet.date_format
-            previous_date = dateparser.parse(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
-            )
-            if not previous_date:
-                raise tosurnament.InvalidDateOrFormat()
-            deadline = previous_date - datetime.timedelta(hours=tournament.reschedule_deadline_hours)
-            if now > deadline:
-                raise tosurnament.PastDeadline()
-            if previous_date == new_date:
-                raise tosurnament.SameDate()
 
             players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet and players_spreadsheet.range_team_name:
@@ -242,6 +243,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 else:
                     raise tosurnament.InvalidMatch()
 
+            previous_date = self.validate_reschedule_feasibility(
+                tournament, schedules_spreadsheet, match_info, now, new_date
+            )
+
             if not opponent_team_captain:  # ! Temporary
                 opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
             if not opponent_team_captain:
@@ -290,9 +295,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         elif isinstance(error, tosurnament.InvalidMatch):
             await self.send_reply(ctx, ctx.command.name, "invalid_match")
         elif isinstance(error, tosurnament.PastDeadline):
-            await self.send_reply(ctx, ctx.command.name, "past_deadline")
+            await self.send_reply(ctx, ctx.command.name, "past_deadline", error.reschedule_deadline_hours)
         elif isinstance(error, tosurnament.ImpossibleReschedule):
-            await self.send_reply(ctx, ctx.command.name, "impossible_reschedule")
+            await self.send_reply(ctx, ctx.command.name, "impossible_reschedule", error.reschedule_deadline_hours)
         elif isinstance(error, tosurnament.SameDate):
             await self.send_reply(ctx, ctx.command.name, "same_date")
 

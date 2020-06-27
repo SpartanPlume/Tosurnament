@@ -138,13 +138,15 @@ class InvalidMpLink(commands.CommandError):
 class PastDeadline(commands.CommandError):
     """Special exception in case the deadline is passed."""
 
-    pass
+    def __init__(self, reschedule_deadline_hours):
+        self.reschedule_deadline_hours = reschedule_deadline_hours
 
 
 class ImpossibleReschedule(commands.CommandError):
     """Special exception in case the rescheduled time is not acceptable."""
 
-    pass
+    def __init__(self, reschedule_deadline_hours):
+        self.reschedule_deadline_hours = reschedule_deadline_hours
 
 
 class SameDate(commands.CommandError):
