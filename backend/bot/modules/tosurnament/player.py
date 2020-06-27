@@ -717,6 +717,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
                 self.bot.session.update(tosurnament_guild)
             return
+        except Exception:
+            return
 
     async def background_task_match_notification(self):
         try:
