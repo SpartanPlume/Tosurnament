@@ -659,6 +659,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
         if not player_match_notification_channel and not staff_channel:
             return
+        matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
@@ -667,6 +668,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 bracket.schedules_spreadsheet.range_match_id
             )
             for match_id_cell in match_ids:
+                if match_id_cell.value in matches_to_ignore:
+                    continue
                 match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
                 date_format = "%d %B"
                 if schedules_spreadsheet.date_format:

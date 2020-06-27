@@ -102,7 +102,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    def fill_matches_info_for_roles(self, ctx, bracket, user_roles, user_name):
+    def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_roles, user_name):
         team_name = None
         if user_roles.player:
             team_name = self.find_player_identification(ctx, bracket, user_name)
@@ -114,6 +114,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         )
         now = datetime.datetime.utcnow()
         for match_id_cell in match_ids_cells:
+            if match_id_cell.value in matches_to_ignore:
+                continue
             match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
             date_format = "%d %B"
             if schedules_spreadsheet.date_format:
@@ -150,9 +152,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         # tosurnament_user = self.get_verified_user(ctx.author.id)
         osu_name = ctx.author.display_name
         user_roles = tosurnament.UserRoles.get_as_all()
+        matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             try:
-                self.fill_matches_info_for_roles(ctx, bracket, user_roles, osu_name)
+                self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_roles, osu_name)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"

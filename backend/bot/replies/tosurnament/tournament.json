@@ -71,5 +71,17 @@
     "parameter": "<hours>",
     "success": "Deadline hours set to `%1`.",
     "usage": "Usage: `%0set_reschedule_hours_deadline $./parameter`\n\nExample: `%0set_reschedule_hours_deadline 24`"
+  },
+  "add_match_to_ignore": {
+    "help": "Adds matches in the list of matches to ignore in other commands",
+    "parameter": "[<match_id(s)>]",
+    "usage": "Usage: `%0add_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0add_match_to_ignore C2 B3`",
+    "success": "__List of ignored matches:__ %1"
+  },
+  "remove_match_to_ignore": {
+    "help": "Removes matches in the list of matches to ignore in other commands",
+    "parameter": "$../add_match_to_ignore/parameter",
+    "usage": "Usage: `%0remove_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0remove_match_to_ignore C2 B3`",
+    "success": "$../add_match_to_ignore/success"
   }
 }

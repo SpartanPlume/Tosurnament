@@ -123,6 +123,29 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", value)
 
+    @commands.command(aliases=["amti", "add_matches_to_ignore"])
+    async def add_match_to_ignore(self, ctx, *match_ids):
+        """Adds matches in the list of matches to ignore in other commands."""
+        await self.add_or_remove_match_to_ignore(ctx, match_ids, True)
+
+    @commands.command(aliases=["rmti", "remove_matches_to_ignore"])
+    async def remove_match_to_ignore(self, ctx, *match_ids):
+        """Removes matches in the list of matches to ignore in other commands."""
+        await self.add_or_remove_match_to_ignore(ctx, match_ids, False)
+
+    async def add_or_remove_match_to_ignore(self, ctx, match_ids, add):
+        """Removes matches in the list of matches to ignore in other commands."""
+        tournament = self.get_tournament(ctx.guild.id)
+        matches_to_ignore = tournament.matches_to_ignore.split("\n")
+        for match_id in match_ids:
+            if add and match_id not in matches_to_ignore:
+                matches_to_ignore.append(match_id)
+            elif not add and match_id in matches_to_ignore:
+                matches_to_ignore.remove(match_id)
+        tournament.matches_to_ignore = "\n".join(matches_to_ignore)
+        self.bot.session.update(tournament)
+        await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
+
 
 def get_class(bot):
     """Returns the main class of the module."""

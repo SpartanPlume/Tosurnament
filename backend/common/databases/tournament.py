@@ -39,6 +39,7 @@ class Tournament(Base):
     reschedule_ping_team = bool(True)
     current_bracket_id = Id()
     created_at = int()
+    matches_to_ignore = str()
 
     @property
     def current_bracket(self):
