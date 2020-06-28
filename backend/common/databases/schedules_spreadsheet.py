@@ -71,7 +71,7 @@ class MatchInfo:
     @staticmethod
     def from_id(schedules_spreadsheet, match_id, filled_only=True):
         match_id_cells = schedules_spreadsheet.worksheet.get_range(schedules_spreadsheet.range_match_id)
-        corresponding_match_id_cells = schedules_spreadsheet.worksheet.find_cells(match_id_cells, match_id)
+        corresponding_match_id_cells = schedules_spreadsheet.worksheet.find_cells(match_id_cells, match_id, False)
         if not corresponding_match_id_cells:
             raise MatchIdNotFound(match_id)
         if len(corresponding_match_id_cells) > 1:

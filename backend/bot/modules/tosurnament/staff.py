@@ -82,7 +82,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         """Allows commentators to drop matches"""
         await self.take_or_drop_match_with_ctx(ctx, args, False, tosurnament.UserRoles.get_as_commentator())
 
-    def take_match_for_roles(self, schedules_spreadsheet, match_id, match_info, staff_name, user_roles, take):
+    def take_match_for_roles(self, schedules_spreadsheet, match_info, staff_name, user_roles, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         write_cells = False
         for role_name, role_store in user_roles.get_staff_roles_as_dict().items():
@@ -122,10 +122,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         role_cell.value = staffs[0].strip()
                         take_match = True
             if take_match:
-                role_store.taken_matches.append(match_id)
+                role_store.taken_matches.append(match_info.match_id.value)
                 write_cells = True
             if not take_match:
-                role_store.not_taken_matches.append(match_id)
+                role_store.not_taken_matches.append(match_info.match_id.value)
         return write_cells
 
     def take_matches(self, bracket, match_ids, staff_name, user_roles, take, invalid_match_ids):
@@ -140,9 +140,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             except MatchIdNotFound:
                 invalid_match_ids.append(match_id)
                 continue
-            write_cells |= self.take_match_for_roles(
-                schedules_spreadsheet, match_id, match_info, staff_name, user_roles, take,
-            )
+            write_cells |= self.take_match_for_roles(schedules_spreadsheet, match_info, staff_name, user_roles, take,)
         return write_cells
 
     def format_take_match_string(self, string, match_ids):
@@ -341,7 +339,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
         if not player_match_notification_channel and not staff_channel:
             return
-        matches_to_ignore = tournament.matches_to_ignore.split("\n")
+        matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
         for bracket in tournament.brackets:
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
@@ -350,7 +348,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 bracket.schedules_spreadsheet.range_match_id
             )
             for match_id_cell in match_ids:
-                if match_id_cell.value in matches_to_ignore:
+                if match_id_cell.value.upper() in matches_to_ignore:
                     continue
                 match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
                 date_format = "%d %B"

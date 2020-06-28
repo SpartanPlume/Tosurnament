@@ -186,17 +186,20 @@ class Worksheet:
                     cells_with_value.append(cell)
         return cells_with_value
 
-    def change_value_in_range(self, range_name, previous_value, new_value):
+    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=True):
         """Changes the value of all cells that are equal to previous_value to new_value in a range."""
-        correponding_cells = self.find_cells(range_name, previous_value)
+        correponding_cells = self.find_cells(range_name, previous_value, case_sensitive)
         value_changed = False
         for cell in correponding_cells:
             cell.value = new_value
             value_changed = True
         return value_changed
 
-    def find_cells(self, range_name, value_to_find):
+    def find_cells(self, range_name, value_to_find, case_sensitive=True):
         """Returns an array of Cell matching the value_to_find."""
+        value_to_find_with_case = value_to_find
+        if not case_sensitive:
+            value_to_find_with_case = value_to_find_with_case.upper()
         if isinstance(range_name, str):
             range_cells = self.get_range(range_name)
         elif isinstance(range_name, list):
@@ -206,7 +209,10 @@ class Worksheet:
         matching_cells = []
         for row in range_cells:
             for cell in row:
-                if cell.value == value_to_find:
+                cell_value_with_case = cell.value
+                if not case_sensitive:
+                    cell_value_with_case = cell_value_with_case.upper()
+                if cell_value_with_case == value_to_find_with_case:
                     matching_cells.append(cell)
         return matching_cells
 

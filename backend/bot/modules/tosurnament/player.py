@@ -193,6 +193,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 continue
             except (InvalidWorksheet, MatchIdNotFound):
                 continue
+            match_id = match_info.match_id.value
 
             players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet and players_spreadsheet.range_team_name:

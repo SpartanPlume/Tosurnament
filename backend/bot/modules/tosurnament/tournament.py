@@ -136,12 +136,13 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def add_or_remove_match_to_ignore(self, ctx, match_ids, add):
         """Removes matches in the list of matches to ignore in other commands."""
         tournament = self.get_tournament(ctx.guild.id)
-        matches_to_ignore = tournament.matches_to_ignore.split("\n")
+        matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
         for match_id in match_ids:
-            if add and match_id not in matches_to_ignore:
-                matches_to_ignore.append(match_id)
-            elif not add and match_id in matches_to_ignore:
-                matches_to_ignore.remove(match_id)
+            match_id_upper = match_id.upper()
+            if add and match_id_upper not in matches_to_ignore:
+                matches_to_ignore.append(match_id_upper)
+            elif not add and match_id_upper in matches_to_ignore:
+                matches_to_ignore.remove(match_id_upper)
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
