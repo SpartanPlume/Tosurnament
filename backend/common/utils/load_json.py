@@ -45,7 +45,7 @@ def replace_placeholders_string_case(string, strings_root, current_path):
         absolute_path = ""
         relative_path = current_path
         string_left = string_left.split("$", 1)[1]
-        variable = re.search("[./]*[^\\\\` ,;:\"'!?.\n]+", string_left)
+        variable = re.search(r"[./]*[^\\\\` ,;:\"'!?.\n\*]+", string_left)
         if not variable:
             continue
         variable = variable.group(0)

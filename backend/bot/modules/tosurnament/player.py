@@ -5,13 +5,13 @@ import datetime
 import dateparser
 import discord
 from discord.ext import commands
+from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import TeamInfo, TeamNotFound, DuplicateTeam
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.guild import Guild
 from common.api.spreadsheet import HttpError, InvalidWorksheet
 
 
@@ -275,7 +275,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 ctx.command.name,
                 "success",
                 opponent_to_ping.mention,
-                user_name,
+                escape_markdown(user_name),
                 match_id,
                 previous_date_string,
                 new_date_string,
@@ -562,194 +562,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         except asyncio.CancelledError:
             return
 
-    def find_matches_to_notify(self, bracket):
-        matches_info = []
-        now = datetime.datetime.utcnow()
-        schedules_spreadsheet = bracket.schedules_spreadsheet
-        match_ids = bracket.schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
-            bracket.schedules_spreadsheet.range_match_id
-        )
-        for match_id_cell in match_ids:
-            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-            date_format = "%d %B"
-            if schedules_spreadsheet.date_format:
-                date_format = schedules_spreadsheet.date_format
-            match_date = dateparser.parse(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
-            )
-            if match_date:
-                delta = match_date - now
-                if delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800:
-                    matches_info.append(match_info)
-        return matches_info
-
-    async def player_match_notification(self, guild, tournament, bracket, channel, match_info, delta):
-        if delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800:
-            team1 = match_info.team1.value
-            team2 = match_info.team2.value
-            players_spreadsheet = bracket.players_spreadsheet
-            if players_spreadsheet:
-                try:
-                    team1_info = TeamInfo.from_team_name(players_spreadsheet, team1)
-                    player = guild.get_member_named(team1_info.discord[0])
-                    if player:
-                        team1 = player.mention
-                except Exception:
-                    pass
-                try:
-                    team2_info = TeamInfo.from_team_name(players_spreadsheet, team2)
-                    player = guild.get_member_named(team2_info.discord[0])
-                    if player:
-                        team2 = player.mention
-                except Exception:
-                    pass
-            referee_name = match_info.referees[0].value
-            if referee_name:
-                referee = guild.get_member_named(referee_name)
-                if referee:
-                    referee = referee.mention
-                else:
-                    referee = referee_name
-            else:
-                referee_role = tosurnament.get_role(guild.roles, tournament.referee_role_id, "Referee")
-                if referee_role:
-                    referee = "**No Referee** (" + referee_role.mention + ")"
-                else:
-                    referee = "**No Referee** (and referee role not found)"
-            message = await self.send_reply(
-                channel,
-                "player_match_notification",
-                "notification",
-                match_info.match_id.value,
-                team1,
-                team2,
-                referee,
-                int(delta.seconds / 60) + 1,
-            )
-            try:
-                await message.add_reaction("👀")
-            except Exception:
-                return
-
-    async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta, match_date):
-        if not list(filter(None, [cell.value for cell in match_info.referees])):
-            if delta.days == 0 and delta.seconds >= 20700 and delta.seconds < 21600:
-                referee_role = tosurnament.get_role(guild.roles, tournament.referee_role_id, "Referee")
-                if referee_role:
-                    referee = referee_role.mention
-                else:
-                    referee = "Referees"
-                message = await self.send_reply(
-                    channel,
-                    "referee_match_notification",
-                    "notification",
-                    match_info.match_id.value,
-                    match_date.strftime(tosurnament.PRETTY_DATE_FORMAT),
-                    match_info.team1.value,
-                    match_info.team2.value,
-                    referee,
-                )
-                try:
-                    await message.add_reaction("😱")
-                except Exception:
-                    return
-
-    async def match_notification(self, guild, now):
-        tournament = self.get_tournament(guild.id)
-        player_match_notification_channel = None
-        if tournament.match_notification_channel_id:
-            player_match_notification_channel = self.bot.get_channel(tournament.match_notification_channel_id)
-        staff_channel = None
-        if tournament.staff_channel_id:
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-        if not player_match_notification_channel and not staff_channel:
-            return
-        matches_to_ignore = tournament.matches_to_ignore.split("\n")
-        for bracket in tournament.brackets:
-            schedules_spreadsheet = bracket.schedules_spreadsheet
-            if not schedules_spreadsheet:
-                continue
-            match_ids = bracket.schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
-                bracket.schedules_spreadsheet.range_match_id
-            )
-            for match_id_cell in match_ids:
-                if match_id_cell.value in matches_to_ignore:
-                    continue
-                match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-                date_format = "%d %B"
-                if schedules_spreadsheet.date_format:
-                    date_format = schedules_spreadsheet.date_format
-                match_date = dateparser.parse(
-                    match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
-                )
-                if match_date:
-                    delta = match_date - now
-                    if player_match_notification_channel:
-                        await self.player_match_notification(
-                            guild, tournament, bracket, player_match_notification_channel, match_info, delta
-                        )
-                    if staff_channel:
-                        await self.referee_match_notification(
-                            guild, tournament, bracket, staff_channel, match_info, delta, match_date
-                        )
-
-    async def match_notification_wrapper(self, guild):
-        previous_notification_date = None
-        try:
-            now = datetime.datetime.utcnow()
-            tosurnament_guild = self.get_guild(guild.id)
-            if not tosurnament_guild:
-                tosurnament_guild = Guild(guild_id=guild.id)
-                self.bot.session.add(tosurnament_guild)
-            elif tosurnament_guild.last_notification_date:
-                previous_notification_date = datetime.datetime.strptime(
-                    tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT
-                )
-                delta = now - previous_notification_date
-                if (
-                    delta.days == 0
-                    and delta.seconds < 900
-                    and int(now.minute / 15) == int(previous_notification_date.minute / 15)
-                ):
-                    return
-            tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
-            self.bot.session.update(tosurnament_guild)
-            await self.match_notification(guild, now)
-        except asyncio.CancelledError:
-            if previous_notification_date:
-                tosurnament_guild.last_notification_date = previous_notification_date.strftime(
-                    tosurnament.DATABASE_DATE_FORMAT
-                )
-                self.bot.session.update(tosurnament_guild)
-            return
-        except Exception:
-            return
-
-    async def background_task_match_notification(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                tasks = []
-                try:
-                    for guild in self.bot.guilds:
-                        tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild)))
-                    now = datetime.datetime.utcnow()
-                    delta_minutes = 15 - now.minute % 15
-                    await asyncio.sleep(delta_minutes * 60)
-                except asyncio.CancelledError:
-                    for task in tasks:
-                        task.cancel()
-                        try:
-                            await task
-                        except asyncio.CancelledError:
-                            continue
-                    return
-        except asyncio.CancelledError:
-            return
-
     def background_task(self):
         # self.bot.tasks.append(self.bot.loop.create_task(self.background_task_give_player_role()))
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_match_notification()))
+        pass
 
 
 def get_class(bot):

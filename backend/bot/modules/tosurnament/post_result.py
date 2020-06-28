@@ -2,6 +2,7 @@
 
 import re
 from discord.ext import commands
+from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import TeamInfo
@@ -72,13 +73,16 @@ class PostResultBuilder:
         else:
             result = result.replace("%_tb_bans_", "")
 
+        escaped_team_name1 = escape_markdown(self.team_name1)
+        escaped_team_name2 = escape_markdown(self.team_name2)
+
         result = result.replace("%tournament_acronym", self.tournament_acronym)
         result = result.replace("%tournament_name", self.tournament_name)
         result = result.replace("%bracket_name", self.bracket_name)
         result = result.replace("%match_id", self.match_id)
         result = result.replace("%mp_link", self.get_mp_links())
-        result = result.replace("%team1", self.team_name1)
-        result = result.replace("%team2", self.team_name2)
+        result = result.replace("%team1", escaped_team_name1)
+        result = result.replace("%team2", escaped_team_name2)
         result = result.replace("%score_team1", self.get_score_team1())
         result = result.replace("%score_team2", self.get_score_team2())
         result = result.replace("%bans_team1", self.bans_team1)
@@ -90,8 +94,8 @@ class PostResultBuilder:
         if self.roll_team2 > self.roll_team1:
             result = result.replace("%roll_winner", str(self.roll_team2))
             result = result.replace("%roll_loser", str(self.roll_team1))
-            result = result.replace("%team_roll_winner", self.team_name2)
-            result = result.replace("%team_roll_loser", self.team_name1)
+            result = result.replace("%team_roll_winner", escaped_team_name2)
+            result = result.replace("%team_roll_loser", escaped_team_name1)
             result = result.replace("%bans_roll_winner", self.bans_team2)
             result = result.replace("%bans_roll_loser", self.bans_team1)
             result = result.replace("%tb_bans_roll_winner", self.tb_bans_team2)
@@ -99,8 +103,8 @@ class PostResultBuilder:
         else:
             result = result.replace("%roll_winner", str(self.roll_team1))
             result = result.replace("%roll_loser", str(self.roll_team2))
-            result = result.replace("%team_roll_winner", self.team_name1)
-            result = result.replace("%team_roll_loser", self.team_name2)
+            result = result.replace("%team_roll_winner", escaped_team_name1)
+            result = result.replace("%team_roll_loser", escaped_team_name2)
             result = result.replace("%bans_roll_winner", self.bans_team1)
             result = result.replace("%bans_roll_loser", self.bans_team2)
             result = result.replace("%tb_bans_roll_winner", self.tb_bans_team1)
