@@ -23,7 +23,7 @@
   "drop_match": {
     "help": "Removes the staff member's name on the spreadsheet of all roles column (only for roles they have) for the corresponding matches.",
     "taken_match_ids": "As a __%1__, %2 **succesfully dropped** the matches: ",
-    "not_taken_match_ids": "As a __%1__, %2 **weren't on** the matches: ",
+    "not_taken_match_ids": "As a __%1__, %2 **wasn't on** the matches: ",
     "invalid_match_ids": "$../take_match/invalid_match_ids",
     "not_staff": "$../take_match/not_staff",
     "usage": "Usage: `%0drop_match $../take_match/parameter`\n\nExample: `%0drop_match 1A 2A 2B`"

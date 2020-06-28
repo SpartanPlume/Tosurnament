@@ -35,25 +35,25 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not user_roles.is_staff():
             await self.send_reply(ctx, ctx.command.name, "not_staff")
         else:
-            await self.take_or_drop_match(ctx, args, True, user_roles)
+            await self.take_or_drop_match_with_ctx(ctx, args, True, user_roles)
 
     @commands.command(aliases=["take_matches_as_referee", "tmar"])
     @tosurnament.has_tournament_role("Referee")
     async def take_match_as_referee(self, ctx, *args):
         """Allows referees to take matches"""
-        await self.take_or_drop_match(ctx, args, True, tosurnament.UserRoles.get_as_referee())
+        await self.take_or_drop_match_with_ctx(ctx, args, True, tosurnament.UserRoles.get_as_referee())
 
     @commands.command(aliases=["take_matches_as_streamer", "tmas"])
     @tosurnament.has_tournament_role("Streamer")
     async def take_match_as_streamer(self, ctx, *args):
         """Allows streamers to take matches"""
-        await self.take_or_drop_match(ctx, args, True, tosurnament.UserRoles.get_as_streamer())
+        await self.take_or_drop_match_with_ctx(ctx, args, True, tosurnament.UserRoles.get_as_streamer())
 
     @commands.command(aliases=["take_matches_as_commentator", "tmac"])
     @tosurnament.has_tournament_role("Commentator")
     async def take_match_as_commentator(self, ctx, *args):
         """Allows commentators to take matches"""
-        await self.take_or_drop_match(ctx, args, True, tosurnament.UserRoles.get_as_commentator())
+        await self.take_or_drop_match_with_ctx(ctx, args, True, tosurnament.UserRoles.get_as_commentator())
 
     @commands.command(aliases=["drop_matches", "dm"])
     async def drop_match(self, ctx, *args):
@@ -62,25 +62,25 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not user_roles.is_staff():
             await self.send_reply(ctx, ctx.command.name, "not_staff")
         else:
-            await self.take_or_drop_match(ctx, args, False, user_roles)
+            await self.take_or_drop_match_with_ctx(ctx, args, False, user_roles)
 
     @commands.command(aliases=["drop_matches_as_referee", "dmar"])
     @tosurnament.has_tournament_role("Referee")
     async def drop_match_as_referee(self, ctx, *args):
         """Allows referees to drop matches"""
-        await self.take_or_drop_match(ctx, args, False, tosurnament.UserRoles.get_as_referee())
+        await self.take_or_drop_match_with_ctx(ctx, args, False, tosurnament.UserRoles.get_as_referee())
 
     @commands.command(aliases=["drop_matches_as_streamer", "dmas"])
     @tosurnament.has_tournament_role("Streamer")
     async def drop_match_as_streamer(self, ctx, *args):
         """Allows streamers to drop matches"""
-        await self.take_or_drop_match(ctx, args, False, tosurnament.UserRoles.get_as_streamer())
+        await self.take_or_drop_match_with_ctx(ctx, args, False, tosurnament.UserRoles.get_as_streamer())
 
     @commands.command(aliases=["drop_matches_as_commentator", "dmac"])
     @tosurnament.has_tournament_role("Commentator")
     async def drop_match_as_commentator(self, ctx, *args):
         """Allows commentators to drop matches"""
-        await self.take_or_drop_match(ctx, args, False, tosurnament.UserRoles.get_as_commentator())
+        await self.take_or_drop_match_with_ctx(ctx, args, False, tosurnament.UserRoles.get_as_commentator())
 
     def take_match_for_roles(self, schedules_spreadsheet, match_id, match_info, staff_name, user_roles, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
