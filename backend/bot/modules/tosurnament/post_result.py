@@ -1,5 +1,6 @@
 """Post results commands"""
 
+import math
 import re
 from discord.ext import commands
 from discord.utils import escape_markdown
@@ -11,6 +12,8 @@ from common.databases.post_result_message import PostResultMessage
 from common.api.spreadsheet import HttpError
 from common.api import osu
 from common.api import challonge
+
+ROUNDS = ["GF", "Finals", "SF", "QF"]
 
 
 class PostResultBuilder:
@@ -391,7 +394,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
-        prbuilder = self.create_prbuilder(post_result_message, tournament, bracket, match_info)
+        prbuilder = await self.create_prbuilder(post_result_message, tournament, bracket, match_info, ctx)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
@@ -480,34 +483,46 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             except Exception:
                 return
 
+    async def find_corresponding_challonge_match(
+        self, challonge_tournament, error_channel, prbuilder, update_score=False
+    ):
+        participant1 = None
+        participant2 = None
+        for participant in challonge_tournament.participants:
+            if participant.name == prbuilder.team_name1:
+                participant1 = participant
+            elif participant.name == prbuilder.team_name2:
+                participant2 = participant
+        if not participant1 or not participant2:
+            await self.send_reply(
+                error_channel, "post_result", "participant_not_found", prbuilder.match_id,
+            )
+            return None
+        participant_matches = [match for match in participant1.matches if match.state == "open"]
+        for match in participant_matches:
+            if participant1.has_id(match.player1_id) and participant2.has_id(match.player2_id):
+                if update_score:
+                    match.update_score(prbuilder.score_team1, prbuilder.score_team2)
+                return match
+            elif participant2.has_id(match.player1_id) and participant1.has_id(match.player2_id):
+                if update_score:
+                    match.update_score(prbuilder.score_team2, prbuilder.score_team1)
+                return match
+        await self.send_reply(
+            error_channel,
+            "post_result",
+            "match_not_found",
+            prbuilder.match_id,
+            prbuilder.team_name1,
+            prbuilder.team_name2,
+        )
+
     async def step8_challonge(self, ctx, tournament, error_channel, prbuilder):
         try:
-            challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+            challonge_tournament = tournament.current_bracket.challonge_tournament
             if challonge_tournament.state == "pending":
                 challonge_tournament.start()
-            participant1 = None
-            participant2 = None
-            for participant in challonge_tournament.participants:
-                if participant.name == prbuilder.team_name1:
-                    participant1 = participant
-                elif participant.name == prbuilder.team_name2:
-                    participant2 = participant
-            if not participant1 or not participant2:
-                await self.send_reply(
-                    error_channel, "post_result", "participant_not_found", prbuilder.match_id,
-                )
-                return
-            participant_matches = [match for match in participant1.matches if match.state == "open"]
-            for match in participant_matches:
-                if participant1.has_id(match.player1_id) and participant2.has_id(match.player2_id):
-                    match.update_score(prbuilder.score_team1, prbuilder.score_team2)
-                    return
-                elif participant2.has_id(match.player1_id) and participant1.has_id(match.player2_id):
-                    match.update_score(prbuilder.score_team2, prbuilder.score_team1)
-                    return
-            await self.send_reply(
-                ctx, "post_result", "match_not_found", prbuilder.match_id, prbuilder.team_name1, prbuilder.team_name2
-            )
+            await self.find_corresponding_challonge_match(challonge_tournament, error_channel, prbuilder, True)
         except challonge.ChallongeException as e:
             await self.on_cog_command_error(error_channel, "post_result", e)
             return
@@ -519,12 +534,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         team2_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name2)
         return team1_info, team2_info
 
-    def create_prbuilder(self, post_result_message, tournament, bracket, match_info):
+    async def create_prbuilder(self, post_result_message, tournament, bracket, match_info, error_channel):
         prbuilder = PostResultBuilder()
         prbuilder.tournament_acronym = tournament.acronym
         prbuilder.tournament_name = tournament.name
         prbuilder.bracket_name = bracket.name
-        prbuilder.bracket_round = bracket.current_round
         prbuilder.match_id = post_result_message.match_id
         prbuilder.team_name1 = match_info.team1.value
         prbuilder.team_name2 = match_info.team2.value
@@ -534,6 +548,36 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         prbuilder.bans_team2 = post_result_message.bans_team2
         prbuilder.tb_bans_team1 = post_result_message.tb_bans_team1
         prbuilder.tb_bans_team2 = post_result_message.tb_bans_team2
+
+        current_round = ""
+        if bracket.current_round:
+            current_round = bracket.current_round
+        elif bracket.challonge:
+            try:
+                challonge_tournament = bracket.challonge_tournament
+                rounds, n_loser_rounds = self.get_rounds(challonge_tournament)
+                match = await self.find_corresponding_challonge_match(challonge_tournament, error_channel, prbuilder)
+                if match:
+                    match_round = match.round
+                    if match_round > n_loser_rounds + 1:
+                        match_round = n_loser_rounds + 1
+                    if match_round > 0:
+                        if n_loser_rounds + 1 < len(rounds):
+                            current_round = rounds[-match_round - (len(rounds) - n_loser_rounds - 1)]
+                        else:
+                            current_round = rounds[-match_round]
+                    else:
+                        if n_loser_rounds + 1 < len(rounds):
+                            current_round = rounds[
+                                -1 * math.floor(-match_round / 2) - 2 - (len(rounds) - n_loser_rounds - 1)
+                            ]
+                        else:
+                            current_round = rounds[-1 * math.floor(-match_round / 2) - 2]
+                        if current_round == ROUNDS[0]:
+                            current_round = "LF"
+            except challonge.ChallongeException as e:
+                await self.on_cog_command_error(error_channel, "post_result", e)
+        prbuilder.bracket_round = current_round
 
         score_team1 = post_result_message.score_team1
         score_team2 = post_result_message.score_team2
@@ -558,17 +602,17 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
-        prbuilder = self.create_prbuilder(post_result_message, tournament, bracket, match_info)
+        if tournament.staff_channel_id:
+            error_channel = self.bot.get_channel(tournament.staff_channel_id)
+        else:
+            error_channel = ctx
+        prbuilder = await self.create_prbuilder(post_result_message, tournament, bracket, match_info, error_channel)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
             result_string = self.get_string("post_result", "default")
         result_string = prbuilder.build(result_string, self, tournament)
         if bracket.challonge:
-            if tournament.staff_channel_id:
-                error_channel = self.bot.get_channel(tournament.staff_channel_id)
-            else:
-                error_channel = ctx
             await self.step8_challonge(ctx, tournament, error_channel, prbuilder)
         await self.step8_write_in_spreadsheet(bracket, match_info, prbuilder)
         post_result_channel = ctx
@@ -702,11 +746,17 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def test_post_result_message(self, ctx, nb_bans=1, nb_tb_bans=1):
         """Shows the post result message with default values."""
         tournament = self.get_tournament(ctx.guild.id)
+        bracket = tournament.current_bracket
         pr_builder = PostResultBuilder()
         pr_builder.tournament_acronym = tournament.acronym
         pr_builder.tournament_name = tournament.name
-        pr_builder.bracket_name = tournament.current_bracket.name
-        pr_builder.bracket_round = tournament.current_bracket.current_round
+        pr_builder.bracket_name = bracket.name
+        current_round = bracket.current_round
+        if not current_round and bracket.challonge:
+            challonge_tournament = challonge.get_tournament(bracket.challonge)
+            rounds, n_loser_rounds = self.get_rounds(challonge_tournament)
+            current_round = rounds[n_loser_rounds]
+        pr_builder.bracket_round = current_round
         pr_builder.score_team1 = 5
         pr_builder.score_team2 = 2
         pr_builder.roll_team1 = 100
@@ -733,6 +783,14 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         pr_builder.tb_bans_team2 = ""
         result_string += "\n\n\n__FF preview:__\n\n" + pr_builder.build(bp_result_string, self, tournament)
         await ctx.send(result_string)
+
+    def get_rounds(self, challonge_tournament):
+        participants = [participant for participant in challonge_tournament.participants if participant.active]
+        n_loser_round = math.floor(math.log2(len(participants)))
+        rounds = list(ROUNDS)
+        while n_loser_round + 1 > len(rounds):
+            rounds.append("RO" + str(pow(2, len(rounds))))
+        return rounds, n_loser_round
 
 
 def get_class(bot):

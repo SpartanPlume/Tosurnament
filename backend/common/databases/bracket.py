@@ -3,6 +3,7 @@
 from mysqldb_wrapper import Base, Id
 from common.databases.players_spreadsheet import PlayersSpreadsheet
 from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
+from common.api import challonge
 
 
 class Bracket(Base):
@@ -14,6 +15,7 @@ class Bracket(Base):
         super().__init__(session, *args, **kwargs)
         self._players_spreadsheet = None
         self._schedules_spreadsheet = None
+        self._challonge_tournament = None
 
     id = Id()
     tournament_id = Id()
@@ -45,3 +47,9 @@ class Bracket(Base):
                 .first()
             )
         return self._schedules_spreadsheet
+
+    @property
+    def challonge_tournament(self):
+        if self._challonge_tournament is None:
+            self._challonge_tournament = challonge.get_tournament(self.challonge)
+        return self._challonge_tournament
