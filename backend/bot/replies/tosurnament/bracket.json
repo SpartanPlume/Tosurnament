@@ -11,6 +11,12 @@
     "success": "Bracket role set to `%1`.",
     "usage": "Usage: `%0set_bracket_role $./parameter`\n\nExample: `%0set_bracket_role 1k-10k`"
   },
+  "set_current_bracket_round": {
+    "help": "Sets the round of the current bracket",
+    "parameter": "<current_round>",
+    "success": "Current bracket round set to `%1`.",
+    "usage": "Usage: `%0set_current_bracket_round $./parameter`\n\nExample: `%0set_current_bracket_round RO64`"
+  },
   "set_post_result_channel": {
     "help": "Channel where the match results will be posted",
     "parameter": "<channel>",

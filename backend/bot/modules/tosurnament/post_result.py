@@ -18,6 +18,7 @@ class PostResultBuilder:
         self.tournament_acronym = ""
         self.tournament_name = ""
         self.bracket_name = ""
+        self.bracket_round = ""
         self.score_team1 = 0
         self.score_team2 = 0
         self.roll_team1 = 0
@@ -26,8 +27,6 @@ class PostResultBuilder:
         self.team_name2 = ""
         self.match_id = ""
         self.mp_links = ""
-        self.winner_roll = ""
-        self.loser_roll = ""
         self.bans_team1 = ""
         self.bans_team2 = ""
         self.tb_bans_team1 = ""
@@ -51,6 +50,29 @@ class PostResultBuilder:
 
     def build(self, blueprint, bot, tournament):
         result = blueprint
+
+        team1_with_score = bot.get_string("post_result", "default_team1_with_score")
+        if tournament.post_result_message_team1_with_score:
+            team1_with_score = tournament.post_result_message_team1_with_score
+        if self.score_team1 > self.score_team2:
+            team1_with_score = "**" + team1_with_score + "**"
+        result = result.replace("%_team1_with_score_", team1_with_score)
+
+        team2_with_score = bot.get_string("post_result", "default_team2_with_score")
+        if tournament.post_result_message_team2_with_score:
+            team2_with_score = tournament.post_result_message_team2_with_score
+        if self.score_team2 > self.score_team1:
+            team2_with_score = "**" + team2_with_score + "**"
+        result = result.replace("%_team2_with_score_", team2_with_score)
+
+        if self.mp_links:
+            if tournament.post_result_message_mp_link:
+                result = result.replace("%_mp_link_", tournament.post_result_message_mp_link)
+            else:
+                result = result.replace("%_mp_link_", bot.get_string("post_result", "default_mp_link"))
+        else:
+            result = result.replace("%_mp_link_", "")
+
         if self.roll_team1 > 0 or self.roll_team2 > 0:
             if tournament.post_result_message_rolls:
                 result = result.replace("%_rolls_", tournament.post_result_message_rolls)
@@ -58,6 +80,7 @@ class PostResultBuilder:
                 result = result.replace("%_rolls_", bot.get_string("post_result", "default_rolls"))
         else:
             result = result.replace("%_rolls_", "")
+
         if self.bans_team1 or self.bans_team2:
             if tournament.post_result_message_bans:
                 result = result.replace("%_bans_", tournament.post_result_message_bans)
@@ -65,6 +88,7 @@ class PostResultBuilder:
                 result = result.replace("%_bans_", bot.get_string("post_result", "default_bans"))
         else:
             result = result.replace("%_bans_", "")
+
         if self.tb_bans_team1 or self.tb_bans_team2:
             if tournament.post_result_message_tb_bans:
                 result = result.replace("%_tb_bans_", tournament.post_result_message_tb_bans)
@@ -79,6 +103,7 @@ class PostResultBuilder:
         result = result.replace("%tournament_acronym", self.tournament_acronym)
         result = result.replace("%tournament_name", self.tournament_name)
         result = result.replace("%bracket_name", self.bracket_name)
+        result = result.replace("%bracket_round", self.bracket_round)
         result = result.replace("%match_id", self.match_id)
         result = result.replace("%mp_link", self.get_mp_links())
         result = result.replace("%team1", escaped_team_name1)
@@ -498,7 +523,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         prbuilder = PostResultBuilder()
         prbuilder.tournament_acronym = tournament.acronym
         prbuilder.tournament_name = tournament.name
-        prbuilder.bracket_name = tournament.current_bracket.name
+        prbuilder.bracket_name = bracket.name
+        prbuilder.bracket_round = bracket.current_round
         prbuilder.match_id = post_result_message.match_id
         prbuilder.team_name1 = match_info.team1.value
         prbuilder.team_name2 = match_info.team2.value
@@ -671,6 +697,42 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def post_result_with_scores_handler(self, ctx, error):
         """Error handler of post_result_with_scores function"""
         await self.post_result_common_handler(ctx, error)
+
+    @commands.command(aliases=["tprm"])
+    async def test_post_result_message(self, ctx, nb_bans=1, nb_tb_bans=1):
+        """Shows the post result message with default values."""
+        tournament = self.get_tournament(ctx.guild.id)
+        pr_builder = PostResultBuilder()
+        pr_builder.tournament_acronym = tournament.acronym
+        pr_builder.tournament_name = tournament.name
+        pr_builder.bracket_name = tournament.current_bracket.name
+        pr_builder.bracket_round = tournament.current_bracket.current_round
+        pr_builder.score_team1 = 5
+        pr_builder.score_team2 = 2
+        pr_builder.roll_team1 = 100
+        pr_builder.roll_team2 = 1
+        pr_builder.team_name1 = "Team 1"
+        pr_builder.team_name2 = "Team 2"
+        pr_builder.match_id = "W1"
+        pr_builder.mp_links = "123456"
+        pr_builder.bans_team1 = "\n".join(["NM" + str(i + 1) for i in range(nb_bans)])
+        pr_builder.bans_team2 = "\n".join(["HD" + str(i + 1) for i in range(nb_bans)])
+        pr_builder.tb_bans_team1 = "\n".join(["TB" + str(i + 1) for i in range(nb_tb_bans)])
+        pr_builder.tb_bans_team2 = "\n".join(["TB" + str(i + 1) for i in range(nb_tb_bans)])
+        if tournament.post_result_message:
+            bp_result_string = tournament.post_result_message
+        else:
+            bp_result_string = self.get_string("post_result", "default")
+        result_string = "__Normal preview:__\n\n" + pr_builder.build(bp_result_string, self, tournament)
+        pr_builder.score_team1 = -1
+        pr_builder.score_team2 = 0
+        pr_builder.mp_links = ""
+        pr_builder.bans_team1 = ""
+        pr_builder.bans_team2 = ""
+        pr_builder.tb_bans_team1 = ""
+        pr_builder.tb_bans_team2 = ""
+        result_string += "\n\n\n__FF preview:__\n\n" + pr_builder.build(bp_result_string, self, tournament)
+        await ctx.send(result_string)
 
 
 def get_class(bot):

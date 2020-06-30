@@ -23,6 +23,7 @@ class Bracket(Base):
     players_spreadsheet_id = Id(-1)
     schedules_spreadsheet_id = Id(-1)
     post_result_channel_id = int()
+    current_round = str()
     # TODO set_all_post_result_channel
 
     @property

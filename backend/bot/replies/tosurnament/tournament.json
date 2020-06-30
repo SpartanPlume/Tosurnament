@@ -66,6 +66,42 @@
     "success": "post_result message set to\n```\n%1\n```",
     "usage": "Usage: `%0set_post_result_message $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
   },
+  "set_post_result_message_team1_with_score": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_team1_with_score_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_team1_with_score $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
+  "set_post_result_message_team2_with_score": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_team2_with_score_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_team2_with_score $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
+  "set_post_result_message_mp_link": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_mp_link_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_mp_link $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
+  "set_post_result_message_rolls": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_rolls_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_rolls $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
+  "set_post_result_message_bans": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_bans_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_bans $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
+  "set_post_result_message_tb_bans": {
+    "help": "Sets the post_result message",
+    "parameter": "<message>",
+    "success": "post_result message `_tb_bans_` set to\n```\n%1\n```",
+    "usage": "Usage: `%0set_post_result_message_tb_bans $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
+  },
   "set_reschedule_deadline_hours": {
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<hours>",

@@ -113,6 +113,36 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message": message})
 
+    @commands.command(aliases=["sprmt1ws"])
+    async def set_post_result_message_team1_with_score(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_team1_with_score": message})
+
+    @commands.command(aliases=["sprmt2ws"])
+    async def set_post_result_message_team2_with_score(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_team2_with_score": message})
+
+    @commands.command(aliases=["sprmml"])
+    async def set_post_result_message_mp_link(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_mp_link": message})
+
+    @commands.command(aliases=["sprmr"])
+    async def set_post_result_message_rolls(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_rolls": message})
+
+    @commands.command(aliases=["sprmb"])
+    async def set_post_result_message_bans(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_bans": message})
+
+    @commands.command(aliases=["sprmtb"])
+    async def set_post_result_message_tb_bans(self, ctx, *, message: str = ""):
+        """Sets the post result message."""
+        await self.set_tournament_values(ctx, {"post_result_message_tb_bans": message})
+
     @commands.command(aliases=["srdh", "set_reschedule_deadline", "srd"])
     async def set_reschedule_deadline_hours(self, ctx, hours: int):
         """Allows to change the deadline (in hours) to reschedule a match."""

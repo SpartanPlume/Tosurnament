@@ -11,10 +11,13 @@
     "step7": "Match ID: **%1**\nStep 7/8: **Bans of Team 2 ?**\n\nUse `%0answer <map>`. For example, `%0answer NM1`",
     "step8": "Match ID: **%1**\nStep 8/8: **Verify information**\n\n__Best Of:__ %2\n__Roll Team 1:__ %3\n__Roll Team 2:__ %4\n__Warmups:__ %5\n__Mp links:__ %6\n__Bans Team 1:__ %7\n__Bans Team 2:__ %8\n__Bans TB Team 1:__ %9\n__Bans TB Team 2:__ %10\n\nIf the informations are correct, write `%0answer post`. Else, just click on the step that you need to modify.",
     "preview": "__Preview:__\n\n%1",
-    "default": "**Match ID:** %match_id\n**%team1** | %score_team1 - %score_team2 | **%team2**\n**MP Link:** %mp_link\n%_bans_%_tb_bans_",
+    "default": "**Match ID: %match_id**\n%_team1_with_score_ - %_team2_with_score_%_mp_link_%_bans_%_tb_bans_",
+    "default_team1_with_score": "%team1 | %score_team1",
+    "default_team2_with_score": "%score_team2 | %team2",
+    "default_mp_link": "\n%mp_link",
     "default_rolls": "\n%team1 roll: %roll_team1\n%team2 roll: %roll_team2\n",
-    "default_bans": "\n**%team1 Bans:** %bans_team1\n**%team2 Bans:** %bans_team2\n",
-    "default_tb_bans": "\n**%team1 TB Ban:** %tb_bans_team1\n**%team2 TB Ban:** %tb_bans_team2\n",
+    "default_bans": "\n\n__**Bans:**__\n**%team1:** %bans_team1\n**%team2:** %bans_team2",
+    "default_tb_bans": "\n\n__**TB Bans:**__\n**%team1:** %tb_bans_team1\n**%team2:** %tb_bans_team2",
     "success": "",
     "usage": "Usage: `%0post_result $./parameter`\n\nExample: `%0post_result 12C`",
     "invalid_match_id": "Match not found with the ID: %1",
@@ -35,5 +38,10 @@
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <roll_team1> <roll_team2> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
     "usage": "Usage: `%0post_result_one_liner_with_rolls $./parameter`\n\nExample: `%0post_result_one_liner_with_rolls 12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+  },
+  "test_post_result_message": {
+    "help": "Shows the post result message with default values",
+    "parameter": "[<nb_bans>] [<nb_tb_bans>]",
+    "usage": "Usage: `%0test_post_result_message $./parameter`\n\nExample: `%0test_post_result_message`"
   }
 }
