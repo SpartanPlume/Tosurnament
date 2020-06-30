@@ -18,11 +18,12 @@
     "default_rolls": "\n%team1 roll: %roll_team1\n%team2 roll: %roll_team2\n",
     "default_bans": "\n\n__**Bans:**__\n**%team1:** %bans_team1\n**%team2:** %bans_team2",
     "default_tb_bans": "\n\n__**TB Bans:**__\n**%team1:** %tb_bans_team1\n**%team2:** %tb_bans_team2",
+    "cancel": "You cancelled the result posting.",
     "success": "",
     "usage": "Usage: `%0post_result $./parameter`\n\nExample: `%0post_result 12C`",
     "invalid_match_id": "Match not found with the ID: %1",
     "invalid_mp_link": "Invalid mp link(s)",
-    "match_not_found": "Challonge error: Match %1 (%2 vs %3) not found. Maybe the score has already been filled ?"
+    "match_not_found": "**Challonge error:** Match %1 (%2 vs %3) not found. Maybe the score has already been filled ?"
   },
   "post_result_with_scores": {
     "help": "Post the result of a match",

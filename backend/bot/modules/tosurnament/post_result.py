@@ -628,11 +628,16 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 raise tosurnament.NoBracket()
             await self.step8_per_bracket(ctx, post_result_message, tournament)
             self.bot.session.delete(post_result_message)
-            message = await ctx.channel.fetch_message(post_result_message.setup_message_id)
-            await message.delete()
-            message = await ctx.channel.fetch_message(post_result_message.preview_message_id)
-            await message.delete()
+            await self.delete_setup_message(ctx.channel, post_result_message)
             await ctx.message.delete()
+
+    async def delete_setup_message(self, channel, post_result_message):
+        if post_result_message.setup_message_id:
+            message = await channel.fetch_message(post_result_message.setup_message_id)
+            await message.delete()
+        if post_result_message.preview_message_id:
+            message = await channel.fetch_message(post_result_message.preview_message_id)
+            await message.delete()
 
     @commands.command(aliases=["a"])
     async def answer(self, ctx, *, parameter: str):
@@ -676,6 +681,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         )
         if not post_result_message or post_result_message.setup_message_id <= 0:
             return
+        if emoji.name == "❌":
+            self.bot.session.delete(post_result_message)
+            await self.delete_setup_message(channel, post_result_message)
+            await self.send_reply(channel, "post_result", "cancel")
+            return
         emoji_steps = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣"]
         if emoji.name not in emoji_steps:
             return
@@ -691,6 +701,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await message.add_reaction("6⃣")
             await message.add_reaction("7⃣")
             await message.add_reaction("8⃣")
+            await message.add_reaction("❌")
         except Exception:
             return
 
