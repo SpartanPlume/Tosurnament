@@ -101,6 +101,35 @@ class Tournament(Base):
 class Match(Base):
     """Contains fields of a Match"""
 
+    def __init__(self, data={}):
+        super().__init__(data=data)
+        self._winner_participant = None
+        self._loser_participant = None
+
+    def get_winner_participant(self):
+        return self._winner_participant
+
+    def get_loser_participant(self):
+        return self._loser_participant
+
+    def has_participant(self, participant):
+        return participant.has_id(self.player1_id) or participant.has_id(self.player2_id)
+
+    def update_score_with_participants(self, participantA, participantB):
+        if participantA.has_id(self.player1_id) and participantB.has_id(self.player2_id):
+            winner_id = self.update_score(participantA.get_match_score(), participantB.get_match_score())
+        elif participantB.has_id(self.player1_id) and participantA.has_id(self.player2_id):
+            winner_id = self.update_score(participantB.get_match_score(), participantA.get_match_score())
+        else:
+            return False
+        if participantA.has_id(winner_id):
+            self._winner_participant = participantA
+            self._loser_participant = participantB
+        else:
+            self._winner_participant = participantB
+            self._loser_participant = participantA
+        return True
+
     def update_score(self, score_player1, score_player2):
         score = str(score_player1) + "-" + str(score_player2)
         if score_player1 > score_player2:
@@ -121,6 +150,7 @@ class Match(Base):
             raise NoRights()
         new_object = Match(m["match"])
         self.__dict__.update(new_object.__dict__)
+        return winner_id
 
 
 class Participant(Base):
@@ -129,6 +159,7 @@ class Participant(Base):
     def __init__(self, data={}):
         super().__init__(data=data)
         self._matches = None
+        self._match_score = None
 
     def has_id(self, participant_id):
         if self.id == participant_id:
@@ -136,6 +167,12 @@ class Participant(Base):
         if participant_id in self.group_player_ids:
             return True
         return False
+
+    def set_match_score(self, score):
+        self._match_score = score
+
+    def get_match_score(self):
+        return self._match_score
 
     def update_name(self, new_name):
         try:
@@ -155,7 +192,7 @@ class Participant(Base):
     @property
     def matches(self):
         if self._matches is None:
-            self._matches = get_participant_with_matches(self.tournament_id, self.id)
+            self._matches = get_matches_of_participant(self.tournament_id, self.id)
         return self._matches
 
 
@@ -190,7 +227,7 @@ def get_participants(tournament_id):
     return participants
 
 
-def get_participant_with_matches(tournament_id, participant_id):
+def get_matches_of_participant(tournament_id, participant_id):
     try:
         r = requests.get(
             CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants/" + str(participant_id) + ".json",

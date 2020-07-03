@@ -14,6 +14,7 @@ from common.databases.players_spreadsheet import (
 )
 from common.api.spreadsheet import InvalidWorksheet
 from common.databases.base_spreadsheet import SpreadsheetHttpError
+from common.api import challonge
 
 PRETTY_DATE_FORMAT = "**%A %d %B at %H:%M UTC**"
 DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
@@ -182,13 +183,13 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "not_a_player")
         elif isinstance(error, InvalidMatchId):
             await self.send_reply(channel, command_name, "invalid_match_id")
+        elif isinstance(error, challonge.NoRights):
+            await self.send_reply(channel, command_name, "challonge_no_rights")
+        elif isinstance(error, challonge.NotFound):
+            await self.send_reply(channel, command_name, "challonge_not_found")
         else:
             return False
         return True
-        # elif isinstance(error, api.challonge.NoRights):
-        #    await self.send_reply(channel, command_name, "challonge_no_rights")
-        # elif isinstance(error, api.challonge.NotFound):
-        #    await self.send_reply(channel, command_name, "challonge_not_found")
 
 
 def has_tournament_role(role_name):

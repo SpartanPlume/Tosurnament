@@ -18,5 +18,7 @@
   "contact_admin": "The command failed, please contact an admin.",
   "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin.",
   "already_player": "You are already a player.",
-  "not_a_player": "Either you are not a player, you didn't use the `%0name_change` command or the players spreadsheet is not set. If it is not one the first two, please contact an admin."
+  "not_a_player": "Either you are not a player, you didn't use the `%0name_change` command or the players spreadsheet is not set. If it is not one the first two, please contact an admin.",
+  "challonge_no_rights": "You don't have write access to the challonge.",
+  "challonge_not_found": "Challonge not found."
 }
