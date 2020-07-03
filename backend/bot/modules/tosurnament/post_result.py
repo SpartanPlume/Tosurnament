@@ -784,7 +784,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             bp_result_string = tournament.post_result_message
         else:
             bp_result_string = self.get_string("post_result", "default")
-        result_string = "__Normal preview:__\n\n" + pr_builder.build(bp_result_string, self, tournament)
+        result_string = "__Normal preview:__\n" + pr_builder.build(bp_result_string, self, tournament)
         pr_builder.score_team1 = -1
         pr_builder.score_team2 = 0
         pr_builder.mp_links = ""
@@ -792,7 +792,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         pr_builder.bans_team2 = ""
         pr_builder.tb_bans_team1 = ""
         pr_builder.tb_bans_team2 = ""
-        result_string += "\n\n\n__FF preview:__\n\n" + pr_builder.build(bp_result_string, self, tournament)
+        result_string += "\n\n\n__FF preview:__\n" + pr_builder.build(bp_result_string, self, tournament)
         await ctx.send(result_string)
 
     def get_rounds(self, challonge_tournament):
