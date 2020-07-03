@@ -386,7 +386,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     and delta.seconds < 900
                     and int(now.minute / 15) == int(previous_notification_date.minute / 15)
                 ):
-                    pass
+                    return
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
             self.bot.session.update(tosurnament_guild)
             await self.match_notification(guild, now)
@@ -431,6 +431,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     async def reaction_on_match_notification(self, message_id, emoji, guild, channel, user):
         """Allows a referee to take a match from its notification."""
+        if emoji.name != "💪":
+            return
         match_notification = (
             self.bot.session.query(MatchNotification).where(MatchNotification.message_id_hash == message_id).first()
         )
