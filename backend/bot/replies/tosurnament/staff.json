@@ -42,11 +42,11 @@
   },
   "player_match_notification": {
     "notification": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ %4\n\nThis match will start in %5 minutes.",
-    "edited": "$./notification"
+    "edited": "$./notification\n\n*P.S: No need for a %6 anymore.*"
   },
   "referee_match_notification": {
     "common": "_ _\n**__Match %1__**\n%5\n%2 vs %3",
     "notification": "$./common\n\n**%4, this match will start in \\~6 hours and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
-    "edited": "$./common\n\nThis match has been taken by %4."
+    "edited": "$./common\n\nThis match has been taken by %4.\n\n*P.S: No need for a %6 anymore.*"
   }
 }

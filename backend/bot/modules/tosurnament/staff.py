@@ -442,7 +442,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not tournament:
             self.bot.session.delete(match_notification)
             return
-        if not tosurnament.get_role(user.roles, tournament.referee_role_id, "Referee"):
+        referee_role = tosurnament.get_role(user.roles, tournament.referee_role_id, "Referee")
+        if not referee_role:
             return
         match_notification.in_use = True
         self.bot.session.update(match_notification)
@@ -472,6 +473,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 match_notification.team2_mention,
                 user.mention,
                 match_notification.date_info,
+                referee_role.mention,
             )
         )
         self.bot.session.delete(match_notification)
