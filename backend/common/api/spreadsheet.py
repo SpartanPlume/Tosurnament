@@ -6,6 +6,7 @@ import googleapiclient
 from googleapiclient import discovery
 from google.oauth2 import service_account
 
+LETTER_BASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 FIELDS = (
     "sheets.merges,"
@@ -34,6 +35,12 @@ class Cell:
         self.value = value
         self.x_merge_range = [x]
         self.y_merge_range = [y]
+        self._updated = False
+
+    def __setattr__(self, name, value):
+        if name == "value":
+            self._updated = True
+        return super().__setattr__(name, value)
 
     def __repr__(self):
         return "(%i, %i, %s)" % (self.x, self.y, self.value)
@@ -228,7 +235,7 @@ class Worksheet:
         range_name = ""
         if self.name:
             range_name += self.name + "!"
-        range_name += "A1:" + to_base(max_x, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") + str(max_y)
+        range_name += "A1:" + to_base(max_x, LETTER_BASE) + str(max_y)
         return range_name
 
     def get_values(self):
@@ -239,6 +246,33 @@ class Worksheet:
             for cell in row:
                 values[y].append(cell.value)
         return values
+
+    def get_updated_values_with_ranges(self):
+        """Returns an array of array of updated values (Not Cells) and an array of corresponding ranges."""
+        ranges, values = [], []
+        tmp_cells = []
+        for row in self.cells:
+            for cell in row:
+                if cell._updated:
+                    tmp_cells.append(cell)
+                elif tmp_cells:
+                    tmp_values = []
+                    for tmp_cell in tmp_cells:
+                        tmp_values.append(tmp_cell.value)
+                    values.append([tmp_values])
+                    range_name = ""
+                    if self.name:
+                        range_name += self.name + "!"
+                    range_name += (
+                        to_base(tmp_cells[0].x, LETTER_BASE)
+                        + str(tmp_cells[0].y + 1)
+                        + ":"
+                        + to_base(tmp_cells[-1].x, LETTER_BASE)
+                        + str(tmp_cells[0].y + 1)
+                    )
+                    ranges.append(range_name)
+                    tmp_cells = []
+        return ranges, values
 
 
 class Spreadsheet:
@@ -281,8 +315,9 @@ class Spreadsheet:
         """Sends an update request to the real spreadsheet."""
         ranges_name, ranges_values = [], []
         for worksheet in self.worksheets:
-            ranges_name.append(worksheet.get_range_name())
-            ranges_values.append(worksheet.get_values())
+            ranges, values = worksheet.get_updated_values_with_ranges()
+            ranges_name = [*ranges_name, *ranges]
+            ranges_values = [*ranges_values, *values]
         try:
             write_ranges(self.id, ranges_name, ranges_values)
         except googleapiclient.errors.HttpError as e:
