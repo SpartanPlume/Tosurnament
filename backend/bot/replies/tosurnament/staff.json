@@ -41,12 +41,17 @@
     "usage": "Usage: `%0drop_match_as_commentator $../take_match/parameter`\n\nExample: `%0drop_match_as_commentator 1A 2A 2B`"
   },
   "player_match_notification": {
-    "notification": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ %4\n\nThis match will start in %5 minutes.",
-    "edited": "$./notification\n\n*P.S: No need for a %6 anymore.*"
+    "common_begin": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ ",
+    "common_end": "\n\nThis match will start in %5 minutes.",
+    "notification": "$./common_begin%4$./common_end",
+    "notification_no_referee": "$./common_begin**No Referee** (%4, if you want to take this match, react with :muscle:)$./common_end",
+    "notification_no_referre_no_role": "$./common_begin**No Referee** (and referee role not found)$./common_end",
+    "edited": "$./common_begin%6$./common_end\n\n*P.S: No need for a %4 anymore.*"
   },
   "referee_match_notification": {
     "common": "_ _\n**__Match %1__**\n%5\n%2 vs %3",
-    "notification": "$./common\n\n**%4, this match will start in \\~6 hours and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
-    "edited": "$./common\n\nThis match has been taken by %4.\n\n*P.S: No need for a %6 anymore.*"
+    "description": "**%4, this match will start in \\~6 hours and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
+    "notification": "$./common\n\n$./description",
+    "edited": "$./common\n\n~~$./description~~\n\nThis match has been taken by %6."
   }
 }

@@ -243,6 +243,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     pass
             referee_name = match_info.referees[0].value
             referee_role = None
+            notification_type = "notification"
             if referee_name:
                 referee = guild.get_member_named(referee_name)
                 if referee:
@@ -252,18 +253,16 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             else:
                 referee_role = tosurnament.get_role(guild.roles, tournament.referee_role_id, "Referee")
                 if referee_role:
-                    referee = (
-                        "**No Referee** ("
-                        + referee_role.mention
-                        + ", if you want to take this match, react with :muscle:)"
-                    )
+                    referee = referee_role.mention
+                    notification_type = "notification_no_referee"
                 else:
-                    referee = "**No Referee** (and referee role not found)"
+                    referee = ""
+                    notification_type = "notification_no_referre_no_role"
             minutes_before_match = str(int(delta.seconds / 60) + 1)
             message = await self.send_reply(
                 channel,
                 "player_match_notification",
-                "notification",
+                notification_type,
                 match_info.match_id.value,
                 team1,
                 team2,
@@ -451,6 +450,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not bracket:
             self.bot.session.delete(match_notification)
             return
+        if tournament.staff_channel_id:
+            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+            if staff_channel:
+                channel = staff_channel
         try:
             await self.take_or_drop_match(
                 guild.id, user, channel, [match_notification.match_id], True, tosurnament.UserRoles.get_as_referee()
@@ -471,9 +474,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 match_notification.match_id,
                 match_notification.team1_mention,
                 match_notification.team2_mention,
-                user.mention,
-                match_notification.date_info,
                 referee_role.mention,
+                match_notification.date_info,
+                user.mention,
             )
         )
         self.bot.session.delete(match_notification)
