@@ -450,10 +450,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not bracket:
             self.bot.session.delete(match_notification)
             return
-        if tournament.staff_channel_id:
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-            if staff_channel:
-                channel = staff_channel
         try:
             await self.take_or_drop_match(
                 guild.id, user, channel, [match_notification.match_id], True, tosurnament.UserRoles.get_as_referee()
