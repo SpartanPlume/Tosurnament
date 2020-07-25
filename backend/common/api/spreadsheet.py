@@ -218,7 +218,7 @@ class Worksheet:
             for cell in row:
                 cell_value_with_case = cell.value
                 if not case_sensitive:
-                    cell_value_with_case = cell_value_with_case.upper()
+                    cell_value_with_case = str(cell_value_with_case).upper()
                 if cell_value_with_case == value_to_find_with_case:
                     matching_cells.append(cell)
         return matching_cells
