@@ -303,6 +303,64 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         # TODO
         return True
 
+    @commands.command(aliases=["cp"])
+    async def copy_bracket(self, ctx, index_from: int, index_to: int):
+        """Copies the settings of a bracket to another one."""
+        tournament = self.get_tournament(ctx.guild.id)
+        brackets = tournament.brackets
+        if index_from > 0 and index_from <= len(brackets) and index_to > 0 and index_to <= len(brackets):
+            index_from -= 1
+            index_to -= 1
+
+            bracket_from = brackets[index_from]
+            bracket_to = brackets[index_to]
+            bracket_to.post_result_channel_id = bracket_from.post_result_channel_id
+            bracket_to.current_round = bracket_from.current_round
+
+            schedules_spreadsheet_from = bracket_from.schedules_spreadsheet
+            if schedules_spreadsheet_from:
+                schedules_spreadsheet_to = bracket_to.schedules_spreadsheet
+                if not schedules_spreadsheet_to:
+                    schedules_spreadsheet_to = SchedulesSpreadsheet()
+                    self.bot.session.add(schedules_spreadsheet_to)
+                    bracket_to.schedules_spreadsheet_id = schedules_spreadsheet_to.id
+                schedules_spreadsheet_to.spreadsheet_id = schedules_spreadsheet_from.spreadsheet_id
+                schedules_spreadsheet_to.range_match_id = schedules_spreadsheet_from.range_match_id
+                schedules_spreadsheet_to.range_team1 = schedules_spreadsheet_from.range_team1
+                schedules_spreadsheet_to.range_score_team1 = schedules_spreadsheet_from.range_score_team1
+                schedules_spreadsheet_to.range_score_team2 = schedules_spreadsheet_from.range_score_team2
+                schedules_spreadsheet_to.range_team2 = schedules_spreadsheet_from.range_team2
+                schedules_spreadsheet_to.range_date = schedules_spreadsheet_from.range_date
+                schedules_spreadsheet_to.range_time = schedules_spreadsheet_from.range_time
+                schedules_spreadsheet_to.range_referee = schedules_spreadsheet_from.range_referee
+                schedules_spreadsheet_to.range_streamer = schedules_spreadsheet_from.range_streamer
+                schedules_spreadsheet_to.range_commentator = schedules_spreadsheet_from.range_commentator
+                schedules_spreadsheet_to.range_mp_links = schedules_spreadsheet_from.range_mp_links
+                schedules_spreadsheet_to.date_format = schedules_spreadsheet_from.date_format
+                schedules_spreadsheet_to.use_range = schedules_spreadsheet_from.use_range
+                schedules_spreadsheet_to.max_referee = schedules_spreadsheet_from.max_referee
+                schedules_spreadsheet_to.max_streamer = schedules_spreadsheet_from.max_streamer
+                schedules_spreadsheet_to.max_commentator = schedules_spreadsheet_from.max_commentator
+                self.bot.session.update(schedules_spreadsheet_to)
+
+            players_spreadsheet_from = bracket_from.players_spreadsheet
+            if players_spreadsheet_from:
+                players_spreadsheet_to = bracket_to.players_spreadsheet
+                if not players_spreadsheet_to:
+                    players_spreadsheet_to = PlayersSpreadsheet()
+                    self.bot.session.add(players_spreadsheet_to)
+                    bracket_to.players_spreadsheet_id = players_spreadsheet_to.id
+                players_spreadsheet_to.spreadsheet_id = players_spreadsheet_from.spreadsheet_id
+                players_spreadsheet_to.range_team_name = players_spreadsheet_from.range_team_name
+                players_spreadsheet_to.range_team = players_spreadsheet_from.range_team
+                players_spreadsheet_to.range_discord = players_spreadsheet_from.range_discord
+                self.bot.session.update(players_spreadsheet_to)
+
+            self.bot.session.update(bracket_to)
+            await self.send_reply(ctx, ctx.command.name, "success", bracket_from.name, bracket_to.name)
+            return
+        raise commands.UserInputError()
+
 
 def get_class(bot):
     """Returns the main class of the module"""
