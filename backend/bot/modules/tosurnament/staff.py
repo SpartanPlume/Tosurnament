@@ -191,7 +191,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 try:
                     bracket.schedules_spreadsheet.spreadsheet.update()
                 except HttpError as e:
-                    raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
+                    raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
         await channel.send(
             self.build_take_match_reply(escape_markdown(staff_name), user_roles, take, invalid_match_ids)
         )

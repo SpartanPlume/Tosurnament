@@ -35,7 +35,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             try:
                 players_spreadsheet.spreadsheet.update()
             except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
+                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players", e.error)
 
     async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_roles):
         schedules_spreadsheet = bracket.schedules_spreadsheet
@@ -59,7 +59,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             try:
                 schedules_spreadsheet.spreadsheet.update()
             except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
+                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
 
     @commands.command(aliases=["nc", "change_name", "cn"])
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)

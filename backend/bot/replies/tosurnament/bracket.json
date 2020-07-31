@@ -153,7 +153,7 @@
   "copy_bracket": {
     "help": "Copies the bracket settings of a bracket to another one.",
     "parameter": "<index_from> <index_to>",
-    "success": "Successfully copied the bracket `%1` to the bracket `%2`.",
+    "success": "Successfully copied the settings of bracket `%1` to the bracket `%2`.",
     "usage": "Usage: `%0copy_bracket $./parameter`\n\nExample: `%0copy_bracket 1 2`"
   }
 }

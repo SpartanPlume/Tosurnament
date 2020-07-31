@@ -447,7 +447,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         try:
             bracket.schedules_spreadsheet.spreadsheet.update()
         except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
+            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
 
     async def step8_remove_player_role(self, ctx, error_channel, tournament, challonge_tournament, loser_participant):
         if challonge_tournament.state == "group_stages_underway":

@@ -60,7 +60,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         try:
             is_player, team_info = await self.is_a_player(bracket, user_name)
         except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players")
+            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players", e.error)
         if not is_player:
             return False
         roles_to_give = [player_role]
@@ -301,7 +301,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 ctx.command.name,
                 "success",
                 opponent_to_ping.mention,
-                escape_markdown(user_name),
+                escape_markdown(team_name),
                 match_id,
                 previous_date_string,
                 new_date_string,
@@ -415,7 +415,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         try:
             schedules_spreadsheet.spreadsheet.update()
         except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, tournament.current_bracket.name, "schedules")
+            raise tosurnament.SpreadsheetHttpError(
+                e.code, e.operation, tournament.current_bracket.name, "schedules", e.error
+            )
 
         self.bot.session.delete(reschedule_message)
 
@@ -528,7 +530,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             try:
                 schedules_spreadsheet.spreadsheet.update()
             except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules")
+                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
             to_channel = channel
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
             if staff_channel:

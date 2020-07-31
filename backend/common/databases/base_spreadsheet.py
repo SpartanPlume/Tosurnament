@@ -41,6 +41,6 @@ class BaseSpreadsheet(Base):
                 .first()
             )
             if bracket:
-                raise SpreadsheetHttpError(e.code, e.operation, bracket.name, self._type)
+                raise SpreadsheetHttpError(e.code, e.operation, bracket.name, self._type, e.error)
             else:
-                raise SpreadsheetHttpError(e.code, e.operation, "Unknown bracket", self._type)
+                raise SpreadsheetHttpError(e.code, e.operation, "Unknown bracket", self._type, e.error)

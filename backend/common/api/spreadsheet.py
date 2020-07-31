@@ -291,9 +291,9 @@ class Spreadsheet:
             sheets = get_spreadsheet_with_values(spreadsheet_id)
         except googleapiclient.errors.HttpError as e:
             try:
-                raise HttpError(e.resp["status"], "read")
+                raise HttpError(e.resp["status"], "read", e)
             except KeyError:
-                raise HttpError(500, "read")
+                raise HttpError(500, "read", e)
             return spreadsheet
         for index, sheet in enumerate(sheets):
             spreadsheet.worksheets.append(Worksheet(index, sheet["name"], sheet["cells"]))
@@ -324,9 +324,9 @@ class Spreadsheet:
             write_ranges(self.id, ranges_name, ranges_values)
         except googleapiclient.errors.HttpError as e:
             try:
-                raise HttpError(e.resp["status"], "write")
+                raise HttpError(e.resp["status"], "write", e)
             except KeyError:
-                raise HttpError(500, "write")
+                raise HttpError(500, "write", e)
 
     def get_worksheet_and_range(self, range_name):
         """Returns the worksheet specified in the range, or the main worksheet."""
@@ -358,9 +358,10 @@ class Spreadsheet:
 class HttpError(Exception):
     """Special exception raised when the execute functions of the API fails."""
 
-    def __init__(self, error_code, operation):
+    def __init__(self, error_code, operation, error):
         self.code = error_code
         self.operation = operation
+        self.error = error
 
 
 class InvalidWorksheet(Exception):
