@@ -43,7 +43,7 @@ class Cell:
         return super().__setattr__(name, value)
 
     def __repr__(self):
-        return "(%i, %i, %s)" % (self.x, self.y, self.value)
+        return "(%i, %i, %s)" % (self.x, self.y, str(self.value))
 
     def set_merge_range(self, x_merge_range, y_merge_range):
         """Sets the x_range and y_range of the merge containing this cell."""
@@ -54,7 +54,7 @@ class Cell:
         """Checks if the cell contains a value. To use in case of multi values like: value1/value2"""
         if self.value == value_to_compare:
             return True
-        values = self.value.split("/")
+        values = str(self.value).split("/")
         for value in values:
             if value.strip() == value_to_compare:
                 return True
