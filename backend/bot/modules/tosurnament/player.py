@@ -216,6 +216,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             match_id = match_info.match_id.value
 
             players_spreadsheet = bracket.players_spreadsheet
+            opponent_team_captain = None
             if players_spreadsheet and players_spreadsheet.range_team_name:
                 try:
                     team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
@@ -268,7 +269,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
             )
 
-            if not opponent_team_captain:  # ! Temporary
+            if not opponent_team_captain:
                 opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
             if not opponent_team_captain:
                 raise tosurnament.OpponentNotFound(ctx.author.mention)
