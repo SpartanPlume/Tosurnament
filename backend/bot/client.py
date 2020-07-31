@@ -1,5 +1,6 @@
 """Primary fonctions of the bot"""
 
+import inspect
 import importlib
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -97,7 +98,20 @@ class Client(commands.Bot):
 
     def log(self, level, message):
         """Uses to log message"""
-        self.logger.log(level, "%s", message, extra={})
+        caller = inspect.getframeinfo(inspect.stack()[1][0])
+        self.logger.log(level, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={})
+
+    def debug(self, message):
+        """Uses to log debug message"""
+        caller = inspect.getframeinfo(inspect.stack()[1][0])
+        self.logger.log(
+            logging.DEBUG, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={}
+        )
+
+    def info(self, message):
+        """Uses to log debug message"""
+        caller = inspect.getframeinfo(inspect.stack()[1][0])
+        self.logger.log(logging.INFO, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={})
 
     async def on_command(self, ctx):
         """Logs the command used"""

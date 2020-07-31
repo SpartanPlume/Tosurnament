@@ -127,7 +127,7 @@ class TosurnamentBaseModule(BaseModule):
         if players_spreadsheet.range_team_name:
             cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
             for cell in cells:
-                team_info = TeamInfo.get_from_team_name(cell.value)
+                team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
                 if user_name in [cell.value for cell in team_info.players]:
                     return team_info.team_name.value
         else:
