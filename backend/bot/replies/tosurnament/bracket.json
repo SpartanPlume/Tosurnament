@@ -70,84 +70,84 @@
     "help": "Sets the schedules spreadsheet range match id.",
     "parameter": "<range>",
     "success": "Schedules spreadsheet range match id set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_match_id $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_match_id D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_match_id $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_match_id D2:D`"
   },
   "set_schedules_spreadsheet_range_team1": {
     "help": "Sets the schedules spreadsheet range team1.",
     "parameter": "<range>",
     "success": "Schedules spreadsheet range team1 set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_team1 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_team1 D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_team1 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_team1 D2:D`"
   },
   "set_schedules_spreadsheet_range_team2": {
     "help": "Sets the schedules spreadsheet range team2.",
     "parameter": "<range>",
     "success": "Schedules spreadsheet range team2 set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_team2 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_team2 D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_team2 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_team2 D2:D`"
   },
   "set_schedules_spreadsheet_range_score_team1": {
     "help": "Sets the schedules spreadsheet range score team1.",
     "parameter": "[<range>]",
     "success": "Schedules spreadsheet range score team1 set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_score_team1 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_score_team1 D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_score_team1 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_score_team1 D2:D`"
   },
   "set_schedules_spreadsheet_range_score_team2": {
     "help": "Sets the schedules spreadsheet range score team2.",
     "parameter": "[<range>]",
     "success": "Schedules spreadsheet range score team2 set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_score_team2 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_score_team2 D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_score_team2 $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_score_team2 D2:D`"
   },
   "set_schedules_spreadsheet_range_date": {
     "help": "Sets the schedules spreadsheet range date.",
     "parameter": "<range>",
     "success": "Schedules spreadsheet range date set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_date $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_date D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_date $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_date D2:D`"
   },
   "set_schedules_spreadsheet_range_time": {
     "help": "Sets the schedules spreadsheet range time.",
     "parameter": "[<range>]",
     "success": "Schedules spreadsheet range time set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_time $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_time D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_time $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_time D2:D`"
   },
   "set_schedules_spreadsheet_range_referee": {
     "help": "Sets the schedules spreadsheet range referee.",
     "parameter": "<range>",
     "success": "Schedules spreadsheet range referee set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_referee $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_referee D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_referee $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_referee D2:D`"
   },
   "set_schedules_spreadsheet_range_streamer": {
     "help": "Sets the schedules spreadsheet range streamer.",
     "parameter": "[<range>]",
     "success": "Schedules spreadsheet range streamer set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_streamer $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_streamer D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_streamer $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_streamer D2:D`"
   },
   "set_schedules_spreadsheet_range_commentator": {
     "help": "Sets the schedules spreadsheet range commentator.",
     "parameter": "[<range>]",
     "success": "Schedules spreadsheet range commentator set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_commentator $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_commentator D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_commentator $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_commentator D2:D`"
   },
   "set_schedules_spreadsheet_range_mp_links": {
     "help": "Sets the schedules spreadsheet range mp links.",
-    "parameter": "<range>",
+    "parameter": "[<range>]",
     "success": "Schedules spreadsheet range mp links set to `%1`.",
-    "usage": "Usage: `%set_schedules_spreadsheet_range_mp_links $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_mp_links D2:D`"
+    "usage": "Usage: `%0set_schedules_spreadsheet_range_mp_links $./parameter`\n\nExample: `%set_schedules_spreadsheet_range_mp_links D2:D`"
   },
   "set_players_spreadsheet_range_team_name": {
     "help": "Sets the players spreadsheet range team name.",
     "parameter": "[<range>]",
     "success": "Players spreadsheet range team name set to `%1`.",
-    "usage": "Usage: `%set_players_spreadsheet_range_team_name $./parameter`\n\nExample: `%set_players_spreadsheet_range_team_name D2:D`"
+    "usage": "Usage: `%0set_players_spreadsheet_range_team_name $./parameter`\n\nExample: `%set_players_spreadsheet_range_team_name D2:D`"
   },
   "set_players_spreadsheet_range_team": {
     "help": "Sets the players spreadsheet range team.",
     "parameter": "<range>",
     "success": "Players spreadsheet range team set to `%1`.",
-    "usage": "Usage: `%set_players_spreadsheet_range_team $./parameter`\n\nExample: `%set_players_spreadsheet_range_team D2:D`"
+    "usage": "Usage: `%0set_players_spreadsheet_range_team $./parameter`\n\nExample: `%set_players_spreadsheet_range_team D2:D`"
   },
   "set_players_spreadsheet_range_discord": {
     "help": "Sets the players spreadsheet range discord.",
-    "parameter": "<range>",
+    "parameter": "[<range>]",
     "success": "Players spreadsheet range discord set to `%1`.",
-    "usage": "Usage: `%set_players_spreadsheet_range_discord $./parameter`\n\nExample: `%set_players_spreadsheet_range_discord D2:D`"
+    "usage": "Usage: `%0set_players_spreadsheet_range_discord $./parameter`\n\nExample: `%set_players_spreadsheet_range_discord D2:D`"
   }
 }

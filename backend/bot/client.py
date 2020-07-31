@@ -142,7 +142,7 @@ class Client(commands.Bot):
         channel = self.get_channel(payload.channel_id)
         guild = channel.guild
         user = guild.get_member(payload.user_id)
-        if user.bot:
+        if not user or user.bot:
             return
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_add"):
@@ -154,7 +154,7 @@ class Client(commands.Bot):
         channel = self.get_channel(payload.channel_id)
         guild = channel.guild
         user = guild.get_member(payload.user_id)
-        if user.bot:
+        if not user or user.bot:
             return
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_remove"):

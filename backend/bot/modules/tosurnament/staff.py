@@ -225,20 +225,34 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if players_spreadsheet:
                 try:
                     team1_info = TeamInfo.from_team_name(players_spreadsheet, team1)
-                    player = guild.get_member_named(team1_info.discord[0])
-                    if player:
-                        team1 = player.mention
+                    if players_spreadsheet.range_team_name:
+                        team_role = tosurnament.get_role(guild.roles, None, team1)
+                        if team_role:
+                            team1 = team_role.mention
+                        else:
+                            team1 = escape_markdown(team1)
                     else:
-                        team1 = escape_markdown(team1)
+                        player = guild.get_member_named(team1_info.discord[0])
+                        if player:
+                            team1 = player.mention
+                        else:
+                            team1 = escape_markdown(team1)
                 except Exception:
                     pass
                 try:
                     team2_info = TeamInfo.from_team_name(players_spreadsheet, team2)
-                    player = guild.get_member_named(team2_info.discord[0])
-                    if player:
-                        team2 = player.mention
+                    if players_spreadsheet.range_team_name:
+                        team_role = tosurnament.get_role(guild.roles, None, team2)
+                        if team_role:
+                            team2 = team_role.mention
+                        else:
+                            team2 = escape_markdown(team2)
                     else:
-                        team2 = escape_markdown(team2)
+                        player = guild.get_member_named(team2_info.discord[0])
+                        if player:
+                            team2 = player.mention
+                        else:
+                            team2 = escape_markdown(team2)
                 except Exception:
                     pass
             referee_name = match_info.referees[0].value
