@@ -238,7 +238,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         else:
                             team1 = escape_markdown(team1)
                 except Exception as e:
-                    self.bot.info(str(type(e)) + ": " + e)
+                    self.bot.info(str(type(e)) + ": " + str(e))
                     team1 = escape_markdown(team1)
                 try:
                     team2_info = TeamInfo.from_team_name(players_spreadsheet, team2)
@@ -255,7 +255,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         else:
                             team2 = escape_markdown(team2)
                 except Exception as e:
-                    self.bot.info(str(type(e)) + ": " + e)
+                    self.bot.info(str(type(e)) + ": " + str(e))
                     team2 = escape_markdown(team2)
             referee_name = match_info.referees[0].value
             referee_role = None
@@ -303,7 +303,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 if referee_role:
                     await message.add_reaction("💪")
             except Exception as e:
-                self.bot.info(str(type(e)) + ": " + e)
+                self.bot.info(str(type(e)) + ": " + str(e))
                 return
 
     async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta, match_date):
@@ -343,7 +343,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     await message.add_reaction("😱")
                     await message.add_reaction("💪")
                 except Exception as e:
-                    self.bot.info(str(type(e)) + ": " + e)
+                    self.bot.info(str(type(e)) + ": " + str(e))
                     return
 
     async def match_notification(self, guild, now):
@@ -415,7 +415,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 self.bot.session.update(tosurnament_guild)
             return
         except Exception as e:
-            self.bot.info(str(type(e)) + ": " + e)
+            self.bot.info(str(type(e)) + ": " + str(e))
             return
 
     async def background_task_match_notification(self):

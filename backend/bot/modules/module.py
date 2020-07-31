@@ -96,7 +96,7 @@ class BaseModule(commands.Cog):
         await self.on_cog_command_error(ctx, ctx.command.name, error)
 
     async def on_cog_command_error(self, channel, command_name, error):
-        self.bot.info(str(type(error)) + ": " + error)
+        self.bot.info(str(type(error)) + ": " + str(error))
         if isinstance(error, commands.MissingRequiredArgument):
             await self.send_usage(channel)
         elif isinstance(error, commands.BadArgument):
