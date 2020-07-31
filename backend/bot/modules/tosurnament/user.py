@@ -28,7 +28,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         players_spreadsheet = bracket.players_spreadsheet
         if not bracket.players_spreadsheet:
             return
-        changed_name = players_spreadsheet.worksheet.change_value_in_range(
+        changed_name = players_spreadsheet.spreadsheet.change_value_in_range(
             players_spreadsheet.range_team, previous_name, new_name
         )
         if changed_name:
@@ -42,13 +42,17 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not schedules_spreadsheet:
             return
         changed_name = False
-        worksheet = schedules_spreadsheet.worksheet
+        spreadsheet = schedules_spreadsheet.spreadsheet
         if user_roles.player:
-            changed_name |= worksheet.change_value_in_range(schedules_spreadsheet.range_team1, previous_name, new_name)
-            changed_name |= worksheet.change_value_in_range(schedules_spreadsheet.range_team2, previous_name, new_name)
+            changed_name |= spreadsheet.change_value_in_range(
+                schedules_spreadsheet.range_team1, previous_name, new_name
+            )
+            changed_name |= spreadsheet.change_value_in_range(
+                schedules_spreadsheet.range_team2, previous_name, new_name
+            )
         for role_name, role_store in user_roles.get_staff_roles_as_dict().items():
             if role_store:
-                changed_name |= worksheet.change_value_in_range(
+                changed_name |= spreadsheet.change_value_in_range(
                     getattr(schedules_spreadsheet, "range_" + role_name.lower()), previous_name, new_name,
                 )
         if changed_name:
@@ -109,7 +113,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
-        match_ids_cells = schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
+        match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
         now = datetime.datetime.utcnow()

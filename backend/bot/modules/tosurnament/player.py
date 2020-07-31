@@ -35,7 +35,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not players_spreadsheet:
             return False, None
         if players_spreadsheet.range_team_name:
-            team_name_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(
+            team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 players_spreadsheet.range_team_name
             )
             team_info = None
@@ -47,7 +47,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 return False, None
             return True, team_info
         else:
-            team_cells = players_spreadsheet.worksheet.find_cells(players_spreadsheet.range_team, user_name)
+            team_cells = players_spreadsheet.spreadsheet.find_cells(players_spreadsheet.range_team, user_name)
             if len(team_cells) < 1:
                 return False, None
             elif len(team_cells) > 1:
@@ -557,7 +557,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if not players_spreadsheet:
                 continue
             if players_spreadsheet.range_team_name:
-                team_name_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(
+                team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team_name
                 )
                 team_info = None
@@ -570,7 +570,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     if user:
                         await user.add_roles(player_role)
             else:
-                team_cells = players_spreadsheet.worksheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team
+                )
                 for cell in team_cells:
                     try:
                         team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)

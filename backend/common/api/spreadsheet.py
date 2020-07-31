@@ -280,6 +280,7 @@ class Spreadsheet:
 
     def __init__(self, spreadsheet_id):
         self.id = spreadsheet_id
+        self.main_worksheet_index = 0
         self.worksheets = []
 
     @staticmethod
@@ -298,11 +299,12 @@ class Spreadsheet:
             spreadsheet.worksheets.append(Worksheet(index, sheet["name"], sheet["cells"]))
         return spreadsheet
 
-    def get_worksheet(self, option):
+    def get_worksheet(self, option=None):
         """Returns a Worksheet by index or name."""
         if not option and self.worksheets:
-            return self.worksheets[0]
+            return self.worksheets[self.main_worksheet_index]
         elif isinstance(option, str):
+            option = option.strip("'")
             for worksheet in self.worksheets:
                 if worksheet.name == option:
                     return worksheet
@@ -325,6 +327,32 @@ class Spreadsheet:
                 raise HttpError(e.resp["status"], "write")
             except KeyError:
                 raise HttpError(500, "write")
+
+    def get_worksheet_and_range(self, range_name):
+        """Returns the worksheet specified in the range, or the main worksheet."""
+        if "!" not in range_name:
+            return self.worksheets[self.main_worksheet_index], range_name
+        worksheet_name, range_name = range_name.rsplit("!", 1)
+        return self.get_worksheet(worksheet_name), range_name
+
+    def get_range(self, range_name):
+        """Returns an array of Cell. If a Cell does not exist in the range, it creates it."""
+        worksheet, range_name = self.get_worksheet_and_range(range_name)
+        return worksheet.get_range(range_name)
+
+    def get_cells_with_value_in_range(self, range_name):
+        worksheet, range_name = self.get_worksheet_and_range(range_name)
+        return worksheet.get_cells_with_value_in_range(range_name)
+
+    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=True):
+        """Changes the value of all cells that are equal to previous_value to new_value in a range."""
+        worksheet, range_name = self.get_worksheet_and_range(range_name)
+        return worksheet.change_value_in_range(range_name, previous_value, new_value, case_sensitive)
+
+    def find_cells(self, range_name, value_to_find, case_sensitive=True):
+        """Returns an array of Cell matching the value_to_find."""
+        worksheet, range_name = self.get_worksheet_and_range(range_name)
+        return worksheet.find_cells(range_name, value_to_find, case_sensitive)
 
 
 class HttpError(Exception):

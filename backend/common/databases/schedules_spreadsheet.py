@@ -70,8 +70,8 @@ class MatchInfo:
 
     @staticmethod
     def from_id(schedules_spreadsheet, match_id, filled_only=True):
-        match_id_cells = schedules_spreadsheet.worksheet.get_range(schedules_spreadsheet.range_match_id)
-        corresponding_match_id_cells = schedules_spreadsheet.worksheet.find_cells(match_id_cells, match_id, False)
+        match_id_cells = schedules_spreadsheet.spreadsheet.get_range(schedules_spreadsheet.range_match_id)
+        corresponding_match_id_cells = schedules_spreadsheet.spreadsheet.find_cells(match_id_cells, match_id, False)
         if not corresponding_match_id_cells:
             raise MatchIdNotFound(match_id)
         if len(corresponding_match_id_cells) > 1:
@@ -83,46 +83,46 @@ class MatchInfo:
     def from_match_id_cell(schedules_spreadsheet, match_id_cell, filled_only=True):
         match_id_best_effort_ys = match_id_cell.y_merge_range
         match_info = MatchInfo(match_id_cell)
-        worksheet = schedules_spreadsheet.worksheet
+        spreadsheet = schedules_spreadsheet.spreadsheet
         match_info.team1 = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_team1), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_team1), match_id_best_effort_ys, match_id_cell.y,
         )
         match_info.team2 = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_team2), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_team2), match_id_best_effort_ys, match_id_cell.y,
         )
         match_info.score_team1 = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_score_team1), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_score_team1), match_id_best_effort_ys, match_id_cell.y,
         )
         match_info.score_team2 = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_score_team2), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_score_team2), match_id_best_effort_ys, match_id_cell.y,
         )
         match_info.date = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_date), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_date), match_id_best_effort_ys, match_id_cell.y,
         )
         match_info.time = find_corresponding_cell_best_effort(
-            worksheet.get_range(schedules_spreadsheet.range_time), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_time), match_id_best_effort_ys, match_id_cell.y,
         )
         if schedules_spreadsheet.use_range:
             match_info.referees = find_corresponding_cells_best_effort(
-                worksheet.get_range(schedules_spreadsheet.range_referee),
+                spreadsheet.get_range(schedules_spreadsheet.range_referee),
                 match_id_best_effort_ys,
                 match_id_cell.y,
                 filled_only,
             )
             match_info.streamers = find_corresponding_cells_best_effort(
-                worksheet.get_range(schedules_spreadsheet.range_streamer),
+                spreadsheet.get_range(schedules_spreadsheet.range_streamer),
                 match_id_best_effort_ys,
                 match_id_cell.y,
                 filled_only,
             )
             match_info.commentators = find_corresponding_cells_best_effort(
-                worksheet.get_range(schedules_spreadsheet.range_commentator),
+                spreadsheet.get_range(schedules_spreadsheet.range_commentator),
                 match_id_best_effort_ys,
                 match_id_cell.y,
                 filled_only,
             )
             match_info.mp_links = find_corresponding_cells_best_effort(
-                worksheet.get_range(schedules_spreadsheet.range_mp_links),
+                spreadsheet.get_range(schedules_spreadsheet.range_mp_links),
                 match_id_best_effort_ys,
                 match_id_cell.y,
                 filled_only,
@@ -130,24 +130,30 @@ class MatchInfo:
         else:
             match_info.referees = [
                 find_corresponding_cell_best_effort(
-                    worksheet.get_range(schedules_spreadsheet.range_referee), match_id_best_effort_ys, match_id_cell.y,
+                    spreadsheet.get_range(schedules_spreadsheet.range_referee),
+                    match_id_best_effort_ys,
+                    match_id_cell.y,
                 )
             ]
             match_info.streamers = [
                 find_corresponding_cell_best_effort(
-                    worksheet.get_range(schedules_spreadsheet.range_streamer), match_id_best_effort_ys, match_id_cell.y,
+                    spreadsheet.get_range(schedules_spreadsheet.range_streamer),
+                    match_id_best_effort_ys,
+                    match_id_cell.y,
                 )
             ]
             match_info.commentators = [
                 find_corresponding_cell_best_effort(
-                    worksheet.get_range(schedules_spreadsheet.range_commentator),
+                    spreadsheet.get_range(schedules_spreadsheet.range_commentator),
                     match_id_best_effort_ys,
                     match_id_cell.y,
                 )
             ]
             match_info.mp_links = [
                 find_corresponding_cell_best_effort(
-                    worksheet.get_range(schedules_spreadsheet.range_mp_links), match_id_best_effort_ys, match_id_cell.y,
+                    spreadsheet.get_range(schedules_spreadsheet.range_mp_links),
+                    match_id_best_effort_ys,
+                    match_id_cell.y,
                 )
             ]
         return match_info

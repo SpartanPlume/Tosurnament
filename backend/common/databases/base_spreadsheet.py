@@ -12,7 +12,6 @@ class BaseSpreadsheet(Base):
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self._spreadsheet = None
-        self._worksheet = None
         self._type = ""
 
     def __init_subclass__(cls):
@@ -27,17 +26,14 @@ class BaseSpreadsheet(Base):
             self._get_spreadsheet_worksheet()
         return self._spreadsheet
 
-    @property
-    def worksheet(self):
-        if self._worksheet is None:
-            self._get_spreadsheet_worksheet()
-        return self._worksheet
-
     def _get_spreadsheet_worksheet(self):
         """Retrieves the spreadsheet and its main worksheet."""
         try:
             self._spreadsheet = Spreadsheet.get_from_id(self.spreadsheet_id)
-            self._worksheet = self._spreadsheet.get_worksheet(self.sheet_name)
+            if self.sheet_name:
+                for i, worksheet in enumerate(self._spreadsheet.worksheets):
+                    if worksheet.name == self.sheet_name:
+                        self._spreadsheet.main_worksheet_index = i
         except HttpError as e:
             bracket = (
                 self._session.query(common.databases.bracket.Bracket)

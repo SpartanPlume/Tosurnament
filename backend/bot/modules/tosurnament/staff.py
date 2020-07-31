@@ -200,7 +200,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         matches_info = []
         now = datetime.datetime.utcnow()
         schedules_spreadsheet = bracket.schedules_spreadsheet
-        match_ids = bracket.schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
+        match_ids = bracket.schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             bracket.schedules_spreadsheet.range_match_id
         )
         for match_id_cell in match_ids:
@@ -361,7 +361,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
-            match_ids = bracket.schedules_spreadsheet.worksheet.get_cells_with_value_in_range(
+            match_ids = bracket.schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 bracket.schedules_spreadsheet.range_match_id
             )
             for match_id_cell in match_ids:
