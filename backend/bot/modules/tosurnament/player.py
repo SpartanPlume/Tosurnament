@@ -216,7 +216,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             match_id = match_info.match_id.value
 
             players_spreadsheet = bracket.players_spreadsheet
-            opponent_team_captain = None
+            opponent_to_ping = None
             if players_spreadsheet and players_spreadsheet.range_team_name:
                 try:
                     team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
@@ -248,10 +248,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     raise tosurnament.InvalidMatch()
                 if team1_info.discord[0] == str(ctx.author):
                     user_name = team1_info.players[0].value
-                    opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0])
+                    opponent_to_ping = ctx.guild.get_member_named(team2_info.discord[0])
                 elif team2_info.discord[0] == str(ctx.author):
                     user_name = team2_info.players[0].value
-                    opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0])
+                    opponent_to_ping = ctx.guild.get_member_named(team1_info.discord[0])
                 else:
                     raise tosurnament.InvalidMatch()
                 # ! Temporary
@@ -269,25 +269,24 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
             )
 
-            if not opponent_team_captain:
-                opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
-            if not opponent_team_captain:
+            if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
+                role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
+                if role:
+                    opponent_to_ping = role
+            if not opponent_to_ping:
+                opponent_to_ping = ctx.guild.get_member_named(opponent_team_captain_name)
+            if not opponent_to_ping:
                 raise tosurnament.OpponentNotFound(ctx.author.mention)
 
             reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
 
-            opponent_to_ping = opponent_team_captain
-            if tournament.reschedule_ping_team:
-                role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
-                if role:
-                    opponent_to_ping = role
-                role = tosurnament.get_role(ctx.guild.roles, None, team_name)
-                if role:
-                    reschedule_message.ally_team_role_id = role.id
+            role = tosurnament.get_role(ctx.guild.roles, None, team_name)
+            if role:
+                reschedule_message.ally_team_role_id = role.id
 
             reschedule_message.match_id = match_id
             reschedule_message.ally_user_id = ctx.author.id
-            reschedule_message.opponent_user_id = opponent_team_captain.id
+            reschedule_message.opponent_user_id = opponent_to_ping.id
             if previous_date:
                 previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
                 reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
