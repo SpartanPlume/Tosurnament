@@ -225,16 +225,18 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     continue
                 except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
                     continue
-                if user_name in [cell.value for cell in team1_info.players]:
+                if str(ctx.author) in [cell.value for cell in team1_info.discord]:
                     team_name = team1_info.team_name.value
                     opponent_team_name = team2_info.team_name.value
                     opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0].value)
                     opponent_team_captain_name = team2_info.players[0].value
-                else:
+                elif str(ctx.author) in [cell.value for cell in team2_info.discord]:
                     team_name = team2_info.team_name.value
                     opponent_team_name = team1_info.team_name.value
                     opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0].value)
                     opponent_team_captain_name = team1_info.players[0].value
+                else:
+                    raise tosurnament.InvalidMatch()
             else:
                 # ! Temporary
                 try:
