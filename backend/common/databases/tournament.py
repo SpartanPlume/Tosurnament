@@ -43,6 +43,7 @@ class Tournament(Base):
     current_bracket_id = Id()
     created_at = int()
     matches_to_ignore = str()
+    notify_no_staff_reschedule = bool(True)
 
     @property
     def current_bracket(self):

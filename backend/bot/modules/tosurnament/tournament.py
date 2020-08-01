@@ -148,6 +148,10 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Allows to change the deadline (in hours) to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours": hours})
 
+    @commands.command(aliases=["snnsr"])
+    async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
+        await self.set_tournament_values(ctx, {"notify_no_staff_reschedule": notify})
+
     async def set_tournament_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""
         tournament = self.get_tournament(ctx.guild.id)

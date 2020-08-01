@@ -466,7 +466,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     staff_id=staff.id,
                 )
                 self.bot.session.add(staff_reschedule_message)
-        elif staff_channel:
+        elif staff_channel and tournament.notify_no_staff_reschedule:
             await self.send_reply(
                 staff_channel,
                 "reschedule",

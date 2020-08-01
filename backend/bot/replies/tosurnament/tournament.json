@@ -108,6 +108,12 @@
     "success": "Deadline hours set to `%1`.",
     "usage": "Usage: `%0set_reschedule_deadline_hours $./parameter`\n\nExample: `%0set_reschedule_deadline_hours 24`"
   },
+  "set_notify_no_staff_reschedule": {
+    "help": "Sets the deadline to reschedule a match (in hours before the match)",
+    "parameter": "<boolean>",
+    "success": "Notify no staff reschedule set to `%1`.",
+    "usage": "Usage: `%0set_notify_no_staff_reschedule $./parameter`\n\nExample: `%0set_notify_no_staff_reschedule False`"
+  },
   "add_match_to_ignore": {
     "help": "Adds matches in the list of matches to ignore in other commands",
     "parameter": "[<match_id(s)>]",
