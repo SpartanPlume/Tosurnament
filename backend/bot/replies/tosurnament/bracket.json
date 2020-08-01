@@ -132,6 +132,12 @@
     "success": "Schedules spreadsheet range mp links set to `%1`.",
     "usage": "Usage: `%0set_schedules_spreadsheet_range_mp_links $./parameter`\n\nExample: `%0set_schedules_spreadsheet_range_mp_links D2:D`"
   },
+  "set_players_spreadsheet_sheet_name": {
+    "help": "Sets the sheet name of the players spreadsheet.",
+    "parameter": "<sheet_name>",
+    "success": "Players spreadsheet sheet name set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_sheet_name $./parameter`\n\nExample: `%0set_players_spreadsheet_sheet_name My Sheet Name`"
+  },
   "set_players_spreadsheet_range_team_name": {
     "help": "Sets the players spreadsheet range team name.",
     "parameter": "[<range>]",

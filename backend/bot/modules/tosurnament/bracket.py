@@ -268,6 +268,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         self.bot.session.update(schedules_spreadsheet)
         await self.send_reply(ctx, ctx.command.name, "success", value)
 
+    @commands.command(aliases=["spssn"])
+    async def set_players_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
+        """Sets the sheet name of the players spreadsheet."""
+        await self.set_players_spreadsheet_values(ctx, {"sheet_name": sheet_name})
+
     @commands.command(aliases=["spsrtn"])
     async def set_players_spreadsheet_range_team_name(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range team name."""
