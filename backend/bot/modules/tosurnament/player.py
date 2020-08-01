@@ -228,12 +228,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 if user_name in [cell.value for cell in team1_info.players]:
                     team_name = team1_info.team_name.value
                     opponent_team_name = team2_info.team_name.value
-                    opponent_team_captain = team2_info.discord[0]
+                    opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0])
                     opponent_team_captain_name = team2_info.players[0].value
                 else:
                     team_name = team2_info.team_name.value
                     opponent_team_name = team1_info.team_name.value
-                    opponent_team_captain = team1_info.discord[0]
+                    opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0])
                     opponent_team_captain_name = team1_info.players[0].value
             else:
                 # ! Temporary
