@@ -51,7 +51,7 @@ class SpreadsheetTestCase(unittest.TestCase):
         self.assertEqual(sp.get_worksheet("sheet2").get_values(), [["A1"]])
 
         sp.update()
-        mock_write.assert_called_once_with("spreadsheet_id", ["sheet1!A1:E5", "sheet2!A1:A1"], [TEST_VALUES, [["A1"]]])
+        mock_write.assert_called_once_with("spreadsheet_id", [], [])
 
     @mock.patch(MODULE_TO_TEST + ".get_spreadsheet_with_values")
     def test_worksheet_get_cell(self, mock_get):

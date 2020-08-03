@@ -1,7 +1,7 @@
 """Players spreadsheet table"""
 
 from common.databases.base_spreadsheet import BaseSpreadsheet
-from common.api.spreadsheet import find_corresponding_cell_best_effort, find_corresponding_cells_best_effort
+from common.api.spreadsheet import find_corresponding_cell_best_effort, find_corresponding_cells_best_effort, Cell
 
 
 class PlayersSpreadsheet(BaseSpreadsheet):
@@ -47,10 +47,9 @@ class TeamInfo:
             self.players = [self.team_name]
 
     def set_discord(self, discord_ids):
-        if isinstance(discord_ids, list):
-            self.discord = discord_ids
-        else:
-            self.discord = [discord_ids]
+        while len(discord_ids) < len(self.players):
+            discord_ids.append(Cell(-1, -1, None))
+        self.discord = discord_ids
 
     @staticmethod
     def from_player_name(players_spreadsheet, player_name):
@@ -68,9 +67,11 @@ class TeamInfo:
         team_info = TeamInfo(player_cell)
         team_best_effort_y = player_cell.y
         team_info.set_discord(
-            find_corresponding_cell_best_effort(
-                spreadsheet.get_range(players_spreadsheet.range_discord), [team_best_effort_y], team_best_effort_y,
-            ).value
+            [
+                find_corresponding_cell_best_effort(
+                    spreadsheet.get_range(players_spreadsheet.range_discord), [team_best_effort_y], team_best_effort_y,
+                )
+            ]
         )
         return team_info
 

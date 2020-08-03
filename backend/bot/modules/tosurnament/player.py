@@ -7,7 +7,6 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import TeamInfo, TeamNotFound, DuplicateTeam
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
 from common.databases.reschedule_message import RescheduleMessage
@@ -173,6 +172,42 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         # if new_date < reschedule_allowed_begin or now > reschedule_allowed_end:
         #     raise tosurnament.ImpossibleReschedule()
 
+    async def get_teams_info(self, ctx, tournament, players_spreadsheet, match_info, user):
+        """Returns ally and enemy team info"""
+        try:
+            team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
+            team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
+        except tosurnament.SpreadsheetHttpError as e:
+            await self.on_cog_command_error(ctx, ctx.command.name, e)
+            return None, None
+        except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
+            return None, None
+        if players_spreadsheet.range_team_name:
+            team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
+            if team_captain_role:
+                if not tosurnament.get_role(ctx.author.roles, tournament.team_captain_role_id, "Team Captain"):
+                    raise tosurnament.NotRequiredRole(team_captain_role.name)
+                if user.verified:
+                    if user.name in [cell.value for cell in team1_info.players]:
+                        return team1_info, team2_info
+                    elif user.name in [cell.value for cell in team2_info.players]:
+                        return team2_info, team1_info
+                if str(ctx.author) in [cell.value for cell in team1_info.discord]:
+                    return team1_info, team2_info
+                elif str(ctx.author) in [cell.value for cell in team2_info.discord]:
+                    return team2_info, team1_info
+                raise tosurnament.InvalidMatch()
+        if user.verified:
+            if user.name == team1_info.players[0].value:
+                return team1_info, team2_info
+            elif user.name == team2_info.players[0].value:
+                return team2_info, team1_info
+        if str(ctx.author) == team1_info.discord[0].value:
+            return team1_info, team2_info
+        elif str(ctx.author) == team2_info.discord[0].value:
+            return team2_info, team1_info
+        raise tosurnament.InvalidMatch()
+
     @commands.command(aliases=["r"])
     @tosurnament.has_tournament_role("Player")
     async def reschedule(self, ctx, match_id: str, *, date: str):
@@ -194,12 +229,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
         now = datetime.datetime.utcnow()
         self.validate_new_date(tournament, now, new_date, skip_deadline_validation)
-        try:
-            tosurnament_user = self.get_verified_user(ctx.author.id)
-            user_name = tosurnament_user.osu_name
-        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):  # ! Temporary for nik's tournament
-            user_name = ""
+        user = tosurnament.UserAbstraction.get_from_ctx(ctx)
         for bracket in tournament.brackets:
+            bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
+            if bracket_role and not tosurnament.get_role(ctx.author.roles, bracket.role_id):
+                continue
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
@@ -216,78 +250,45 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             match_id = match_info.match_id.value
 
             players_spreadsheet = bracket.players_spreadsheet
-            if players_spreadsheet and players_spreadsheet.range_team_name:
-                try:
-                    team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
-                    team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
-                except tosurnament.SpreadsheetHttpError as e:
-                    await self.on_cog_command_error(ctx, ctx.command.name, e)
+            if players_spreadsheet:
+                ally_team_info, opponent_team_info = await self.get_teams_info(
+                    ctx, tournament, players_spreadsheet, match_info, user
+                )
+                if not ally_team_info:
                     continue
-                except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
-                    continue
-                if str(ctx.author) in [cell.value for cell in team1_info.discord]:
-                    team_name = team1_info.team_name.value
-                    opponent_team_name = team2_info.team_name.value
-                    opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0].value)
-                    opponent_team_captain_name = team2_info.players[0].value
-                elif str(ctx.author) in [cell.value for cell in team2_info.discord]:
-                    team_name = team2_info.team_name.value
-                    opponent_team_name = team1_info.team_name.value
-                    opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0].value)
-                    opponent_team_captain_name = team1_info.players[0].value
-                else:
-                    raise tosurnament.InvalidMatch()
+                team_name = ally_team_info.team_name.value
+                opponent_team_name = opponent_team_info.team_name.value
+                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
+                    ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
+                )
             else:
-                # ! Temporary
-                try:
-                    team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
-                    team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
-                except tosurnament.SpreadsheetHttpError as e:
-                    await self.on_cog_command_error(ctx, ctx.command.name, e)
-                    continue
-                except (InvalidWorksheet, DuplicateTeam):
-                    continue
-                except TeamNotFound:
-                    raise tosurnament.InvalidMatch()
-                if team1_info.discord[0] == str(ctx.author):
-                    user_name = team1_info.players[0].value
-                    opponent_team_captain = ctx.guild.get_member_named(team2_info.discord[0])
-                elif team2_info.discord[0] == str(ctx.author):
-                    user_name = team2_info.players[0].value
-                    opponent_team_captain = ctx.guild.get_member_named(team1_info.discord[0])
-                else:
-                    raise tosurnament.InvalidMatch()
-                # ! Temporary
-                team_name = user_name
-                if match_info.team1.value == user_name:
+                team_name = user.name
+                if team_name == match_info.team1.value:
                     opponent_team_name = match_info.team2.value
-                    opponent_team_captain_name = opponent_team_name
-                elif match_info.team2.value == user_name:
+                elif team_name == match_info.team2.value:
                     opponent_team_name = match_info.team1.value
-                    opponent_team_captain_name = opponent_team_name
                 else:
                     raise tosurnament.InvalidMatch()
+                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
 
             previous_date = self.validate_reschedule_feasibility(
                 tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
             )
 
-            if not opponent_team_captain:
-                opponent_team_captain = ctx.guild.get_member_named(opponent_team_captain_name)
+            opponent_team_captain = opponent_user.get_member(ctx.guild)
             if not opponent_team_captain:
                 raise tosurnament.OpponentNotFound(ctx.author.mention)
-
-            reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
 
             opponent_to_ping = opponent_team_captain
             if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
                 role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
                 if role:
                     opponent_to_ping = role
+
+            reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
             role = tosurnament.get_role(ctx.guild.roles, None, team_name)
             if role:
                 reschedule_message.ally_team_role_id = role.id
-
             reschedule_message.match_id = match_id
             reschedule_message.ally_user_id = ctx.author.id
             reschedule_message.opponent_user_id = opponent_team_captain.id
@@ -333,7 +334,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
         """on_raw_reaction_add of the Tosurnament player module."""
         await self.reaction_on_reschedule_message(message_id, emoji, guild, channel, user)
-        await self.reaction_on_staff_reschedule_message(message_id, emoji, guild, channel, user)
 
     async def reaction_on_reschedule_message(self, message_id, emoji, guild, channel, user):
         """Reschedules a match or denies the reschedule."""
@@ -487,69 +487,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def reaction_on_reschedule_message_handler(self, channel, error, bracket):
         await self.on_cog_command_error(channel, "reschedule", error)
 
-    async def reaction_on_staff_reschedule_message(self, message_id, emoji, guild, channel, user):
-        """Removes the referee from the schedule spreadsheet"""
-        staff_reschedule_message = (
-            self.bot.session.query(StaffRescheduleMessage)
-            .where(StaffRescheduleMessage.message_id == message_id)
-            .first()
-        )
-        if not staff_reschedule_message or staff_reschedule_message.in_use:
-            return
-        if user.id != staff_reschedule_message.staff_id:
-            return
-        if emoji.name != "❌":
-            return
-        try:
-            tosurnament_user = self.get_verified_user(user.id)
-            osu_name = tosurnament_user.osu_name
-        except (tosurnament.UserNotLinked, tosurnament.UserNotVerified):  # ! Temporary for nik's tournament
-            osu_name = user.display_name
-        staff_reschedule_message.in_use = True
-        self.bot.session.update(staff_reschedule_message)
-        try:
-            tournament = self.get_tournament(guild.id)
-            bracket = self.bot.session.query(Bracket).where(Bracket.id == staff_reschedule_message.bracket_id).first()
-            if not bracket:
-                raise tosurnament.UnknownError("Bracket not found")
-            schedules_spreadsheet = bracket.schedules_spreadsheet
-            if not schedules_spreadsheet:
-                raise tosurnament.NoSpreadsheet()
-            match_id = staff_reschedule_message.match_id
-            match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-            staff_cells = match_info.referees + match_info.streamers + match_info.commentators
-            for staff_cell in staff_cells:
-                if staff_cell.has_value(osu_name):
-                    if schedules_spreadsheet.use_range:
-                        staff_cell.value = ""
-                    else:
-                        staffs = staff_cell.value.split("/")
-                        if len(staffs) == 2 and staffs[0].strip() == osu_name:
-                            staff_cell.value = staffs[1].strip()
-                        elif len(staffs) == 2 and staffs[1].strip == osu_name:
-                            staff_cell.value = staffs[0].strip()
-                        elif len(staffs) == 1 and staffs[0].strip() == osu_name:
-                            staff_cell.value = ""
-            try:
-                schedules_spreadsheet.spreadsheet.update()
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
-            to_channel = channel
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-            if staff_channel:
-                to_channel = staff_channel
-            await self.send_reply(
-                to_channel, "reschedule", "removed_from_match", user.mention, match_id,
-            )
-            self.bot.session.delete(staff_reschedule_message)
-        except Exception as e:
-            staff_reschedule_message.in_use = False
-            self.bot.session.update(staff_reschedule_message)
-            await self.reaction_on_staff_reschedule_message_handler(channel, e)
-
-    async def reaction_on_staff_reschedule_message_handler(self, channel, error):
-        await self.on_cog_command_error(channel, "reschedule", error)
-
     async def on_verified_user(self, guild, user):
         await self.get_player_role_for_user(guild, user)
 
@@ -582,8 +519,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 for cell in team_cells:
                     try:
                         team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
-                        if team_info.discord[0]:
-                            user = guild.get_member_named(team_info.discord[0])
+                        if team_info.discord[0].value:
+                            user = guild.get_member_named(team_info.discord[0].value)
                         else:
                             user = guild.get_member_named(team_info.team_name.value)
                         if user:

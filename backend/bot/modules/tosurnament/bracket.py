@@ -61,7 +61,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
 
     def is_player_in_challonge(self, member_id, teams_info, participants):
         for team_info in teams_info:
-            if member_id == team_info.discord[0]:
+            if member_id == team_info.discord[0].value:
                 player_name = team_info.players[0].value
                 if player_name in participants:
                     return player_name

@@ -8,8 +8,38 @@ from common.utils import load_json
 from common.databases.guild import Guild
 from common.databases.user import User
 
-DEFAULT_HELP_EMBED_COLOR = 3447003
-COMMAND_NOT_FOUND_EMBED_COLOR = 3447003
+
+class UserAbstraction:
+    def __init__(self, name, discord_id, verified):
+        self.name = name
+        self.discord_id = discord_id
+        self.verified = verified
+
+    @staticmethod
+    def get_from_ctx(ctx):
+        return UserAbstraction.get_from_user(ctx.bot, ctx.author)
+
+    @staticmethod
+    def get_from_user(bot, user):
+        tosurnament_user = bot.session.query(User).where(User.discord_id == user.id).first()
+        if tosurnament_user and tosurnament_user.verified:
+            return UserAbstraction(tosurnament_user.osu_name, user.id, True)
+        return UserAbstraction(user.display_name, user.id, False)
+
+    @staticmethod
+    def get_from_osu_name(bot, osu_name, default_discord_tag=None):
+        tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name).first()
+        if tosurnament_user and tosurnament_user.verified:
+            return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
+        return UserAbstraction(osu_name, default_discord_tag, False)
+
+    def get_member(self, guild):
+        if self.discord_id:
+            if isinstance(self.discord_id, int):
+                return guild.get_member(self.discord_id)
+            elif isinstance(self.discord_id, str):
+                return guild.get_member_named(self.discord_id)
+        return None
 
 
 class BaseModule(commands.Cog):
@@ -96,7 +126,8 @@ class BaseModule(commands.Cog):
         await self.on_cog_command_error(ctx, ctx.command.name, error)
 
     async def on_cog_command_error(self, channel, command_name, error):
-        self.bot.info(str(type(error)) + ": " + str(error))
+        self.bot.logger.exception(error)
+        # self.bot.info(str(type(error)) + ": " + str(error))
         if isinstance(error, commands.MissingRequiredArgument):
             await self.send_usage(channel)
         elif isinstance(error, commands.BadArgument):

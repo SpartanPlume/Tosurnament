@@ -45,12 +45,21 @@ class AuthCog(base.BaseModule, name="auth"):
         osu_id = osu_user.id
         code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b"=").decode("ascii")
         if not user:
-            user = User(discord_id=ctx.author.id, osu_id=osu_id, verified=False, code=code, osu_name=osu_name)
+            user = User(
+                discord_id=ctx.author.id,
+                discord_id_snowflake=ctx.author.id,
+                osu_id=osu_id,
+                verified=False,
+                code=code,
+                osu_name=osu_name,
+                osu_name_hash=osu_name,
+            )
             self.bot.session.add(user)
         else:
             user.osu_id = osu_id
             user.code = code
             user.osu_name = osu_name
+            user.osu_name_hash = osu_name
             self.bot.session.update(user)
 
         await self.send_reply(ctx.author, ctx.command.name, "success", code)

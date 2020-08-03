@@ -14,6 +14,7 @@ from mysqldb_wrapper import Session
 from common.utils import load_json
 from common.config import constants
 from common.api import spreadsheet
+from common.databases.user import User
 
 MODULES_DIR = "bot/modules"
 
@@ -43,7 +44,7 @@ class Client(commands.Bot):
         if self.error_code != 0:
             return
         self.before_invoke(add_command_feedback)
-        self.log(logging.INFO, "Bot is ready!")
+        self.info("Bot is ready!")
         print("Ready!")
 
     def init_logger(self):
@@ -97,21 +98,28 @@ class Client(commands.Bot):
         spreadsheet.start_service()
 
     def log(self, level, message):
-        """Uses to log message"""
-        caller = inspect.getframeinfo(inspect.stack()[1][0])
+        """Logs message."""
+        stack = inspect.stack()
+        functions_to_ignore = ["debug", "info", "error", "on_cog_command_error", "cog_command_error"]
+        index = 0
+        while True:
+            index += 1
+            caller = inspect.getframeinfo(stack[index][0])
+            if caller.function not in functions_to_ignore:
+                break
         self.logger.log(level, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={})
 
     def debug(self, message):
-        """Uses to log debug message"""
-        caller = inspect.getframeinfo(inspect.stack()[1][0])
-        self.logger.log(
-            logging.DEBUG, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={}
-        )
+        """Log debug message."""
+        self.log(logging.DEBUG, message)
 
     def info(self, message):
-        """Uses to log debug message"""
-        caller = inspect.getframeinfo(inspect.stack()[1][0])
-        self.logger.log(logging.INFO, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={})
+        """Logs info message."""
+        self.log(logging.INFO, message)
+
+    def error(self, message):
+        """Logs error message."""
+        self.log(logging.ERROR, message)
 
     async def on_command(self, ctx):
         """Logs the command used"""
@@ -119,7 +127,13 @@ class Client(commands.Bot):
         if ctx.cog:
             command += type(ctx.cog).__name__ + ": "
         command += str(ctx.command)
-        self.log(logging.INFO, command)
+        self.info(command)
+
+        # ! Temporary
+        user = self.session.query(User).where(User.discord_id == ctx.author.id).first()
+        user.discord_id_snowflake = ctx.author.id
+        user.osu_name_hash = user.osu_name
+        self.session.update(user)
 
     async def on_command_error(self, ctx, error):
         """Logs the error"""
@@ -128,7 +142,7 @@ class Client(commands.Bot):
             command += type(ctx.cog).__name__ + ": "
         command += str(ctx.command) + ": "
         command += type(error).__name__
-        self.log(logging.INFO, command)
+        self.info(command)
 
     async def stop(self, code, ctx=None):
         """Stops the bot"""
@@ -137,11 +151,11 @@ class Client(commands.Bot):
             try:
                 await task
             except asyncio.CancelledError:
-                self.log(logging.DEBUG, "Background task cancelled.")
+                self.debug("Background task cancelled.")
         self.error_code = code
         if ctx and ctx.guild:
             await ctx.message.delete()
-        self.log(logging.INFO, "Closing the bot...\n")
+        self.info("Closing the bot...\n")
         await self.close()
 
     def init_background_tasks(self):

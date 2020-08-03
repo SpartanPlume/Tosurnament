@@ -57,7 +57,12 @@ class AuthTestCase(unittest.IsolatedAsyncioTestCase):
         await cog.link(cog, tosurnament_mock.CtxMock(bot_mock), osu_name=tosurnament_mock.USER_NAME)
         bot_mock.session.add.assert_called_once_with(
             tosurnament_mock.Matcher(
-                User(osu_id=tosurnament_mock.USER_ID, code=CODE_ASCII, osu_name=tosurnament_mock.USER_NAME)
+                User(
+                    osu_id=tosurnament_mock.USER_ID,
+                    code=CODE_ASCII,
+                    osu_name=tosurnament_mock.USER_NAME,
+                    discord_id_snowflake=1,
+                )
             )
         )
         assert bot_mock.session.update.call_count == 0

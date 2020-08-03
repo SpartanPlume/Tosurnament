@@ -20,70 +20,76 @@ PRETTY_DATE_FORMAT = "**%A %d %B at %H:%M UTC**"
 DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
 
 
-class UserRoles:
+class UserDetails:
     class Role:
         def __init__(self):
             self.taken_matches = []
             self.not_taken_matches = []
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.referee = None
         self.streamer = None
         self.commentator = None
         self.player = None
 
+    @property
+    def name(self):
+        return self.user.name
+
     @staticmethod
-    def get_from_context(ctx):
+    def get_from_ctx(ctx):
         tournament = ctx.bot.session.query(Tournament).where(Tournament.guild_id == ctx.guild.id).first()
         if not tournament:
             raise NoTournament()
-        return UserRoles.get_from_roles(ctx.author.roles, tournament)
+        return UserDetails.get_from_user(ctx.bot, ctx.author, tournament)
 
     @staticmethod
-    def get_from_roles(roles, tournament):
-        user_roles = UserRoles()
+    def get_from_user(bot, user, tournament):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        roles = user.roles
         if get_role(roles, tournament.referee_role_id, "Referee"):
-            user_roles.referee = UserRoles.Role()
+            user_details.referee = UserDetails.Role()
         if get_role(roles, tournament.streamer_role_id, "Streamer"):
-            user_roles.streamer = UserRoles.Role()
+            user_details.streamer = UserDetails.Role()
         if get_role(roles, tournament.commentator_role_id, "Commentator"):
-            user_roles.commentator = UserRoles.Role()
+            user_details.commentator = UserDetails.Role()
         if get_role(roles, tournament.player_role_id, "Player"):
-            user_roles.player = UserRoles.Role()
-        return user_roles
+            user_details.player = UserDetails.Role()
+        return user_details
 
     @staticmethod
-    def get_as_referee():
-        user_roles = UserRoles()
-        user_roles.referee = UserRoles.Role()
-        return user_roles
+    def get_as_referee(bot, user):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        user_details.referee = UserDetails.Role()
+        return user_details
 
     @staticmethod
-    def get_as_streamer():
-        user_roles = UserRoles()
-        user_roles.streamer = UserRoles.Role()
-        return user_roles
+    def get_as_streamer(bot, user):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        user_details.streamer = UserDetails.Role()
+        return user_details
 
     @staticmethod
-    def get_as_commentator():
-        user_roles = UserRoles()
-        user_roles.commentator = UserRoles.Role()
-        return user_roles
+    def get_as_commentator(bot, user):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        user_details.commentator = UserDetails.Role()
+        return user_details
 
     @staticmethod
-    def get_as_player():
-        user_roles = UserRoles()
-        user_roles.player = UserRoles.Role()
-        return user_roles
+    def get_as_player(bot, user):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        user_details.player = UserDetails.Role()
+        return user_details
 
     @staticmethod
-    def get_as_all():
-        user_roles = UserRoles()
-        user_roles.referee = UserRoles.Role()
-        user_roles.streamer = UserRoles.Role()
-        user_roles.commentator = UserRoles.Role()
-        user_roles.player = UserRoles.Role()
-        return user_roles
+    def get_as_all(bot, user):
+        user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
+        user_details.referee = UserDetails.Role()
+        user_details.streamer = UserDetails.Role()
+        user_details.commentator = UserDetails.Role()
+        user_details.player = UserDetails.Role()
+        return user_details
 
     def is_staff(self):
         return bool(self.referee) | bool(self.streamer) | bool(self.commentator)
@@ -205,7 +211,7 @@ def has_tournament_role(role_name):
             raise RoleDoesNotExist(role_name)
         if role in ctx.author.roles:
             return True
-        raise NotRequiredRole(role_name)
+        raise NotRequiredRole(role.name)
 
     return commands.check(predicate)
 

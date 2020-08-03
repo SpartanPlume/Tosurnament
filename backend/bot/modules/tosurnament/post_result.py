@@ -200,7 +200,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             raise tosurnament.RoleDoesNotExist(role_name)
         if role in ctx.author.roles:
             return True
-        raise tosurnament.NotRequiredRole(role_name)
+        raise tosurnament.NotRequiredRole(role.name)
 
     @commands.command(aliases=["pr"])
     async def post_result(self, ctx, match_id: str):
@@ -472,8 +472,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 team_role = tosurnament.get_role(ctx.guild.roles, None, team_name)
                 if team_role:
                     roles_to_remove.append(team_role)
-                if team_info.discord[0]:
-                    member = ctx.guild.get_member_named(team_info.discord[0])
+                if team_info.discord[0].value:
+                    member = ctx.guild.get_member_named(team_info.discord[0].value)
                     if member:
                         await member.remove_roles(*roles_to_remove)
                 else:

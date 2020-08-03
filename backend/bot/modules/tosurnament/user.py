@@ -37,20 +37,20 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             except HttpError as e:
                 raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players", e.error)
 
-    async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_roles):
+    async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_details):
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
         changed_name = False
         spreadsheet = schedules_spreadsheet.spreadsheet
-        if user_roles.player:
+        if user_details.player:
             changed_name |= spreadsheet.change_value_in_range(
                 schedules_spreadsheet.range_team1, previous_name, new_name
             )
             changed_name |= spreadsheet.change_value_in_range(
                 schedules_spreadsheet.range_team2, previous_name, new_name
             )
-        for role_name, role_store in user_roles.get_staff_roles_as_dict().items():
+        for role_name, role_store in user_details.get_staff_roles_as_dict().items():
             if role_store:
                 changed_name |= spreadsheet.change_value_in_range(
                     getattr(schedules_spreadsheet, "range_" + role_name.lower()), previous_name, new_name,
@@ -77,17 +77,17 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not previous_name:
             await self.send_reply(ctx, ctx.command.name, "change_name_unneeded")
             return
-        user_roles = tosurnament.UserRoles.get_from_context(ctx)
+        user_details = tosurnament.UserDetails.get_from_ctx(ctx)
 
-        if user_roles.is_user():
+        if user_details.is_user():
             tournament = self.get_tournament(ctx.guild.id)
             for bracket in tournament.brackets:
                 try:
-                    if user_roles.player:
+                    if user_details.player:
                         await self.change_name_in_player_spreadsheet(ctx, bracket, previous_name, new_name)
-                    if user_roles.player or user_roles.is_staff():
+                    if user_details.player or user_details.is_staff():
                         await self.change_name_in_schedules_spreadsheet(
-                            ctx, bracket, previous_name, new_name, user_roles
+                            ctx, bracket, previous_name, new_name, user_details
                         )
                     if bracket.challonge:
                         participants = challonge.get_participants(bracket.challonge)
@@ -103,12 +103,18 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
+        user.osu_name_hash = new_name
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_roles, user_name):
+    def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_details):
+        user_name = user_details.name
         team_name = None
-        if user_roles.player:
+        has_bracket_role = False
+        bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
+        if not bracket_role or tosurnament.get_role(ctx.author.roles, bracket.role_id):
+            has_bracket_role = True
+        if user_details.player:
             team_name = self.find_player_identification(ctx, bracket, user_name)
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
@@ -127,43 +133,39 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             match_date = dateparser.parse(
                 match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
             )
-            if not match_date:
-                continue
-            if match_date < now:
+            if not match_date or match_date < now:
                 continue
             if (
-                user_roles.player
+                user_details.player
+                and has_bracket_role
                 and team_name
                 and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name))
             ):
-                user_roles.player.taken_matches.append((bracket.name, match_info, match_date))
+                user_details.player.taken_matches.append((bracket.name, match_info, match_date))
             for referee_cell in match_info.referees:
-                if user_roles.referee and referee_cell.has_value(user_name):
-                    user_roles.referee.taken_matches.append((bracket.name, match_info, match_date))
+                if user_details.referee and referee_cell.has_value(user_name):
+                    user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
             for streamer_cell in match_info.streamers:
-                if user_roles.streamer and streamer_cell.has_value(user_name):
-                    user_roles.streamer.taken_matches.append((bracket.name, match_info, match_date))
+                if user_details.streamer and streamer_cell.has_value(user_name):
+                    user_details.streamer.taken_matches.append((bracket.name, match_info, match_date))
             for commentator_cell in match_info.commentators:
-                if user_roles.commentator and commentator_cell.has_value(user_name):
-                    user_roles.commentator.taken_matches.append((bracket.name, match_info, match_date))
+                if user_details.commentator and commentator_cell.has_value(user_name):
+                    user_details.commentator.taken_matches.append((bracket.name, match_info, match_date))
 
     @commands.command(aliases=["get_match", "gm", "list_matches", "list_match", "lm", "see_matches", "see_match", "sm"])
     @commands.guild_only()
     async def get_matches(self, ctx):
         """Sends a private message to the author with the list of matches they are in (as a player or staff)."""
         tournament = self.get_tournament(ctx.guild.id)
-        # ! Temporary for nik's tournament
-        # tosurnament_user = self.get_verified_user(ctx.author.id)
-        osu_name = ctx.author.display_name
-        user_roles = tosurnament.UserRoles.get_as_all()
+        user_details = tosurnament.UserDetails.get_as_all(ctx.bot, ctx.author)
         matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             try:
-                self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_roles, osu_name)
+                self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_details)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
-        for role_name, role_store in user_roles.get_as_dict().items():
+        for role_name, role_store in user_details.get_as_dict().items():
             if role_store and role_store.taken_matches:
                 reply_string += "\n"
                 reply_string += self.get_string(ctx.command.name, "role_match", role_name)
