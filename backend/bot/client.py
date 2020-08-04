@@ -131,9 +131,10 @@ class Client(commands.Bot):
 
         # ! Temporary
         user = self.session.query(User).where(User.discord_id == ctx.author.id).first()
-        user.discord_id_snowflake = ctx.author.id
-        user.osu_name_hash = user.osu_name
-        self.session.update(user)
+        if user:
+            user.discord_id_snowflake = ctx.author.id
+            user.osu_name_hash = user.osu_name
+            self.session.update(user)
 
     async def on_command_error(self, ctx, error):
         """Logs the error"""
