@@ -176,7 +176,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         for staff_title, staff in user_details.get_staff_roles_as_dict().items():
             if staff:
                 for match_id in invalid_match_ids.copy():
-                    if match_id in staff.taken_matches or match_id in staff.not_taken_matches:
+                    if match_id.lower() in [match.lower() for match in staff.taken_matches] or match_id.lower() in [
+                        match.lower() for match in staff.not_taken_matches
+                    ]:
                         invalid_match_ids.remove(match_id)
                         continue
                 reply += self.format_take_match_string(
