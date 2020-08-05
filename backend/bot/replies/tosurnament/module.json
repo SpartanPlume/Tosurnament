@@ -15,6 +15,8 @@
   "duplicate_team": "Uh-oh, it seems like the team **%1** is present multiples times on the players spreadsheet. Please contact an admin.",
   "opponent_not_found": "Sorry %1, it seems I cannot find your opponent in the guild. Your action has been cancelled. Please contact an admin.",
   "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %3 spreadsheet of the bracket %2.",
+  "connection_reset_by_peer": "The connection has been reset by Google Sheets API. Please retry.",
+  "request_timeout": "The request has timeout on Google Sheets API side. Please retry.",
   "contact_admin": "The command failed, please contact an admin.",
   "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin.",
   "already_player": "You are already a player.",

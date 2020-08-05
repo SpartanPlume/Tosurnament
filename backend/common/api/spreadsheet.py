@@ -1,7 +1,7 @@
 """Google Spreadsheet API wrapper"""
 
 import re
-
+import socket
 import googleapiclient
 from googleapiclient import discovery
 from google.oauth2 import service_account
@@ -294,7 +294,10 @@ class Spreadsheet:
                 raise HttpError(e.resp["status"], "read", e)
             except KeyError:
                 raise HttpError(500, "read", e)
-            return spreadsheet
+        except ConnectionResetError as e:
+            raise HttpError(499, "read", e)
+        except socket.timeout as e:
+            raise HttpError(408, "read", e)
         for index, sheet in enumerate(sheets):
             spreadsheet.worksheets.append(Worksheet(index, sheet["name"], sheet["cells"]))
         return spreadsheet
@@ -327,6 +330,10 @@ class Spreadsheet:
                 raise HttpError(e.resp["status"], "write", e)
             except KeyError:
                 raise HttpError(500, "write", e)
+        except ConnectionResetError as e:
+            raise HttpError(499, "write", e)
+        except socket.timeout as e:
+            raise HttpError(408, "write", e)
 
     def get_worksheet_and_range(self, range_name):
         """Returns the worksheet specified in the range, or the main worksheet."""

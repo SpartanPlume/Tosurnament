@@ -140,11 +140,21 @@ class TosurnamentBaseModule(BaseModule):
             return user_name
 
     def get_spreadsheet_error(self, error_code):  # TODO
-        return "spreadsheet_rights"
+        if error_code == 499:
+            return "connection_reset_by_peer"
+        elif error_code == 408:
+            return "request_timeout"
+        else:
+            return "spreadsheet_rights"
 
     async def handle_spreadsheet_error(self, ctx, error_code, error_type, spreadsheet_type):  # TODO
         """Sends an appropriate error message in case of error with the spreadsheet api."""
-        await self.send_reply(ctx, ctx.command.name, "spreadsheet_error", error_type, spreadsheet_type)
+        if error_code == 499:
+            await self.send_reply(ctx, ctx.command.name, "connection_reset_by_peer")
+        elif error_code == 408:
+            await self.send_reply(ctx, ctx.command.name, "request_timeout")
+        else:
+            await self.send_reply(ctx, ctx.command.name, "spreadsheet_error", error_type, spreadsheet_type)
 
     async def on_cog_command_error(self, channel, command_name, error):
         error_found = await super().on_cog_command_error(channel, command_name, error)
