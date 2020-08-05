@@ -180,7 +180,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         except tosurnament.SpreadsheetHttpError as e:
             await self.on_cog_command_error(ctx, ctx.command.name, e)
             return None, None
-        except (InvalidWorksheet, TeamNotFound, DuplicateTeam):
+        except (InvalidWorksheet, TeamNotFound, DuplicateTeam) as e:
+            self.bot.info(str(type(e)) + ": " + str(e))
             return None, None
         if players_spreadsheet.range_team_name:
             team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
@@ -245,7 +246,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             except DuplicateMatchId:
                 await self.send_reply(ctx, ctx.command.name, "duplicate_match_id", match_id)
                 continue
-            except (InvalidWorksheet, MatchIdNotFound):
+            except (InvalidWorksheet, MatchIdNotFound) as e:
+                self.bot.info(str(type(e)) + ": " + str(e))
                 continue
             match_id = match_info.match_id.value
 
