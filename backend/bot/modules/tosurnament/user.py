@@ -167,15 +167,21 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
         for role_name, role_store in user_details.get_as_dict().items():
             if role_store and role_store.taken_matches:
-                reply_string += "\n"
-                reply_string += self.get_string(ctx.command.name, "role_match", role_name)
+                tmp_reply_string = "\n"
+                tmp_reply_string += self.get_string(ctx.command.name, "role_match", role_name)
                 for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
                     match_date = match_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
-                    reply_string += match_date
+                    tmp_reply_string += match_date
                     if bracket_name and bracket_name != tournament.name:
-                        reply_string += " | " + bracket_name
-                    reply_string += " | **" + match_info.match_id.value + "**:\n"
-                    reply_string += match_info.team1.value + " vs " + match_info.team2.value + "\n"
+                        tmp_reply_string += " | " + bracket_name
+                    tmp_reply_string += " | **" + match_info.match_id.value + "**:\n"
+                    tmp_reply_string += match_info.team1.value + " vs " + match_info.team2.value + "\n"
+                    if len(reply_string) + len(tmp_reply_string) >= 2000:
+                        await ctx.author.send(reply_string)
+                        reply_string = tmp_reply_string
+                    else:
+                        reply_string += tmp_reply_string
+                    tmp_reply_string = ""
         await ctx.author.send(reply_string)
 
 
