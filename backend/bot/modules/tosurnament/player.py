@@ -375,6 +375,23 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             self.bot.session.update(reschedule_message)
             await self.reaction_on_reschedule_message_handler(channel, e, bracket)
 
+    def find_staff_to_ping(self, guild, schedules_spreadsheet, staff_cells):
+        staff_names_to_ping = set()
+        for staff_cell in staff_cells:
+            if schedules_spreadsheet.use_range:
+                staff_names_to_ping.add(staff_cell.value.strip())
+            else:
+                tmp_staff_names = staff_cell.value.split("/")
+                for staff_name in tmp_staff_names:
+                    staff_names_to_ping.add(staff_name.strip())
+        staffs = []
+        for staff_name in staff_names_to_ping:
+            user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, staff_name, staff_name)
+            member = user.get_member(guild)
+            if member:
+                staffs.append(member)
+        return staffs
+
     async def agree_to_reschedule(self, reschedule_message, guild, channel, user, tournament):
         """Updates the schedules spreadsheet with reschedule time."""
         schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
@@ -404,17 +421,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         else:
             raise tosurnament.UnknownError("No date range")
 
-        staff_name_to_ping = set()
-        staff_cells = match_info.referees + match_info.streamers + match_info.commentators
-        for staff_cell in staff_cells:
-            if schedules_spreadsheet.use_range:
-                staff_name_to_ping.add(staff_cell.value)
-            else:
-                staffs = staff_cell.value.split("/")
-                for staff in staffs:
-                    staff_name_to_ping.add(staff.strip())
-        staff_to_ping = list(filter(None, [guild.get_member_named(name) for name in staff_name_to_ping]))
-
         try:
             schedules_spreadsheet.spreadsheet.update()
         except HttpError as e:
@@ -434,38 +440,49 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 channel, "reschedule", "accepted", ally_to_mention.mention, match_id,
             )
         else:
+            # TODO not raise
             raise tosurnament.OpponentNotFound(user.mention)
+
+        referees_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.referees)
+        streamers_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.streamers)
+        commentators_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.commentators)
 
         new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-        if staff_to_ping:
+        if referees_to_ping + streamers_to_ping + commentators_to_ping:
             if staff_channel:
                 to_channel = staff_channel
             else:
                 to_channel = channel
-            for staff in staff_to_ping:
-                sent_message = await self.send_reply(
-                    to_channel,
-                    "reschedule",
-                    "staff_notification",
-                    staff.mention,
-                    match_id,
-                    match_info.team1.value,
-                    match_info.team2.value,
-                    previous_date_string,
-                    new_date_string,
-                )
-                staff_reschedule_message = StaffRescheduleMessage(
-                    tournament_id=reschedule_message.tournament_id,
-                    bracket_id=tournament.current_bracket.id,
-                    message_id=sent_message.id,
-                    match_id=match_id,
-                    new_date=reschedule_message.new_date,
-                    staff_id=staff.id,
-                )
-                self.bot.session.add(staff_reschedule_message)
+            sent_message = await self.send_reply(
+                to_channel,
+                "reschedule",
+                "staff_notification",
+                match_id,
+                match_info.team1.value,
+                match_info.team2.value,
+                previous_date_string,
+                new_date_string,
+                " / ".join([referee.mention for referee in referees_to_ping]),
+                " / ".join([streamer.mention for streamer in streamers_to_ping]),
+                " / ".join([commentator.mention for commentator in commentators_to_ping]),
+            )
+            staff_reschedule_message = StaffRescheduleMessage(
+                tournament_id=reschedule_message.tournament_id,
+                bracket_id=tournament.current_bracket.id,
+                message_id=sent_message.id,
+                team1=match_info.team1.value,
+                team2=match_info.team2.value,
+                match_id=match_id,
+                previous_date=reschedule_message.previous_date,
+                new_date=reschedule_message.new_date,
+                referees_id="\n".join([str(referee.id) for referee in referees_to_ping]),
+                streamers_id="\n".join([str(streamer.id) for streamer in streamers_to_ping]),
+                commentators_id="\n".join([str(commentator.id) for commentator in commentators_to_ping]),
+            )
+            self.bot.session.add(staff_reschedule_message)
         elif staff_channel and tournament.notify_no_staff_reschedule:
             await self.send_reply(
                 staff_channel,

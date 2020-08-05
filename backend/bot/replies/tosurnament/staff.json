@@ -6,6 +6,8 @@
     "not_taken_match_ids": "As a __%1__, %2, those matches were **already taken**: ",
     "invalid_match_ids": "Those matches does not exist: ",
     "not_staff": "You do not have any staff roles (Referee, Streamer...), so you cannot use this command.",
+    "staff_notification": "$../../player/reschedule/staff_notification",
+    "staff_notification_all_staff_removed": "$../../player/reschedule/no_staff_notification\n\nAll the staffs that had taken this match dropped it.",
     "usage": "Usage: `%0take_match $./parameter`\n\nExample: `%0take_match 1A 2A 2B`"
   },
   "take_match_as_referee": {

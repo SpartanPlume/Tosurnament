@@ -11,16 +11,16 @@
     "duplicate_match_id": "There are multiple matches with this ID. Please contact an admin.",
     "impossible_reschedule": "Sorry, it is less than %1 hours before the **new requested date**, so the deadline is passed. However, you can try contacting an admin to reschedule your match.",
     "invalid_minute": "Invalid minutes. You can use either 00, 15, 30 or 45. Example: `17:15` is valid, `17:16` is not.",
-    "invalid_match": "You can't reschedule a match you're not in.",
-    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
+    "invalid_match": "You can't reschedule a match you're not in. Please check if your discord tag changed (check the numbers too) before contacting an admin.",
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",
     "parameter": "<match_id> <datetime: MM/dd HH:mm>",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. You can try contacting an admin to reschedule your match.",
     "refused": ":x: %1, your reschedule for the match %2 has been refused.",
     "removed_from_match": "%1, you have **successfully been removed** from the match %2.",
     "same_date": "You can't reschedule your match to the time it is already scheduled to.",
-    "staff_notification": "Hi %1! The match %2 (%3 vs %4) has been rescheduled from %5 to %6. If you can't arbitrate/stream/commentate at this new time, please add a :x: reaction to this message.",
-    "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message",
+    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
+    "staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
+    "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message.",
     "usage": "Usage: `%0reschedule $./parameter`\n\nExample: `%0reschedule 12C 01/02 03:00`\nExample 2: `%0reschedule 12C 3 Apr 12h30`\n\n**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format."
   }
 }
