@@ -7,8 +7,8 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.players_spreadsheet import TeamInfo, TeamNotFound, DuplicateTeam
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
+from common.databases.players_spreadsheet import TeamInfo
+from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
@@ -180,9 +180,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         except tosurnament.SpreadsheetHttpError as e:
             await self.on_cog_command_error(ctx, ctx.command.name, e)
             return None, None
-        except (InvalidWorksheet, TeamNotFound, DuplicateTeam) as e:
-            self.bot.info(str(type(e)) + ": " + str(e))
-            return None, None
         if players_spreadsheet.range_team_name:
             team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
             if team_captain_role:
@@ -231,22 +228,21 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         now = datetime.datetime.utcnow()
         self.validate_new_date(tournament, now, new_date, skip_deadline_validation)
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+        bracket_role_present = False
         for bracket in tournament.brackets:
             bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
             if bracket_role and not tosurnament.get_role(ctx.author.roles, bracket.role_id):
+                bracket_role_present = True
                 continue
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
             try:
                 match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-            except tosurnament.SpreadsheetHttpError as e:
+            except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
                 continue
-            except DuplicateMatchId:
-                await self.send_reply(ctx, ctx.command.name, "duplicate_match_id", match_id)
-                continue
-            except (InvalidWorksheet, MatchIdNotFound) as e:
+            except MatchIdNotFound as e:
                 self.bot.info(str(type(e)) + ": " + str(e))
                 continue
             match_id = match_info.match_id.value
@@ -317,6 +313,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await sent_message.add_reaction("👍")
             await sent_message.add_reaction("👎")
             return
+        if bracket_role_present:
+            raise tosurnament.InvalidMatchIdOrNoBracketRole()
         raise tosurnament.InvalidMatchId()
 
     @reschedule.error

@@ -129,6 +129,12 @@ class InvalidMatchId(commands.CommandError):
     pass
 
 
+class InvalidMatchIdOrNoBracketRole(InvalidMatchId):
+    """Special exception in case the match id does not exist, in case of multiple brackets tournament."""
+
+    pass
+
+
 class InvalidMpLink(commands.CommandError):
     """Special exception in case the match link does not exist."""
 

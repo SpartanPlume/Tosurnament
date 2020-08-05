@@ -199,6 +199,8 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "not_a_player")
         elif isinstance(error, InvalidMatchId):
             await self.send_reply(channel, command_name, "invalid_match_id")
+        elif isinstance(error, InvalidMatchIdOrNoBracketRole):
+            await self.send_reply(channel, command_name, "invalid_match_id_or_no_bracket_role")
         elif isinstance(error, challonge.NoRights):
             await self.send_reply(channel, command_name, "challonge_no_rights")
         elif isinstance(error, challonge.NotFound):

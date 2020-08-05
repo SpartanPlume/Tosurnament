@@ -13,7 +13,6 @@
     "invalid_minute": "Invalid minutes. You can use either 00, 15, 30 or 45. Example: `17:15` is valid, `17:16` is not.",
     "invalid_match": "You can't reschedule a match you're not in.",
     "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
-    "no_tournament": "This server does not have any tournament running. Consider using the `%1create_tournament $tosurnament/create_tournament/parameter`.",
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",
     "parameter": "<match_id> <datetime: MM/dd HH:mm>",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. You can try contacting an admin to reschedule your match.",
