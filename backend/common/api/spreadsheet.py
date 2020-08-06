@@ -5,6 +5,7 @@ import socket
 import googleapiclient
 from googleapiclient import discovery
 from google.oauth2 import service_account
+from functools import lru_cache
 
 LETTER_BASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -284,6 +285,7 @@ class Spreadsheet:
         self.worksheets = []
 
     @staticmethod
+    @lru_cache(maxsize=4)
     def get_from_id(spreadsheet_id):
         """Returns a Spreadsheet."""
         spreadsheet = Spreadsheet(spreadsheet_id)
