@@ -22,7 +22,7 @@ MODULES_DIR = "bot/modules"
 async def add_command_feedback(ctx):
     """Adds a :white_check_mark: reaction to any command."""
     try:
-        await ctx.message.add_reaction("✅")
+        await ctx.message.add_reaction("⏲️")
     except Exception:
         return
 
@@ -136,8 +136,20 @@ class Client(commands.Bot):
             user.osu_name_hash = user.osu_name
             self.session.update(user)
 
+    async def on_command_completion(self, ctx):
+        try:
+            await ctx.message.add_reaction("✅")
+            await ctx.message.remove_reaction("⏲️", self.user)
+        except Exception:
+            return
+
     async def on_command_error(self, ctx, error):
         """Logs the error"""
+        try:
+            await ctx.message.add_reaction("❌")
+            await ctx.message.remove_reaction("⏲️", self.user)
+        except Exception:
+            return
         command = "COMMAND: "
         if ctx.cog:
             command += type(ctx.cog).__name__ + ": "
