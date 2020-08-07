@@ -204,7 +204,7 @@ class SpreadsheetHttpError(commands.CommandError):
     def __str__(self):
         return (
             "Error "
-            + self.code
+            + str(self.code)
             + ": Couldn't "
             + self.operation
             + " in the "
