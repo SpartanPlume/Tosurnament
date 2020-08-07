@@ -13,7 +13,7 @@ from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
-from common.api.spreadsheet import HttpError
+from common.api.spreadsheet import HttpError, Spreadsheet
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -412,6 +412,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return
 
     async def background_task_match_notification(self):
+        Spreadsheet.get_from_id.cache_clear()
         try:
             await self.bot.wait_until_ready()
             while not self.bot.is_closed():
@@ -421,6 +422,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild)))
                     now = datetime.datetime.utcnow()
                     delta_minutes = 15 - now.minute % 15
+                    Spreadsheet.get_from_id.cache_clear()
                     await asyncio.sleep(delta_minutes * 60)
                 except asyncio.CancelledError:
                     for task in tasks:
