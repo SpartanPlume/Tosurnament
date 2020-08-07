@@ -406,13 +406,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     tosurnament.DATABASE_DATE_FORMAT
                 )
                 self.bot.session.update(tosurnament_guild)
-            return
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
-            return
+        finally:
+            Spreadsheet.get_from_id.cache_clear()
 
     async def background_task_match_notification(self):
-        Spreadsheet.get_from_id.cache_clear()
         try:
             await self.bot.wait_until_ready()
             while not self.bot.is_closed():
@@ -422,7 +421,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild)))
                     now = datetime.datetime.utcnow()
                     delta_minutes = 15 - now.minute % 15
-                    Spreadsheet.get_from_id.cache_clear()
                     await asyncio.sleep(delta_minutes * 60)
                 except asyncio.CancelledError:
                     for task in tasks:

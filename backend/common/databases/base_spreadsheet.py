@@ -1,5 +1,6 @@
 """Base spreadsheet table"""
 
+import copy
 from mysqldb_wrapper import Base, Id
 from common.api.spreadsheet import Spreadsheet, HttpError
 from common.exceptions import SpreadsheetHttpError
@@ -29,7 +30,7 @@ class BaseSpreadsheet(Base):
     def _get_spreadsheet_worksheet(self):
         """Retrieves the spreadsheet and its main worksheet."""
         try:
-            self._spreadsheet = Spreadsheet.get_from_id(self.spreadsheet_id)
+            self._spreadsheet = copy.copy(Spreadsheet.get_from_id(self.spreadsheet_id))
             if self.sheet_name:
                 for i, worksheet in enumerate(self._spreadsheet.worksheets):
                     if worksheet.name == self.sheet_name:

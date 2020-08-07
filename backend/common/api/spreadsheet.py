@@ -284,6 +284,13 @@ class Spreadsheet:
         self.main_worksheet_index = 0
         self.worksheets = []
 
+    def __copy__(self):
+        newobj = type(self)(self.id)
+        newdict = dict(self.__dict__)
+        del newdict["main_worksheet_index"]
+        newobj.__dict__.update(newdict)
+        return newobj
+
     @staticmethod
     @lru_cache(maxsize=4)
     def get_from_id(spreadsheet_id):
@@ -340,7 +347,7 @@ class Spreadsheet:
     def get_worksheet_and_range(self, range_name):
         """Returns the worksheet specified in the range, or the main worksheet."""
         if "!" not in range_name:
-            return self.worksheets[self.main_worksheet_index], range_name
+            return self.get_worksheet(), range_name
         worksheet_name, range_name = range_name.rsplit("!", 1)
         return self.get_worksheet(worksheet_name), range_name
 
