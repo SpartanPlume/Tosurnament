@@ -13,7 +13,8 @@ from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
-from common.api.spreadsheet import HttpError, Spreadsheet
+from common.databases.allowed_reschedule import AllowedReschedule
+from common.api.spreadsheet import HttpError, Spreadsheet, InvalidWorksheet
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -28,6 +29,45 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if ctx.guild is None:
             raise commands.NoPrivateMessage()
         return True
+
+    @commands.command(aliases=["anr"])
+    async def allow_next_reschedule(self, ctx, match_id: str, allowed_hours: int = 24):
+        """Allows a match to be reschedule without any time constraint applied."""
+        tournament = self.get_tournament(ctx.guild.id)
+        tosurnament_guild = self.get_guild(ctx.guild.id)
+        admin_role = tosurnament.get_role(ctx.author.roles, tosurnament_guild.admin_role_id)
+        if not admin_role and not ctx.guild.owner == ctx.author:
+            referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
+            if not referee_role:
+                raise tosurnament.NotRequiredRole("Referee")
+            for bracket in tournament.brackets:
+                try:
+                    match_info = MatchInfo.from_id(bracket.schedules_spreadsheet, match_id)
+                except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
+                    await self.on_cog_command_error(ctx, ctx.command.name, e)
+                    continue
+                except MatchIdNotFound as e:
+                    self.bot.info(str(type(e)) + ": " + str(e))
+                    continue
+                user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+                is_referee_of_match = False
+                for referee_cell in match_info.referees:
+                    if referee_cell.has_value(user.name):
+                        is_referee_of_match = True
+                        break
+                if not is_referee_of_match:
+                    raise tosurnament.NotRefereeOfMatch()
+        allowed_reschedule = AllowedReschedule(
+            tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
+        )
+        self.bot.session.add(allowed_reschedule)
+        await self.send_reply(ctx, ctx.command.name, "success", match_id, allowed_hours)
+
+    @allow_next_reschedule.error
+    async def allow_next_reschedule_handler(self, ctx, error):
+        """Error handler of allow_next_reschedule function."""
+        if isinstance(error, tosurnament.NotRefereeOfMatch):
+            await self.send_reply(ctx, ctx.command.name, "not_referee_of_match")
 
     @commands.command(aliases=["take_matches", "tm"])
     async def take_match(self, ctx, *args):
@@ -433,8 +473,35 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except asyncio.CancelledError:
             return
 
+    async def clean_allowed_reschedule(self, guild):
+        tournament = self.get_tournament(guild.id)
+        allowed_reschedules = (
+            self.bot.session.query(AllowedReschedule).where(AllowedReschedule.tournament_id == tournament.id).all()
+        )
+        now = datetime.datetime.utcnow()
+        for allowed_reschedule in allowed_reschedules:
+            created_at = datetime.datetime.fromtimestamp(allowed_reschedule.created_at)
+            if now > created_at + datetime.timedelta(seconds=(allowed_reschedule.allowed_hours * 3600)):
+                self.bot.session.delete(allowed_reschedule)
+
+    async def background_task_clean_allowed_reschedule(self):
+        try:
+            await self.bot.wait_until_ready()
+            while not self.bot.is_closed():
+                for guild in self.bot.guilds:
+                    try:
+                        await self.clean_allowed_reschedule(guild)
+                    except asyncio.CancelledError:
+                        return
+                    except Exception:
+                        continue
+                await asyncio.sleep(3600)
+        except asyncio.CancelledError:
+            return
+
     def background_task(self):
         self.bot.tasks.append(self.bot.loop.create_task(self.background_task_match_notification()))
+        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_clean_allowed_reschedule()))
 
     async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
         """on_raw_reaction_add of the Tosurnament staff module."""

@@ -125,11 +125,5 @@
     "parameter": "$../add_match_to_ignore/parameter",
     "usage": "Usage: `%0remove_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0remove_match_to_ignore C2 B3`",
     "success": "$../add_match_to_ignore/success"
-  },
-  "allow_next_reschedule": {
-    "help": "Allows a match to be reschedule without any time constraint applied",
-    "parameter": "<match_id> [<allowed_hours>]",
-    "usage": "Usage: `%0allow_next_reschedule $./parameter`\n\nExample: `%0allow_next_reschedule C2`",
-    "success": "The match `%1` is now allowed to be rescheduled without deadline checks once (if successful) during the next `%2` hours."
   }
 }

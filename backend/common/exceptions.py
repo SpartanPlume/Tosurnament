@@ -144,15 +144,17 @@ class InvalidMpLink(commands.CommandError):
 class PastDeadline(commands.CommandError):
     """Special exception in case the deadline is passed."""
 
-    def __init__(self, reschedule_deadline_hours):
+    def __init__(self, reschedule_deadline_hours, match_id):
         self.reschedule_deadline_hours = reschedule_deadline_hours
+        self.match_id = match_id
 
 
 class ImpossibleReschedule(commands.CommandError):
     """Special exception in case the rescheduled time is not acceptable."""
 
-    def __init__(self, reschedule_deadline_hours):
+    def __init__(self, reschedule_deadline_hours, match_id):
         self.reschedule_deadline_hours = reschedule_deadline_hours
+        self.match_id = match_id
 
 
 class SameDate(commands.CommandError):
@@ -214,3 +216,9 @@ class SpreadsheetHttpError(commands.CommandError):
             + ". Error from google api: "
             + str(self.google_error)
         )
+
+
+class NotRefereeOfMatch(commands.CommandError):
+    """Special exception in case someone who is not the referee of a match try to allow its reschedule."""
+
+    pass

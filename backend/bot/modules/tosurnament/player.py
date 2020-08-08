@@ -136,12 +136,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_current_time
             deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
             if now > deadline:
-                raise tosurnament.PastDeadline(reschedule_deadline_hours)
+                raise tosurnament.PastDeadline(reschedule_deadline_hours, match_info.match_id.value)
         if previous_date == new_date:
             raise tosurnament.SameDate()
         return previous_date
 
-    def validate_new_date(self, tournament, now, new_date, skip_deadline_validation):
+    def validate_new_date(self, match_id, tournament, now, new_date, skip_deadline_validation):
         reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_new_time
         if skip_deadline_validation:
             reschedule_deadline_hours = 0
@@ -158,7 +158,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
         deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
-            raise tosurnament.ImpossibleReschedule(reschedule_deadline_hours)
+            raise tosurnament.ImpossibleReschedule(reschedule_deadline_hours, match_id)
         # ? is this really a good idea ?
         # reschedule_deadline_begin, reschedule_deadline_end = tournament.create_date_from_week_times(
         #     tournament.reschedule_deadline_begin,
@@ -227,7 +227,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             skip_deadline_validation = True
 
         now = datetime.datetime.utcnow()
-        self.validate_new_date(tournament, now, new_date, skip_deadline_validation)
+        self.validate_new_date(match_id, tournament, now, new_date, skip_deadline_validation)
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
         bracket_role_present = False
         for bracket in tournament.brackets:
@@ -326,9 +326,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         elif isinstance(error, tosurnament.InvalidMatch):
             await self.send_reply(ctx, ctx.command.name, "invalid_match")
         elif isinstance(error, tosurnament.PastDeadline):
-            await self.send_reply(ctx, ctx.command.name, "past_deadline", error.reschedule_deadline_hours)
+            await self.send_reply(
+                ctx, ctx.command.name, "past_deadline", error.reschedule_deadline_hours, error.match_id
+            )
         elif isinstance(error, tosurnament.ImpossibleReschedule):
-            await self.send_reply(ctx, ctx.command.name, "impossible_reschedule", error.reschedule_deadline_hours)
+            await self.send_reply(
+                ctx, ctx.command.name, "impossible_reschedule", error.reschedule_deadline_hours, error.match_id
+            )
         elif isinstance(error, tosurnament.SameDate):
             await self.send_reply(ctx, ctx.command.name, "same_date")
 

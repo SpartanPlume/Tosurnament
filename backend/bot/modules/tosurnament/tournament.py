@@ -1,12 +1,9 @@
 """Contains all tournament settings commands related to Tosurnament."""
 
-import asyncio
-import datetime
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
-from common.databases.allowed_reschedule import AllowedReschedule
 
 
 class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tournament"):
@@ -188,45 +185,6 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
-
-    @commands.command(aliases=["anr"])
-    async def allow_next_reschedule(self, ctx, match_id: str, allowed_hours: int = 24):
-        """Allows a match to be reschedule without any time constraint applied."""
-        tournament = self.get_tournament(ctx.guild.id)
-        allowed_reschedule = AllowedReschedule(
-            tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
-        )
-        self.bot.session.add(allowed_reschedule)
-        await self.send_reply(ctx, ctx.command.name, "success", match_id, allowed_hours)
-
-    async def clean_allowed_reschedule(self, guild):
-        tournament = self.get_tournament(guild.id)
-        allowed_reschedules = (
-            self.bot.session.query(AllowedReschedule).where(AllowedReschedule.tournament_id == tournament.id).all()
-        )
-        now = datetime.datetime.utcnow()
-        for allowed_reschedule in allowed_reschedules:
-            created_at = datetime.datetime.fromtimestamp(allowed_reschedule.created_at)
-            if now > created_at + datetime.timedelta(seconds=(allowed_reschedule.allowed_hours * 3600)):
-                self.bot.session.delete(allowed_reschedule)
-
-    async def background_task_clean_allowed_reschedule(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                for guild in self.bot.guilds:
-                    try:
-                        await self.clean_allowed_reschedule(guild)
-                    except asyncio.CancelledError:
-                        return
-                    except Exception:
-                        continue
-                await asyncio.sleep(3600)
-        except asyncio.CancelledError:
-            return
-
-    def background_task(self):
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_clean_allowed_reschedule()))
 
 
 def get_class(bot):
