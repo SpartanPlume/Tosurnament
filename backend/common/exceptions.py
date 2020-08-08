@@ -157,6 +157,12 @@ class ImpossibleReschedule(commands.CommandError):
         self.match_id = match_id
 
 
+class PastDeadlineEnd(commands.CommandError):
+    """Special exception in case the deadline is passed."""
+
+    pass
+
+
 class SameDate(commands.CommandError):
     """Special exception in case the rescheduled time
     is the same date than the previous one."""

@@ -1,5 +1,6 @@
 """Contains all tournament settings commands related to Tosurnament."""
 
+import re
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
@@ -149,6 +150,15 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def set_reschedule_deadline_hours_before_new_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the new match time to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_new_time": hours})
+
+    @commands.command(aliases=["srde"])
+    async def set_reschedule_deadline_end(self, ctx, *, date: str = ""):
+        date = date.lower()
+        if not re.match(
+            r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$", date
+        ):
+            raise commands.UserInputError()
+        await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
     @commands.command(aliases=["snnsr"])
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):

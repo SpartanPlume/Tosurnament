@@ -159,6 +159,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
             raise tosurnament.ImpossibleReschedule(reschedule_deadline_hours, match_id)
+        if tournament.reschedule_deadline_end:
+            try:
+                deadline_end = dateparser.parse(
+                    tournament.reschedule_deadline_end, settings={"PREFER_DATES_FROM": "future"}
+                )
+            except ValueError:
+                # TODO: handle error
+                return
+            if new_date >= deadline_end:
+                raise tosurnament.PastDeadlineEnd()
         # ? is this really a good idea ?
         # reschedule_deadline_begin, reschedule_deadline_end = tournament.create_date_from_week_times(
         #     tournament.reschedule_deadline_begin,
@@ -333,6 +343,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await self.send_reply(
                 ctx, ctx.command.name, "impossible_reschedule", error.reschedule_deadline_hours, error.match_id
             )
+        elif isinstance(error, tosurnament.PastDeadlineEnd):
+            await self.send_reply(ctx, ctx.command.name, "past_deadline_end")
         elif isinstance(error, tosurnament.SameDate):
             await self.send_reply(ctx, ctx.command.name, "same_date")
 

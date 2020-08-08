@@ -108,6 +108,12 @@
     "success": "Deadline hours set to `%1`.",
     "usage": "Usage: `%0set_reschedule_deadline_hours $./parameter`\n\nExample: `%0set_reschedule_deadline_hours 24`"
   },
+  "set_reschedule_deadline_end": {
+    "help": "Sets the final deadline to reschedule a match",
+    "parameter": "[<day name + hour>]",
+    "success": "Final deadline set to `%1`.",
+    "usage": "Usage: `%0set_reschedule_deadline_end $./parameter`\n\nExample: `%0set_reschedule_deadline_end tuesday 00:00`"
+  },
   "set_notify_no_staff_reschedule": {
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<boolean>",
