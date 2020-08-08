@@ -153,11 +153,12 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
 
     @commands.command(aliases=["srde"])
     async def set_reschedule_deadline_end(self, ctx, *, date: str = ""):
-        date = date.lower()
-        if not re.match(
-            r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$", date
-        ):
-            raise commands.UserInputError()
+        if date:
+            date = date.lower()
+            if not re.match(
+                r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$", date
+            ):
+                raise commands.UserInputError()
         await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
     @commands.command(aliases=["snnsr"])
