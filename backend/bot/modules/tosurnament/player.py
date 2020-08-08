@@ -133,15 +133,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not previous_date:
             raise tosurnament.InvalidDateOrFormat()
         if not skip_deadline_validation:
-            deadline = previous_date - datetime.timedelta(hours=tournament.reschedule_deadline_hours)
+            reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_current_time
+            deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
             if now > deadline:
-                raise tosurnament.PastDeadline(tournament.reschedule_deadline_hours)
+                raise tosurnament.PastDeadline(reschedule_deadline_hours)
         if previous_date == new_date:
             raise tosurnament.SameDate()
         return previous_date
 
     def validate_new_date(self, tournament, now, new_date, skip_deadline_validation):
-        reschedule_deadline_hours = tournament.reschedule_deadline_hours
+        reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_new_time
         if skip_deadline_validation:
             reschedule_deadline_hours = 0
         # if new_date.minute != 0 and new_date.minute != 15 and new_date.minute != 30 and new_date.minute != 45:

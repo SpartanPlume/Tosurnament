@@ -137,8 +137,8 @@ class Client(commands.Bot):
             self.session.update(user)
 
     async def on_command_completion(self, ctx):
-        spreadsheet.Spreadsheet.get_from_id.cache_clear()
         try:
+            spreadsheet.Spreadsheet.get_from_id.cache_clear()
             await ctx.message.add_reaction("✅")
             await ctx.message.remove_reaction("⏲️", self.user)
         except Exception:
@@ -146,10 +146,12 @@ class Client(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         """Logs the error"""
-        spreadsheet.Spreadsheet.get_from_id.cache_clear()
         try:
+            spreadsheet.Spreadsheet.get_from_id.cache_clear()
             await ctx.message.add_reaction("❌")
             await ctx.message.remove_reaction("⏲️", self.user)
+            if isinstance(error, commands.CommandNotFound):
+                await ctx.send("Command not found. Please check the spelling.")
         except Exception:
             return
         command = "COMMAND: "

@@ -16,7 +16,7 @@
   "no_write_access": "Uh-oh, seems like I don't have write access on the %1. Please contact an admin.",
   "duplicate_player": "Uh-oh, it seems like the player **%1** is present multiple times on the players spreadsheet. Please contact an admin.",
   "duplicate_team": "Uh-oh, it seems like the team **%1** is present multiples times on the players spreadsheet. Please contact an admin.",
-  "opponent_not_found": "Sorry %1, it seems I cannot find your opponent in the guild. Your action has been cancelled. Please contact an admin.",
+  "opponent_not_found": "Sorry %1, it seems I cannot find your opponent in the guild. The problem might be a change in their discord tag. Your action has been cancelled. Please contact an admin.",
   "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %3 spreadsheet of the bracket %2.",
   "connection_reset_by_peer": "The connection has been reset by Google Sheets API. Please retry.",
   "request_timeout": "The request has timeout on Google Sheets API side. Please retry.",

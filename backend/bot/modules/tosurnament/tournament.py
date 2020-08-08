@@ -143,10 +143,15 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_tb_bans": message})
 
-    @commands.command(aliases=["srdh", "set_reschedule_deadline", "srd"])
-    async def set_reschedule_deadline_hours(self, ctx, hours: int):
-        """Allows to change the deadline (in hours) to reschedule a match."""
-        await self.set_tournament_values(ctx, {"reschedule_deadline_hours": hours})
+    @commands.command(aliases=["srdhbct"])
+    async def set_reschedule_deadline_hours_before_current_time(self, ctx, hours: int):
+        """Allows to change the deadline (in hours) before the current match time to reschedule a match."""
+        await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_current_time": hours})
+
+    @commands.command(aliases=["srdhbnt"])
+    async def set_reschedule_deadline_hours_before_new_time(self, ctx, hours: int):
+        """Allows to change the deadline (in hours) before the new match time to reschedule a match."""
+        await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_new_time": hours})
 
     @commands.command(aliases=["snnsr"])
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
