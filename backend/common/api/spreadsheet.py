@@ -161,6 +161,7 @@ class Worksheet:
             return []
         x_ranges, y_ranges = [], []
         for range_name in range_names.split(","):
+            range_name = range_name.strip()
             if re.match(r"^[A-Z]+(:[A-Z]+)?$", range_name):
                 x_range, y_range = self._from_column_range(range_name)
             elif re.match(r"^[0-9]+(:[0-9]+)?$", range_name):
