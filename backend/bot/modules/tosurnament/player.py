@@ -137,6 +137,17 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
             if now > deadline:
                 raise tosurnament.PastDeadline(reschedule_deadline_hours, match_info.match_id.value)
+            if tournament.reschedule_deadline_end:
+                try:
+                    deadline_end = dateparser.parse(
+                        tournament.reschedule_deadline_end,
+                        settings={"RELATIVE_BASE": previous_date, "PREFER_DATES_FROM": "future"},
+                    )
+                except ValueError:
+                    # TODO: handle error
+                    return
+                if new_date >= deadline_end:
+                    raise tosurnament.PastDeadlineEnd()
         if previous_date == new_date:
             raise tosurnament.SameDate()
         return previous_date
@@ -159,16 +170,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
             raise tosurnament.ImpossibleReschedule(reschedule_deadline_hours, match_id)
-        if tournament.reschedule_deadline_end:
-            try:
-                deadline_end = dateparser.parse(
-                    tournament.reschedule_deadline_end, settings={"PREFER_DATES_FROM": "future"}
-                )
-            except ValueError:
-                # TODO: handle error
-                return
-            if new_date >= deadline_end:
-                raise tosurnament.PastDeadlineEnd()
         # ? is this really a good idea ?
         # reschedule_deadline_begin, reschedule_deadline_end = tournament.create_date_from_week_times(
         #     tournament.reschedule_deadline_begin,
