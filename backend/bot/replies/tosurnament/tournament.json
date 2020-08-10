@@ -102,11 +102,17 @@
     "success": "Post result message `_tb_bans_` set to\n```\n%1\n```",
     "usage": "Usage: `%0set_post_result_message_tb_bans $./parameter`\n\nExample: see https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message"
   },
-  "set_reschedule_deadline_hours": {
-    "help": "Sets the deadline to reschedule a match (in hours before the match)",
+  "set_reschedule_deadline_hours_before_current_time": {
+    "help": "Sets the deadline before current match time for reschedule (in hours before the match)",
     "parameter": "<hours>",
-    "success": "Deadline hours set to `%1`.",
-    "usage": "Usage: `%0set_reschedule_deadline_hours $./parameter`\n\nExample: `%0set_reschedule_deadline_hours 24`"
+    "success": "Deadline hours before current time set to `%1`.",
+    "usage": "Usage: `%0set_reschedule_deadline_hours_before_current_time $./parameter`\n\nExample: `%0set_reschedule_deadline_hours_before_current_time 24`"
+  },
+  "set_reschedule_deadline_hours_before_new_time": {
+    "help": "Sets the deadline before new match time for reschedule (in hours before the match)",
+    "parameter": "<hours>",
+    "success": "Deadline hours before new time set to `%1`.",
+    "usage": "Usage: `%0set_reschedule_deadline_hours_before_new_time $./parameter`\n\nExample: `%0set_reschedule_deadline_hours_before_new_time 24`"
   },
   "set_reschedule_deadline_end": {
     "help": "Sets the final deadline to reschedule a match",
