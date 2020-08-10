@@ -325,14 +325,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         try:
             parameter = int(parameter)
         except ValueError:
-            self.bot.info("step1: the parameter is not an int")
             raise commands.UserInputError
         if parameter < 0 or parameter % 2 != 1:
-            self.bot.info("step1: the parameter is not a valid best of")
             raise commands.UserInputError
         post_result_message.best_of = parameter
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 2)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 2)
 
     async def step2(self, ctx, tournament, post_result_message, parameter):
         """Step 2 (roll team1) of the post_result command"""
@@ -343,8 +340,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if parameter < 1 or parameter > 100:
             raise commands.UserInputError
         post_result_message.roll_team1 = parameter
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 3)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 3)
 
     async def step3(self, ctx, tournament, post_result_message, parameter):
         """Step 3 (roll team2) of the post_result command"""
@@ -355,8 +351,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if parameter < 1 or parameter > 100:
             raise commands.UserInputError
         post_result_message.roll_team2 = parameter
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 4)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 4)
 
     async def step4(self, ctx, tournament, post_result_message, parameter):
         """Step 4 (nb of warmups) of the post_result command"""
@@ -367,8 +362,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if parameter < 0:
             raise commands.UserInputError
         post_result_message.n_warmup = parameter
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 5)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 5)
 
     async def step5(self, ctx, tournament, post_result_message, parameter):
         """Step 5 (mp links) of the post_result command"""
@@ -378,14 +372,12 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             link = osu.get_from_string(link)
             mp_links.append(link)
         post_result_message.mp_links = "\n".join(mp_links)
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 6)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 6)
 
     async def step6(self, ctx, tournament, post_result_message, parameter):
         """Step 6 (bans team1) of the post_result command"""
         post_result_message.bans_team1 = parameter
-        await ctx.message.delete()
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, 7)
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 7)
 
     async def step7_send_message(self, ctx, tournament, post_result_message):
         bracket = self.bot.session.query(Bracket).where(Bracket.id == post_result_message.bracket_id).first()
@@ -402,28 +394,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         else:
             result_string = self.get_string("post_result", "default")
         result_string = prbuilder.build(result_string, self, tournament)
-        message = await self.send_reply(
-            ctx,
-            "post_result",
-            "step8",
-            post_result_message.match_id,
-            post_result_message.best_of,
-            post_result_message.roll_team1,
-            post_result_message.roll_team2,
-            post_result_message.n_warmup,
-            osu.build_mp_links(post_result_message.mp_links.split("\n")),
-            post_result_message.bans_team1,
-            post_result_message.bans_team2,
-            post_result_message.tb_bans_team1,
-            post_result_message.tb_bans_team2,
-        )
-        post_result_message.setup_message_id = message.id
-        post_result_message.step = 8
+
+        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 8)
 
         preview_message = await self.send_reply(ctx, "post_result", "preview", result_string)
         post_result_message.preview_message_id = preview_message.id
-
-        return message
 
     async def step7(self, ctx, tournament, post_result_message, parameter):
         """Step 7 (bans team2) of the post_result command"""
@@ -431,9 +406,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await ctx.message.delete()
         message = await ctx.channel.fetch_message(post_result_message.setup_message_id)
         await message.delete()
-        message = await self.step7_send_message(ctx, tournament, post_result_message)
-        self.bot.session.update(post_result_message)
-        await self.add_reaction_to_setup_message(message)
+        await self.step7_send_message(ctx, tournament, post_result_message)
 
     async def step8_write_in_spreadsheet(self, bracket, match_info, prbuilder):
         match_info.score_team1.value = prbuilder.get_score_team1()
@@ -675,6 +648,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             self.step7,
             self.step8,
         ]
+        self.bot.info("answer of step " + str(post_result_message.step))
         await steps[post_result_message.step - 1](ctx, tournament, post_result_message, parameter)
 
     async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
@@ -718,6 +692,13 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await message.add_reaction("❌")
         except Exception:
             return
+
+    async def update_post_result_setup_message_with_ctx(self, ctx, post_result_message, new_step):
+        try:
+            await ctx.message.delete()
+        except Exception as e:
+            self.bot.info(str(type(e)) + ": " + str(e))
+        await self.update_post_result_setup_message(post_result_message, ctx.channel, new_step)
 
     async def update_post_result_setup_message(self, post_result_message, channel, new_step):
         message = await channel.fetch_message(post_result_message.setup_message_id)

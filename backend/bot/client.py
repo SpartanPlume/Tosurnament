@@ -171,7 +171,10 @@ class Client(commands.Bot):
                 self.debug("Background task cancelled.")
         self.error_code = code
         if ctx and ctx.guild:
-            await ctx.message.delete()
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
         self.info("Closing the bot...\n")
         await self.close()
 
