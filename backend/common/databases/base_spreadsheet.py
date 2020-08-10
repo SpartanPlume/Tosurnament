@@ -21,6 +21,12 @@ class BaseSpreadsheet(Base):
         cls.spreadsheet_id = str()
         cls.sheet_name = str("")
 
+    def copy_to(self, new_obj):
+        keys_to_ignore = ["id", "sheet_name"]
+        for key, value in vars(self):
+            if not key.startswith("_") and key not in keys_to_ignore:
+                setattr(new_obj, key, value)
+
     @property
     def spreadsheet(self):
         if self._spreadsheet is None:

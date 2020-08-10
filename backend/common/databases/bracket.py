@@ -28,6 +28,23 @@ class Bracket(Base):
     current_round = str()
     # TODO set_all_post_result_channel
 
+    def get_spreadsheet_from_type(self, spreadsheet_type):
+        return getattr(self, spreadsheet_type + "_spreadsheet")
+
+    def create_spreadsheet_from_type(self, bot, spreadsheet_type):
+        spreadsheet_types = self.get_spreadsheet_types()
+        if spreadsheet_type in spreadsheet_types:
+            spreadsheet = spreadsheet_types[spreadsheet_type]()
+            bot.session.add(spreadsheet)
+            setattr(self, spreadsheet_type + "_spreadsheet_id", spreadsheet.id)
+            bot.session.update(self)
+            return spreadsheet
+        return None
+
+    @classmethod
+    def get_spreadsheet_types(cls):
+        return {"players": PlayersSpreadsheet, "schedules": SchedulesSpreadsheet}
+
     @property
     def players_spreadsheet(self):
         if self._players_spreadsheet is None:

@@ -5,8 +5,7 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import spreadsheet
 from common.api import challonge
-from common.databases.players_spreadsheet import PlayersSpreadsheet, TeamInfo
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.players_spreadsheet import TeamInfo
 
 
 class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
@@ -144,23 +143,9 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
         spreadsheet_id = spreadsheet.extract_spreadsheet_id(spreadsheet_id)
-        if getattr(bracket, spreadsheet_type + "_spreadsheet_id") > 0:
-            if spreadsheet_type == "players":
-                any_spreadsheet = bracket.players_spreadsheet
-            elif spreadsheet_type == "schedules":
-                any_spreadsheet = bracket.schedules_spreadsheet
-            else:
-                return
-        else:
-            if spreadsheet_type == "players":
-                any_spreadsheet = PlayersSpreadsheet()
-            elif spreadsheet_type == "schedules":
-                any_spreadsheet = SchedulesSpreadsheet()
-            else:
-                return
-            self.bot.session.add(any_spreadsheet)
-            setattr(bracket, spreadsheet_type + "_spreadsheet_id", any_spreadsheet.id)
-            self.bot.session.update(bracket)
+        any_spreadsheet = bracket.get_spreadsheet_from_type(spreadsheet_type)
+        if not any_spreadsheet:
+            any_spreadsheet = bracket.create_spreadsheet_from_type(self.bot, spreadsheet_type)
         any_spreadsheet.spreadsheet_id = spreadsheet_id
         if sheet_name:
             any_spreadsheet.sheet_name = sheet_name
@@ -322,46 +307,15 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             bracket_to.post_result_channel_id = bracket_from.post_result_channel_id
             bracket_to.current_round = bracket_from.current_round
 
-            schedules_spreadsheet_from = bracket_from.schedules_spreadsheet
-            if schedules_spreadsheet_from:
-                schedules_spreadsheet_to = bracket_to.schedules_spreadsheet
-                if not schedules_spreadsheet_to:
-                    schedules_spreadsheet_to = SchedulesSpreadsheet()
-                    self.bot.session.add(schedules_spreadsheet_to)
-                    bracket_to.schedules_spreadsheet_id = schedules_spreadsheet_to.id
-                schedules_spreadsheet_to.spreadsheet_id = schedules_spreadsheet_from.spreadsheet_id
-                schedules_spreadsheet_to.range_match_id = schedules_spreadsheet_from.range_match_id
-                schedules_spreadsheet_to.range_team1 = schedules_spreadsheet_from.range_team1
-                schedules_spreadsheet_to.range_score_team1 = schedules_spreadsheet_from.range_score_team1
-                schedules_spreadsheet_to.range_score_team2 = schedules_spreadsheet_from.range_score_team2
-                schedules_spreadsheet_to.range_team2 = schedules_spreadsheet_from.range_team2
-                schedules_spreadsheet_to.range_date = schedules_spreadsheet_from.range_date
-                schedules_spreadsheet_to.range_time = schedules_spreadsheet_from.range_time
-                schedules_spreadsheet_to.range_referee = schedules_spreadsheet_from.range_referee
-                schedules_spreadsheet_to.range_streamer = schedules_spreadsheet_from.range_streamer
-                schedules_spreadsheet_to.range_commentator = schedules_spreadsheet_from.range_commentator
-                schedules_spreadsheet_to.range_mp_links = schedules_spreadsheet_from.range_mp_links
-                schedules_spreadsheet_to.date_format = schedules_spreadsheet_from.date_format
-                schedules_spreadsheet_to.use_range = schedules_spreadsheet_from.use_range
-                schedules_spreadsheet_to.max_referee = schedules_spreadsheet_from.max_referee
-                schedules_spreadsheet_to.max_streamer = schedules_spreadsheet_from.max_streamer
-                schedules_spreadsheet_to.max_commentator = schedules_spreadsheet_from.max_commentator
-                self.bot.session.update(schedules_spreadsheet_to)
+            for spreadsheet_type in bracket_from.get_spreadsheet_type().keys():
+                spreadsheet_from = bracket_from.get_spreadsheet_from_type(spreadsheet_type)
+                if spreadsheet_from:
+                    spreadsheet_to = bracket_to.get_spreadsheet_from_type(spreadsheet_type)
+                    if not spreadsheet_to:
+                        spreadsheet_to = bracket_to.create_spreadsheet_from_type(self.bot, spreadsheet_type)
+                    spreadsheet_from.copy_to(spreadsheet_to)
+                    self.bot.session.update(spreadsheet_to)
 
-            players_spreadsheet_from = bracket_from.players_spreadsheet
-            if players_spreadsheet_from:
-                players_spreadsheet_to = bracket_to.players_spreadsheet
-                if not players_spreadsheet_to:
-                    players_spreadsheet_to = PlayersSpreadsheet()
-                    self.bot.session.add(players_spreadsheet_to)
-                    bracket_to.players_spreadsheet_id = players_spreadsheet_to.id
-                players_spreadsheet_to.spreadsheet_id = players_spreadsheet_from.spreadsheet_id
-                players_spreadsheet_to.range_team_name = players_spreadsheet_from.range_team_name
-                players_spreadsheet_to.range_team = players_spreadsheet_from.range_team
-                players_spreadsheet_to.range_discord = players_spreadsheet_from.range_discord
-                self.bot.session.update(players_spreadsheet_to)
-
-            self.bot.session.update(bracket_to)
             await self.send_reply(ctx, ctx.command.name, "success", bracket_from.name, bracket_to.name)
             return
         raise commands.UserInputError()
