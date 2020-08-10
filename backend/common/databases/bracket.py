@@ -32,7 +32,7 @@ class Bracket(Base):
         return getattr(self, spreadsheet_type + "_spreadsheet")
 
     def create_spreadsheet_from_type(self, bot, spreadsheet_type):
-        spreadsheet_types = self.get_spreadsheet_types()
+        spreadsheet_types = Bracket.get_spreadsheet_types()
         if spreadsheet_type in spreadsheet_types:
             spreadsheet = spreadsheet_types[spreadsheet_type]()
             bot.session.add(spreadsheet)

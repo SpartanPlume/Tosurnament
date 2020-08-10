@@ -155,35 +155,39 @@ class Worksheet:
                 x_max = row_length
         return range(x_min, x_max), range(y_min, y_max + 1)
 
-    def get_range(self, range_name):
+    def get_range(self, range_names):
         """Returns an array of Cell. If a Cell does not exist in the range, it creates it."""
-        if not range_name:
+        if not range_names:
             return []
-        if re.match(r"^[A-Z]+(:[A-Z]+)?$", range_name):
-            x_range, y_range = self._from_column_range(range_name)
-        elif re.match(r"^[0-9]+(:[0-9]+)?$", range_name):
-            x_range, y_range = self._from_row_range(range_name)
-        elif re.match(r"^[A-Z]+[0-9]+(:[A-Z]+[0-9]+)?$", range_name):
-            x_range, y_range = self._from_square_range(range_name)
-        elif re.match(r"^[A-Z]+[0-9]*:[A-Z]+[0-9]*$", range_name):
-            x_range, y_range = self._from_partial_column_range(range_name)
-        elif re.match(r"^[A-Z]+[0-9]+:[0-9]+$", range_name):
-            x_range, y_range = self._from_partial_row_range(range_name)
-        else:
-            return []
+        x_ranges, y_ranges = [], []
+        for range_name in range_names.split(","):
+            if re.match(r"^[A-Z]+(:[A-Z]+)?$", range_name):
+                x_range, y_range = self._from_column_range(range_name)
+            elif re.match(r"^[0-9]+(:[0-9]+)?$", range_name):
+                x_range, y_range = self._from_row_range(range_name)
+            elif re.match(r"^[A-Z]+[0-9]+(:[A-Z]+[0-9]+)?$", range_name):
+                x_range, y_range = self._from_square_range(range_name)
+            elif re.match(r"^[A-Z]+[0-9]*:[A-Z]+[0-9]*$", range_name):
+                x_range, y_range = self._from_partial_column_range(range_name)
+            elif re.match(r"^[A-Z]+[0-9]+:[0-9]+$", range_name):
+                x_range, y_range = self._from_partial_row_range(range_name)
+            x_ranges.append(x_range)
+            y_ranges.append(y_range)
         range_cells = []
-        if not y_range:
-            y_range = range(0, len(self.cells))
-        if not x_range:
-            max_x = 0
-            for row in self.cells:
-                if max_x < (row_length := len(row)):
-                    max_x = row_length
-            x_range = range(0, max_x)
-        for new_y, y in enumerate(y_range):
-            range_cells.append([])
-            for x in x_range:
-                range_cells[new_y].append(self.get_cell(x, y))
+        for x_range, y_range in zip(x_ranges, y_ranges):
+            if not y_range:
+                y_range = range(0, len(self.cells))
+            if not x_range:
+                max_x = 0
+                for row in self.cells:
+                    if max_x < (row_length := len(row)):
+                        max_x = row_length
+                x_range = range(0, max_x)
+            for new_y, y in enumerate(y_range):
+                if new_y >= len(range_cells):
+                    range_cells.append([])
+                for x in x_range:
+                    range_cells[new_y].append(self.get_cell(x, y))
         return range_cells
 
     def get_cells_with_value_in_range(self, range_name):
