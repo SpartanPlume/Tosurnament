@@ -171,6 +171,8 @@ class Worksheet:
                 x_range, y_range = self._from_partial_column_range(range_name)
             elif re.match(r"^[A-Z]+[0-9]+:[0-9]+$", range_name):
                 x_range, y_range = self._from_partial_row_range(range_name)
+            else:
+                continue
             x_ranges.append(x_range)
             y_ranges.append(y_range)
         range_cells = []
