@@ -390,7 +390,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message.bans_team1 = parameter
         await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 7)
 
-    async def step7_send_message(self, ctx, tournament, post_result_message):
+    async def step7_send_message(self, channel, tournament, post_result_message):
         bracket = self.bot.session.query(Bracket).where(Bracket.id == post_result_message.bracket_id).first()
         if not bracket:
             self.bot.session.delete(post_result_message)
@@ -399,24 +399,21 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
-        prbuilder = await self.create_prbuilder(ctx, post_result_message, tournament, bracket, match_info, ctx)
+        prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, channel)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
             result_string = self.get_string("post_result", "default")
         result_string = prbuilder.build(result_string, self, tournament)
 
-        await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 8)
+        await self.update_post_result_setup_message(post_result_message, channel, 8)
 
-        preview_message = await self.send_reply(ctx, "post_result", "preview", result_string)
+        preview_message = await self.send_reply(channel, "post_result", "preview", result_string)
         post_result_message.preview_message_id = preview_message.id
 
     async def step7(self, ctx, tournament, post_result_message, parameter):
         """Step 7 (bans team2) of the post_result command"""
         post_result_message.bans_team2 = parameter
-        await ctx.message.delete()
-        message = await ctx.channel.fetch_message(post_result_message.setup_message_id)
-        await message.delete()
         await self.step7_send_message(ctx, tournament, post_result_message)
 
     async def step8_write_in_spreadsheet(self, bracket, match_info, prbuilder):
@@ -626,7 +623,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await self.step8_per_bracket(ctx, post_result_message, tournament)
             self.bot.session.delete(post_result_message)
             await self.delete_setup_message(ctx.channel, post_result_message)
-            await ctx.message.delete()
+            try:
+                await ctx.message.delete()
+            except Exception as e:
+                self.bot.info(str(type(e)) + ": " + str(e))
 
     async def delete_setup_message(self, channel, post_result_message):
         if post_result_message.setup_message_id:
@@ -635,6 +635,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if post_result_message.preview_message_id:
             message = await channel.fetch_message(post_result_message.preview_message_id)
             await message.delete()
+            post_result_message.preview_message_id = 0
 
     @commands.command(aliases=["a"])
     async def answer(self, ctx, *, parameter: str):
@@ -688,7 +689,14 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         emoji_steps = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣"]
         if emoji.name not in emoji_steps:
             return
-        await self.update_post_result_setup_message(post_result_message, channel, emoji_steps.index(emoji.name) + 1)
+        step = emoji_steps.index(emoji.name) + 1
+        try:
+            if step == 8:
+                await self.step7_send_message(channel, tournament, post_result_message)
+            else:
+                await self.update_post_result_setup_message(post_result_message, channel, step)
+        except Exception as e:
+            await self.on_cog_command_error(channel, "post_result", e)
 
     async def add_reaction_to_setup_message(self, message):
         try:
@@ -712,12 +720,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await self.update_post_result_setup_message(post_result_message, ctx.channel, new_step)
 
     async def update_post_result_setup_message(self, post_result_message, channel, new_step):
-        message = await channel.fetch_message(post_result_message.setup_message_id)
-        await message.delete()
-        if post_result_message.preview_message_id:
-            message = await channel.fetch_message(post_result_message.preview_message_id)
-            await message.delete()
-            post_result_message.preview_message_id = 0
+        await self.delete_setup_message(channel, post_result_message)
         message = await self.send_reply(
             channel,
             "post_result",
