@@ -304,6 +304,17 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 continue
             return tournament, bracket
         raise tosurnament.InvalidMatchId()
+        post_result_message = (
+            self.bot.session.query(PostResultMessage)
+            .where(PostResultMessage.tournament_id == tournament.id)
+            .where(PostResultMessage.referee_id == ctx.author.id)
+            .first()
+        )
+        if post_result_message:
+            # TODO Raise error
+            ctx.send(
+                "You cannot start multiple post_result at the same time. Please finish your previous one or cancel it."
+            )
 
     async def step0(self, ctx, match_id, score_team1, score_team2, tournament, bracket):
         """Step 0 (initialization) of the post_result_command"""
