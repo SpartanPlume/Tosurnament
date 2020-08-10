@@ -1,5 +1,6 @@
 """Schedules spreadsheet table"""
 
+from discord.ext import commands
 from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     Cell,
@@ -35,18 +36,25 @@ class SchedulesSpreadsheet(BaseSpreadsheet):
     max_commentator = int(2)
 
 
-class MatchIdNotFound(Exception):
+class MatchIdNotFound(commands.CommandError):
     """Thrown when a match id is not found."""
 
     def __init__(self, match_id):
         self.match_id = match_id
 
 
-class DuplicateMatchId(Exception):
+class DuplicateMatchId(commands.CommandError):
     """Thrown when a match id is found multiple times."""
 
     def __init__(self, match_id):
         self.match_id = match_id
+
+
+class DateIsNotString(commands.CommandError):
+    """Thrown when the date or time is not a string."""
+
+    def __init__(self, range_type):
+        self.type = range_type
 
 
 class MatchInfo:
@@ -156,4 +164,8 @@ class MatchInfo:
                     match_id_cell.y,
                 )
             ]
+        if not isinstance(match_info.date.value, str):
+            raise DateIsNotString("date")
+        if not isinstance(match_info.time.value, str):
+            raise DateIsNotString("time")
         return match_info

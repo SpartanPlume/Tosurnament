@@ -1,5 +1,6 @@
 """Google Spreadsheet API wrapper"""
 
+from discord.ext import commands
 import re
 import socket
 import googleapiclient
@@ -380,7 +381,7 @@ class HttpError(Exception):
         self.error = error
 
 
-class InvalidWorksheet(Exception):
+class InvalidWorksheet(commands.CommandError):
     """Special exception raised when the specified worksheet is invalid."""
 
     def __init__(self, worksheet):

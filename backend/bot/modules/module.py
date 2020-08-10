@@ -142,10 +142,11 @@ class BaseModule(commands.Cog):
             for missing_permission in error.missing_perms:
                 if missing_permission == "manage_nicknames":
                     await self.send_reply(channel, command_name, "change_nickname_forbidden")
-                    return
+                    return True
                 elif missing_permission == "manage_roles":
                     await self.send_reply(channel, command_name, "change_role_forbidden")
-                    return
+                    return True
+            return False
         elif isinstance(error, UnknownError):
             await self.send_reply(channel, command_name, "unknown_error")
         elif isinstance(error, NotGuildOwner):

@@ -1,12 +1,13 @@
 """challonge API wrapper"""
 
 import requests
+from discord.ext import commands
 from common.config import constants
 
 CHALLONGE_URL = "https://api.challonge.com/v1/"
 
 
-class ChallongeException(Exception):
+class ChallongeException(commands.CommandError):
     """Base exception of the challonge api wrapper"""
 
     pass

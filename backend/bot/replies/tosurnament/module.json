@@ -7,6 +7,7 @@
   "invalid_challonge": "Either the challonge set is invalid, or you didn't give access to the challonge to `TosurnamentBot`.",
   "invalid_match_id": "Invalid match id.",
   "invalid_match_id_or_no_bracket_role": "Invalid match id or missing required bracket role.",
+  "date_is_not_string": "The `%1` range contains data that are not plain text.",
   "invalid_mp_link": "Invalid mp link.",
   "match_not_found": "Match not found, there seems to be an error on the challonge.",
   "team_not_found": "Team `%1` not found. Please contact an admin.",

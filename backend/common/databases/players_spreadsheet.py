@@ -1,5 +1,6 @@
 """Players spreadsheet table"""
 
+from discord.ext import commands
 from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import find_corresponding_cell_best_effort, find_corresponding_cells_best_effort, Cell
 
@@ -18,14 +19,14 @@ class PlayersSpreadsheet(BaseSpreadsheet):
     range_discord = str("")
 
 
-class TeamNotFound(Exception):
+class TeamNotFound(commands.CommandError):
     """Thrown when a match id is not found."""
 
     def __init__(self, team):
         self.team = team
 
 
-class DuplicateTeam(Exception):
+class DuplicateTeam(commands.CommandError):
     """Thrown when a match id is found multiple times."""
 
     def __init__(self, team):

@@ -206,13 +206,13 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def post_result(self, ctx, match_id: str):
         """Allows referees to post the result of a match"""
         tournament, bracket = await self.init_post_result(ctx, match_id)
-        await self.step0(match_id, -1, -1, tournament, bracket)
+        await self.step0(ctx, match_id, -1, -1, tournament, bracket)
 
     @commands.command(aliases=["prws"])
     async def post_result_with_scores(self, ctx, match_id: str, score_team1: int, score_team2: int):
         """Allows referees to post the result of a match"""
         tournament, bracket = await self.init_post_result(ctx, match_id)
-        await self.step0(match_id, score_team1, score_team2, tournament, bracket)
+        await self.step0(ctx, match_id, score_team1, score_team2, tournament, bracket)
 
     @commands.command(aliases=["prol"])
     async def post_result_one_liner(

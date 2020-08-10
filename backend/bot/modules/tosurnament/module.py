@@ -3,10 +3,7 @@
 from discord.ext import commands
 from bot.modules.module import *
 from common.databases.tournament import Tournament
-from common.databases.schedules_spreadsheet import (
-    DuplicateMatchId,
-    MatchIdNotFound,
-)
+from common.databases.schedules_spreadsheet import DuplicateMatchId, MatchIdNotFound, DateIsNotString
 from common.databases.players_spreadsheet import (
     TeamInfo,
     DuplicateTeam,
@@ -189,6 +186,8 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(channel, command_name, "duplicate_match_id", error.match_id)
         elif isinstance(error, MatchIdNotFound):
             await self.send_reply(channel, command_name, "match_id_not_found", error.match_id)
+        elif isinstance(error, DateIsNotString):
+            await self.send_reply(channel, command_name, "date_is_not_string", error.type)
         elif isinstance(error, DuplicatePlayer):
             await self.send_reply(channel, command_name, "duplicate_player", error.player)
         elif isinstance(error, InvalidDateOrFormat):
