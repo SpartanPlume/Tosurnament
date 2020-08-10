@@ -300,6 +300,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if role:
                 reschedule_message.ally_team_role_id = role.id
             reschedule_message.match_id = match_id
+            reschedule_message.match_id_hash = match_id
             reschedule_message.ally_user_id = ctx.author.id
             reschedule_message.opponent_user_id = opponent_team_captain.id
             if previous_date:
@@ -321,6 +322,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 new_date_string,
             )
             reschedule_message.message_id = sent_message.id
+
+            previous_reschedule_message = (
+                self.bot.session.query(RescheduleMessage)
+                .where(RescheduleMessage.tournament_id == tournament.id)
+                .where(RescheduleMessage.match_id_hash == match_id)
+                .first()
+            )
+            if previous_reschedule_message:
+                self.bot.session.delete(previous_reschedule_message)
+
             self.bot.session.add(reschedule_message)
             await sent_message.add_reaction("👍")
             await sent_message.add_reaction("👎")

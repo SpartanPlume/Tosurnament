@@ -15,6 +15,7 @@ class RescheduleMessage(Base):
     previous_date = str()
     new_date = str()
     match_id = str()
+    match_id_hash = bytes()
     ally_user_id = int()
     ally_team_role_id = int()
     opponent_user_id = int()
