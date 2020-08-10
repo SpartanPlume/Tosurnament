@@ -325,8 +325,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         try:
             parameter = int(parameter)
         except ValueError:
+            self.bot.info("step1: the parameter is not an int")
             raise commands.UserInputError
         if parameter < 0 or parameter % 2 != 1:
+            self.bot.info("step1: the parameter is not a valid best of")
             raise commands.UserInputError
         post_result_message.best_of = parameter
         await ctx.message.delete()
@@ -661,6 +663,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             .first()
         )
         if not post_result_message:
+            self.bot.info("No post result message found")
             return
         steps = [
             self.step1,
