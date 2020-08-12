@@ -226,6 +226,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             new_date = dateparser.parse(date)
         except ValueError:
             raise commands.UserInputError()
+        if not new_date:
+            raise commands.UserInputError()
         tournament = self.get_tournament(ctx.guild.id)
         skip_deadline_validation = False
         allowed_reschedule_match_ids = [
