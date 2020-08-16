@@ -283,6 +283,11 @@ class Worksheet:
                     tmp_cells = []
         return ranges, values
 
+    def reset_updated_state(self):
+        for row in self.cells:
+            for cell in row:
+                cell._updated = False
+
 
 class Spreadsheet:
     """A spreadsheet. Contains every worksheet, a return_code when trying to get a Spreadsheet and utility functions."""
@@ -351,6 +356,8 @@ class Spreadsheet:
             raise HttpError(499, "write", e)
         except socket.timeout as e:
             raise HttpError(408, "write", e)
+        for worksheet in self.worksheets:
+            worksheet.reset_updated_state()
 
     def get_worksheet_and_range(self, range_name):
         """Returns the worksheet specified in the range, or the main worksheet."""
@@ -375,7 +382,10 @@ class Spreadsheet:
 
     def find_cells(self, range_name, value_to_find, case_sensitive=True):
         """Returns an array of Cell matching the value_to_find."""
-        worksheet, range_name = self.get_worksheet_and_range(range_name)
+        if isinstance(range_name, str):
+            worksheet, range_name = self.get_worksheet_and_range(range_name)
+        else:
+            worksheet = self.get_worksheet()
         return worksheet.find_cells(range_name, value_to_find, case_sensitive)
 
 
@@ -407,7 +417,7 @@ def _get_cell_value(value):
     if "userEnteredValue" in value and "formulaValue" in value["userEnteredValue"]:
         return value["userEnteredValue"]["formulaValue"]
     elif "userEnteredValue" in value and "stringValue" in value["userEnteredValue"]:
-        return value["userEnteredValue"]["stringValue"]
+        return value["userEnteredValue"]["stringValue"].strip()
     elif "userEnteredValue" in value and "numberValue" in value["userEnteredValue"]:
         return value["userEnteredValue"]["numberValue"]
     elif "userEnteredValue" in value and "boolValue" in value["userEnteredValue"]:

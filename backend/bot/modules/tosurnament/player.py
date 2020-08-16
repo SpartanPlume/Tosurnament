@@ -410,7 +410,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         staff_names_to_ping = set()
         for staff_cell in staff_cells:
             if schedules_spreadsheet.use_range:
-                staff_names_to_ping.add(staff_cell.value.strip())
+                staff_names_to_ping.add(staff_cell.value)
             else:
                 tmp_staff_names = staff_cell.value.split("/")
                 for staff_name in tmp_staff_names:
