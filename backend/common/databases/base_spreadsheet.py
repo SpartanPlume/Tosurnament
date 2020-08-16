@@ -23,7 +23,7 @@ class BaseSpreadsheet(Base):
 
     def copy_to(self, new_obj):
         keys_to_ignore = ["id", "sheet_name"]
-        for key, value in vars(self):
+        for key, value in vars(self).items():
             if not key.startswith("_") and key not in keys_to_ignore:
                 setattr(new_obj, key, value)
 

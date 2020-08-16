@@ -6,6 +6,7 @@ from bot.modules.tosurnament import module as tosurnament
 from common.api import spreadsheet
 from common.api import challonge
 from common.databases.players_spreadsheet import TeamInfo
+from common.databases.bracket import Bracket
 
 
 class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
@@ -307,7 +308,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             bracket_to.post_result_channel_id = bracket_from.post_result_channel_id
             bracket_to.current_round = bracket_from.current_round
 
-            for spreadsheet_type in bracket_from.get_spreadsheet_type().keys():
+            for spreadsheet_type in Bracket.get_spreadsheet_types().keys():
                 spreadsheet_from = bracket_from.get_spreadsheet_from_type(spreadsheet_type)
                 if spreadsheet_from:
                     spreadsheet_to = bracket_to.get_spreadsheet_from_type(spreadsheet_type)
