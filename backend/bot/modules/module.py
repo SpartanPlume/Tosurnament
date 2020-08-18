@@ -48,6 +48,31 @@ class BaseModule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def guild_owner_cog_check(self, ctx):
+        if not ctx.guild:
+            raise commands.NoPrivateMessage()
+        if ctx.guild.owner != ctx.author:
+            raise NotGuildOwner()
+        return True
+
+    def admin_cog_check(self, ctx):
+        if not ctx.guild:
+            raise commands.NoPrivateMessage()
+        if ctx.guild.owner == ctx.author:
+            return True
+        guild = self.get_guild(ctx.guild.id)
+        if not guild or not guild.admin_role_id:
+            raise NotBotAdmin()
+        if not get_role(ctx.author.roles, guild.admin_role_id):
+            raise NotBotAdmin()
+        return True
+
+    async def update_table(self, ctx, table, values):
+        for key, value in values.items():
+            setattr(table, key, value)
+        self.bot.session.update(table)
+        await self.send_reply(ctx, ctx.command.name, "success", value)
+
     def get_guild(self, guild_id):
         return self.bot.session.query(Guild).where(Guild.guild_id == guild_id).first()
 

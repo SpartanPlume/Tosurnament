@@ -14,20 +14,11 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):
+    def cog_check(self, ctx):  # pragma: no cover
         """Check function called before any command of the cog."""
-        if not ctx.guild:
-            raise commands.NoPrivateMessage()
-        if ctx.guild.owner == ctx.author:
-            return True
-        guild = self.get_guild(ctx.guild.id)
-        if not guild or not guild.admin_role_id:
-            raise tosurnament.NotBotAdmin()
-        if not tosurnament.get_role(ctx.author.roles, guild.admin_role_id):
-            raise tosurnament.NotBotAdmin()
-        return True
+        return self.admin_cog_check(ctx)
 
-    @commands.command(aliases=["stn"])
+    @commands.command(aliases=["stn"])  # pragma: no cover
     async def set_tournament_name(self, ctx, *, name: str):
         """Sets the tournament name."""
         await self.set_tournament_values(ctx, {"name": name})
@@ -63,32 +54,32 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 brackets_string += "\n"
             await self.send_reply(ctx, ctx.command.name, "default", brackets_string)
 
-    @commands.command(aliases=["ssc"])
+    @commands.command(aliases=["ssc"])  # pragma: no cover
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the staff channel."""
         await self.set_tournament_values(ctx, {"staff_channel_id": channel.id})
 
-    @commands.command(aliases=["smnc"])
+    @commands.command(aliases=["smnc"])  # pragma: no cover
     async def set_match_notification_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the match notification channel."""
         await self.set_tournament_values(ctx, {"match_notification_channel_id": channel.id})
 
-    @commands.command(aliases=["srr"])
+    @commands.command(aliases=["srr"])  # pragma: no cover
     async def set_referee_role(self, ctx, *, role: discord.Role):
         """Sets the referee role."""
         await self.set_tournament_values(ctx, {"referee_role_id": role.id})
 
-    @commands.command(aliases=["ssr"])
+    @commands.command(aliases=["ssr"])  # pragma: no cover
     async def set_streamer_role(self, ctx, *, role: discord.Role):
         """Sets the streamer role."""
         await self.set_tournament_values(ctx, {"streamer_role_id": role.id})
 
-    @commands.command(aliases=["scr"])
+    @commands.command(aliases=["scr"])  # pragma: no cover
     async def set_commentator_role(self, ctx, *, role: discord.Role):
         """Sets the commentator role."""
         await self.set_tournament_values(ctx, {"commentator_role_id": role.id})
 
-    @commands.command(aliases=["spr"])
+    @commands.command(aliases=["spr"])  # pragma: no cover
     async def set_player_role(self, ctx, *, role: discord.Role):
         """Sets the player role."""
         await self.set_tournament_values(ctx, {"player_role_id": role.id})
@@ -101,52 +92,52 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         else:
             await self.set_tournament_values(ctx, {"team_captain_role_id": role.id})
 
-    @commands.command(aliases=["spt"])
+    @commands.command(aliases=["spt"])  # pragma: no cover
     async def set_ping_team(self, ctx, ping_team: bool):
         """Sets if team should be pinged or team captain should be pinged."""
         await self.set_tournament_values(ctx, {"reschedule_ping_team": ping_team})
 
-    @commands.command(aliases=["sprm"])
+    @commands.command(aliases=["sprm"])  # pragma: no cover
     async def set_post_result_message(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message": message})
 
-    @commands.command(aliases=["sprmt1ws"])
+    @commands.command(aliases=["sprmt1ws"])  # pragma: no cover
     async def set_post_result_message_team1_with_score(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_team1_with_score": message})
 
-    @commands.command(aliases=["sprmt2ws"])
+    @commands.command(aliases=["sprmt2ws"])  # pragma: no cover
     async def set_post_result_message_team2_with_score(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_team2_with_score": message})
 
-    @commands.command(aliases=["sprmml"])
+    @commands.command(aliases=["sprmml"])  # pragma: no cover
     async def set_post_result_message_mp_link(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_mp_link": message})
 
-    @commands.command(aliases=["sprmr"])
+    @commands.command(aliases=["sprmr"])  # pragma: no cover
     async def set_post_result_message_rolls(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_rolls": message})
 
-    @commands.command(aliases=["sprmb"])
+    @commands.command(aliases=["sprmb"])  # pragma: no cover
     async def set_post_result_message_bans(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_bans": message})
 
-    @commands.command(aliases=["sprmtb"])
+    @commands.command(aliases=["sprmtb"])  # pragma: no cover
     async def set_post_result_message_tb_bans(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_tb_bans": message})
 
-    @commands.command(aliases=["srdhbct"])
+    @commands.command(aliases=["srdhbct"])  # pragma: no cover
     async def set_reschedule_deadline_hours_before_current_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the current match time to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_current_time": hours})
 
-    @commands.command(aliases=["srdhbnt"])
+    @commands.command(aliases=["srdhbnt"])  # pragma: no cover
     async def set_reschedule_deadline_hours_before_new_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the new match time to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_new_time": hours})
@@ -161,7 +152,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()
         await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
-    @commands.command(aliases=["snnsr"])
+    @commands.command(aliases=["snnsr"])  # pragma: no cover
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
         await self.set_tournament_values(ctx, {"notify_no_staff_reschedule": notify})
 
@@ -203,6 +194,6 @@ def get_class(bot):
     return TosurnamentTournamentCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog."""
     bot.add_cog(TosurnamentTournamentCog(bot))

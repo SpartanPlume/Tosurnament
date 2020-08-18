@@ -234,27 +234,15 @@ class Worksheet:
 
     def get_range_name(self):
         """Gets the entire range of the cells array."""
-        max_y = len(self.cells)
-        if max_y == 0:
-            max_y = 1
-        max_x = 0
-        for row in self.cells:
-            if max_x < (row_length := len(row)):
-                max_x = row_length - 1
         range_name = ""
         if self.name:
             range_name += self.name + "!"
-        range_name += "A1:" + to_base(max_x, LETTER_BASE) + str(max_y)
+        range_name += get_range_name_from_cells(self.cells)
         return range_name
 
     def get_values(self):
         """Returns an array of all values. (Not Cells)"""
-        values = []
-        for y, row in enumerate(self.cells):
-            values.append([])
-            for cell in row:
-                values[y].append(cell.value)
-        return values
+        return get_values_from_cells(self.cells)
 
     def get_updated_values_with_ranges(self):
         """Returns an array of array of updated values (Not Cells) and an array of corresponding ranges."""
@@ -265,22 +253,21 @@ class Worksheet:
                 if cell._updated:
                     tmp_cells.append(cell)
                 elif tmp_cells:
-                    tmp_values = []
-                    for tmp_cell in tmp_cells:
-                        tmp_values.append(tmp_cell.value)
-                    values.append([tmp_values])
+                    values.append(get_values_from_cells([tmp_cells]))
                     range_name = ""
                     if self.name:
                         range_name += self.name + "!"
-                    range_name += (
-                        to_base(tmp_cells[0].x, LETTER_BASE)
-                        + str(tmp_cells[0].y + 1)
-                        + ":"
-                        + to_base(tmp_cells[-1].x, LETTER_BASE)
-                        + str(tmp_cells[0].y + 1)
-                    )
+                    range_name += get_range_name_from_cells([tmp_cells])
                     ranges.append(range_name)
                     tmp_cells = []
+            if tmp_cells:
+                values.append(get_values_from_cells([tmp_cells]))
+                range_name = ""
+                if self.name:
+                    range_name += self.name + "!"
+                range_name += get_range_name_from_cells([tmp_cells])
+                ranges.append(range_name)
+                tmp_cells = []
         return ranges, values
 
     def reset_updated_state(self):
@@ -524,3 +511,26 @@ def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True)
     if not corresponding_cells:
         return default_cells
     return corresponding_cells
+
+
+def get_values_from_cells(cells):
+    values = []
+    for y, row in enumerate(cells):
+        values.append([])
+        for cell in row:
+            values[y].append(cell.value)
+    return values
+
+
+def get_range_name_from_cells(cells):
+    if not cells:
+        return ""
+    min_y = cells[0][0].y
+    max_y = cells[-1][0].y
+    min_x, max_x = -1, -1
+    for row in cells:
+        if min_x < 0 or min_x > row[0].x:
+            min_x = row[0].x
+        if max_x < row[-1].x:
+            max_x = row[-1].x
+    return to_base(min_x, LETTER_BASE) + str(min_y + 1) + ":" + to_base(max_x, LETTER_BASE) + str(max_y + 1)

@@ -16,12 +16,8 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):
-        if not ctx.guild:
-            raise commands.NoPrivateMessage()
-        if ctx.guild.owner != ctx.author:
-            raise tosurnament.NotGuildOwner()
-        return True
+    def cog_check(self, ctx):  # pragma: no cover
+        return self.guild_owner_cog_check(ctx)
 
     @commands.command(aliases=["ct"])
     async def create_tournament(self, ctx, acronym: str, name: str, bracket_name: str = ""):
@@ -43,7 +39,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", acronym, name, bracket_name)
 
-    @create_tournament.error
+    @create_tournament.error  # pragma: no cover
     async def create_tournament_handler(self, ctx, error):
         """Error handler of create_tournament function."""
         if isinstance(error, tosurnament.TournamentAlreadyCreated):
@@ -57,18 +53,20 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         end_tournament_message = EndTournamentMessage(message_id=message.id)
         self.bot.session.add(end_tournament_message)
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):  # pragma: no cover
         """on_raw_reaction_add of the Tosurnament guild_owner module."""
         await self.reaction_on_end_tournament_message(message_id, emoji, guild, channel, user)
 
     async def reaction_on_end_tournament_message(self, message_id, emoji, guild, channel, user):
         """Ends a tournament."""
+        if user.id != guild.owner.id:
+            return
+        if emoji.name != "✅" and emoji.name != "❎":
+            return
         end_tournament_message = (
             self.bot.session.query(EndTournamentMessage).where(EndTournamentMessage.message_id == message_id).first()
         )
         if not end_tournament_message:
-            return
-        if user.id != guild.owner.id:
             return
         try:
             tournament = self.get_tournament(guild.id)
@@ -97,6 +95,6 @@ def get_class(bot):
     return TosurnamentGuildOwnerCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog"""
     bot.add_cog(TosurnamentGuildOwnerCog(bot))

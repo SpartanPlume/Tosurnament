@@ -14,12 +14,8 @@ class GuildCog(base.BaseModule, name="guild"):
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):
-        if not ctx.guild:
-            raise commands.NoPrivateMessage()
-        if ctx.guild.owner != ctx.author:
-            raise base.NotGuildOwner()
-        return True
+    def cog_check(self, ctx):  # pragma: no cover
+        return self.guild_owner_cog_check(ctx)
 
     @commands.command(aliases=["sar"])
     async def set_admin_role(self, ctx, *, role: discord.Role):
@@ -91,6 +87,6 @@ def get_class(bot):
     return GuildCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog."""
     bot.add_cog(GuildCog(bot))

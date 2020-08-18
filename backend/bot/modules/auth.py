@@ -64,7 +64,7 @@ class AuthCog(base.BaseModule, name="auth"):
 
         await self.send_reply(ctx.author, ctx.command.name, "success", code)
 
-    @link.error
+    @link.error  # pragma: no cover
     async def link_handler(self, ctx, error):
         """Error handler of link function."""
         if isinstance(error, UserAlreadyVerified):
@@ -101,7 +101,7 @@ class AuthCog(base.BaseModule, name="auth"):
 
         await self.send_reply(ctx.author, ctx.command.name, "success")
 
-    @auth.error
+    @auth.error  # pragma: no cover
     async def auth_handler(self, ctx, error):
         if isinstance(error, UserAlreadyVerified):
             await self.send_reply(ctx, ctx.command.name, "already_verified")
@@ -114,6 +114,6 @@ def get_class(bot):
     return AuthCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog."""
     bot.add_cog(AuthCog(bot))

@@ -601,6 +601,6 @@ def get_class(bot):
     return TosurnamentPlayerCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog"""
     bot.add_cog(TosurnamentPlayerCog(bot))

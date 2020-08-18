@@ -14,16 +14,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         self.bot = bot
 
     def cog_check(self, ctx):
-        if not ctx.guild:
-            raise commands.NoPrivateMessage()
-        if ctx.guild.owner == ctx.author:
-            return True
-        guild = self.get_guild(ctx.guild.id)
-        if not guild or not guild.admin_role_id:
-            raise base.NotBotAdmin()
-        if not base.get_role(ctx.author.roles, guild.admin_role_id):
-            raise base.NotBotAdmin()
-        return True
+        return self.admin_cog_check(ctx)
 
     async def delete_setup_messages(self, reaction_for_role_message):
         try:
@@ -210,6 +201,6 @@ def get_class(bot):
     return ReactionForRoleMessageCog(bot)
 
 
-def setup(bot):
+def setup(bot):  # pragma: no cover
     """Setups the cog."""
     bot.add_cog(ReactionForRoleMessageCog(bot))
