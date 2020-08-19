@@ -12,8 +12,8 @@ from common.api import spreadsheet
 
 MODULE_TO_TEST = "common.api.spreadsheet"
 
-row = strategies.lists(strategies.one_of(strategies.text(), strategies.integers(), strategies.booleans()))
-table = strategies.lists(row)
+row_strategy = strategies.lists(strategies.one_of(strategies.text(), strategies.integers(), strategies.booleans()))
+table_strategy = strategies.lists(row_strategy)
 
 
 def values_to_cells(values):
@@ -67,7 +67,7 @@ def test_spreadsheet_get_from_id(mock_spreadsheet_get):
     assert error.value.code == 408
 
 
-@given(table1=table, table2=table)
+@given(table1=table_strategy, table2=table_strategy)
 @mock.patch(MODULE_TO_TEST + ".get_spreadsheet_with_values")
 def test_spreadsheet_get_from_id_with_given(mock_spreadsheet_get, table1, table2):
     """Gets a Spreadsheet from a spreadsheet id."""

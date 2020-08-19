@@ -197,6 +197,13 @@ class Participant(Base):
         return self._matches
 
 
+def extract_tournament_id(tournament_id_url):
+    if "/" in tournament_id_url:
+        tournament_id_url = tournament_id_url.rstrip("/")
+        tournament_id_url = tournament_id_url.split("/")[-1]
+    return tournament_id_url
+
+
 def get_tournament(tournament_id):
     try:
         r = requests.get(

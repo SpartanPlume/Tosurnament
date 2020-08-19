@@ -17,6 +17,8 @@ BRACKET_NAME = "Bracket name"
 BRACKET_NAME_2 = "Bracket name 2"
 SPREADSHEET_ID = "abcd1234"
 SHEET_NAME = "a sheet name"
+CHALLONGE_ID = "challonge_id"
+CHALLONGE_ID_URL = "https://www.challonge.com/" + CHALLONGE_ID + "/"
 
 
 @pytest.mark.asyncio
@@ -32,6 +34,21 @@ async def test_set_bracket_values(mocker):
         tosurnament_mock.Matcher(Bracket(tournament_id=1, name=BRACKET_NAME_2))
     )
     cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", BRACKET_NAME_2)
+
+
+@pytest.mark.asyncio
+async def test_set_challonge(mocker):
+    """Sets the challonge."""
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
+    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+
+    await cog.set_challonge(cog, tosurnament_mock.CtxMock(mock_bot), challonge_tournament=CHALLONGE_ID_URL)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=CHALLONGE_ID))
+    )
+    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", CHALLONGE_ID)
 
 
 @pytest.mark.asyncio
@@ -85,6 +102,12 @@ async def test_set_spreadsheet_values(mocker):
 
     mock_bot.session.add_stub(PlayersSpreadsheet(id=1))
     await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": SHEET_NAME})
+
+
+@pytest.mark.asyncio
+async def test_clear_player_role(mocker):
+    """Removes the player roles of all players not present in the challonge."""
+    # TODO
 
 
 @pytest.mark.asyncio

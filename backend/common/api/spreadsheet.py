@@ -534,3 +534,9 @@ def get_range_name_from_cells(cells):
         if max_x < row[-1].x:
             max_x = row[-1].x
     return to_base(min_x, LETTER_BASE) + str(min_y + 1) + ":" + to_base(max_x, LETTER_BASE) + str(max_y + 1)
+
+
+def check_range(cell_range):
+    """Checks if the range is valid."""
+    # TODO
+    return True

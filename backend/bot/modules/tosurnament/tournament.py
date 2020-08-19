@@ -184,6 +184,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 matches_to_ignore.append(match_id_upper)
             elif not add and match_id_upper in matches_to_ignore:
                 matches_to_ignore.remove(match_id_upper)
+        matches_to_ignore.sort()
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))

@@ -85,7 +85,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             self.bot.session.delete(tournament)
             self.bot.session.delete(end_tournament_message)
             await self.send_reply(channel, "end_tournament", "success")
-        elif emoji.name == "❎":
+        else:
             self.bot.session.delete(end_tournament_message)
             await self.send_reply(channel, "end_tournament", "refused")
 
