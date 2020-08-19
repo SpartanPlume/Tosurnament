@@ -13,7 +13,7 @@
     "invalid_match": "You can't reschedule a match you're not in. Please check if your discord tag changed (check the numbers too) before contacting an admin.",
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",
     "parameter": "<match_id> <datetime: MM/dd HH:mm>",
-    "contact_referee": "You can try contacting your assigned referee to reschedule your match.\n\n**For the referee:** if you agree to the reschedule, write: `%0anr %2`",
+    "contact_referee": "\n\n%2, if you agree to this reschedule, write: `%0anr %3`",
     "impossible_reschedule": "Sorry, it is less than %1 hours before the **new requested date**, so the deadline is passed. $./contact_referee",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. $./contact_referee",
     "past_deadline_end": "Sorry, the requested time is after the final deadline. You can try contacting an admin.",
