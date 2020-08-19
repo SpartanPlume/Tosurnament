@@ -159,7 +159,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_new_time
         if skip_deadline_validation:
             reschedule_deadline_hours = 0
-        if new_date.minute != 0 and new_date.minute != 15 and new_date.minute != 30 and new_date.minute != 45:
+        if new_date.minute % 15 != 0:
             raise tosurnament.InvalidMinute()
         if new_date.hour == 0 and new_date.minute == 0:
             new_date = new_date + datetime.timedelta(minutes=1)
@@ -176,6 +176,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.ImpossibleReschedule(
                 reschedule_deadline_hours, referees_mentions, match_info.match_id.value
             )
+        return new_date
 
     def get_referees_mentions_of_match(self, ctx, schedules_spreadsheet, match_info):
         referees_to_ping = self.find_staff_to_ping(ctx.guild, schedules_spreadsheet, match_info.referees)
@@ -287,7 +288,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     raise tosurnament.InvalidMatch()
                 opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
 
-            self.validate_new_date(
+            new_date = self.validate_new_date(
                 ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
             )
             previous_date = self.validate_reschedule_feasibility(
