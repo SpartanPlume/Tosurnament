@@ -6,7 +6,6 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import os
 import datetime
-import asyncio
 import discord
 from discord.ext import commands
 import MySQLdb
@@ -100,7 +99,7 @@ class Client(commands.Bot):
     def log(self, level, message, exc_info=False):
         """Logs message."""
         stack = inspect.stack()
-        functions_to_ignore = ["debug", "info", "error", "on_cog_command_error", "cog_command_error"]
+        functions_to_ignore = ["debug", "info", "error", "info_exception", "on_cog_command_error", "cog_command_error"]
         index = 0
         while True:
             index += 1
@@ -174,7 +173,7 @@ class Client(commands.Bot):
             task.cancel()
             try:
                 await task
-            except asyncio.CancelledError:
+            except Exception:
                 self.debug("Background task cancelled.")
         self.error_code = code
         if ctx and ctx.guild:
