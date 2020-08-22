@@ -364,7 +364,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
 
-    async def match_notification(self, guild, now):
+    async def match_notification(self, guild):
         tournament = self.get_tournament(guild.id)
         player_match_notification_channel = None
         if tournament.match_notification_channel_id:
@@ -380,6 +380,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if not schedules_spreadsheet:
                 continue
             await schedules_spreadsheet.get_spreadsheet()
+            now = datetime.datetime.utcnow()
             match_ids = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 schedules_spreadsheet.range_match_id
             )
@@ -425,7 +426,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     return
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
             self.bot.session.update(tosurnament_guild)
-            await self.match_notification(guild, now)
+            await self.match_notification(guild)
         except asyncio.CancelledError:
             if previous_notification_date:
                 tosurnament_guild.last_notification_date = previous_notification_date.strftime(
@@ -445,6 +446,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 try:
                     for guild in self.bot.guilds:
                         tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild)))
+                        await asyncio.sleep(10)
                     now = datetime.datetime.utcnow()
                     delta_minutes = 15 - now.minute % 15
                     await asyncio.sleep(delta_minutes * 60)
