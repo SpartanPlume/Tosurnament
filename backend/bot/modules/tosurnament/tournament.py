@@ -14,7 +14,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):  # pragma: no cover
+    def cog_check(self, ctx):
         """Check function called before any command of the cog."""
         return self.admin_cog_check(ctx)
 
@@ -195,6 +195,6 @@ def get_class(bot):
     return TosurnamentTournamentCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog."""
     bot.add_cog(TosurnamentTournamentCog(bot))

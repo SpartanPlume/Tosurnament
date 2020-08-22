@@ -201,6 +201,6 @@ def get_class(bot):
     return ReactionForRoleMessageCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog."""
     bot.add_cog(ReactionForRoleMessageCog(bot))

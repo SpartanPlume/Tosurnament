@@ -14,7 +14,7 @@ class GuildCog(base.BaseModule, name="guild"):
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):  # pragma: no cover
+    def cog_check(self, ctx):
         return self.guild_owner_cog_check(ctx)
 
     @commands.command(aliases=["sar"])
@@ -87,6 +87,6 @@ def get_class(bot):
     return GuildCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog."""
     bot.add_cog(GuildCog(bot))

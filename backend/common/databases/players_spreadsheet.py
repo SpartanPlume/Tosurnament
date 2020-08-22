@@ -61,16 +61,18 @@ class TeamInfo:
         # if len(player_cells) > 1:
         #    raise DuplicateTeam(player_name)
         player_cell = player_cells[0]
-        return TeamInfo.from_player_cell(players_spreadsheet, players_spreadsheet.spreadsheet, player_cell)
+        return TeamInfo.from_player_cell(players_spreadsheet, player_cell)
 
     @staticmethod
-    def from_player_cell(players_spreadsheet, spreadsheet, player_cell):
+    def from_player_cell(players_spreadsheet, player_cell):
         team_info = TeamInfo(player_cell)
         team_best_effort_y = player_cell.y
         team_info.set_discord(
             [
                 find_corresponding_cell_best_effort(
-                    spreadsheet.get_range(players_spreadsheet.range_discord), [team_best_effort_y], team_best_effort_y,
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord),
+                    [team_best_effort_y],
+                    team_best_effort_y,
                 )
             ]
         )

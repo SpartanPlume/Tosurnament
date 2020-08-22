@@ -1,0 +1,15 @@
+[run]
+branch = True
+
+[report]
+exclude_lines =
+    def cog_check
+    pragma: no cover
+    def setup\(bot\)
+    @[a-z_]*\.error
+    def on_raw_reaction_add
+omit =
+    common/config.py
+    test/**
+    common/api/osu.py
+    common/api/challonge.py

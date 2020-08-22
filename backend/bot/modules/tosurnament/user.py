@@ -28,6 +28,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         players_spreadsheet = bracket.players_spreadsheet
         if not bracket.players_spreadsheet:
             return
+        await players_spreadsheet.get_spreadsheet()
         changed_name = players_spreadsheet.spreadsheet.change_value_in_range(
             players_spreadsheet.range_team, previous_name, new_name
         )
@@ -41,6 +42,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
+        await schedules_spreadsheet.get_spreadsheet()
         changed_name = False
         spreadsheet = schedules_spreadsheet.spreadsheet
         if user_details.player:
@@ -107,7 +109,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_details):
+    async def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_details):
         user_name = user_details.name
         team_name = None
         has_bracket_role = False
@@ -119,6 +121,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
+        await schedules_spreadsheet.get_spreadsheet()
         match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
@@ -161,7 +164,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             try:
-                self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_details)
+                await self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_details)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
@@ -190,6 +193,6 @@ def get_class(bot):
     return TosurnamentUserCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentUserCog(bot))

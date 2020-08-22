@@ -4,6 +4,7 @@ All tests concerning the Tosurnament bracket module.
 
 import pytest
 
+from discord.ext import commands
 from bot.modules import module as base
 from bot.modules.tosurnament import bracket
 from common.databases.tournament import Tournament
@@ -111,6 +112,71 @@ async def test_clear_player_role(mocker):
 
 
 @pytest.mark.asyncio
+async def test_copy_bracket_not_enough_bracket(mocker):
+    """Copies a bracket settings to another one, but there is only one bracket."""
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
+    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+
+    with pytest.raises(commands.UserInputError):
+        await cog.copy_bracket(cog, tosurnament_mock.CtxMock(mock_bot), 1, 2)
+
+
+@pytest.mark.asyncio
+async def test_copy_bracket_wrong_index(mocker):
+    """Copies a bracket settings to another one, but input indexes are wrong."""
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
+    mock_bot.session.add_stub(Bracket(id=2, tournament_id=1))
+    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+
+    with pytest.raises(commands.UserInputError):
+        await cog.copy_bracket(cog, tosurnament_mock.CtxMock(mock_bot), 1, 3)
+
+    with pytest.raises(commands.UserInputError):
+        await cog.copy_bracket(cog, tosurnament_mock.CtxMock(mock_bot), 0, 2)
+
+
+@pytest.mark.asyncio
 async def test_copy_bracket(mocker):
     """Copies a bracket settings to another one."""
-    # TODO
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+
+    mock_bot.session.add_stub(
+        Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1, players_spreadsheet_id=1, post_result_channel_id=1)
+    )
+    schedules_spreadsheet = SchedulesSpreadsheet(
+        id=1, sheet_name=SHEET_NAME + " s", range_match_id="B2:B", range_team1="C2:C"
+    )
+    mock_bot.session.add_stub(schedules_spreadsheet)
+
+    mock_bot.session.add_stub(Bracket(id=2, tournament_id=1, schedules_spreadsheet_id=2))
+    mock_bot.session.add_stub(
+        SchedulesSpreadsheet(id=2, sheet_name=SHEET_NAME, range_match_id="A1:A", range_score_team1="B1:B")
+    )
+
+    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot)
+
+    await cog.copy_bracket(cog, mock_ctx, 1, 2)
+    assert len(mock_bot.session.tables[Bracket.__tablename__]) == 2
+    assert mock_bot.session.tables[Bracket.__tablename__][1].post_result_channel_id == 1
+    assert len(mock_bot.session.tables[SchedulesSpreadsheet.__tablename__]) == 2
+    assert mock_bot.session.tables[SchedulesSpreadsheet.__tablename__][1] != tosurnament_mock.Matcher(
+        schedules_spreadsheet
+    )
+    schedules_spreadsheet.sheet_name = SHEET_NAME
+    assert mock_bot.session.tables[SchedulesSpreadsheet.__tablename__][1] == tosurnament_mock.Matcher(
+        schedules_spreadsheet
+    )
+    assert PlayersSpreadsheet.__tablename__ not in mock_bot.session.tables
+
+    players_spreadsheet = PlayersSpreadsheet(id=1, range_team="A1:A")
+    mock_bot.session.add_stub(players_spreadsheet)
+
+    await cog.copy_bracket(cog, mock_ctx, 1, 2)
+    assert len(mock_bot.session.tables[PlayersSpreadsheet.__tablename__]) == 2
+    assert mock_bot.session.tables[PlayersSpreadsheet.__tablename__][1] == tosurnament_mock.Matcher(players_spreadsheet)

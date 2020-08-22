@@ -123,10 +123,11 @@ class TosurnamentBaseModule(BaseModule):
             raise NoTournament()
         return tournament
 
-    def find_player_identification(self, ctx, bracket, user_name):
+    async def find_player_identification(self, ctx, bracket, user_name):
         players_spreadsheet = bracket.players_spreadsheet
         if not players_spreadsheet:
             return user_name
+        await players_spreadsheet.get_spreadsheet()
         if players_spreadsheet.range_team_name:
             cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
             for cell in cells:

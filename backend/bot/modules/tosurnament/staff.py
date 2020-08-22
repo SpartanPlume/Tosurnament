@@ -174,11 +174,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 role_store.not_taken_matches.append(match_info.match_id.value)
         return write_cells
 
-    def take_or_drop_match_in_bracket(self, bracket, match_ids, user_details, take, invalid_match_ids):
+    async def take_or_drop_match_in_bracket(self, bracket, match_ids, user_details, take, invalid_match_ids):
         """Takes or drops matches of a bracket, if possible."""
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
+        await schedules_spreadsheet.get_spreadsheet()
         write_cells = False
         for match_id in match_ids:
             try:
@@ -240,33 +241,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         tournament = self.get_tournament(guild_id)
         invalid_match_ids = set()
         for bracket in tournament.brackets:
-            self.take_or_drop_match_in_bracket(bracket, match_ids, user_details, take, invalid_match_ids)
+            await self.take_or_drop_match_in_bracket(bracket, match_ids, user_details, take, invalid_match_ids)
         await channel.send(self.build_take_match_reply(user_details, take, invalid_match_ids))
 
-    def find_matches_to_notify(self, bracket):
-        matches_info = []
-        now = datetime.datetime.utcnow()
-        schedules_spreadsheet = bracket.schedules_spreadsheet
-        match_ids = bracket.schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-            bracket.schedules_spreadsheet.range_match_id
-        )
-        for match_id_cell in match_ids:
-            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-            date_format = "%d %B"
-            if schedules_spreadsheet.date_format:
-                date_format = schedules_spreadsheet.date_format
-            match_date = dateparser.parse(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
-            )
-            if match_date:
-                delta = match_date - now
-                if delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800:
-                    matches_info.append(match_info)
-        return matches_info
-
-    def get_team_mention(self, guild, players_spreadsheet, team_name):
+    async def get_team_mention(self, guild, players_spreadsheet, team_name):
         if not players_spreadsheet:
             return escape_markdown(team_name)
+        await players_spreadsheet.get_spreadsheet()
         try:
             team_info = TeamInfo.from_team_name(players_spreadsheet, team_name)
             if players_spreadsheet.range_team_name:
@@ -288,8 +269,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
         players_spreadsheet = bracket.players_spreadsheet
-        team1 = self.get_team_mention(guild, players_spreadsheet, match_info.team1.value)
-        team2 = self.get_team_mention(guild, players_spreadsheet, match_info.team2.value)
+        team1 = await self.get_team_mention(guild, players_spreadsheet, match_info.team1.value)
+        team2 = await self.get_team_mention(guild, players_spreadsheet, match_info.team2.value)
         referee_name = match_info.referees[0].value
         referee_role = None
         notification_type = "notification"
@@ -394,8 +375,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
-            match_ids = bracket.schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                bracket.schedules_spreadsheet.range_match_id
+            await schedules_spreadsheet.get_spreadsheet()
+            match_ids = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                schedules_spreadsheet.range_match_id
             )
             for match_id_cell in match_ids:
                 if match_id_cell.value.upper() in matches_to_ignore:
@@ -531,7 +513,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             self.bot.session.delete(match_notification)
             return
         try:
-            self.take_or_drop_match_in_bracket(
+            await self.take_or_drop_match_in_bracket(
                 bracket,
                 [match_notification.match_id],
                 tosurnament.UserDetails.get_as_referee(self.bot, user),
@@ -602,7 +584,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return
         try:
             user_details = tosurnament.UserDetails.get_from_user(self.bot, user, tournament)
-            self.take_or_drop_match_in_bracket(
+            await self.take_or_drop_match_in_bracket(
                 bracket, [staff_reschedule_message.match_id], user_details, False, set(),
             )
             # TODO if not write_cells send error + update message instead of reply
@@ -690,6 +672,6 @@ def get_class(bot):
     return TosurnamentStaffCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentStaffCog(bot))

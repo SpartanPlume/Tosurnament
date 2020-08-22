@@ -16,7 +16,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):  # pragma: no cover
+    def cog_check(self, ctx):
         return self.guild_owner_cog_check(ctx)
 
     @commands.command(aliases=["ct"])
@@ -39,7 +39,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", acronym, name, bracket_name)
 
-    @create_tournament.error  # pragma: no cover
+    @create_tournament.error
     async def create_tournament_handler(self, ctx, error):
         """Error handler of create_tournament function."""
         if isinstance(error, tosurnament.TournamentAlreadyCreated):
@@ -53,7 +53,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         end_tournament_message = EndTournamentMessage(message_id=message.id)
         self.bot.session.add(end_tournament_message)
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):  # pragma: no cover
+    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
         """on_raw_reaction_add of the Tosurnament guild_owner module."""
         await self.reaction_on_end_tournament_message(message_id, emoji, guild, channel, user)
 
@@ -95,6 +95,6 @@ def get_class(bot):
     return TosurnamentGuildOwnerCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentGuildOwnerCog(bot))

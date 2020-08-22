@@ -33,6 +33,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = bracket.players_spreadsheet
         if not players_spreadsheet:
             return False, None
+        await players_spreadsheet.get_spreadsheet()
         if players_spreadsheet.range_team_name:
             team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 players_spreadsheet.range_team_name
@@ -256,6 +257,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
+            await schedules_spreadsheet.get_spreadsheet()
             try:
                 match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
             except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
@@ -268,6 +270,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
             players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet:
+                await players_spreadsheet.get_spreadsheet()
                 ally_team_info, opponent_team_info = await self.get_teams_info(
                     ctx, tournament, players_spreadsheet, match_info, user
                 )
@@ -446,6 +449,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet(tournament.current_bracket.name, "schedules")
+        await schedules_spreadsheet.get_spreadsheet()
         match_id = reschedule_message.match_id
         match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
 
@@ -565,6 +569,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             players_spreadsheet = bracket.players_spreadsheet
             if not players_spreadsheet:
                 continue
+            await players_spreadsheet.get_spreadsheet()
             if players_spreadsheet.range_team_name:
                 team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team_name
@@ -619,6 +624,6 @@ def get_class(bot):
     return TosurnamentPlayerCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentPlayerCog(bot))

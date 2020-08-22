@@ -16,7 +16,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):  # pragma: no cover
+    def cog_check(self, ctx):
         """Check function called before any command of the cog."""
         return self.admin_cog_check(ctx)
 
@@ -57,20 +57,19 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         return None
 
     @commands.command(aliases=["cpr"])
-    async def clear_player_role(self, ctx, *, number: int = None):
+    async def clear_player_role(self, ctx, *, bracket_index: int = None):
         """Removes the player role of users not present in the challonge."""
         # TODO improve to handle teams, bracket roles, team captain role
         # TODO and remove special code for nik's tournament and handle challonge error
         tournament = self.get_tournament(ctx.guild.id)
         player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
-        if not player_role:
-            return
         for bracket in tournament.brackets:
             players_spreadsheet = bracket.players_spreadsheet
             if not bracket.challonge or not players_spreadsheet:
                 continue
             challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
             participants = [participant.name for participant in challonge_tournament.participants]
+            await players_spreadsheet.get_spreadsheet()
             team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
             teams_info = []
             for cell in team_cells:
@@ -279,11 +278,8 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         tournament = self.get_tournament(ctx.guild.id)
         brackets = tournament.brackets
         if index_from > 0 and index_from <= len(brackets) and index_to > 0 and index_to <= len(brackets):
-            index_from -= 1
-            index_to -= 1
-
-            bracket_from = brackets[index_from]
-            bracket_to = brackets[index_to]
+            bracket_from = brackets[index_from - 1]
+            bracket_to = brackets[index_to - 1]
             bracket_to.post_result_channel_id = bracket_from.post_result_channel_id
             bracket_to.current_round = bracket_from.current_round
 
@@ -306,6 +302,6 @@ def get_class(bot):
     return TosurnamentBracketCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentBracketCog(bot))

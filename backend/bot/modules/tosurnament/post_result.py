@@ -298,6 +298,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if not schedules_spreadsheet:
                 continue
+            await schedules_spreadsheet.get_spreadsheet()
             try:
                 MatchInfo.from_id(schedules_spreadsheet, match_id)
             except MatchIdNotFound:
@@ -398,6 +399,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
+        await schedules_spreadsheet.get_spreadsheet()
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, channel)
         if tournament.post_result_message:
@@ -593,6 +595,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
+        await schedules_spreadsheet.get_spreadsheet()
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         if tournament.staff_channel_id:
             error_channel = self.bot.get_channel(tournament.staff_channel_id)
@@ -818,6 +821,6 @@ def get_class(bot):
     return TosurnamentPostResultCog(bot)
 
 
-def setup(bot):  # pragma: no cover
+def setup(bot):
     """Setups the cog"""
     bot.add_cog(TosurnamentPostResultCog(bot))
