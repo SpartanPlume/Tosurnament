@@ -97,7 +97,7 @@ class Client(commands.Bot):
         """Initializes the connection to the Google Spreadsheet API."""
         spreadsheet.start_service()
 
-    def log(self, level, message):
+    def log(self, level, message, exc_info=False):
         """Logs message."""
         stack = inspect.stack()
         functions_to_ignore = ["debug", "info", "error", "on_cog_command_error", "cog_command_error"]
@@ -107,7 +107,9 @@ class Client(commands.Bot):
             caller = inspect.getframeinfo(stack[index][0])
             if caller.function not in functions_to_ignore:
                 break
-        self.logger.log(level, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={})
+        self.logger.log(
+            level, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={}, exc_info=exc_info
+        )
 
     def debug(self, message):
         """Log debug message."""
