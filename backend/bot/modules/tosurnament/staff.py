@@ -41,8 +41,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if not referee_role:
                 raise tosurnament.NotRequiredRole("Referee")
             for bracket in tournament.brackets:
+                schedules_spreadsheet = bracket.schedules_spreadsheet
+                if not schedules_spreadsheet:
+                    continue
+                await schedules_spreadsheet.get_spreadsheet()
                 try:
-                    match_info = MatchInfo.from_id(bracket.schedules_spreadsheet, match_id)
+                    match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
                 except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
                     await self.on_cog_command_error(ctx, ctx.command.name, e)
                     continue
