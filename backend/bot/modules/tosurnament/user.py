@@ -117,7 +117,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not bracket_role or tosurnament.get_role(ctx.author.roles, bracket.role_id):
             has_bracket_role = True
         if user_details.player:
-            team_name = self.find_player_identification(ctx, bracket, user_name)
+            team_name = await self.find_player_identification(ctx, bracket, user_name)
         schedules_spreadsheet = bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
             return
