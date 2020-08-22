@@ -433,7 +433,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 )
                 self.bot.session.update(tosurnament_guild)
         except Exception as e:
-            self.bot.info(str(type(e)) + ": " + str(e))
+            self.bot.info_exception(e)
         finally:
             Spreadsheet.get_from_id.cache_clear()
 

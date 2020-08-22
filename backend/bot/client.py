@@ -117,6 +117,11 @@ class Client(commands.Bot):
         """Logs info message."""
         self.log(logging.INFO, message)
 
+    def info_exception(self, error):
+        """Logs info message."""
+        self.log(logging.INFO, str(type(error)) + ": " + str(error))
+        self.log(logging.INFO, error, exc_info=True)
+
     def error(self, message):
         """Logs error message."""
         self.log(logging.ERROR, message)
