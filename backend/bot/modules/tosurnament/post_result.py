@@ -519,9 +519,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await self.on_cog_command_error(error_channel, "post_result", e)
             return
 
-    def get_teams_infos(self, bracket, team_name1, team_name2):
-        if not bracket.players_spreadsheet:
+    async def get_teams_infos(self, bracket, team_name1, team_name2):
+        players_spreadsheet = bracket.players_spreadsheet
+        if not players_spreadsheet:
             return None, None
+        await players_spreadsheet.get_spreadsheet()
         team1_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name1)
         team2_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name2)
         return team1_info, team2_info
@@ -576,7 +578,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         score_team1 = post_result_message.score_team1
         score_team2 = post_result_message.score_team2
         if score_team1 < 0 and score_team2 < 0:
-            team1_info, team2_info = self.get_teams_infos(bracket, match_info.team1.value, match_info.team2.value)
+            team1_info, team2_info = await self.get_teams_infos(bracket, match_info.team1.value, match_info.team2.value)
             if team1_info and team2_info:
                 players_id_team1 = get_players_id(team1_info)
                 players_id_team2 = get_players_id(team2_info)
