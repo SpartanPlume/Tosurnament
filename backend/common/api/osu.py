@@ -491,7 +491,6 @@ def usernames_to_ids(names):
     ids = []
     for name in names:
         osu_user = get_user(name)
-        if not osu_user:
-            return None
-        ids.append(osu_user.id)
+        if osu_user:
+            ids.append(osu_user.id)
     return ids

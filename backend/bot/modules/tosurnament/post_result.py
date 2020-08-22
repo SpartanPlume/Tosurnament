@@ -524,8 +524,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not players_spreadsheet:
             return None, None
         await players_spreadsheet.get_spreadsheet()
-        team1_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name1)
-        team2_info = TeamInfo.from_team_name(bracket.players_spreadsheet, team_name2)
+        team1_info = TeamInfo.from_team_name(players_spreadsheet, team_name1)
+        team2_info = TeamInfo.from_team_name(players_spreadsheet, team_name2)
         return team1_info, team2_info
 
     async def create_prbuilder(self, ctx, post_result_message, tournament, bracket, match_info, error_channel):

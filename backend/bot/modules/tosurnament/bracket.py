@@ -67,9 +67,9 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             players_spreadsheet = bracket.players_spreadsheet
             if not bracket.challonge or not players_spreadsheet:
                 continue
+            await players_spreadsheet.get_spreadsheet()
             challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
             participants = [participant.name for participant in challonge_tournament.participants]
-            await players_spreadsheet.get_spreadsheet()
             team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
             teams_info = []
             for cell in team_cells:
