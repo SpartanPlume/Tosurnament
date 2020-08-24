@@ -151,8 +151,7 @@ class BaseModule(commands.Cog):
         await self.on_cog_command_error(ctx, ctx.command.name, error)
 
     async def on_cog_command_error(self, channel, command_name, error):
-        self.bot.logger.exception(error)
-        # self.bot.info(str(type(error)) + ": " + str(error))
+        self.bot.info_exception(error)
         if isinstance(error, commands.MissingRequiredArgument):
             await self.send_usage(channel)
         elif isinstance(error, commands.BadArgument):
@@ -171,6 +170,11 @@ class BaseModule(commands.Cog):
                 elif missing_permission == "manage_roles":
                     await self.send_reply(channel, command_name, "change_role_forbidden")
                     return True
+            return False
+        elif isinstance(error, discord.Forbidden):
+            if error.code == 50007:
+                await self.send_reply(channel, command_name, "restricted_dm")
+                return True
             return False
         elif isinstance(error, UnknownError):
             await self.send_reply(channel, command_name, "unknown_error")
@@ -192,6 +196,8 @@ class BaseModule(commands.Cog):
             await self.send_reply(channel, command_name, "not_verified")
         elif isinstance(error, OsuError):
             await self.send_reply(channel, command_name, "osu_error")
+        elif isinstance(error, commands.CommandInvokeError):
+            return await self.on_cog_command_error(channel, command_name, error.original)
         else:
             return False
         return True

@@ -13,5 +13,6 @@
   "osu_error": "Oops, an error has occured. Please try again later. If the problem persists, contact me on discord (`Spartan Plume#5172`).",
   "role_does_not_exist": "The `%1` role does not exist. Ask the admin to create it to use this command.",
   "not_required_role": "You need the `%1` role to use this command.",
-  "no_rights": "You don't have the rights to use this command."
+  "no_rights": "You don't have the rights to use this command.",
+  "restricted_dm": "I can't send you a dm to initiate the linking process. Please allow message from server members temporarily."
 }
