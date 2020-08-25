@@ -417,9 +417,9 @@ def _get_cell_value(value):
     elif "userEnteredValue" in value and "stringValue" in value["userEnteredValue"]:
         return value["userEnteredValue"]["stringValue"].strip()
     elif "userEnteredValue" in value and "numberValue" in value["userEnteredValue"]:
-        return value["userEnteredValue"]["numberValue"]
+        return str(value["userEnteredValue"]["numberValue"])
     elif "userEnteredValue" in value and "boolValue" in value["userEnteredValue"]:
-        return value["userEnteredValue"]["boolValue"]
+        return str(value["userEnteredValue"]["boolValue"])
     # ? Not used for the main use case, might be needed for other use cases ?
     # elif "effectiveValue" in value and "formattedValue" in value["effectiveValue"]:
     #    return value["effectiveValue"]["formattedValue"]
