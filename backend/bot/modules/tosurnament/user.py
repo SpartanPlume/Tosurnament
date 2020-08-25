@@ -8,7 +8,6 @@ from bot.modules.tosurnament import module as tosurnament
 from common.databases.schedules_spreadsheet import MatchInfo
 from common.api.spreadsheet import HttpError
 from common.api import osu
-from common.api import challonge
 
 
 class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
@@ -79,26 +78,27 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not previous_name:
             await self.send_reply(ctx, ctx.command.name, "change_name_unneeded")
             return
-        user_details = tosurnament.UserDetails.get_from_ctx(ctx)
 
-        if user_details.is_user():
-            tournament = self.get_tournament(ctx.guild.id)
-            for bracket in tournament.brackets:
-                try:
-                    if user_details.player:
-                        await self.change_name_in_player_spreadsheet(ctx, bracket, previous_name, new_name)
-                    if user_details.player or user_details.is_staff():
-                        await self.change_name_in_schedules_spreadsheet(
-                            ctx, bracket, previous_name, new_name, user_details
-                        )
-                    if bracket.challonge:
-                        participants = challonge.get_participants(bracket.challonge)
-                        for participant in participants:
-                            if participant.name == previous_name:
-                                participant.update_name(new_name)
-                except Exception as e:
-                    await self.on_cog_command_error(ctx, ctx.command.name, e)
-                    return
+        # TODO: allow disabling write on spreadsheet
+        # user_details = tosurnament.UserDetails.get_from_ctx(ctx)
+        # if user_details.is_user():
+        #     tournament = self.get_tournament(ctx.guild.id)
+        #     for bracket in tournament.brackets:
+        #         try:
+        #             if user_details.player:
+        #                 await self.change_name_in_player_spreadsheet(ctx, bracket, previous_name, new_name)
+        #             if user_details.player or user_details.is_staff():
+        #                 await self.change_name_in_schedules_spreadsheet(
+        #                     ctx, bracket, previous_name, new_name, user_details
+        #                 )
+        #             if bracket.challonge:
+        #                 participants = challonge.get_participants(bracket.challonge)
+        #                 for participant in participants:
+        #                     if participant.name == previous_name:
+        #                         participant.update_name(new_name)
+        #         except Exception as e:
+        #             await self.on_cog_command_error(ctx, ctx.command.name, e)
+        #             return
         try:
             await ctx.author.edit(nick=new_name)
         except discord.Forbidden:
