@@ -1,5 +1,6 @@
 """Google Spreadsheet API wrapper"""
 
+import ssl
 from discord.ext import commands
 import re
 import socket
@@ -301,7 +302,7 @@ class Spreadsheet:
         while retry_count < 3:
             try:
                 sheets = get_spreadsheet_with_values(spreadsheet_id)
-            except (googleapiclient.errors.HttpError, ConnectionResetError, socket.timeout) as e:
+            except (googleapiclient.errors.HttpError, ConnectionResetError, socket.timeout, ssl.SSLError) as e:
                 error = e
                 retry_count += 1
                 continue
@@ -312,7 +313,7 @@ class Spreadsheet:
                     raise HttpError(error.resp["status"], "read", error)
                 except KeyError:
                     raise HttpError(500, "read", error)
-            elif isinstance(error, ConnectionResetError):
+            elif isinstance(error, (ConnectionResetError, ssl.SSLError)):
                 raise HttpError(499, "read", error)
             elif isinstance(error, socket.timeout):
                 raise HttpError(408, "read", error)
@@ -349,7 +350,7 @@ class Spreadsheet:
                 raise HttpError(e.resp["status"], "write", e)
             except KeyError:
                 raise HttpError(500, "write", e)
-        except ConnectionResetError as e:
+        except (ConnectionResetError, ssl.SSLError) as e:
             raise HttpError(499, "write", e)
         except socket.timeout as e:
             raise HttpError(408, "write", e)
