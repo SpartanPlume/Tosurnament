@@ -54,7 +54,7 @@ class Cell:
         self.y_merge_range = y_merge_range
 
     def has_value(self, value_to_compare, case_sensitive=False):
-        """Checks if the cell contains a value. To use in case of multi values like: value1/value2"""
+        """Checks if the cell contains a value. To use in case of multi values like: value1/value2."""
         cell_value = self.value
         if not case_sensitive:
             value_to_compare = value_to_compare.lower()
@@ -66,6 +66,10 @@ class Cell:
             if value.strip() == value_to_compare:
                 return True
         return False
+
+    def change_value_to_string(self):
+        """Changes internal value to string type without setting the _updated variable to True."""
+        object.__setattr__(self, "value", str(self.value))
 
 
 class Worksheet:
@@ -421,9 +425,9 @@ def _get_cell_value(value):
     elif "userEnteredValue" in value and "stringValue" in value["userEnteredValue"]:
         return value["userEnteredValue"]["stringValue"].strip()
     elif "userEnteredValue" in value and "numberValue" in value["userEnteredValue"]:
-        return str(value["userEnteredValue"]["numberValue"])
+        return value["userEnteredValue"]["numberValue"]
     elif "userEnteredValue" in value and "boolValue" in value["userEnteredValue"]:
-        return str(value["userEnteredValue"]["boolValue"])
+        return value["userEnteredValue"]["boolValue"]
     # ? Not used for the main use case, might be needed for other use cases ?
     # elif "effectiveValue" in value and "formattedValue" in value["effectiveValue"]:
     #    return value["effectiveValue"]["formattedValue"]
@@ -500,11 +504,13 @@ def extract_spreadsheet_id(string):
     return string
 
 
-def find_corresponding_cell_best_effort(cells, ys, default_y):
+def find_corresponding_cell_best_effort(cells, ys, default_y, to_string=False):
     default_cell = Cell(-1, -1, "")
     for y in ys:
         for row in cells:
             for cell in row:
+                if to_string:
+                    cell.change_value_to_string()
                 if cell.y == y and cell.value:
                     return cell
                 elif cell.y == default_y and default_cell.x == -1:
@@ -512,12 +518,14 @@ def find_corresponding_cell_best_effort(cells, ys, default_y):
     return default_cell
 
 
-def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True):
+def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True, to_string=False):
     default_cells = []
     corresponding_cells = []
     for y in ys:
         for row in cells:
             for cell in row:
+                if to_string:
+                    cell.change_value_to_string()
                 if cell.y == y:
                     if not filled_only or cell.value:
                         corresponding_cells.append(cell)

@@ -93,10 +93,16 @@ class MatchInfo:
         match_info = MatchInfo(match_id_cell)
         spreadsheet = schedules_spreadsheet.spreadsheet
         match_info.team1 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_team1), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_team1),
+            match_id_best_effort_ys,
+            match_id_cell.y,
+            to_string=True,
         )
         match_info.team2 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_team2), match_id_best_effort_ys, match_id_cell.y,
+            spreadsheet.get_range(schedules_spreadsheet.range_team2),
+            match_id_best_effort_ys,
+            match_id_cell.y,
+            to_string=True,
         )
         match_info.score_team1 = find_corresponding_cell_best_effort(
             spreadsheet.get_range(schedules_spreadsheet.range_score_team1), match_id_best_effort_ys, match_id_cell.y,

@@ -54,6 +54,7 @@ class TeamInfo:
 
     @staticmethod
     def from_player_name(players_spreadsheet, player_name):
+        player_name = str(player_name)
         player_cells = players_spreadsheet.spreadsheet.find_cells(players_spreadsheet.range_team, player_name)
         if not player_cells:
             raise TeamNotFound(player_name)
@@ -65,6 +66,7 @@ class TeamInfo:
 
     @staticmethod
     def from_player_cell(players_spreadsheet, player_cell):
+        player_cell.change_value_to_string()
         team_info = TeamInfo(player_cell)
         team_best_effort_y = player_cell.y
         team_info.set_discord(
@@ -80,6 +82,7 @@ class TeamInfo:
 
     @staticmethod
     def from_team_name(players_spreadsheet, team_name):
+        team_name = str(team_name)
         if not players_spreadsheet.range_team_name:
             return TeamInfo.from_player_name(players_spreadsheet, team_name)
         team_name_cells = players_spreadsheet.spreadsheet.find_cells(players_spreadsheet.range_team_name, team_name)
@@ -93,6 +96,7 @@ class TeamInfo:
 
     @staticmethod
     def from_team_name_cell(players_spreadsheet, team_name_cell):
+        team_name_cell.change_value_to_string()
         team_name_best_effort_ys = team_name_cell.y_merge_range
         team_info = TeamInfo(team_name_cell)
         team_info.set_players(
@@ -100,6 +104,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_team),
                 team_name_best_effort_ys,
                 team_name_cell.y,
+                to_string=True,
             )
         )
         team_info.set_discord(
