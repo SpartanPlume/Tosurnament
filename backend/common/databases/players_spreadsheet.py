@@ -96,14 +96,11 @@ class TeamInfo:
         team_name_best_effort_ys = team_name_cell.y_merge_range
         team_info = TeamInfo(team_name_cell)
         team_info.set_players(
-            [
-                str(cell.value).lower()
-                for cell in find_corresponding_cells_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_team),
-                    team_name_best_effort_ys,
-                    team_name_cell.y,
-                )
-            ]
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_team),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
         )
         team_info.set_discord(
             find_corresponding_cells_best_effort(
