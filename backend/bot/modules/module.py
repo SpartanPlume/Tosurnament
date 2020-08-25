@@ -71,7 +71,7 @@ class BaseModule(commands.Cog):
         for key, value in values.items():
             setattr(table, key, value)
         self.bot.session.update(table)
-        await self.send_reply(ctx, ctx.command.name, "success", value)
+        await self.send_reply(ctx, ctx.command.name, "success", value, stack_depth=2)
 
     def get_guild(self, guild_id):
         return self.bot.session.query(Guild).where(Guild.guild_id == guild_id).first()
@@ -125,9 +125,9 @@ class BaseModule(commands.Cog):
             return replies["module"][field_name]
         return None
 
-    async def send_reply(self, channel, command_name, field_name, *args):
+    async def send_reply(self, channel, command_name, field_name, *args, stack_depth=1):
         """Sends a reply found in the replies files."""
-        module_name = inspect.getmodule(inspect.stack()[1][0]).__name__[12:]
+        module_name = inspect.getmodule(inspect.stack()[stack_depth][0]).__name__[12:]
         reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
         if reply:
             return await self.send_message(channel, reply, *args)
