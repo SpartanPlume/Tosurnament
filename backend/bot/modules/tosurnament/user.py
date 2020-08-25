@@ -17,12 +17,6 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         super().__init__(bot)
         self.bot = bot
 
-    def cog_check(self, ctx):
-        """Check function called before any command of the cog."""
-        if ctx.guild is None:
-            raise commands.NoPrivateMessage()
-        return True
-
     async def change_name_in_player_spreadsheet(self, ctx, bracket, previous_name, new_name):
         players_spreadsheet = bracket.players_spreadsheet
         if not bracket.players_spreadsheet:
@@ -64,6 +58,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
 
     @commands.command(aliases=["nc", "change_name", "cn"])
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
+    @commands.guild_only()
     async def name_change(self, ctx):
         """Allows users to change their nickname to their osu! username or update it."""
         user = self.get_verified_user(ctx.author.id)
@@ -173,8 +168,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 tmp_reply_string = "\n"
                 tmp_reply_string += self.get_string(ctx.command.name, "role_match", role_name)
                 for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
-                    match_date = match_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
-                    tmp_reply_string += match_date
+                    tmp_reply_string += match_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
                     if bracket_name and bracket_name != tournament.name:
                         tmp_reply_string += " | " + bracket_name
                     tmp_reply_string += " | **" + match_info.match_id.value + "**:\n"
@@ -186,6 +180,23 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                         reply_string += tmp_reply_string
                     tmp_reply_string = ""
         await ctx.author.send(reply_string)
+
+    @commands.command(aliases=["smi"])
+    async def show_my_info(self, ctx):
+        """Sends a private message to the author with their user information stored in the bot."""
+        user = self.get_user(ctx.author.id)
+        if not user:
+            raise tosurnament.UserNotLinked()
+        await self.send_reply(
+            ctx.author,
+            ctx.command.name,
+            "success",
+            user.discord_id_snowflake,
+            user.osu_id,
+            user.osu_name,
+            user.osu_previous_name,
+            str(user.verified),
+        )
 
 
 def get_class(bot):
