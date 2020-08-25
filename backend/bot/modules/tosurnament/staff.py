@@ -333,7 +333,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             referee = referee_role.mention
         else:
             referee = "Referees"
-        match_date_str = match_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+        match_date_str = tosurnament.get_pretty_date(tournament, match_date)
         team1 = escape_markdown(match_info.team1.value)
         team2 = escape_markdown(match_info.team2.value)
         message = await self.send_reply(
@@ -616,13 +616,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     previous_date = datetime.datetime.strptime(
                         staff_reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
                     )
-                    previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+                    previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
                 else:
                     previous_date_string = "**No previous date**"
                 new_date = datetime.datetime.strptime(
                     staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT
                 )
-                new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+                new_date_string = tosurnament.get_pretty_date(tournament, new_date)
                 message = await channel.fetch_message(message_id)
                 referees = [
                     referee.mention

@@ -28,7 +28,7 @@ class UserAbstraction:
 
     @staticmethod
     def get_from_osu_name(bot, osu_name, default_discord_tag=None):
-        tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name).first()
+        tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name.lower()).first()
         if tosurnament_user and tosurnament_user.verified:
             return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
         return UserAbstraction(osu_name, default_discord_tag, False)

@@ -205,9 +205,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 if not tosurnament.get_role(ctx.author.roles, tournament.team_captain_role_id, "Team Captain"):
                     raise tosurnament.NotRequiredRole(team_captain_role.name)
                 if user.verified:
-                    if user.name in [cell.value for cell in team1_info.players]:
+                    if user.name in [cell.value.lower() for cell in team1_info.players]:
                         return team1_info, team2_info
-                    elif user.name in [cell.value for cell in team2_info.players]:
+                    elif user.name in [cell.value.lower() for cell in team2_info.players]:
                         return team2_info, team1_info
                 if str(ctx.author) in [cell.value for cell in team1_info.discord]:
                     return team1_info, team2_info
@@ -317,12 +317,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             reschedule_message.ally_user_id = ctx.author.id
             reschedule_message.opponent_user_id = opponent_team_captain.id
             if previous_date:
-                previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+                previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
                 reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
             else:
                 previous_date_string = "**No previous date**"
                 reschedule_message.previous_date = ""
-            new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+            new_date_string = tosurnament.get_pretty_date(tournament, new_date)
             reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
             sent_message = await self.send_reply(
                 ctx,
@@ -457,7 +457,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             previous_date = datetime.datetime.strptime(
                 reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
             )
-            previous_date_string = previous_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+            previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
         else:
             previous_date_string = "**No previous date**"
         new_date = datetime.datetime.strptime(reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
@@ -500,7 +500,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         streamers_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.streamers)
         commentators_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.commentators)
 
-        new_date_string = new_date.strftime(tosurnament.PRETTY_DATE_FORMAT)
+        new_date_string = tosurnament.get_pretty_date(tournament, new_date)
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)

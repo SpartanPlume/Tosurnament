@@ -53,9 +53,13 @@ class Cell:
         self.x_merge_range = x_merge_range
         self.y_merge_range = y_merge_range
 
-    def has_value(self, value_to_compare):
+    def has_value(self, value_to_compare, case_sensitive=False):
         """Checks if the cell contains a value. To use in case of multi values like: value1/value2"""
-        if self.value == value_to_compare:
+        cell_value = self.value
+        if not case_sensitive:
+            value_to_compare = value_to_compare.lower()
+            cell_value = cell_value.lower()
+        if cell_value == value_to_compare:
             return True
         values = str(self.value).split("/")
         for value in values:
@@ -203,7 +207,7 @@ class Worksheet:
                     cells_with_value.append(cell)
         return cells_with_value
 
-    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=True):
+    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=False):
         """Changes the value of all cells that are equal to previous_value to new_value in a range."""
         correponding_cells = self.find_cells(range_name, previous_value, case_sensitive)
         value_changed = False
@@ -212,11 +216,11 @@ class Worksheet:
             value_changed = True
         return value_changed
 
-    def find_cells(self, range_name, value_to_find, case_sensitive=True):
+    def find_cells(self, range_name, value_to_find, case_sensitive=False):
         """Returns an array of Cell matching the value_to_find."""
         value_to_find_with_case = value_to_find
         if not case_sensitive:
-            value_to_find_with_case = value_to_find_with_case.upper()
+            value_to_find_with_case = value_to_find_with_case.lower()
         if isinstance(range_name, str):
             range_cells = self.get_range(range_name)
         elif isinstance(range_name, list):
@@ -228,7 +232,7 @@ class Worksheet:
             for cell in row:
                 cell_value_with_case = cell.value
                 if not case_sensitive:
-                    cell_value_with_case = str(cell_value_with_case).upper()
+                    cell_value_with_case = str(cell_value_with_case).lower()
                 if cell_value_with_case == value_to_find_with_case:
                     matching_cells.append(cell)
         return matching_cells
@@ -373,12 +377,12 @@ class Spreadsheet:
         worksheet, range_name = self.get_worksheet_and_range(range_name)
         return worksheet.get_cells_with_value_in_range(range_name)
 
-    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=True):
+    def change_value_in_range(self, range_name, previous_value, new_value, case_sensitive=False):
         """Changes the value of all cells that are equal to previous_value to new_value in a range."""
         worksheet, range_name = self.get_worksheet_and_range(range_name)
         return worksheet.change_value_in_range(range_name, previous_value, new_value, case_sensitive)
 
-    def find_cells(self, range_name, value_to_find, case_sensitive=True):
+    def find_cells(self, range_name, value_to_find, case_sensitive=False):
         """Returns an array of Cell matching the value_to_find."""
         if isinstance(range_name, str):
             worksheet, range_name = self.get_worksheet_and_range(range_name)

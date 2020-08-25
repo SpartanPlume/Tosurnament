@@ -13,7 +13,7 @@ from common.api.spreadsheet import InvalidWorksheet
 from common.databases.base_spreadsheet import SpreadsheetHttpError
 from common.api import challonge
 
-PRETTY_DATE_FORMAT = "**%A %d %B at %H:%M UTC**"
+PRETTY_DATE_FORMAT = "%A %d %B at %H:%M UTC"
 DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
 
 
@@ -226,6 +226,15 @@ def has_tournament_role(role_name):
         raise NotRequiredRole(role.name)
 
     return commands.check(predicate)
+
+
+def get_pretty_date(tournament, date):
+    # utc = ""
+    # if tournament.utc > 0:
+    #     utc = "+" + str(tournament.utc)
+    # elif tournament.utc < 0:
+    #     utc = str(tournament.utc)
+    return "**" + date.strftime(PRETTY_DATE_FORMAT) + "**"
 
 
 def is_bot_admin():
