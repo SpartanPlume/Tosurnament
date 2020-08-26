@@ -46,66 +46,190 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         challonge_tournament = challonge.extract_tournament_id(challonge_tournament)
         await self.set_bracket_values(ctx, {"challonge": challonge_tournament})
 
-    def is_player_in_challonge(self, member_id, teams_info, participants):
-        for team_info in teams_info:
-            if member_id == team_info.discord[0].value:
-                player_name = team_info.players[0].value
-                if player_name in participants:
-                    return player_name
-                else:
-                    return None
+    def is_player_in_challonge(self, member, teams_info, participants):
+        user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
+        if teams_info:
+            for team_info in teams_info:
+                if (user.verified and user.name.lower() in [cell.value for cell in team_info.players]) or (
+                    str(member) in [cell.value for cell in team_info.discord]
+                ):
+                    if team_info.team_name.value.lower() in participants:
+                        return team_info.team_name.value
+                    else:
+                        return None
+        elif user.verified and user.name.lower() in participants:
+            return user.name
         return None
 
     @commands.command(aliases=["cpr"])
     async def clear_player_role(self, ctx, *, bracket_index: int = None):
         """Removes the player role of users not present in the challonge."""
-        # TODO improve to handle teams, bracket roles, team captain role
-        # TODO and remove special code for nik's tournament and handle challonge error
         tournament = self.get_tournament(ctx.guild.id)
+        brackets = tournament.brackets
+        if len(brackets) != 1:
+            if bracket_index is None:
+                brackets_string = ""
+                for i, bracket in enumerate(brackets):
+                    brackets_string += str(i + 1) + ": `" + bracket.name + "`\n"
+                await self.send_reply(ctx, "clear_player_role", "default", brackets_string)
+                return
+            elif bracket_index <= 0 or bracket_index > len(brackets):
+                raise commands.UserInputError()
+            bracket_index -= 1
+        else:
+            bracket_index = 0
+        bracket = brackets[bracket_index]
+        if not bracket.challonge:
+            raise tosurnament.NoChallonge(bracket.name)
         player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
-        for bracket in tournament.brackets:
-            players_spreadsheet = bracket.players_spreadsheet
-            if not bracket.challonge or not players_spreadsheet:
-                continue
+        bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
+        team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
+        roles_to_removes = list(filter(None, [player_role, bracket_role, team_captain_role]))
+
+        challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+        participants = [participant.name for participant in challonge_tournament.participants]
+        participants_lower = [participant.lower() for participant in participants]
+
+        players_spreadsheet = bracket.players_spreadsheet
+        teams_info = []
+        if players_spreadsheet:
             await players_spreadsheet.get_spreadsheet()
-            challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
-            participants = [participant.name for participant in challonge_tournament.participants]
-            team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team)
+            if players_spreadsheet.range_team_name:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team_name
+                )
+            else:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team
+                )
             teams_info = []
             for cell in team_cells:
                 try:
-                    team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
-                    teams_info.append(team_info)
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
                 except Exception:
                     continue
+                if players_spreadsheet.range_team_name:
+                    if team_role := tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.value):
+                        roles_to_removes.append(team_role)
+                teams_info.append(team_info)
 
-            players_found = []
-            users_role_not_removed = []
-            n_roles_removed = 0
-            for member in ctx.guild.members:
-                member_id = str(member)
-                if player_name := self.is_player_in_challonge(member_id, teams_info, participants):
-                    players_found.append(player_name)
-                else:
+        players_found = []
+        n_user_roles_removed = 0
+        users_role_not_removed = []
+        for member in ctx.guild.members:
+            if bracket_role:
+                if not tosurnament.get_role(member.roles, bracket_role.id):
+                    continue
+            elif player_role and not tosurnament.get_role(member.roles, player_role.id):
+                continue
+            if player_name := self.is_player_in_challonge(member, teams_info, participants_lower):
+                players_found.append(player_name.lower())
+            else:
+                if member:
                     try:
-                        user = ctx.guild.get_member_named(member_id)
-                        if user and tosurnament.get_role(user.roles, player_role.id, "Player"):
-                            await user.remove_roles(player_role)
-                            n_roles_removed += 1
+                        await member.remove_roles(*roles_to_removes)
+                        n_user_roles_removed += 1
                     except Exception:
-                        users_role_not_removed.append(member_id)
-                        continue
-            success_extra = ""
-            players_not_found = "\n".join(list(set(participants) - set(players_found)))
-            if players_not_found:
-                success_extra += self.get_string(ctx.command.name, "players_not_found", players_not_found)
-            if users_role_not_removed:
-                success_extra += self.get_string(
-                    ctx.command.name, "users_role_not_removed", "\n".join(users_role_not_removed)
-                )
-            await self.send_reply(
-                ctx, ctx.command.name, "success", bracket.name, n_roles_removed, len(players_found), success_extra,
+                        users_role_not_removed.append(str(member))
+
+        success_extra = ""
+        players_not_found = ""
+        for participant in participants:
+            if participant.lower() not in players_found:
+                players_not_found += participant + "\n"
+        players_not_found.strip("\n")
+        if players_not_found:
+            success_extra += self.get_string("clear_player_role", "players_not_found", players_not_found)
+        if users_role_not_removed:
+            success_extra += self.get_string(
+                "clear_player_role", "users_role_not_removed", "\n".join(users_role_not_removed)
             )
+        await self.send_reply(
+            ctx, "clear_player_role", "success", bracket.name, n_user_roles_removed, len(players_found), success_extra,
+        )
+
+    # ! FOR TEST PURPOSES: To remove
+    @commands.command(aliases=["cprt"])
+    async def clear_player_role_test(self, ctx, *, bracket_index: int = None):
+        """Removes the player role of users not present in the challonge."""
+        tournament = self.get_tournament(ctx.guild.id)
+        brackets = tournament.brackets
+        if len(brackets) != 1:
+            if bracket_index is None:
+                brackets_string = ""
+                for i, bracket in enumerate(brackets):
+                    brackets_string += str(i + 1) + ": `" + bracket.name + "`\n"
+                await self.send_reply(ctx, "clear_player_role", "default", brackets_string)
+                return
+            elif bracket_index <= 0 or bracket_index > len(brackets):
+                raise commands.UserInputError()
+            bracket_index -= 1
+        else:
+            bracket_index = 0
+        bracket = brackets[bracket_index]
+        if not bracket.challonge:
+            raise tosurnament.NoChallonge(bracket.name)
+        player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
+        bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
+        team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
+        roles_to_removes = list(filter(None, [player_role, bracket_role, team_captain_role]))
+
+        challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+        participants = [participant.name for participant in challonge_tournament.participants]
+        participants_lower = [participant.lower() for participant in participants]
+
+        players_spreadsheet = bracket.players_spreadsheet
+        teams_info = []
+        if players_spreadsheet:
+            await players_spreadsheet.get_spreadsheet()
+            if players_spreadsheet.range_team_name:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team_name
+                )
+            else:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team
+                )
+            teams_info = []
+            for cell in team_cells:
+                try:
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
+                except Exception:
+                    continue
+                if players_spreadsheet.range_team_name:
+                    if team_role := tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.value):
+                        roles_to_removes.append(team_role)
+                teams_info.append(team_info)
+
+        players_found = []
+        n_user_roles_removed = 0
+        users_role_not_removed = []
+        for member in ctx.guild.members:
+            if bracket_role:
+                if not tosurnament.get_role(member.roles, bracket_role.id):
+                    continue
+            elif player_role and not tosurnament.get_role(member.roles, player_role.id):
+                continue
+            if player_name := self.is_player_in_challonge(member, teams_info, participants_lower):
+                players_found.append(player_name.lower())
+            else:
+                n_user_roles_removed += 1
+
+        success_extra = ""
+        players_not_found = ""
+        for participant in participants:
+            if participant.lower() not in players_found:
+                players_not_found += participant + "\n"
+        players_not_found.strip("\n")
+        if players_not_found:
+            success_extra += self.get_string("clear_player_role", "players_not_found", players_not_found)
+        if users_role_not_removed:
+            success_extra += self.get_string(
+                "clear_player_role", "users_role_not_removed", "\n".join(users_role_not_removed)
+            )
+        await self.send_reply(
+            ctx, "clear_player_role", "success", bracket.name, n_user_roles_removed, len(players_found), success_extra,
+        )
 
     @commands.command(aliases=["sps"])  # pragma: no cover
     async def set_players_spreadsheet(self, ctx, spreadsheet_id: str, *, sheet_name: str = ""):

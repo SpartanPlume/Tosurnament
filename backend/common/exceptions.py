@@ -230,3 +230,11 @@ class NotRefereeOfMatch(commands.CommandError):
     """Special exception in case someone who is not the referee of a match try to allow its reschedule."""
 
     pass
+
+
+class NoChallonge(commands.CommandError):
+    """Special exception in case no challonge is set."""
+
+    def __init__(self, bracket):
+        super().__init__()
+        self.bracket = bracket

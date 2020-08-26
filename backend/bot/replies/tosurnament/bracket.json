@@ -34,7 +34,9 @@
     "success": "__Bracket:__ **%1**\n\n__Player's role removed:__ %2\n__Player's role kept:__ %3%4",
     "players_not_found": "\n\n__List of players not found:__\n%1",
     "users_role_not_removed": "\n\n__List of users that kept the role due to a system error:__\n%1",
-    "usage": "Usage: `%0clear_player_role"
+    "usage": "Usage: `%0clear_player_role $./parameter`\n\nExample: `%0clear_player_role 1`",
+    "default": "List of all brackets:\n%1\nUse `%0clear_player_role $./parameter` to clear the player roles of a bracket.",
+    "parameter": "<index>"
   },
   "set_players_spreadsheet": {
     "help": "Sets the players spreadsheet to allow registration",
