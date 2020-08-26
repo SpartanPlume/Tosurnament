@@ -1,10 +1,13 @@
 """Contains all tournament settings commands related to Tosurnament."""
 
 import re
+import dateparser
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
+
+TIME_REGEX = r"([0-2][0-3]|[0-1][0-9]):[0-5][0-9]"
 
 
 class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tournament"):
@@ -146,15 +149,24 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def set_reschedule_deadline_end(self, ctx, *, date: str = ""):
         if date:
             date = date.lower()
-            if not re.match(
-                r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) ([0-2][0-3]|[0-1][0-9]):[0-5][0-9]$", date
-            ):
+            if not re.match(r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) " + TIME_REGEX + r"$", date):
                 raise commands.UserInputError()
         await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
     @commands.command(aliases=["snnsr"])  # pragma: no cover
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
         await self.set_tournament_values(ctx, {"notify_no_staff_reschedule": notify})
+
+    @commands.command(aliases=["su"])  # pragma: no cover
+    async def set_utc(self, ctx, utc: str):
+        if utc:
+            if not re.match(r"^[-\+]" + TIME_REGEX + r"$", utc):
+                raise commands.UserInputError()
+            try:
+                dateparser.parse("now", settings={"TIMEZONE": utc})
+            except Exception:
+                raise commands.UserInputError()  # TODO better exception
+        await self.set_tournament_values(ctx, {"utc": utc})
 
     async def set_tournament_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""

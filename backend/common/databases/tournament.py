@@ -1,6 +1,7 @@
 """Tournament table"""
 
 import datetime
+import dateparser
 from mysqldb_wrapper import Base, Id
 from common.databases.bracket import Bracket
 from common.exceptions import UnknownError
@@ -45,6 +46,7 @@ class Tournament(Base):
     created_at = int()
     matches_to_ignore = str()
     notify_no_staff_reschedule = bool(True)
+    utc = str()
 
     @property
     def current_bracket(self):
@@ -69,6 +71,25 @@ class Tournament(Base):
             return vars(self)[field]
         except KeyError:
             return None
+
+    def parse_date(self, date, date_formats=[], prefer_dates_from="current_period", relative_base="", to_timezone=""):
+        if self.utc:
+            return dateparser.parse(
+                date,
+                date_formats=date_formats,
+                settings={
+                    "PREFER_DATES_FROM": prefer_dates_from,
+                    "RELATIVE_BASE": relative_base,
+                    "TIMEZONE": self.utc,
+                    "TO_TIMEZONE": to_timezone,
+                },
+            )
+        else:
+            return dateparser.parse(
+                date,
+                date_formats=date_formats,
+                settings={"PREFER_DATES_FROM": prefer_dates_from, "RELATIVE_BASE": relative_base},
+            )
 
     def create_date_from_week_times(self, week_time_begin, week_time_end, date):
         if not week_time_begin or not week_time_end:

@@ -2,7 +2,6 @@
 
 import asyncio
 import datetime
-import dateparser
 from discord.utils import escape_markdown
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
@@ -391,8 +390,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 date_format = "%d %B"
                 if schedules_spreadsheet.date_format:
                     date_format = schedules_spreadsheet.date_format
-                match_date = dateparser.parse(
-                    match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
+                match_date = tournament.parse_date(
+                    match_info.get_datetime(),
+                    date_formats=list(filter(None, [date_format + " %H:%M"])),
+                    to_timezone="UTC",
                 )
                 if match_date:
                     delta = match_date - now

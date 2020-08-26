@@ -137,5 +137,11 @@
     "parameter": "$../add_match_to_ignore/parameter",
     "usage": "Usage: `%0remove_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0remove_match_to_ignore C2 B3`",
     "success": "$../add_match_to_ignore/success"
+  },
+  "set_utc": {
+    "help": "Sets the UTC timezone",
+    "parameter": "<tz_info>",
+    "usage": "Usage: `%0set_utc $./parameter`\n\n`<tz_info>` must be in the format: -hh:mm or +hh:mm.\nExample: `%0set_utc +02:00`",
+    "success": "UTC set to `%1`."
   }
 }

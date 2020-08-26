@@ -2,7 +2,6 @@
 
 import asyncio
 import datetime
-import dateparser
 import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
@@ -128,8 +127,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         previous_date_string = match_info.get_datetime()
         if not previous_date_string:
             return None
-        previous_date = dateparser.parse(
-            previous_date_string, date_formats=list(filter(None, [date_format + " %H:%M"])),
+        previous_date = tournament.parse_date(
+            previous_date_string, date_formats=list(filter(None, [date_format + " %H:%M"]))
         )
         if not previous_date:
             raise tosurnament.InvalidDateOrFormat()
@@ -141,9 +140,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.value)
             if tournament.reschedule_deadline_end:
                 try:
-                    deadline_end = dateparser.parse(
-                        tournament.reschedule_deadline_end,
-                        settings={"RELATIVE_BASE": previous_date, "PREFER_DATES_FROM": "future"},
+                    deadline_end = tournament.parse_date(
+                        tournament.reschedule_deadline_end, prefer_dates_from="future", relative_base=previous_date
                     )
                 except ValueError:
                     # TODO: handle error
@@ -229,13 +227,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     @tosurnament.has_tournament_role("Player")
     async def reschedule(self, ctx, match_id: str, *, date: str):
         """Allows players to reschedule their matches."""
+        tournament = self.get_tournament(ctx.guild.id)
         try:
-            new_date = dateparser.parse(date, settings={"PREFER_DATES_FROM": "future"})
+            new_date = tournament.parse_date(date, prefer_dates_from="future")
         except ValueError:
             raise commands.UserInputError()
         if not new_date:
             raise commands.UserInputError()
-        tournament = self.get_tournament(ctx.guild.id)
         skip_deadline_validation = False
         allowed_reschedule_match_ids = [
             allowed_reschedule.match_id.upper()

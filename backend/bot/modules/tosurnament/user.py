@@ -1,7 +1,6 @@
 """User commands"""
 
 import datetime
-import dateparser
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
@@ -104,7 +103,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    async def fill_matches_info_for_roles(self, ctx, bracket, matches_to_ignore, user_details):
+    async def fill_matches_info_for_roles(self, ctx, tournament, bracket, matches_to_ignore, user_details):
         user_name = user_details.name
         team_name = None
         has_bracket_role = False
@@ -128,8 +127,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             date_format = "%d %B"
             if schedules_spreadsheet.date_format:
                 date_format = schedules_spreadsheet.date_format
-            match_date = dateparser.parse(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"])),
+            match_date = tournament.parse_date(
+                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"]))
             )
             if not match_date or match_date < now:
                 continue
@@ -159,7 +158,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             try:
-                await self.fill_matches_info_for_roles(ctx, bracket, matches_to_ignore, user_details)
+                await self.fill_matches_info_for_roles(ctx, tournament, bracket, matches_to_ignore, user_details)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"

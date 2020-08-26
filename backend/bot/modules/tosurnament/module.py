@@ -229,12 +229,17 @@ def has_tournament_role(role_name):
 
 
 def get_pretty_date(tournament, date):
-    # utc = ""
-    # if tournament.utc > 0:
-    #     utc = "+" + str(tournament.utc)
-    # elif tournament.utc < 0:
-    #     utc = str(tournament.utc)
-    return "**" + date.strftime(PRETTY_DATE_FORMAT) + "**"
+    utc = tournament.utc
+    if utc:
+        hour = utc[1:3]
+        minute = utc[4:6]
+        if int(hour) == 0 and int(minute) == 0:
+            utc = ""
+        else:
+            utc = utc[0] + hour.lstrip("0")
+            if int(minute) > 0:
+                utc += ":" + minute
+    return "**" + date.strftime(PRETTY_DATE_FORMAT) + utc + "**"
 
 
 def is_bot_admin():
