@@ -1,6 +1,7 @@
 """User commands"""
 
 import datetime
+import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.schedules_spreadsheet import MatchInfo
@@ -55,7 +56,6 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
 
     @commands.command(aliases=["nc", "change_name", "cn"])
-    @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
     @commands.guild_only()
     async def name_change(self, ctx):
         """Allows users to change their nickname to their osu! username or update it."""
@@ -92,10 +92,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         #         except Exception as e:
         #             await self.on_cog_command_error(ctx, ctx.command.name, e)
         #             return
-        # try:
-        #    await ctx.author.edit(nick=new_name)
-        # except discord.Forbidden:
-        #    await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
+        try:
+            await ctx.author.edit(nick=new_name)
+        except discord.Forbidden:
+            await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
         user.osu_name_hash = new_name.lower()
