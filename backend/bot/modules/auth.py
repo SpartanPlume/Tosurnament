@@ -52,14 +52,14 @@ class AuthCog(base.BaseModule, name="auth"):
                 verified=False,
                 code=code,
                 osu_name=osu_name,
-                osu_name_hash=osu_name,
+                osu_name_hash=osu_name.lower(),
             )
             self.bot.session.add(user)
         else:
             user.osu_id = osu_id
             user.code = code
             user.osu_name = osu_name
-            user.osu_name_hash = osu_name
+            user.osu_name_hash = osu_name.lower()
             self.bot.session.update(user)
 
         await self.send_reply(ctx.author, ctx.command.name, "success", code)

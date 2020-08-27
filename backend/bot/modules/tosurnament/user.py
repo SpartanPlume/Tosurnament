@@ -99,7 +99,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
-        user.osu_name_hash = new_name
+        user.osu_name_hash = new_name.lower()
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
