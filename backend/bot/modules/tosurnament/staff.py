@@ -161,7 +161,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             elif len(role_cells) > 0:
                 role_cell = role_cells[0]
                 max_take = getattr(schedules_spreadsheet, "max_" + role_name.lower())
-                staffs = list(filter(None, [staff.strip() for staff in role_cell.value.split("/")]))
+                staffs = list(filter(None, [staff.strip().lower() for staff in role_cell.value.split("/")]))
                 if take and len(staffs) < max_take and staff_name not in staffs:
                     staffs.append(staff_name)
                     role_cell.value = " / ".join(staffs)
