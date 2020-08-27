@@ -89,7 +89,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         else:
             roles_to_removes = list(filter(None, [bracket_role, team_captain_role]))
 
-        challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
+        challonge_tournament = challonge.get_tournament(bracket.challonge)
         participants = [participant.name for participant in challonge_tournament.participants]
         participants_lower = [participant.lower() for participant in participants]
 
