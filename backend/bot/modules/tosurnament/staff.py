@@ -154,7 +154,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                             role_cell.value = staff_name
                             take_match = True
                             break
-                        elif not take and role_cell.value == staff_name:
+                        elif not take and role_cell.value.lower() == staff_name:
                             role_cell.value = ""
                             take_match = True
                             break
