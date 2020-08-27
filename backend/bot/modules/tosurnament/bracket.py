@@ -62,7 +62,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         return None
 
     @commands.command(aliases=["cpr"])
-    async def clear_player_role(self, ctx, *, bracket_index: int = None):
+    async def clear_player_role(self, ctx, bracket_index: int = None, remove_player_role: bool = True):
         """Removes the player role of users not present in the challonge."""
         tournament = self.get_tournament(ctx.guild.id)
         brackets = tournament.brackets
@@ -84,7 +84,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
         bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
         team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
-        roles_to_removes = list(filter(None, [player_role, bracket_role, team_captain_role]))
+        if remove_player_role:
+            roles_to_removes = list(filter(None, [player_role, bracket_role, team_captain_role]))
+        else:
+            roles_to_removes = list(filter(None, [bracket_role, team_captain_role]))
 
         challonge_tournament = challonge.get_tournament(tournament.current_bracket.challonge)
         participants = [participant.name for participant in challonge_tournament.participants]
