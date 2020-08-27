@@ -148,7 +148,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             take_match = False
             role_cells = getattr(match_info, role_name.lower() + "s")
             if schedules_spreadsheet.use_range:
-                if not (take and staff_name in [cell.value for cell in role_cells]):
+                if not (take and staff_name in [cell.value.lower() for cell in role_cells]):
                     for role_cell in role_cells:
                         if take and not role_cell.value:
                             role_cell.value = staff_name
