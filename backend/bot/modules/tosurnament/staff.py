@@ -141,7 +141,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     def take_match_for_roles(self, schedules_spreadsheet, match_info, user_details, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         write_cells = False
-        staff_name = user_details.name
+        staff_name = user_details.name.lower()
         for role_name, role_store in user_details.get_staff_roles_as_dict().items():
             if not role_store:
                 continue
