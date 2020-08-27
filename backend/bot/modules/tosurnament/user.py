@@ -1,7 +1,6 @@
 """User commands"""
 
 import datetime
-import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.schedules_spreadsheet import MatchInfo
@@ -93,10 +92,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         #         except Exception as e:
         #             await self.on_cog_command_error(ctx, ctx.command.name, e)
         #             return
-        try:
-            await ctx.author.edit(nick=new_name)
-        except discord.Forbidden:
-            await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
+        # try:
+        #    await ctx.author.edit(nick=new_name)
+        # except discord.Forbidden:
+        #    await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
         user.osu_name_hash = new_name.lower()
