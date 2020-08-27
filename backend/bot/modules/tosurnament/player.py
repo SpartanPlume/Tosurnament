@@ -108,7 +108,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     await self.on_cog_command_error(channel, "get_player_role", e)
         return got_role
 
-    @commands.command(aliases=["gpr"])
+    @commands.command()
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
     async def get_player_role(self, ctx):
         """Gives a player the player related roles, if applicable."""
