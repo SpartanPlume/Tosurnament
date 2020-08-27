@@ -139,9 +139,7 @@ class Client(commands.Bot):
         user = self.session.query(User).where(User.discord_id == ctx.author.id).first()
         if user:
             user.discord_id_snowflake = ctx.author.id
-            user.osu_name = user.osu_name
             user.osu_name_hash = user.osu_name.lower()
-            user.osu_previous_name = user.osu_previous_name
             self.session.update(user)
 
     async def on_command_completion(self, ctx):

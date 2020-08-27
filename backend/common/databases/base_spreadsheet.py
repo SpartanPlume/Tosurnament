@@ -28,12 +28,23 @@ class BaseSpreadsheet(Base):
             if not key.startswith("_") and key not in keys_to_ignore:
                 setattr(new_obj, key, value)
 
-    async def get_spreadsheet(self):
+    async def get_spreadsheet(self, retry=False):
         if self._spreadsheet is None:
             loop = asyncio.get_running_loop()
             if not loop:
                 return None
-            await loop.run_in_executor(None, _get_spreadsheet_worksheet, self)
+            n_retry = 0
+            while True:
+                try:
+                    await loop.run_in_executor(None, _get_spreadsheet_worksheet, self)
+                except SpreadsheetHttpError as e:
+                    if retry and n_retry < 5:
+                        n_retry += 1
+                        await asyncio.sleep(10)
+                        continue
+                    else:
+                        raise e
+                break
         return self._spreadsheet
 
     @property

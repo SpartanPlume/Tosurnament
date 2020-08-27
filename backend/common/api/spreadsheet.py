@@ -305,27 +305,17 @@ class Spreadsheet:
     def get_from_id(spreadsheet_id):
         """Returns a Spreadsheet."""
         spreadsheet = Spreadsheet(spreadsheet_id)
-        retry_count = 0
-        error = None
-        while retry_count < 3:
+        try:
+            sheets = get_spreadsheet_with_values(spreadsheet_id)
+        except googleapiclient.errors.HttpError as error:
             try:
-                sheets = get_spreadsheet_with_values(spreadsheet_id)
-            except (googleapiclient.errors.HttpError, ConnectionResetError, socket.timeout, ssl.SSLError) as e:
-                error = e
-                retry_count += 1
-                continue
-            break
-        if error:
-            if isinstance(error, googleapiclient.errors.HttpError):
-                try:
-                    raise HttpError(error.resp["status"], "read", error)
-                except KeyError:
-                    raise HttpError(500, "read", error)
-            elif isinstance(error, (ConnectionResetError, ssl.SSLError)):
-                raise HttpError(499, "read", error)
-            elif isinstance(error, socket.timeout):
-                raise HttpError(408, "read", error)
-            raise HttpError(500, "read", error)
+                raise HttpError(error.resp["status"], "read", error)
+            except KeyError:
+                raise HttpError(500, "read", error)
+        except (ConnectionResetError, ssl.SSLError, AttributeError) as error:
+            raise HttpError(499, "read", error)
+        except socket.timeout as error:
+            raise HttpError(408, "read", error)
         for index, sheet in enumerate(sheets):
             spreadsheet.worksheets.append(Worksheet(index, sheet["name"], sheet["cells"]))
         return spreadsheet
