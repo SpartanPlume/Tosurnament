@@ -13,7 +13,7 @@ from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
-from common.api.spreadsheet import InvalidWorksheet
+from common.api.spreadsheet import Spreadsheet, InvalidWorksheet
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -443,6 +443,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 self.bot.session.update(tosurnament_guild)
         except Exception as e:
             self.bot.info_exception(e)
+        finally:
+            Spreadsheet.pickle_from_id.cache_clear()
 
     async def background_task_match_notification(self):
         try:

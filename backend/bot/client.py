@@ -144,6 +144,7 @@ class Client(commands.Bot):
 
     async def on_command_completion(self, ctx):
         try:
+            spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
             await ctx.message.add_reaction("✅")
             await ctx.message.remove_reaction("⏲️", self.user)
         except Exception:
@@ -152,6 +153,7 @@ class Client(commands.Bot):
     async def on_command_error(self, ctx, error):
         """Logs the error"""
         try:
+            spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
             await ctx.message.add_reaction("❌")
             await ctx.message.remove_reaction("⏲️", self.user)
             if isinstance(error, commands.CommandNotFound):
@@ -199,6 +201,7 @@ class Client(commands.Bot):
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_add"):
                 await module.on_raw_reaction_add(payload.message_id, payload.emoji, guild, channel, user)
+        spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 
     async def on_raw_reaction_remove(self, payload):
         if not payload.guild_id:
@@ -211,6 +214,7 @@ class Client(commands.Bot):
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_remove"):
                 await module.on_raw_reaction_remove(payload.message_id, payload.emoji, guild, channel, user)
+        spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 
     async def on_member_join(self, member):
         try:
@@ -226,3 +230,4 @@ class Client(commands.Bot):
                     await module.on_verified_user(guild, user)
                 except Exception:
                     continue
+        spreadsheet.Spreadsheet.pickle_from_id.cache_clear()

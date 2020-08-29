@@ -148,6 +148,7 @@ class TosurnamentBaseModule(BaseModule):
             await asyncio.sleep(2)  # To prioritize finishing the executed command
             while True:
                 self.bot.info("Trying to update online spreadsheet...")
+                Spreadsheet.pickle_from_id.cache_clear()
                 spreadsheet = Spreadsheet.pickle_from_id(spreadsheet_id)
                 if not spreadsheet:
                     return

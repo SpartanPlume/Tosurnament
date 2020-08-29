@@ -1,7 +1,6 @@
 """Base spreadsheet table"""
 
 import asyncio
-import copy
 from mysqldb_wrapper import Base, Id
 from common.api.spreadsheet import Spreadsheet, HttpError
 from common.exceptions import SpreadsheetHttpError
@@ -56,9 +55,9 @@ def _get_spreadsheet_worksheet(self, force_sync):
     """Retrieves the spreadsheet and its main worksheet."""
     try:
         if force_sync:
-            self._spreadsheet = copy.copy(Spreadsheet.retrieve_spreadsheet_and_update_pickle(self.spreadsheet_id))
+            self._spreadsheet = Spreadsheet.retrieve_spreadsheet_and_update_pickle(self.spreadsheet_id)
         else:
-            self._spreadsheet = copy.copy(Spreadsheet.get_from_id(self.spreadsheet_id))
+            self._spreadsheet = Spreadsheet.get_from_id(self.spreadsheet_id)
         if self.sheet_name:
             for i, worksheet in enumerate(self._spreadsheet.worksheets):
                 if worksheet.name == self.sheet_name:

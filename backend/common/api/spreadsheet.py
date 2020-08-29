@@ -10,6 +10,7 @@ import socket
 import googleapiclient
 from googleapiclient import discovery
 from google.oauth2 import service_account
+from functools import lru_cache
 
 LETTER_BASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -327,6 +328,7 @@ class Spreadsheet:
         return spreadsheet
 
     @staticmethod
+    @lru_cache(maxsize=8)
     def pickle_from_id(spreadsheet_id):
         if not os.path.exists("pickles"):
             os.mkdir("pickles")
