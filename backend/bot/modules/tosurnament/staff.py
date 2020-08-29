@@ -193,7 +193,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     continue
                 self.take_match_for_roles(schedules_spreadsheet, match_info, user_details, take)
                 left_match_ids.remove(match_id)
-        if left_match_ids:
+        if left_match_ids and not retry:
             return False
         for schedules_spreadsheet in schedules_spreadsheets:
             self.add_update_spreadsheet_background_task(schedules_spreadsheet)
