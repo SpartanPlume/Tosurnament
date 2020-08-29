@@ -1,5 +1,8 @@
 """Google Spreadsheet API wrapper"""
 
+import hashlib
+import os
+import pickle
 import ssl
 from discord.ext import commands
 import re
@@ -7,7 +10,6 @@ import socket
 import googleapiclient
 from googleapiclient import discovery
 from google.oauth2 import service_account
-from functools import lru_cache
 
 LETTER_BASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -301,9 +303,7 @@ class Spreadsheet:
         return newobj
 
     @staticmethod
-    @lru_cache(maxsize=4)
-    def get_from_id(spreadsheet_id):
-        """Returns a Spreadsheet."""
+    def retrieve_spreadsheet(spreadsheet_id):
         spreadsheet = Spreadsheet(spreadsheet_id)
         try:
             sheets = get_spreadsheet_with_values(spreadsheet_id)
@@ -319,6 +319,35 @@ class Spreadsheet:
         for index, sheet in enumerate(sheets):
             spreadsheet.worksheets.append(Worksheet(index, sheet["name"], sheet["cells"]))
         return spreadsheet
+
+    @staticmethod
+    def retrieve_spreadsheet_and_update_pickle(spreadsheet_id):
+        spreadsheet = Spreadsheet.retrieve_spreadsheet(spreadsheet_id)
+        spreadsheet.update_pickle()
+        return spreadsheet
+
+    @staticmethod
+    def pickle_from_id(spreadsheet_id):
+        if not os.path.exists("pickles"):
+            os.mkdir("pickles")
+            return None
+        try:
+            with open("pickles/" + hashlib.blake2s(bytes(spreadsheet_id, "utf-8")).hexdigest(), "rb") as pfile:
+                return pickle.load(pfile)
+        except IOError:
+            return None
+
+    @staticmethod
+    def get_from_id(spreadsheet_id):
+        """Returns a Spreadsheet."""
+        spreadsheet = Spreadsheet.pickle_from_id(spreadsheet_id)
+        if not spreadsheet:
+            spreadsheet = Spreadsheet.retrieve_spreadsheet_and_update_pickle(spreadsheet_id)
+        return spreadsheet
+
+    def update_pickle(self):
+        with open("pickles/" + hashlib.blake2s(bytes(self.id, "utf-8")).hexdigest(), "w+b") as pfile:
+            pickle.dump(self, pfile)
 
     def get_worksheet(self, option=None):
         """Returns a Worksheet by index or name."""
@@ -341,6 +370,8 @@ class Spreadsheet:
             ranges, values = worksheet.get_updated_values_with_ranges()
             ranges_name = [*ranges_name, *ranges]
             ranges_values = [*ranges_values, *values]
+        if not ranges_name or not ranges_values:
+            return
         try:
             write_ranges(self.id, ranges_name, ranges_values)
         except googleapiclient.errors.HttpError as e:

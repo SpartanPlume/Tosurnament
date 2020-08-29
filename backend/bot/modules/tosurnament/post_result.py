@@ -9,7 +9,6 @@ from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import TeamInfo
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
 from common.databases.post_result_message import PostResultMessage
-from common.api.spreadsheet import HttpError
 from common.api import osu
 from common.api import challonge
 
@@ -429,10 +428,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             else:
                 match_info.mp_links[i].value = mp_links[i]
             i += 1
-        try:
-            bracket.schedules_spreadsheet.spreadsheet.update()
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
+        self.add_update_spreadsheet_background_task(bracket.schedules_spreadsheet)
 
     async def step8_remove_player_role(self, ctx, error_channel, tournament, challonge_tournament, loser_participant):
         if challonge_tournament.state == "group_stages_underway":

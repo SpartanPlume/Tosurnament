@@ -1,15 +1,20 @@
 """Base of all tosurnament modules"""
 
+import os
+import pickle
+import asyncio
+import functools
 from discord.ext import commands
 from bot.modules.module import *
 from common.databases.tournament import Tournament
+from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.databases.schedules_spreadsheet import DuplicateMatchId, MatchIdNotFound, DateIsNotString
 from common.databases.players_spreadsheet import (
     TeamInfo,
     DuplicateTeam,
     TeamNotFound,
 )
-from common.api.spreadsheet import InvalidWorksheet
+from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
 from common.databases.base_spreadsheet import SpreadsheetHttpError
 from common.api import challonge
 
@@ -122,6 +127,57 @@ class TosurnamentBaseModule(BaseModule):
         if not tournament:
             raise NoTournament()
         return tournament
+
+    def get_spreadsheet_ids_to_update_pickle(self):
+        if not os.path.exists("pickles"):
+            os.mkdir("pickles")
+            return []
+        try:
+            with open("pickles/spreadsheet_ids_to_update", "rb") as pfile:
+                spreadsheet_ids = pickle.load(pfile)
+                return spreadsheet_ids
+        except IOError:
+            return []
+
+    def update_spreadsheet_ids_to_update_pickle(self, spreadsheet_ids):
+        with open("pickles/spreadsheet_ids_to_update", "w+b") as pfile:
+            pickle.dump(spreadsheet_ids, pfile)
+
+    async def update_spreadsheet_background_task(self, spreadsheet_id):
+        try:
+            await asyncio.sleep(2)  # To prioritize finishing the executed command
+            while True:
+                self.bot.info("Trying to update online spreadsheet...")
+                spreadsheet = Spreadsheet.pickle_from_id(spreadsheet_id)
+                if not spreadsheet:
+                    return
+                try:
+                    spreadsheet.update()
+                except HttpError as e:
+                    self.bot.info("Exception raised while trying to update online spreadsheet")
+                    self.bot.info_exception(e)
+                    await asyncio.sleep(10)
+                    continue
+                self.bot.info("Updated online spreadsheet successfully")
+                spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
+                spreadsheet_ids.remove(spreadsheet.id)
+                self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
+                return
+        except asyncio.CancelledError:
+            return
+
+    def add_update_spreadsheet_background_task(self, spreadsheet):
+        spreadsheet.spreadsheet.update_pickle()
+        spreadsheet_id = spreadsheet.spreadsheet.id
+        spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
+        if spreadsheet_ids:
+            if spreadsheet_id in spreadsheet_ids:
+                return
+            spreadsheet_ids.add(spreadsheet_id)
+        else:
+            spreadsheet_ids = set([spreadsheet_id])
+        self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
+        self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
 
     async def find_player_identification(self, ctx, bracket, user_name):
         players_spreadsheet = bracket.players_spreadsheet
@@ -258,3 +314,37 @@ def is_bot_admin():
         return True
 
     return commands.check(predicate)
+
+
+def retry_and_update_spreadsheet_pickle_on_false_or_exceptions(_func=None, *, exceptions=[]):
+    exceptions_tuple = tuple(exceptions)
+
+    def retry_wrapper(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            result = False
+            try:
+                result = await func(*args, **kwargs)
+            except Exception as e:
+                if not isinstance(e, exceptions_tuple):
+                    raise e
+            if not result:
+                spreadsheets = []
+                for arg in args:
+                    if isinstance(arg, BaseSpreadsheet):
+                        spreadsheets.append(arg)
+                spreadsheet_ids = []
+                for spreadsheet in spreadsheets:
+                    if spreadsheet.id not in spreadsheet_ids:
+                        if await spreadsheet.get_spreadsheet(force_sync=True):
+                            spreadsheet_ids.append(spreadsheet.id)
+                if spreadsheet_ids:
+                    return await func(*args, **kwargs, retry=True)
+            return result
+
+        return wrapper
+
+    if _func:
+        return retry_wrapper(_func)
+    else:
+        return retry_wrapper

@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.schedules_spreadsheet import MatchInfo
-from common.api.spreadsheet import HttpError
 from common.api import osu
 
 
@@ -25,10 +24,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             players_spreadsheet.range_team, previous_name, new_name
         )
         if changed_name:
-            try:
-                players_spreadsheet.spreadsheet.update()
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "players", e.error)
+            self.add_update_spreadsheet_background_task(players_spreadsheet)
 
     async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_details):
         schedules_spreadsheet = bracket.schedules_spreadsheet
@@ -50,10 +46,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                     getattr(schedules_spreadsheet, "range_" + role_name.lower()), previous_name, new_name,
                 )
         if changed_name:
-            try:
-                schedules_spreadsheet.spreadsheet.update()
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
+            self.add_update_spreadsheet_background_task(schedules_spreadsheet)
 
     @commands.command(aliases=["nc", "change_name", "cn"])
     @commands.guild_only()

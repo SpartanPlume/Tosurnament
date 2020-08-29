@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.players_spreadsheet import TeamInfo
+from common.databases.players_spreadsheet import TeamInfo, TeamNotFound
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
@@ -223,6 +223,117 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return team2_info, team1_info
         raise tosurnament.InvalidMatch()
 
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
+        exceptions=[tosurnament.InvalidMatch, TeamNotFound, tosurnament.OpponentNotFound]
+    )
+    async def reschedule_for_bracket(
+        self,
+        ctx,
+        tournament,
+        bracket,
+        schedules_spreadsheet,
+        players_spreadsheet,
+        match_id,
+        new_date,
+        user,
+        skip_deadline_validation,
+        retry=False,
+    ):
+        try:
+            match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
+        except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
+            if retry:
+                await self.on_cog_command_error(ctx, ctx.command.name, e)
+            return False
+        except MatchIdNotFound as e:
+            if retry:
+                self.bot.info_exception(e)
+            return False
+        match_id = match_info.match_id.value
+
+        players_spreadsheet = bracket.players_spreadsheet
+        if players_spreadsheet:
+            await players_spreadsheet.get_spreadsheet()
+            ally_team_info, opponent_team_info = await self.get_teams_info(
+                ctx, tournament, players_spreadsheet, match_info, user
+            )
+            if not ally_team_info:
+                return False
+            team_name = ally_team_info.team_name.value
+            opponent_team_name = opponent_team_info.team_name.value
+            opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
+                ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
+            )
+        else:
+            team_name = user.name
+            if team_name == match_info.team1.value:
+                opponent_team_name = match_info.team2.value
+            elif team_name == match_info.team2.value:
+                opponent_team_name = match_info.team1.value
+            else:
+                raise tosurnament.InvalidMatch()
+            opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
+
+        now = datetime.datetime.utcnow()
+        new_date = self.validate_new_date(
+            ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
+        )
+        previous_date = self.validate_reschedule_feasibility(
+            ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
+        )
+
+        opponent_team_captain = opponent_user.get_member(ctx.guild)
+        if not opponent_team_captain:
+            raise tosurnament.OpponentNotFound(ctx.author.mention)
+
+        opponent_to_ping = opponent_team_captain
+        if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
+            role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
+            if role:
+                opponent_to_ping = role
+
+        reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
+        role = tosurnament.get_role(ctx.guild.roles, None, team_name)
+        if role:
+            reschedule_message.ally_team_role_id = role.id
+        reschedule_message.match_id = match_id
+        reschedule_message.match_id_hash = match_id
+        reschedule_message.ally_user_id = ctx.author.id
+        reschedule_message.opponent_user_id = opponent_team_captain.id
+        if previous_date:
+            previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
+            reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+        else:
+            previous_date_string = "**No previous date**"
+            reschedule_message.previous_date = ""
+        new_date_string = tosurnament.get_pretty_date(tournament, new_date)
+        reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+        sent_message = await self.send_reply(
+            ctx,
+            ctx.command.name,
+            "success",
+            opponent_to_ping.mention,
+            escape_markdown(team_name),
+            match_id,
+            previous_date_string,
+            new_date_string,
+        )
+        reschedule_message.message_id = sent_message.id
+
+        previous_reschedule_message = (
+            self.bot.session.query(RescheduleMessage)
+            .where(RescheduleMessage.tournament_id == tournament.id)
+            .where(RescheduleMessage.match_id_hash == match_id)
+            .first()
+        )
+        if previous_reschedule_message:
+            self.bot.session.delete(previous_reschedule_message)
+
+        self.bot.session.add(reschedule_message)
+        await sent_message.add_reaction("👍")
+        await sent_message.add_reaction("👎")
+        return True
+
     @commands.command(aliases=["r"])
     @tosurnament.has_tournament_role("Player")
     async def reschedule(self, ctx, match_id: str, *, date: str):
@@ -244,7 +355,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if match_id.upper() in allowed_reschedule_match_ids:
             skip_deadline_validation = True
 
-        now = datetime.datetime.utcnow()
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
         bracket_role_present = False
         for bracket in tournament.brackets:
@@ -256,97 +366,22 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if not schedules_spreadsheet:
                 continue
             await schedules_spreadsheet.get_spreadsheet()
-            try:
-                match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-            except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
-                await self.on_cog_command_error(ctx, ctx.command.name, e)
-                continue
-            except MatchIdNotFound as e:
-                self.bot.info(str(type(e)) + ": " + str(e))
-                continue
-            match_id = match_info.match_id.value
-
             players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet:
                 await players_spreadsheet.get_spreadsheet()
-                ally_team_info, opponent_team_info = await self.get_teams_info(
-                    ctx, tournament, players_spreadsheet, match_info, user
-                )
-                if not ally_team_info:
-                    continue
-                team_name = ally_team_info.team_name.value
-                opponent_team_name = opponent_team_info.team_name.value
-                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
-                )
-            else:
-                team_name = user.name
-                if team_name == match_info.team1.value:
-                    opponent_team_name = match_info.team2.value
-                elif team_name == match_info.team2.value:
-                    opponent_team_name = match_info.team1.value
-                else:
-                    raise tosurnament.InvalidMatch()
-                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
 
-            new_date = self.validate_new_date(
-                ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
-            )
-            previous_date = self.validate_reschedule_feasibility(
-                ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
-            )
-
-            opponent_team_captain = opponent_user.get_member(ctx.guild)
-            if not opponent_team_captain:
-                raise tosurnament.OpponentNotFound(ctx.author.mention)
-
-            opponent_to_ping = opponent_team_captain
-            if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
-                role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
-                if role:
-                    opponent_to_ping = role
-
-            reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
-            role = tosurnament.get_role(ctx.guild.roles, None, team_name)
-            if role:
-                reschedule_message.ally_team_role_id = role.id
-            reschedule_message.match_id = match_id
-            reschedule_message.match_id_hash = match_id
-            reschedule_message.ally_user_id = ctx.author.id
-            reschedule_message.opponent_user_id = opponent_team_captain.id
-            if previous_date:
-                previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
-                reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
-            else:
-                previous_date_string = "**No previous date**"
-                reschedule_message.previous_date = ""
-            new_date_string = tosurnament.get_pretty_date(tournament, new_date)
-            reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
-            sent_message = await self.send_reply(
+            if await self.reschedule_for_bracket(
                 ctx,
-                ctx.command.name,
-                "success",
-                opponent_to_ping.mention,
-                escape_markdown(team_name),
+                tournament,
+                bracket,
+                schedules_spreadsheet,
+                players_spreadsheet,
                 match_id,
-                previous_date_string,
-                new_date_string,
-            )
-            reschedule_message.message_id = sent_message.id
-
-            previous_reschedule_message = (
-                self.bot.session.query(RescheduleMessage)
-                .where(RescheduleMessage.tournament_id == tournament.id)
-                .where(RescheduleMessage.match_id_hash == match_id)
-                .first()
-            )
-            if previous_reschedule_message:
-                self.bot.session.delete(previous_reschedule_message)
-
-            self.bot.session.add(reschedule_message)
-            await sent_message.add_reaction("👍")
-            await sent_message.add_reaction("👎")
-            return
+                new_date,
+                user,
+                skip_deadline_validation,
+            ):
+                return
         if bracket_role_present:
             raise tosurnament.InvalidMatchIdOrNoBracketRole()
         raise tosurnament.InvalidMatchId()
@@ -472,13 +507,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         else:
             raise tosurnament.UnknownError("No date range")
 
-        try:
-            schedules_spreadsheet.spreadsheet.update()
-        except HttpError as e:
-            raise tosurnament.SpreadsheetHttpError(
-                e.code, e.operation, tournament.current_bracket.name, "schedules", e.error
-            )
-
+        self.add_update_spreadsheet_background_task(schedules_spreadsheet)
         self.bot.session.delete(reschedule_message)
 
         ally_to_mention = None

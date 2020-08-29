@@ -201,6 +201,23 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
 
+    async def sync_a_spreadsheet(self, spreadsheet, spreadsheet_ids):
+        spreadsheet_id = spreadsheet.spreadsheet_id
+        if spreadsheet_id not in spreadsheet_ids:
+            await spreadsheet.get_spreadsheet(retry=True, force_sync=True)
+            spreadsheet_ids.append(spreadsheet_id)
+
+    @commands.command(aliases=["ss", "sync_spreadsheets"])
+    async def sync_spreadsheet(self, ctx):
+        tournament = self.get_tournament(ctx.guild.id)
+        spreadsheet_ids = []
+        for bracket in tournament.brackets:
+            if bracket.schedules_spreadsheet:
+                await self.sync_a_spreadsheet(bracket.schedules_spreadsheet, spreadsheet_ids)
+            if bracket.players_spreadsheet:
+                await self.sync_a_spreadsheet(bracket.schedules_spreadsheet, spreadsheet_ids)
+        await self.send_reply(ctx, ctx.command.name, "success")
+
 
 def get_class(bot):
     """Returns the main class of the module."""

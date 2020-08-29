@@ -143,5 +143,10 @@
     "parameter": "<tz_info>",
     "usage": "Usage: `%0set_utc $./parameter`\n\n`<tz_info>` must be in the format: -hh:mm or +hh:mm.\nExample: `%0set_utc +02:00`",
     "success": "UTC set to `%1`."
+  },
+  "sync_spreadsheet": {
+    "help": "Synchronizes the local copy of the spreadsheets of the tournament with the online spreadsheets",
+    "usage": "Usage: `%0sync_spreadsheet`",
+    "success": "Spreadsheets synchronized successfully"
   }
 }

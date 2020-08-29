@@ -28,15 +28,15 @@ class BaseSpreadsheet(Base):
             if not key.startswith("_") and key not in keys_to_ignore:
                 setattr(new_obj, key, value)
 
-    async def get_spreadsheet(self, retry=False):
-        if self._spreadsheet is None:
+    async def get_spreadsheet(self, retry=False, force_sync=False):
+        if self._spreadsheet is None or force_sync:
             loop = asyncio.get_running_loop()
             if not loop:
                 return None
             n_retry = 0
             while True:
                 try:
-                    await loop.run_in_executor(None, _get_spreadsheet_worksheet, self)
+                    await loop.run_in_executor(None, _get_spreadsheet_worksheet, self, force_sync)
                 except SpreadsheetHttpError as e:
                     if retry and n_retry < 5:
                         n_retry += 1
@@ -52,10 +52,13 @@ class BaseSpreadsheet(Base):
         return self._spreadsheet
 
 
-def _get_spreadsheet_worksheet(self):
+def _get_spreadsheet_worksheet(self, force_sync):
     """Retrieves the spreadsheet and its main worksheet."""
     try:
-        self._spreadsheet = copy.copy(Spreadsheet.get_from_id(self.spreadsheet_id))
+        if force_sync:
+            self._spreadsheet = copy.copy(Spreadsheet.retrieve_spreadsheet_and_update_pickle(self.spreadsheet_id))
+        else:
+            self._spreadsheet = copy.copy(Spreadsheet.get_from_id(self.spreadsheet_id))
         if self.sheet_name:
             for i, worksheet in enumerate(self._spreadsheet.worksheets):
                 if worksheet.name == self.sheet_name:

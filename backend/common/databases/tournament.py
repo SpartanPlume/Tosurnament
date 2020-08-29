@@ -82,13 +82,18 @@ class Tournament(Base):
                     "RELATIVE_BASE": relative_base,
                     "TIMEZONE": self.utc,
                     "TO_TIMEZONE": to_timezone,
+                    "RETURN_AS_TIMEZONE_AWARE": False,
                 },
             )
         else:
             return dateparser.parse(
                 date,
                 date_formats=date_formats,
-                settings={"PREFER_DATES_FROM": prefer_dates_from, "RELATIVE_BASE": relative_base},
+                settings={
+                    "PREFER_DATES_FROM": prefer_dates_from,
+                    "RELATIVE_BASE": relative_base,
+                    "RETURN_AS_TIMEZONE_AWARE": False,
+                },
             )
 
     def create_date_from_week_times(self, week_time_begin, week_time_end, date):

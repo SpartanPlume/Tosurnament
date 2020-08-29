@@ -1,9 +1,11 @@
 """Contains all commands executable by the owner of the bot."""
 
 from discord.ext import commands
+from bot.modules import module as base
+from common.databases.tournament import Tournament
 
 
-class AdminCog(commands.Cog):
+class AdminCog(base.BaseModule, name="admin"):
     """Admin commands."""
 
     def __init__(self, bot):
@@ -33,6 +35,30 @@ class AdminCog(commands.Cog):
     async def ping(self, ctx):
         """Pings the bot."""
         await ctx.send("pong")
+
+    @commands.command(hidden=True)
+    async def announce(self, ctx, *, message: str):
+        """Sends an annoucement to all servers that have a tournament running."""
+        for guild in self.bot.guilds:
+            tournament = self.bot.session.query(Tournament).where(Tournament.guild_id == guild.id).first()
+            if tournament:
+                staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+                tosurnament_guild = self.get_guild(guild.id)
+                admin_role = base.get_role(guild.roles, tosurnament_guild.admin_role_id, "Admin")
+                if admin_role:
+                    admin_role_mention = admin_role.mention
+                else:
+                    admin_role_mention = guild.owner.mention
+                try:
+                    if staff_channel:
+                        await staff_channel.send(admin_role_mention + "\n\n" + message)
+                        continue
+                except Exception:
+                    pass
+            try:
+                await guild.owner.send(message)
+            except Exception:
+                continue
 
 
 def get_class(bot):

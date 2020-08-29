@@ -26,14 +26,13 @@ def values_to_cells(values):
 
 
 @mock.patch(MODULE_TO_TEST + ".get_spreadsheet_with_values")
-def test_spreadsheet_get_from_id(mock_spreadsheet_get):
+def test_spreadsheet_retrieve_spreadsheet(mock_spreadsheet_get):
     """Gets a Spreadsheet from a spreadsheet id."""
     mock_spreadsheet_get.return_value = [
         {"name": "sheet1", "cells": values_to_cells([["A1"]])},
         {"name": "sheet2", "cells": values_to_cells([["A1", "B1"]])},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     mock_spreadsheet_get.assert_called_once_with("spreadsheet_id")
     assert len(sp.worksheets) == 2
     assert sp.get_worksheet(0).get_values() == [["A1"]]
@@ -43,40 +42,35 @@ def test_spreadsheet_get_from_id(mock_spreadsheet_get):
 
     mock_spreadsheet_get.side_effect = googleapiclient.errors.HttpError({"status": 404}, bytes())
     with pytest.raises(spreadsheet.HttpError) as error:
-        sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+        sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     assert error.value.code == 404
     assert error.value.operation == "read"
 
     mock_spreadsheet_get.side_effect = googleapiclient.errors.HttpError({}, bytes())
     with pytest.raises(spreadsheet.HttpError) as error:
-        sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+        sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     assert error.value.code == 500
 
     mock_spreadsheet_get.side_effect = ConnectionResetError()
     with pytest.raises(spreadsheet.HttpError) as error:
-        sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+        sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     assert error.value.code == 499
 
     mock_spreadsheet_get.side_effect = socket.timeout()
     with pytest.raises(spreadsheet.HttpError) as error:
-        sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+        sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     assert error.value.code == 408
 
 
 @given(table1=table_strategy, table2=table_strategy)
 @mock.patch(MODULE_TO_TEST + ".get_spreadsheet_with_values")
-def test_spreadsheet_get_from_id_with_given(mock_spreadsheet_get, table1, table2):
+def test_spreadsheet_retrieve_spreadsheet_with_given(mock_spreadsheet_get, table1, table2):
     """Gets a Spreadsheet from a spreadsheet id."""
     mock_spreadsheet_get.return_value = [
         {"name": "sheet1", "cells": values_to_cells(table1)},
         {"name": "sheet2", "cells": values_to_cells(table2)},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     mock_spreadsheet_get.assert_called_once_with("spreadsheet_id")
     assert len(sp.worksheets) == 2
     assert sp.get_worksheet(0).get_values() == table1
@@ -98,8 +92,7 @@ def test_spreadsheet_get_range(mock_spreadsheet_get):
         {"name": "sheet2", "cells": values_to_cells([["data sheet2"]])},
         {"name": "!!!sheet3!!!", "cells": values_to_cells([["data sheet3"]])},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
 
     range_cells = sp.get_range("")
     assert range_cells == []
@@ -198,8 +191,7 @@ def test_spreadsheet_get_cells_with_value_in_range(mock_spreadsheet_get):
     mock_spreadsheet_get.return_value = [
         {"name": "sheet1", "cells": values_to_cells(TEST_VALUES)},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     test_values_as_row = [value for test_values_row in TEST_VALUES for value in test_values_row if value]
 
     range_cells = sp.get_cells_with_value_in_range("A:E")
@@ -220,8 +212,7 @@ def test_spreadsheet_find_cells(mock_spreadsheet_get):
     mock_spreadsheet_get.return_value = [
         {"name": "sheet1", "cells": values_to_cells(TEST_VALUES)},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     test_values_as_row = [value for test_values_row in TEST_VALUES for value in test_values_row if value == "D:E"]
     test_values_as_row_insensitive = [
         value for test_values_row in TEST_VALUES for value in test_values_row if value.lower() == "d:e"
@@ -229,13 +220,13 @@ def test_spreadsheet_find_cells(mock_spreadsheet_get):
 
     range_cells = sp.find_cells("A:E", "D:E")
     range_values = [cell.value for cell in range_cells]
-    assert range_values == test_values_as_row
-
-    range_cells = sp.find_cells("A:E", "D:E", False)
-    range_values = [cell.value for cell in range_cells]
     assert range_values == test_values_as_row_insensitive
 
-    range_cells = sp.find_cells(sp.get_range("A:E"), "D:E", False)
+    range_cells = sp.find_cells("A:E", "D:E", True)
+    range_values = [cell.value for cell in range_cells]
+    assert range_values == test_values_as_row
+
+    range_cells = sp.find_cells(sp.get_range("A:E"), "D:E")
     range_values = [cell.value for cell in range_cells]
     assert range_values == test_values_as_row_insensitive
 
@@ -255,8 +246,7 @@ def test_spreadsheet_change_value_in_range(mock_spreadsheet_get):
     mock_spreadsheet_get.return_value = [
         {"name": "sheet1", "cells": values_to_cells(TEST_VALUES)},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
 
     assert not sp.change_value_in_range("A:E", "A1", "First cell")
     assert sp.get_worksheet(0).get_values() == TEST_VALUES
@@ -281,8 +271,7 @@ def test_worksheet_get_cell(mock_spreadsheet_get):
         {"name": "sheet1", "cells": values_to_cells(TEST_VALUES)},
         {"name": "sheet2", "cells": values_to_cells([["A1"]])},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
 
     assert sp.get_worksheet(0).get_cell(1, 2).value == "B3"
     assert sp.get_worksheet(1).get_cell(1, 1).value == ""
@@ -305,8 +294,7 @@ def test_spreadsheet_update(mock_spreadsheet_get, mock_spreadsheet_write):
         {"name": "sheet2", "cells": values_to_cells([["data sheet2"]])},
         {"name": "!!!sheet3!!!", "cells": values_to_cells([["data sheet3"]])},
     ]
-    sp = spreadsheet.Spreadsheet.get_from_id("spreadsheet_id")
-    spreadsheet.Spreadsheet.get_from_id.cache_clear()
+    sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
 
     new_cell_value = "First cell"
     sp.get_worksheet().get_range("A1")[0][0].value = new_cell_value

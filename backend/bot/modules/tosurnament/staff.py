@@ -7,13 +7,13 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
+from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
 from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
-from common.api.spreadsheet import HttpError, Spreadsheet, InvalidWorksheet
+from common.api.spreadsheet import InvalidWorksheet
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -177,26 +177,27 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 role_store.not_taken_matches.append(match_info.match_id.value)
         return write_cells
 
-    async def take_or_drop_match_in_bracket(self, bracket, match_ids, user_details, take, invalid_match_ids):
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(exceptions=[DuplicateMatchId])
+    async def take_or_drop_match_in_spreadsheets(
+        self, match_ids, user_details, take, left_match_ids, *schedules_spreadsheets, retry=False
+    ):
         """Takes or drops matches of a bracket, if possible."""
-        schedules_spreadsheet = bracket.schedules_spreadsheet
-        if not schedules_spreadsheet:
-            return
-        await schedules_spreadsheet.get_spreadsheet()
-        write_cells = False
-        for match_id in match_ids:
-            try:
-                match_info = MatchInfo.from_id(schedules_spreadsheet, match_id, False)
-            except MatchIdNotFound:
-                invalid_match_ids.add(match_id)
-                continue
-            write_cells |= self.take_match_for_roles(schedules_spreadsheet, match_info, user_details, take)
-        if write_cells:
-            try:
-                bracket.schedules_spreadsheet.spreadsheet.update()
-            except HttpError as e:
-                raise tosurnament.SpreadsheetHttpError(e.code, e.operation, bracket.name, "schedules", e.error)
-        return write_cells
+        left_match_ids = set(match_ids)
+        for schedules_spreadsheet in schedules_spreadsheets:
+            await schedules_spreadsheet.get_spreadsheet()
+            tmp_left_match_ids = set(left_match_ids)
+            for match_id in tmp_left_match_ids:
+                try:
+                    match_info = MatchInfo.from_id(schedules_spreadsheet, match_id, False)
+                except MatchIdNotFound:
+                    continue
+                self.take_match_for_roles(schedules_spreadsheet, match_info, user_details, take)
+                left_match_ids.remove(match_id)
+        if left_match_ids:
+            return False
+        for schedules_spreadsheet in schedules_spreadsheets:
+            self.add_update_spreadsheet_background_task(schedules_spreadsheet)
+        return True
 
     def format_take_match_string(self, string, match_ids):
         """Appends the match ids separated by a comma to the string."""
@@ -241,10 +242,17 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def take_or_drop_match(self, guild_id, channel, match_ids, take, user_details):
         if not match_ids:
             raise commands.UserInputError()
+        match_ids = set(match_ids)
         tournament = self.get_tournament(guild_id)
         invalid_match_ids = set()
+        schedules_spreadsheets = []
         for bracket in tournament.brackets:
-            await self.take_or_drop_match_in_bracket(bracket, match_ids, user_details, take, invalid_match_ids)
+            schedules_spreadsheet = bracket.schedules_spreadsheet
+            if schedules_spreadsheet:
+                schedules_spreadsheets.append(schedules_spreadsheet)
+        await self.take_or_drop_match_in_spreadsheets(
+            match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets
+        )
         await channel.send(self.build_take_match_reply(user_details, take, invalid_match_ids))
 
     async def get_team_mention(self, guild, players_spreadsheet, team_name):
@@ -435,8 +443,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 self.bot.session.update(tosurnament_guild)
         except Exception as e:
             self.bot.info_exception(e)
-        finally:
-            Spreadsheet.get_from_id.cache_clear()
 
     async def background_task_match_notification(self):
         try:
@@ -523,12 +529,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             self.bot.session.delete(match_notification)
             return
         try:
-            await self.take_or_drop_match_in_bracket(
-                bracket,
+            await self.take_or_drop_match_in_spreadsheets(
                 [match_notification.match_id],
                 tosurnament.UserDetails.get_as_referee(self.bot, user),
                 True,
                 set(),
+                bracket.schedules_spreadsheet,
             )
             # TODO if not write_cells send error
         except Exception as e:
@@ -594,8 +600,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return
         try:
             user_details = tosurnament.UserDetails.get_from_user(self.bot, user, tournament)
-            await self.take_or_drop_match_in_bracket(
-                bracket, [staff_reschedule_message.match_id], user_details, False, set(),
+            await self.take_or_drop_match_in_spreadsheets(
+                [staff_reschedule_message.match_id], user_details, False, set(), bracket.schedules_spreadsheets
             )
             # TODO if not write_cells send error + update message instead of reply
             if staff_reschedule_message.staff_id:

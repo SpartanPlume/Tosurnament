@@ -417,6 +417,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             return
         raise commands.UserInputError()
 
+    def background_task(self):
+        spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
+        for spreadsheet_id in spreadsheet_ids:
+            self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
+
 
 def get_class(bot):
     """Returns the main class of the module"""
