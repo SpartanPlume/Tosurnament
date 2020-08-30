@@ -178,7 +178,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         return new_date
 
     def get_referees_mentions_of_match(self, ctx, match_info):
-        referees_to_ping = self.find_staff_to_ping(ctx.guild, match_info.referees)
+        referees_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.referees)
         referees_mentions = " / ".join([referee.mention for referee in referees_to_ping])
         if not referees_mentions:
             tosurnament_guild = self.get_guild(ctx.guild.id)
@@ -506,9 +506,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             # TODO not raise
             raise tosurnament.OpponentNotFound(user.mention)
 
-        referees_to_ping = self.find_staff_to_ping(guild, match_info.referees)
-        streamers_to_ping = self.find_staff_to_ping(guild, match_info.streamers)
-        commentators_to_ping = self.find_staff_to_ping(guild, match_info.commentators)
+        referees_to_ping, _ = self.find_staff_to_ping(guild, match_info.referees)
+        streamers_to_ping, _ = self.find_staff_to_ping(guild, match_info.streamers)
+        commentators_to_ping, _ = self.find_staff_to_ping(guild, match_info.commentators)
 
         new_date_string = tosurnament.get_pretty_date(tournament, new_date)
         staff_channel = None
