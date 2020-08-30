@@ -256,6 +256,58 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         )
         await channel.send(self.build_take_match_reply(user_details, take, invalid_match_ids))
 
+    @commands.command(aliases=["snm", "show_next_match"])
+    async def show_next_matches(self, ctx, n_match_to_show: int = 5, where_has_no_referee: bool = False):
+        tournament = self.get_tournament(ctx.guild.id)
+        matches = []
+        for bracket in tournament.brackets:
+            matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
+            if where_has_no_referee:
+                for match_info, match_date in matches_data:
+                    if list(filter(None, [cell.value for cell in match_info.referees])):
+                        continue
+                    matches.append((match_info, match_date))
+            else:
+                matches = [*matches, *matches_data]
+        reply_string = ""
+        previous_match_date = None
+        for i, match_data in enumerate(sorted(matches, key=lambda x: x[1])):
+            match_info, match_date = match_data
+            if i >= n_match_to_show and match_date != previous_match_date:
+                break
+            previous_match_date = match_date
+            tmp_reply_string = ""
+            if reply_string:
+                tmp_reply_string += "\n-------------------------------\n"
+            tmp_reply_string += "**Match " + match_info.match_id.value + ":** "
+            tmp_reply_string += (
+                escape_markdown(match_info.team1.value) + " vs " + escape_markdown(match_info.team2.value) + "\n"
+            )
+            tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
+            referees = list(filter(None, [cell.value for cell in match_info.referees]))
+            tmp_reply_string += "__Referee:__ "
+            if referees:
+                tmp_reply_string += "/".join(referees)
+            else:
+                tmp_reply_string += "**None**"
+            streamers = list(filter(None, [cell.value for cell in match_info.streamers]))
+            if streamers:
+                tmp_reply_string += "\n__Streamer:__ " + "/".join(streamers)
+            commentators = list(filter(None, [cell.value for cell in match_info.commentators]))
+            if commentators:
+                tmp_reply_string += "\n__Commentator:__ " + "/".join(commentators)
+            if len(reply_string) + len(tmp_reply_string) >= 2000:
+                await ctx.send(reply_string)
+                reply_string = tmp_reply_string
+            else:
+                reply_string += tmp_reply_string
+        if reply_string:
+            await ctx.send(reply_string)
+        elif where_has_no_referee:
+            await self.send_reply(ctx, ctx.command.name, "no_match_without_referee")
+        else:
+            await self.send_reply(ctx, ctx.command.name, "no_match")
+
     async def get_team_mention(self, guild, players_spreadsheet, team_name):
         if not players_spreadsheet:
             return escape_markdown(team_name)

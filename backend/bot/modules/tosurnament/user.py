@@ -1,10 +1,8 @@
 """User commands"""
 
-import datetime
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.schedules_spreadsheet import MatchInfo
 from common.api import osu
 
 
@@ -95,7 +93,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    async def fill_matches_info_for_roles(self, ctx, tournament, bracket, matches_to_ignore, user_details):
+    async def fill_matches_info_for_roles(self, ctx, tournament, bracket, user_details):
         user_name = user_details.name
         team_name = None
         has_bracket_role = False
@@ -104,26 +102,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             has_bracket_role = True
         if user_details.player:
             team_name = await self.find_player_identification(ctx, bracket, user_name)
-        schedules_spreadsheet = bracket.schedules_spreadsheet
-        if not schedules_spreadsheet:
-            return
-        await schedules_spreadsheet.get_spreadsheet()
-        match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-            schedules_spreadsheet.range_match_id
-        )
-        now = datetime.datetime.utcnow()
-        for match_id_cell in match_ids_cells:
-            if match_id_cell.value in matches_to_ignore:
-                continue
-            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-            date_format = "%d %B"
-            if schedules_spreadsheet.date_format:
-                date_format = schedules_spreadsheet.date_format
-            match_date = tournament.parse_date(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"]))
-            )
-            if not match_date or match_date < now:
-                continue
+        matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
+        for match_info, match_date in matches_data:
             if (
                 user_details.player
                 and has_bracket_role
@@ -147,10 +127,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         """Sends a private message to the author with the list of matches they are in (as a player or staff)."""
         tournament = self.get_tournament(ctx.guild.id)
         user_details = tosurnament.UserDetails.get_as_all(ctx.bot, ctx.author)
-        matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for bracket in tournament.brackets:
             try:
-                await self.fill_matches_info_for_roles(ctx, tournament, bracket, matches_to_ignore, user_details)
+                await self.fill_matches_info_for_roles(ctx, tournament, bracket, user_details)
             except Exception as e:
                 await self.on_cog_command_error(ctx, ctx.command.name, e)
         reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"

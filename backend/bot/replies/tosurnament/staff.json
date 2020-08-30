@@ -62,5 +62,12 @@
     "description": "**%4, this match will start in \\~6 hours and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
     "notification": "$./common\n\n$./description",
     "edited": "$./common\n\n~~$./description~~\n\nThis match has been taken by %6."
+  },
+  "show_next_matches": {
+    "help": "Shows a list of next matches (by default 5 next matches)",
+    "parameter": "[<n_match_to_show> = 5] [<where_has_no_referee> = False]",
+    "usage": "Usage: `%0show_next_matches $./parameter`\n\nExample: `%0show_next_matches 10 True`",
+    "no_match_without_referee": "There is no more matches without a referee.",
+    "no_match": "There is no more matches."
   }
 }
