@@ -188,18 +188,37 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
 
     async def add_or_remove_match_to_ignore(self, ctx, match_ids, add):
         """Removes matches in the list of matches to ignore in other commands."""
+        match_ids = set([match_id.lower() for match_id in match_ids])
         tournament = self.get_tournament(ctx.guild.id)
-        matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
-        for match_id in match_ids:
-            match_id_upper = match_id.upper()
-            if add and match_id_upper not in matches_to_ignore:
-                matches_to_ignore.append(match_id_upper)
-            elif not add and match_id_upper in matches_to_ignore:
-                matches_to_ignore.remove(match_id_upper)
+        matches_to_ignore = tournament.matches_to_ignore.split("\n")
+        all_match_infos = []
+        for bracket in tournament.brackets:
+            all_match_infos.extend(await self.get_match_infos_from_id(bracket, match_ids))
+        user_role_referee = tosurnament.UserDetails.Role()
+        for match_info in all_match_infos:
+            if add and match_info.match_id.value not in matches_to_ignore:
+                matches_to_ignore.append(match_info.match_id.value)
+                user_role_referee.taken_matches.append((match_info))
+            elif not add and match_info.match_id.value in matches_to_ignore:
+                matches_to_ignore.remove(match_info.match_id.value)
+                user_role_referee.taken_matches.append((match_info))
         matches_to_ignore.sort()
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
         await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
+        if match_ids:
+            await self.send_reply(ctx, ctx.command.name, "not_found", " ".join(match_ids))
+        reply_type = "to_ignore"
+        if not add:
+            reply_type = "to_not_ignore"
+        for match_info in user_role_referee.taken_matches:
+            referees_to_ping, referees_not_found = self.find_staff_to_ping(ctx.guild, match_info.referees)
+            streamers_to_ping, streamers_not_found = self.find_staff_to_ping(ctx.guild, match_info.streamers)
+            commentators_to_ping, commentators_not_found = self.find_staff_to_ping(ctx.guild, match_info.commentators)
+            staffs_to_ping = [*referees_to_ping, *streamers_to_ping, *commentators_to_ping]
+            staffs_not_found = set([*referees_not_found, *streamers_not_found, *commentators_not_found])
+            to_ping = "/".join([*set([staff.mention for staff in staffs_to_ping]), *staffs_not_found])
+            await self.send_reply(ctx, ctx.command.name, reply_type, to_ping, match_info.match_id.value)
 
     async def sync_a_spreadsheet(self, spreadsheet, spreadsheet_ids):
         spreadsheet_id = spreadsheet.spreadsheet_id

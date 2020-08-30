@@ -129,6 +129,38 @@ class TosurnamentBaseModule(BaseModule):
             raise NoTournament()
         return tournament
 
+    def find_staff_to_ping(self, guild, staff_cells):
+        staff_names_to_ping = set()
+        for staff_cell in staff_cells:
+            tmp_staff_names = staff_cell.value.split("/")
+            for staff_name in tmp_staff_names:
+                staff_names_to_ping.add(staff_name.strip())
+        staffs = []
+        staffs_not_found = []
+        for staff_name in staff_names_to_ping:
+            user = UserAbstraction.get_from_osu_name(self.bot, staff_name, staff_name)
+            member = user.get_member(guild)
+            if member:
+                staffs.append(member)
+            else:
+                staffs_not_found.append(user.name)
+        return staffs, staffs_not_found
+
+    async def get_match_infos_from_id(self, bracket, match_ids):
+        schedules_spreadsheet = bracket.schedules_spreadsheet
+        if not schedules_spreadsheet:
+            return []
+        await schedules_spreadsheet.get_spreadsheet()
+        match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+            schedules_spreadsheet.range_match_id
+        )
+        match_infos = []
+        for match_id_cell in match_ids_cells:
+            if match_id_cell.value.lower() in match_ids:
+                match_infos.append(MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell))
+                match_ids.remove(match_id_cell.value.lower())
+        return match_infos
+
     async def get_next_matches_info_for_bracket(self, tournament, bracket):
         matches_data = []
         schedules_spreadsheet = bracket.schedules_spreadsheet

@@ -136,7 +136,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_current_time
             deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
             if now > deadline:
-                referees_mentions = self.get_referees_mentions_of_match(ctx, schedules_spreadsheet, match_info)
+                referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
                 raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.value)
             if tournament.reschedule_deadline_end:
                 try:
@@ -171,14 +171,14 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
         deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
-            referees_mentions = self.get_referees_mentions_of_match(ctx, schedules_spreadsheet, match_info)
+            referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
             raise tosurnament.ImpossibleReschedule(
                 reschedule_deadline_hours, referees_mentions, match_info.match_id.value
             )
         return new_date
 
-    def get_referees_mentions_of_match(self, ctx, schedules_spreadsheet, match_info):
-        referees_to_ping = self.find_staff_to_ping(ctx.guild, schedules_spreadsheet, match_info.referees)
+    def get_referees_mentions_of_match(self, ctx, match_info):
+        referees_to_ping = self.find_staff_to_ping(ctx.guild, match_info.referees)
         referees_mentions = " / ".join([referee.mention for referee in referees_to_ping])
         if not referees_mentions:
             tosurnament_guild = self.get_guild(ctx.guild.id)
@@ -460,23 +460,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             self.bot.session.update(reschedule_message)
             await self.reaction_on_reschedule_message_handler(channel, e, bracket)
 
-    def find_staff_to_ping(self, guild, schedules_spreadsheet, staff_cells):
-        staff_names_to_ping = set()
-        for staff_cell in staff_cells:
-            if schedules_spreadsheet.use_range:
-                staff_names_to_ping.add(staff_cell.value)
-            else:
-                tmp_staff_names = staff_cell.value.split("/")
-                for staff_name in tmp_staff_names:
-                    staff_names_to_ping.add(staff_name.strip())
-        staffs = []
-        for staff_name in staff_names_to_ping:
-            user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, staff_name, staff_name)
-            member = user.get_member(guild)
-            if member:
-                staffs.append(member)
-        return staffs
-
     async def agree_to_reschedule(self, reschedule_message, guild, channel, user, tournament):
         """Updates the schedules spreadsheet with reschedule time."""
         schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
@@ -523,9 +506,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             # TODO not raise
             raise tosurnament.OpponentNotFound(user.mention)
 
-        referees_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.referees)
-        streamers_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.streamers)
-        commentators_to_ping = self.find_staff_to_ping(guild, schedules_spreadsheet, match_info.commentators)
+        referees_to_ping = self.find_staff_to_ping(guild, match_info.referees)
+        streamers_to_ping = self.find_staff_to_ping(guild, match_info.streamers)
+        commentators_to_ping = self.find_staff_to_ping(guild, match_info.commentators)
 
         new_date_string = tosurnament.get_pretty_date(tournament, new_date)
         staff_channel = None

@@ -130,13 +130,19 @@
     "help": "Adds matches in the list of matches to ignore in other commands",
     "parameter": "[<match_id(s)>]",
     "usage": "Usage: `%0add_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0add_match_to_ignore C2 B3`",
-    "success": "__List of ignored matches:__ %1"
+    "success": "__List of ignored matches:__ %1",
+    "not_found": "Matches not found: %1",
+    "to_ignore": "%1, the match **%2** is now ignored.",
+    "to_not_ignore": "%1, the match **%2** is now not ignored anymore."
   },
   "remove_match_to_ignore": {
     "help": "Removes matches in the list of matches to ignore in other commands",
     "parameter": "$../add_match_to_ignore/parameter",
     "usage": "Usage: `%0remove_match_to_ignore $./parameter`\n\nIf no parameter is given, show the list of ignored matches.\n\nExample: `%0remove_match_to_ignore C2 B3`",
-    "success": "$../add_match_to_ignore/success"
+    "success": "$../add_match_to_ignore/success",
+    "not_found": "$../add_match_to_ignore/not_found",
+    "to_ignore": "$../add_match_to_ignore/to_ignore",
+    "to_not_ignore": "$../add_match_to_ignore/to_not_ignore"
   },
   "set_utc": {
     "help": "Sets the UTC timezone",
