@@ -211,6 +211,9 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         reply_type = "to_ignore"
         if not add:
             reply_type = "to_not_ignore"
+        staff_channel = ctx
+        if tournament.staff_channel_id:
+            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
         for match_info in user_role_referee.taken_matches:
             referees_to_ping, referees_not_found = self.find_staff_to_ping(ctx.guild, match_info.referees)
             streamers_to_ping, streamers_not_found = self.find_staff_to_ping(ctx.guild, match_info.streamers)
@@ -218,7 +221,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             staffs_to_ping = [*referees_to_ping, *streamers_to_ping, *commentators_to_ping]
             staffs_not_found = set([*referees_not_found, *streamers_not_found, *commentators_not_found])
             to_ping = "/".join([*set([staff.mention for staff in staffs_to_ping]), *staffs_not_found])
-            await self.send_reply(ctx, ctx.command.name, reply_type, to_ping, match_info.match_id.value)
+            await self.send_reply(staff_channel, ctx.command.name, reply_type, to_ping, match_info.match_id.value)
 
     async def sync_a_spreadsheet(self, spreadsheet, spreadsheet_ids):
         spreadsheet_id = spreadsheet.spreadsheet_id
