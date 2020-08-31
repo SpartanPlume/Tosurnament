@@ -1,10 +1,13 @@
 """All Tosurnament module mock objects."""
 
+import json
+import os
 from unittest import mock
 
 from mysqldb_wrapper import crypt
 
 from common.api.osu import User as OsuUser
+from common.api.spreadsheet import Spreadsheet, Worksheet, Cell
 
 
 def query_side_effect_wrapper(session_mock):
@@ -116,7 +119,7 @@ def compare_table_objects(self, other):
     if not type(self) == type(other):
         return False
     fields = vars(self)
-    for key, value in fields.items():
+    for key in fields.keys():
         if not key.startswith("_") and (
             crypt.is_encrypted(self, key) or (isinstance(getattr(type(self)(), key), crypt.Id) and key != "id")
         ):
@@ -135,12 +138,24 @@ class Matcher:
         return compare_table_objects(self.table_obj, other)
 
 
-class BotMock:
+class BaseMock:
+    def __eq__(self, other):
+        for key in vars(self).keys():
+            if not key.startswith("_"):
+                if getattr(self, key) != getattr(other, key):
+                    return False
+        return True
+
+
+class BotMock(BaseMock):
     def __init__(self):
         self.session = SessionMock()
 
+    def get_channel(self, channel_id):
+        return ChannelMock(channel_id)
 
-class RoleMock:
+
+class RoleMock(BaseMock):
     def __init__(self, name, role_id=1):
         self.id = role_id
         self.name = name
@@ -149,33 +164,40 @@ class RoleMock:
 USER_ID = 20934809
 NOT_USER_ID = 18349804
 USER_NAME = "User name"
+USER_TAG = "User name#" + str(USER_ID)
 
 
-class UserMock:
-    def __init__(self, user_id=USER_ID):
+class UserMock(BaseMock):
+    def __init__(self, *, user_id=USER_ID, user_name=USER_NAME):
         self.id = user_id
         self.roles = []
-        self.display_name = USER_NAME
+        self.display_name = user_name
+        self.mention = user_name
 
 
 GUILD_ID = 325098354
 NOT_GUILD_ID = 109843543
 
 
-class GuildMock:
+class GuildMock(BaseMock):
     OWNER_ID = 10293284854
 
     def __init__(self, guild_id=GUILD_ID):
         self.id = guild_id
         self.owner = UserMock(user_id=GuildMock.OWNER_ID)
 
+    def get_member_named(self, user_name):
+        return UserMock(user_name=user_name)
 
-class ChannelMock:
+
+class ChannelMock(BaseMock):
+    STAFF_CHANNEL_ID = 3245098
+
     def __init__(self, channel_id=1):
         self.id = channel_id
 
 
-class CtxMock:
+class CtxMock(BaseMock):
     def __init__(self, bot=BotMock(), author=UserMock(), guild=GuildMock()):
         self.bot = bot
         self.author = author
@@ -185,7 +207,7 @@ class CtxMock:
         self.command.name = ""
 
 
-class EmojiMock:
+class EmojiMock(BaseMock):
     def __init__(self, name, emoji_id=1):
         self.id = emoji_id
         self.name = name
@@ -210,3 +232,31 @@ async def send_reply_side_effect(*args, **kwargs):
 def mock_cog(cog):
     cog.send_reply = mock.MagicMock(side_effect=send_reply_side_effect)
     return cog
+
+
+def create_worksheet(index, name, values):
+    cells = []
+    for y, row in enumerate(values):
+        cells.append([])
+        for x, value in enumerate(row):
+            cells[y].append(Cell(x, y, value))
+    return Worksheet(index, name, cells)
+
+
+def load_spreadsheet(path):
+    worksheets = []
+    with open(path) as f:
+        spreadsheet_data = json.load(f)
+    spreadsheet = Spreadsheet(spreadsheet_data["spreadsheet_id"])
+    for i, worksheet_data in enumerate(spreadsheet_data["worksheets"]):
+        worksheets.append(create_worksheet(i, worksheet_data["name"], worksheet_data["cells"]))
+    spreadsheet.worksheets = worksheets
+    # TODO mock pickles
+    spreadsheet.update_pickle()
+
+
+def setup_spreadsheets():
+    for root, _, files in os.walk("test/resources/spreadsheets"):
+        for filename in files:
+            if filename.endswith(".json"):
+                load_spreadsheet(os.path.join(root, filename))

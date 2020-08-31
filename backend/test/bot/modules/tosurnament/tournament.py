@@ -10,6 +10,7 @@ from hypothesis import strategies, given
 from bot.modules.tosurnament import tournament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
+from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.tournament"
@@ -20,6 +21,10 @@ day_name_strategy = strategies.sampled_from(
     ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 )
 day_time_strategy = strategies.times()
+
+
+def setup_module(module):
+    tosurnament_mock.setup_spreadsheets()
 
 
 @pytest.mark.asyncio
@@ -151,35 +156,67 @@ async def test_set_reschedule_deadline_end(day_name, day_time):
 
 
 @pytest.mark.asyncio
-async def test_add_match_to_ignore():
+async def test_add_match_to_ignore(mocker):
     """Adds a match to ignore."""
-    MATCH_ID_1 = "Match ID 1"
-    MATCH_ID_2 = "Match ID 2"
-    MATCH_ID_3 = "Match ID 3"
-
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, matches_to_ignore=MATCH_ID_3))
-    cog = tosurnament_mock.mock_cog(tournament.get_class(mock_bot))
-
-    await cog.add_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_1, MATCH_ID_2)
-    assert (
-        mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore
-        == MATCH_ID_1.upper() + "\n" + MATCH_ID_2.upper() + "\n" + MATCH_ID_3.upper()
-    )
-
-
-@pytest.mark.asyncio
-async def test_remove_match_to_ignore():
-    """Removes a match to ignore."""
-    MATCH_ID_1 = "Match ID 1"
-    MATCH_ID_2 = "Match ID 2"
-    MATCH_ID_3 = "Match ID 3"
+    MATCH_ID_1 = "T1-1"
+    MATCH_ID_2 = "t1-2"
+    MATCH_ID_3 = "T1-3"
+    INVALID_MATCH_ID = "Invalid"
 
     mock_bot = tosurnament_mock.BotMock()
     mock_bot.session.add_stub(
-        Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, matches_to_ignore=(MATCH_ID_1 + "\n" + MATCH_ID_3))
+        Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, matches_to_ignore=MATCH_ID_3, current_bracket_id=1)
     )
+    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1))
+    mock_bot.session.add_stub(SchedulesSpreadsheet(id=1, spreadsheet_id="single", sheet_name="Tier 1"))
+
+    cog = tosurnament_mock.mock_cog(tournament.get_class(mock_bot))
+
+    await cog.add_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_1, MATCH_ID_2, INVALID_MATCH_ID)
+    assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == "\n".join(
+        [MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3]
+    )
+    expected_replies = [
+        mocker.call(mocker.ANY, mocker.ANY, "success", " ".join([MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3])),
+        mocker.call(mocker.ANY, mocker.ANY, "not_found", INVALID_MATCH_ID.lower()),
+        mocker.call(mocker.ANY, mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_1),
+        mocker.call(mocker.ANY, mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_2.upper()),
+    ]
+    assert cog.send_reply.call_args_list == expected_replies
+
+
+@pytest.mark.asyncio
+async def test_remove_match_to_ignore(mocker):
+    """Removes a match to ignore."""
+    MATCH_ID_1 = "T1-1"
+    MATCH_ID_2 = "t1-2"
+    MATCH_ID_3 = "T1-3"
+
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(
+        Tournament(
+            id=1,
+            guild_id=tosurnament_mock.GUILD_ID,
+            matches_to_ignore=MATCH_ID_1 + "\n" + MATCH_ID_3,
+            current_bracket_id=1,
+            staff_channel_id=tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID,
+        )
+    )
+    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1))
+    mock_bot.session.add_stub(SchedulesSpreadsheet(id=1, spreadsheet_id="single", sheet_name="Tier 1"))
+
     cog = tosurnament_mock.mock_cog(tournament.get_class(mock_bot))
 
     await cog.remove_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_2, MATCH_ID_3)
-    assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == MATCH_ID_1.upper()
+    assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == MATCH_ID_1
+    expected_replies = [
+        mocker.call(mocker.ANY, mocker.ANY, "success", MATCH_ID_1),
+        mocker.call(
+            tosurnament_mock.ChannelMock(tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID),
+            mocker.ANY,
+            "to_not_ignore",
+            mocker.ANY,
+            MATCH_ID_3,
+        ),
+    ]
+    assert cog.send_reply.call_args_list == expected_replies

@@ -1,0 +1,363 @@
+{
+  "spreadsheet_id": "single2",
+  "worksheets": [
+    {
+      "name": "Players",
+      "cells": [
+        [],
+        [
+          "Player1",
+          "Player1#0001"
+        ],
+        [
+          "Player2",
+          "Player2#0001"
+        ],
+        [
+          "Player3",
+          "Player3#0001"
+        ],
+        [
+          "Player4",
+          "Player4#0001"
+        ],
+        [
+          "PlayerReferee",
+          "PlayerReferee#0001"
+        ],
+        [
+          "PlayerStreamer",
+          "PlayerStreamer#0001"
+        ],
+        [
+          "PlayerCommentator",
+          "PlayerCommentator#0001"
+        ],
+        [
+          "All",
+          "Player1#0001"
+        ],
+        [
+          "PlayerA",
+          "Player1#0001"
+        ],
+        [
+          "PlayerB",
+          "PlayerB#0001"
+        ],
+        [
+          "PlayerC",
+          "PlayerC#0001"
+        ],
+        [
+          "PlayerD",
+          "PlayerD#0001"
+        ]
+      ]
+    },
+    {
+      "name": "Tier 3",
+      "cells": [
+        [],
+        [
+          "T1-1",
+          "Player1",
+          "",
+          "",
+          "Player2",
+          "30 November",
+          "12:00",
+          "Referee",
+          "Streamer",
+          "Commentator 1 / Commentator 2",
+          ""
+        ],
+        [
+          "T1-2",
+          "Player1",
+          "1",
+          "5",
+          "Player3",
+          "15 July",
+          "23:59",
+          "Referee",
+          "Streamer",
+          "Commentator 1",
+          "mp_link1"
+        ],
+        [
+          "T1-3",
+          "Player1",
+          "",
+          "",
+          "Player4",
+          "15 July",
+          "22:00",
+          "All",
+          "All",
+          "All"
+        ],
+        [
+          "T1-4",
+          "Player2",
+          "",
+          "",
+          "Player3",
+          "16 July",
+          "00:00",
+          "Referee",
+          "",
+          "PlayerCommentator / Commentator 2"
+        ],
+        [
+          "T1-5",
+          "Player2",
+          "",
+          "",
+          "Player4",
+          "15 July",
+          "00:01",
+          "",
+          "Streamer",
+          "Commentator 1 / PlayerCommentator"
+        ],
+        [
+          "T1-6",
+          "Player3",
+          "",
+          "",
+          "Player4",
+          "15 July",
+          "13:35",
+          "PlayerReferee",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T1-7",
+          "PlayerReferee",
+          "",
+          "",
+          "PlayerB",
+          "16 July",
+          "14:50",
+          "PlayerStreamer",
+          "Streamer",
+          "All"
+        ],
+        [
+          "T1-8",
+          "PlayerStreamer",
+          "",
+          "",
+          "PlayerD",
+          "15 July",
+          "20:00",
+          "Referee",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T1-9",
+          "PlayerCommentator",
+          "",
+          "",
+          "PlayerA",
+          "15 July",
+          "11:15",
+          "Referee",
+          "All",
+          ""
+        ],
+        [
+          "T1-10",
+          "All",
+          "",
+          "",
+          "PlayerC",
+          "15 July",
+          "17:17",
+          "",
+          "",
+          ""
+        ],
+        [
+          "T1-11",
+          "PlayerD",
+          "",
+          "",
+          "PlayerC",
+          "15 July",
+          "06:45",
+          "All",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T1-12",
+          "PlayerB",
+          "",
+          "",
+          "PlayerD",
+          "01 January",
+          "03:50",
+          "All",
+          "All",
+          "Commentator 1"
+        ]
+      ]
+    },
+    {
+      "name": "Tier 4",
+      "cells": [
+        [],
+        [
+          "T2-1",
+          "Team1",
+          "",
+          "",
+          "Team2",
+          "31 November",
+          "12:00",
+          "Referee",
+          "Streamer",
+          "Commentator 1 / Commentator 2",
+          ""
+        ],
+        [
+          "T2-2",
+          "Team1",
+          "5",
+          "1",
+          "Team3",
+          "15 March",
+          "23:59",
+          "Referee",
+          "Streamer",
+          "Commentator 1",
+          "mp_link1"
+        ],
+        [
+          "T2-3",
+          "Team1",
+          "",
+          "",
+          "Team4",
+          "15 March",
+          "22:00",
+          "All",
+          "All",
+          "All"
+        ],
+        [
+          "T2-4",
+          "Team2",
+          "",
+          "",
+          "Team3",
+          "16 March",
+          "00:00",
+          "Referee",
+          "Streamer",
+          "PlayerCommentator / Commentator 2"
+        ],
+        [
+          "T2-5",
+          "Team2",
+          "",
+          "",
+          "Team3",
+          "15 March",
+          "00:01",
+          "Referee",
+          "Streamer",
+          "Commentator 1 / PlayerCommentator"
+        ],
+        [
+          "T2-6",
+          "Team3",
+          "",
+          "",
+          "Team4",
+          "15 March",
+          "13:35",
+          "PlayerReferee",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T2-7",
+          "PlayerReferee",
+          "",
+          "",
+          "TeamB",
+          "16 March",
+          "14:50",
+          "PlayerStreamer",
+          "Streamer",
+          "All"
+        ],
+        [
+          "T2-8",
+          "PlayerStreamer",
+          "",
+          "",
+          "TeamD",
+          "15 March",
+          "20:00",
+          "Referee",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T2-9",
+          "PlayerCommentator",
+          "",
+          "",
+          "TeamA",
+          "15 March",
+          "11:15",
+          "Referee",
+          "All",
+          "Commentator 1"
+        ],
+        [
+          "T2-10",
+          "All",
+          "",
+          "",
+          "TeamC",
+          "15 March",
+          "17:17",
+          "Referee",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T2-11",
+          "TeamD",
+          "",
+          "",
+          "TeamC",
+          "15 March",
+          "06:45",
+          "All",
+          "Streamer",
+          "Commentator 1"
+        ],
+        [
+          "T2-12",
+          "TeamB",
+          "",
+          "",
+          "TeamD",
+          "02 January",
+          "03:50",
+          "All",
+          "All",
+          "Commentator 1"
+        ]
+      ]
+    }
+  ]
+}

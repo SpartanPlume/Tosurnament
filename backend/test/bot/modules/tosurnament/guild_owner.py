@@ -117,7 +117,7 @@ async def test_reaction_on_end_tournament_message_invalid_emoji():
         tosurnament_mock.EmojiMock("=)"),
         tosurnament_mock.GuildMock(tosurnament_mock.GUILD_ID),
         tosurnament_mock.ChannelMock(),
-        tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID),
+        tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
     assert mock_bot.session.query.call_count == 0
 
@@ -133,7 +133,7 @@ async def test_reaction_on_end_tournament_message_already_used():
         tosurnament_mock.EmojiMock("✅"),
         tosurnament_mock.GuildMock(tosurnament_mock.GUILD_ID),
         tosurnament_mock.ChannelMock(),
-        tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID),
+        tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
     assert mock_bot.session.query.call_count == 1
     assert mock_bot.session.delete.call_count == 0
@@ -151,7 +151,7 @@ async def test_reaction_on_end_tournament_message_no_tournament():
         tosurnament_mock.EmojiMock("✅"),
         tosurnament_mock.GuildMock(tosurnament_mock.GUILD_ID),
         tosurnament_mock.ChannelMock(),
-        tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID),
+        tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
     assert mock_bot.session.delete.call_count == 1
 
@@ -170,7 +170,7 @@ async def test_reaction_on_end_tournament_message_refuse(mocker):
         tosurnament_mock.EmojiMock("❎"),
         tosurnament_mock.GuildMock(tosurnament_mock.GUILD_ID),
         tosurnament_mock.ChannelMock(),
-        tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID),
+        tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
     cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "refused")
 
@@ -207,7 +207,7 @@ async def test_reaction_on_end_tournament_message(mocker):
         tosurnament_mock.EmojiMock("✅"),
         tosurnament_mock.GuildMock(tosurnament_mock.GUILD_ID),
         tosurnament_mock.ChannelMock(),
-        tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID),
+        tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
     cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "success")
 

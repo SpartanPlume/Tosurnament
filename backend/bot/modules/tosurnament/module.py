@@ -132,9 +132,10 @@ class TosurnamentBaseModule(BaseModule):
     def find_staff_to_ping(self, guild, staff_cells):
         staff_names_to_ping = set()
         for staff_cell in staff_cells:
-            tmp_staff_names = staff_cell.value.split("/")
-            for staff_name in tmp_staff_names:
-                staff_names_to_ping.add(staff_name.strip())
+            if staff_cell.value:
+                tmp_staff_names = staff_cell.value.split("/")
+                for staff_name in tmp_staff_names:
+                    staff_names_to_ping.add(staff_name.strip())
         staffs = []
         staffs_not_found = []
         for staff_name in staff_names_to_ping:

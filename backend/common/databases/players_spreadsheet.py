@@ -15,8 +15,8 @@ class PlayersSpreadsheet(BaseSpreadsheet):
     __tablename__ = "players_spreadsheet"
 
     range_team_name = str("")
-    range_team = str("B2:B")
-    range_discord = str("")
+    range_team = str("A2:A")
+    range_discord = str("B2:B")
 
 
 class TeamNotFound(commands.CommandError):

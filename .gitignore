@@ -108,3 +108,4 @@ log
 *.log
 .credentials
 .vscode
+pickles
