@@ -83,6 +83,7 @@ class Tournament(Base):
                     "TIMEZONE": self.utc,
                     "TO_TIMEZONE": to_timezone,
                     "RETURN_AS_TIMEZONE_AWARE": False,
+                    "DATE_ORDER": "DMY",
                 },
             )
         else:
@@ -93,6 +94,7 @@ class Tournament(Base):
                     "PREFER_DATES_FROM": prefer_dates_from,
                     "RELATIVE_BASE": relative_base,
                     "RETURN_AS_TIMEZONE_AWARE": False,
+                    "DATE_ORDER": "DMY",
                 },
             )
 
