@@ -7,7 +7,7 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId
+from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId, DateIsNotString
 from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
@@ -177,7 +177,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 role_store.not_taken_matches.append(match_info.match_id.value)
         return write_cells
 
-    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(exceptions=[DuplicateMatchId])
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
+        exceptions=[DuplicateMatchId, DateIsNotString]
+    )
     async def take_or_drop_match_in_spreadsheets(
         self, match_ids, user_details, take, left_match_ids, *schedules_spreadsheets, retry=False
     ):

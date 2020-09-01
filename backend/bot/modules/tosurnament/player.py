@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.players_spreadsheet import TeamInfo, TeamNotFound
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
+from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
@@ -224,7 +224,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         raise tosurnament.InvalidMatch()
 
     @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
-        exceptions=[tosurnament.InvalidMatch, TeamNotFound, tosurnament.OpponentNotFound]
+        exceptions=[tosurnament.InvalidMatch, TeamNotFound, tosurnament.OpponentNotFound, DateIsNotString]
     )
     async def reschedule_for_bracket(
         self,
