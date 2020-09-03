@@ -655,10 +655,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not bracket:
             self.bot.session.delete(staff_reschedule_message)
             return
+        schedules_spreadsheet = bracket.schedules_spreadsheet
+        if not schedules_spreadsheet:
+            return
         try:
             user_details = tosurnament.UserDetails.get_from_user(self.bot, user, tournament)
             await self.take_or_drop_match_in_spreadsheets(
-                [staff_reschedule_message.match_id], user_details, False, set(), bracket.schedules_spreadsheets
+                [staff_reschedule_message.match_id], user_details, False, set(), schedules_spreadsheet
             )
             # TODO if not write_cells send error + update message instead of reply
             if staff_reschedule_message.staff_id:
