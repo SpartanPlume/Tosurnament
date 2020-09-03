@@ -341,7 +341,11 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         referee_role = None
         notification_type = "notification"
         if referee_name:
-            referee = guild.get_member_named(referee_name)
+            user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, referee_name)
+            if user.verified:
+                referee = user.get_member(guild)
+            else:
+                referee = guild.get_member_named(referee_name)
             if referee:
                 referee = referee.mention
             else:
