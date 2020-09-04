@@ -35,36 +35,43 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         tournament = self.get_tournament(ctx.guild.id)
         tosurnament_guild = self.get_guild(ctx.guild.id)
         admin_role = tosurnament.get_role(ctx.author.roles, tosurnament_guild.admin_role_id)
-        if not admin_role and not ctx.guild.owner == ctx.author:
-            referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
-            if not referee_role:
-                raise tosurnament.NotRequiredRole("Referee")
-            for bracket in tournament.brackets:
-                schedules_spreadsheet = bracket.schedules_spreadsheet
-                if not schedules_spreadsheet:
-                    continue
-                await schedules_spreadsheet.get_spreadsheet()
-                try:
-                    match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-                except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
-                    await self.on_cog_command_error(ctx, ctx.command.name, e)
-                    continue
-                except MatchIdNotFound as e:
-                    self.bot.info(str(type(e)) + ": " + str(e))
-                    continue
-                user = tosurnament.UserAbstraction.get_from_ctx(ctx)
-                is_referee_of_match = False
-                for referee_cell in match_info.referees:
-                    if referee_cell.has_value(user.name):
-                        is_referee_of_match = True
-                        break
-                if not is_referee_of_match:
-                    raise tosurnament.NotRefereeOfMatch()
+        referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
+        if not admin_role and not ctx.guild.owner == ctx.author and not referee_role:
+            raise tosurnament.NotRequiredRole("Referee")
+        match_found = False
+        for bracket in tournament.brackets:
+            schedules_spreadsheet = bracket.schedules_spreadsheet
+            if not schedules_spreadsheet:
+                continue
+            await schedules_spreadsheet.get_spreadsheet()
+            try:
+                match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
+            except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
+                await self.on_cog_command_error(ctx, ctx.command.name, e)
+                continue
+            except MatchIdNotFound as e:
+                self.bot.info(str(type(e)) + ": " + str(e))
+                continue
+            match_found = True
+            if admin_role or ctx.guild.owner == ctx.author:
+                break
+            user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+            is_referee_of_match = False
+            for referee_cell in match_info.referees:
+                if referee_cell.has_value(user.name):
+                    is_referee_of_match = True
+                    break
+            if not is_referee_of_match:
+                raise tosurnament.NotRefereeOfMatch()
+        if not match_found:
+            raise MatchIdNotFound(match_id)
+        team1 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team1.value)
+        team2 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team2.value)
         allowed_reschedule = AllowedReschedule(
             tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
         )
         self.bot.session.add(allowed_reschedule)
-        await self.send_reply(ctx, ctx.command.name, "success", match_id, allowed_hours)
+        await self.send_reply(ctx, ctx.command.name, "success", match_id, allowed_hours, team1, team2)
 
     @allow_next_reschedule.error
     async def allow_next_reschedule_handler(self, ctx, error):
@@ -313,7 +320,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def get_team_mention(self, guild, players_spreadsheet, team_name):
         if not players_spreadsheet:
             return escape_markdown(team_name)
-        await players_spreadsheet.get_spreadsheet(retry=True)
+        await players_spreadsheet.get_spreadsheet()
         try:
             team_info = TeamInfo.from_team_name(players_spreadsheet, team_name)
             if players_spreadsheet.range_team_name:

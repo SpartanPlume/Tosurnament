@@ -3,7 +3,7 @@
     "help": "Allows a match to be reschedule without any time constraint applied",
     "parameter": "<match_id> [<allowed_hours>]",
     "usage": "Usage: `%0allow_next_reschedule $./parameter`\n\nExample: `%0allow_next_reschedule C2`",
-    "success": "The match `%1` is now allowed to be rescheduled without deadline checks once (if successful) during the next `%2` hours.",
+    "success": "The match `%1` is now allowed to be rescheduled without deadline checks once (if successful) during the next `%2` hours.\n\n%3 / %4, you can now reschedule your match.",
     "not_referee_of_match": "You cannot allow the reschedule of a match of which you are not the referee."
   },
   "take_match": {
