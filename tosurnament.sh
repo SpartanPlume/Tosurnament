@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd backend
+BASEDIR=$(dirname "$0")
+cd $BASEDIR"/backend"
 while true; do
     python3 start_bot.py
     code=$?
