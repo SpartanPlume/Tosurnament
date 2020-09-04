@@ -191,12 +191,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         self, match_ids, user_details, take, left_match_ids, *schedules_spreadsheets, retry=False
     ):
         """Takes or drops matches of a bracket, if possible."""
+        user_details.clear_matches()
         left_match_ids.clear()
         left_match_ids.update(match_ids)
         for schedules_spreadsheet in schedules_spreadsheets:
             await schedules_spreadsheet.get_spreadsheet()
-            tmp_left_match_ids = set(left_match_ids)
-            for match_id in tmp_left_match_ids:
+            for match_id in left_match_ids.copy():
                 try:
                     match_info = MatchInfo.from_id(schedules_spreadsheet, match_id, False)
                 except MatchIdNotFound:

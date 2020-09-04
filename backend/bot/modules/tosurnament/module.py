@@ -112,6 +112,12 @@ class UserDetails:
         roles["Player"] = self.player
         return roles
 
+    def clear_matches(self):
+        for value in self.get_as_dict().values():
+            if value:
+                value.taken_matches = []
+                value.not_taken_matches = []
+
 
 class TosurnamentBaseModule(BaseModule):
     """Contains utility functions used by Tosurnament modules."""
