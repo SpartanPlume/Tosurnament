@@ -29,8 +29,8 @@ async def add_command_feedback(ctx):
 class Client(commands.Bot):
     """Child of discord.Client to simplify event management"""
 
-    def __init__(self):
-        super(Client, self).__init__(command_prefix=";")
+    def __init__(self, intents=discord.intents.default()):
+        super(Client, self).__init__(command_prefix=";", intents=intents)
         self.owner_id = constants.BOT_OWNER_ID
         self.error_code = 0
         self.modules = []
