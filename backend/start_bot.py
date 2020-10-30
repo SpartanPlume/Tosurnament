@@ -4,13 +4,17 @@
 
 import sys
 
+import discord
+
 from bot.client import Client
 from common.config import constants
 
 
 def main():
     """Main function"""
-    bot = Client()
+    intents = discord.Intents.default()
+    intents.members = True
+    bot = Client(intents=intents)
     if bot.error_code == 0:
         bot.run(constants.BOT_TOKEN)
     return bot.error_code
