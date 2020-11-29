@@ -47,6 +47,7 @@ class Tournament(Base):
     matches_to_ignore = str()
     notify_no_staff_reschedule = bool(True)
     utc = str()
+    template_code = str()
 
     @property
     def current_bracket(self):

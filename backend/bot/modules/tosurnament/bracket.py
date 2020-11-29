@@ -147,7 +147,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                 ctx.command.name, "users_role_not_removed", "\n".join(users_role_not_removed)
             )
         await self.send_reply(
-            ctx, ctx.command.name, "success", bracket.name, n_user_roles_removed, len(players_found), success_extra,
+            ctx, ctx.command.name, "success", bracket.name, n_user_roles_removed, len(players_found), success_extra
         )
 
     @commands.command(aliases=["gpr"])
@@ -225,7 +225,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         if users_role_not_added:
             success_extra += self.get_string(ctx.command.name, "users_role_not_added", "\n".join(users_role_not_added))
         await self.send_reply(
-            ctx, ctx.command.name, "success", bracket.name, n_user_roles_added, len(players_not_found), success_extra,
+            ctx, ctx.command.name, "success", bracket.name, n_user_roles_added, len(players_not_found), success_extra
         )
 
     @commands.command(aliases=["sps"])  # pragma: no cover
@@ -373,10 +373,52 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
 
     @commands.command(aliases=["spsrd"])  # pragma: no cover
     async def set_players_spreadsheet_range_discord(self, ctx, *, cell_range: str):
-        """Sets the players spreadsheet range team."""
+        """Sets the players spreadsheet range discord."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_discord": cell_range})
+
+    @commands.command(aliases=["spsrdi"])  # pragma: no cover
+    async def set_players_spreadsheet_range_discord_id(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range discord id."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_discord_id": cell_range})
+
+    @commands.command(aliases=["spsrr"])  # pragma: no cover
+    async def set_players_spreadsheet_range_rank(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range rank."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_rank": cell_range})
+
+    @commands.command(aliases=["spsrbr"])  # pragma: no cover
+    async def set_players_spreadsheet_range_bws_rank(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range bws rank."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_bws_rank": cell_range})
+
+    @commands.command(aliases=["spsroi"])  # pragma: no cover
+    async def set_players_spreadsheet_range_osu_id(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range osu id."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_osu_id": cell_range})
+
+    @commands.command(aliases=["spsrp"])  # pragma: no cover
+    async def set_players_spreadsheet_range_pp(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range pp."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_pp": cell_range})
+
+    @commands.command(aliases=["spsrtz"])  # pragma: no cover
+    async def set_players_spreadsheet_range_timezone(self, ctx, *, cell_range: str):
+        """Sets the players spreadsheet range timezone."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_players_spreadsheet_values(ctx, {"range_timezone": cell_range})
 
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""

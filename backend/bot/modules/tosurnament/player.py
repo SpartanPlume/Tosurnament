@@ -1,5 +1,6 @@
 """Player commands"""
 
+import re
 import asyncio
 import datetime
 import discord
@@ -12,6 +13,7 @@ from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
 from common.api.spreadsheet import HttpError, InvalidWorksheet
+from common.api import osu
 
 
 class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
@@ -26,6 +28,40 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if ctx.guild is None:
             raise commands.NoPrivateMessage()
         return True
+
+    @commands.command()
+    @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
+    async def register(self, ctx, osu_link: str, timezone: str = ""):
+        """Registers the player to the tournament."""
+        tournament = self.get_tournament(ctx.guild.id)
+        if len(tournament.brackets) != 1:
+            await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
+            return
+        bracket = tournament.current_bracket
+        players_spreadsheet = bracket.players_spreadsheet
+        if players_spreadsheet.range_timezone:
+            if not re.match(r"UTC[-\+]([0-9]|1[0-4])$", timezone, re.IGNORECASE):
+                await self.send_reply(ctx, ctx.command.name, "invalid_timezone")
+                return
+        if players_spreadsheet.range_team_name:
+            await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
+            return
+        await players_spreadsheet.get_spreadsheet()
+        team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
+        osu_name = osu.get_from_string(osu_link)
+        osu_user = osu.get_user(osu_name)
+        if not osu_user:
+            raise tosurnament.UserNotFound(osu_name)
+        team_info.players[0].value = osu_user.name
+        team_info.discord[0].value = str(ctx.author)
+        team_info.discord_id[0].value = str(ctx.author.id)
+        team_info.ranks[0].value = str(osu_user.rank)
+        team_info.bws_ranks[0].value = str(osu_user.rank)  # TODO
+        team_info.osu_ids[0].value = str(osu_user.id)
+        team_info.pps[0].value = str(int(osu_user.pp))
+        team_info.timezones[0].value = timezone
+        self.add_update_spreadsheet_background_task(players_spreadsheet)
+        await self.send_reply(ctx, ctx.command.name, "success")
 
     async def is_a_player(self, bracket, user_name):
         """Returns if the user is a player in the bracket and its team_info if he is."""
@@ -102,7 +138,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         for bracket in tournament.brackets:
             tournament.current_bracket_id = bracket.id
             try:
-                got_role |= await self.get_player_role_for_bracket(guild, tournament, user, user_name, player_role,)
+                got_role |= await self.get_player_role_for_bracket(guild, tournament, user, user_name, player_role)
             except Exception as e:
                 if channel:
                     await self.on_cog_command_error(channel, "get_player_role", e)
@@ -448,7 +484,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     ally_to_mention = guild.get_member(reschedule_message.ally_user_id)
                 if ally_to_mention:
                     await self.send_reply(
-                        channel, "reschedule", "refused", ally_to_mention.mention, reschedule_message.match_id,
+                        channel, "reschedule", "refused", ally_to_mention.mention, reschedule_message.match_id
                     )
                 else:
                     raise tosurnament.OpponentNotFound(user.mention)
@@ -499,9 +535,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not ally_to_mention:
             ally_to_mention = guild.get_member(reschedule_message.ally_user_id)
         if ally_to_mention:
-            await self.send_reply(
-                channel, "reschedule", "accepted", ally_to_mention.mention, match_id,
-            )
+            await self.send_reply(channel, "reschedule", "accepted", ally_to_mention.mention, match_id)
         else:
             # TODO not raise
             raise tosurnament.OpponentNotFound(user.mention)

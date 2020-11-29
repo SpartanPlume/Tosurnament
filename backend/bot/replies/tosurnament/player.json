@@ -24,5 +24,11 @@
     "staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
     "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message.",
     "usage": "Usage: `%0reschedule $./parameter`\n\nExample: `%0reschedule 12C 01/02 03:00`\nExample 2: `%0reschedule 12C 3 Apr 12h30`\n\n**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format."
+  },
+  "register": {
+    "help": "Registers the player to the tournament",
+    "parameter": "<osu profile link/name/id> <timezone>",
+    "usage": "Usage: `%0register $./parameter`\n\nExample: `%0register \"Spartan Plume\" UTC+1`",
+    "success": "You have been registered successfully."
   }
 }

@@ -17,6 +17,12 @@ class PlayersSpreadsheet(BaseSpreadsheet):
     range_team_name = str("")
     range_team = str("A2:A")
     range_discord = str("B2:B")
+    range_discord_id = str()
+    range_rank = str()
+    range_bws_rank = str()
+    range_osu_id = str()
+    range_pp = str()
+    range_timezone = str()
 
 
 class TeamNotFound(commands.CommandError):
@@ -40,6 +46,12 @@ class TeamInfo:
         self.team_name = team_name_cell
         self.players = [team_name_cell]
         self.discord = [""]
+        self.discord_ids = [""]
+        self.ranks = [""]
+        self.bws_ranks = [""]
+        self.osu_ids = [""]
+        self.pps = [""]
+        self.timezones = [""]
 
     def set_players(self, players_cells):
         if players_cells:
@@ -47,10 +59,40 @@ class TeamInfo:
         else:
             self.players = [self.team_name]
 
-    def set_discord(self, discord_ids):
+    def set_discord(self, discords):
+        while len(discords) < len(self.players):
+            discords.append(Cell(-1, -1, None))
+        self.discord = discords
+
+    def set_discord_ids(self, discord_ids):
         while len(discord_ids) < len(self.players):
             discord_ids.append(Cell(-1, -1, None))
-        self.discord = discord_ids
+        self.discord_ids = discord_ids
+
+    def set_ranks(self, ranks):
+        while len(ranks) < len(self.players):
+            ranks.append(Cell(-1, -1, None))
+        self.ranks = ranks
+
+    def set_bws_ranks(self, bws_ranks):
+        while len(bws_ranks) < len(self.players):
+            bws_ranks.append(Cell(-1, -1, None))
+        self.bws_ranks = bws_ranks
+
+    def set_osu_ids(self, osu_ids):
+        while len(osu_ids) < len(self.players):
+            osu_ids.append(Cell(-1, -1, None))
+        self.osu_ids = osu_ids
+
+    def set_pps(self, pps):
+        while len(pps) < len(self.players):
+            pps.append(Cell(-1, -1, None))
+        self.pps = pps
+
+    def set_timezones(self, timezones):
+        while len(timezones) < len(self.players):
+            timezones.append(Cell(-1, -1, None))
+        self.timezones = timezones
 
     @staticmethod
     def from_player_name(players_spreadsheet, player_name):
@@ -73,6 +115,60 @@ class TeamInfo:
             [
                 find_corresponding_cell_best_effort(
                     players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_discord_ids(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord_id),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_ranks(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_rank),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_bws_ranks(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_bws_rank),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_osu_ids(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_osu_id),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_pps(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_pp),
+                    [team_best_effort_y],
+                    team_best_effort_y,
+                )
+            ]
+        )
+        team_info.set_timezones(
+            [
+                find_corresponding_cell_best_effort(
+                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_timezone),
                     [team_best_effort_y],
                     team_best_effort_y,
                 )
@@ -114,4 +210,67 @@ class TeamInfo:
                 team_name_cell.y,
             )
         )
+        team_info.set_discord_ids(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord_id),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
+        team_info.set_ranks(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_rank),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
+        team_info.set_bws_ranks(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_bws_rank),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
+        team_info.set_osu_ids(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_osu_id),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
+        team_info.set_pps(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_pp),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
+        team_info.set_timezones(
+            find_corresponding_cells_best_effort(
+                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_timezone),
+                team_name_best_effort_ys,
+                team_name_cell.y,
+            )
+        )
         return team_info
+
+    @staticmethod
+    def get_first_blank_fields(players_spreadsheet):
+        range_to_use = None
+        if players_spreadsheet.range_team_name:
+            range_to_use = players_spreadsheet.range_team_name
+        else:
+            range_to_use = players_spreadsheet.range_team
+        cells = players_spreadsheet.spreadsheet.get_range(range_to_use)
+        for row in cells:
+            used = False
+            for cell in row:
+                if cell.value:
+                    used = True
+                    break
+            if not used:
+                break
+        if players_spreadsheet.range_team_name:
+            return TeamInfo.from_team_name_cell(players_spreadsheet, row[0])
+        else:
+            return TeamInfo.from_player_cell(players_spreadsheet, row[0])

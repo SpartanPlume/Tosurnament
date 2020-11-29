@@ -167,6 +167,42 @@
     "success": "Players spreadsheet range discord set to `%1`.",
     "usage": "Usage: `%0set_players_spreadsheet_range_discord $./parameter`\n\nExample: `%0set_players_spreadsheet_range_discord D2:D`"
   },
+  "set_players_spreadsheet_range_discord_id": {
+    "help": "Sets the players spreadsheet range discord id.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range discord id set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_discord_id $./parameter`\n\nExample: `%0set_players_spreadsheet_range_discord_id D2:D`"
+  },
+  "set_players_spreadsheet_range_rank": {
+    "help": "Sets the players spreadsheet range rank.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range rank set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_rank $./parameter`\n\nExample: `%0set_players_spreadsheet_range_rank D2:D`"
+  },
+  "set_players_spreadsheet_range_bws_rank": {
+    "help": "Sets the players spreadsheet range bws_rank.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range bws_rank set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_bws_rank $./parameter`\n\nExample: `%0set_players_spreadsheet_range_bws_rank D2:D`"
+  },
+  "set_players_spreadsheet_range_osu_id": {
+    "help": "Sets the players spreadsheet range osu_id.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range osu_id set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_osu_id $./parameter`\n\nExample: `%0set_players_spreadsheet_range_osu_id D2:D`"
+  },
+  "set_players_spreadsheet_range_pp": {
+    "help": "Sets the players spreadsheet range pp.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range pp set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_pp $./parameter`\n\nExample: `%0set_players_spreadsheet_range_pp D2:D`"
+  },
+  "set_players_spreadsheet_range_timezone": {
+    "help": "Sets the players spreadsheet range timezone.",
+    "parameter": "[<range>]",
+    "success": "Players spreadsheet range timezone set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_range_timezone $./parameter`\n\nExample: `%0set_players_spreadsheet_range_timezone D2:D`"
+  },
   "copy_bracket": {
     "help": "Copies the bracket settings of a bracket to another one.",
     "parameter": "<index_from> <index_to>",

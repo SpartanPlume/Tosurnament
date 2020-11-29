@@ -12,6 +12,18 @@
     "success": "Current bracket changed to `%1`.",
     "usage": "Usage: `%0get_bracket $./parameter`\n\nExample: `%0get_bracket 2`"
   },
+  "set_tournament_name": {
+    "help": "Sets the tournament's name",
+    "parameter": "<name>",
+    "success": "Tournament's name set to `%1`.",
+    "usage": "Usage: `%0set_tournament_name $./parameter`\n\nExample: `%0set_tournament_name Name`"
+  },
+  "set_tournament_acronym": {
+    "help": "Sets the tournament's acronym",
+    "parameter": "<acronym>",
+    "success": "Tournament's acronym set to `%1`.",
+    "usage": "Usage: `%0set_tournament_acronym $./parameter`\n\nExample: `%0set_tournament_acronym ACR`"
+  },
   "set_staff_channel": {
     "help": "Sets the staff channel to ping staff role",
     "parameter": "<channel>",
@@ -154,5 +166,11 @@
     "help": "Synchronizes the local copy of the spreadsheets of the tournament with the online spreadsheets",
     "usage": "Usage: `%0sync_spreadsheet`",
     "success": "Spreadsheets synchronized successfully"
+  },
+  "save_tournament_settings": {
+    "help": "Saves the tournament settings and gives a code corresponding to it",
+    "usage": "Usage: `%0save_tournament_settings`",
+    "success": "Tournament settings saved. Code to use to load it: `%1`.",
+    "os_error": "The tournament template file could not be created or deleted."
   }
 }
