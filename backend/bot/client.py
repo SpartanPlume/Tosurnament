@@ -30,7 +30,7 @@ class Client(commands.Bot):
     """Child of discord.Client to simplify event management"""
 
     def __init__(self, intents=discord.Intents.default()):
-        super(Client, self).__init__(command_prefix=";", intents=intents)
+        super(Client, self).__init__(command_prefix=constants.COMMAND_PREFIX, intents=intents)
         self.owner_id = constants.BOT_OWNER_ID
         self.error_code = 0
         self.modules = []
@@ -49,7 +49,11 @@ class Client(commands.Bot):
     def init_logger(self):
         """Initializes the logger"""
         self.handler = TimedRotatingFileHandler(
-            filename="log/bot.log", when="W1", utc=True, backupCount=4, atTime=datetime.time(hour=12),
+            filename="log/bot.log",
+            when="W1",
+            utc=True,
+            backupCount=4,
+            atTime=datetime.time(hour=12),
         )
         self.handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(name)s: %(message)s"))
         self.logger = logging.getLogger("bot")
@@ -86,7 +90,11 @@ class Client(commands.Bot):
         """Initializes the database"""
         try:
             self.session = Session(
-                constants.DB_USERNAME, constants.DB_PASSWORD, constants.DB_NAME, constants.ENCRYPTION_KEY, self.handler,
+                constants.DB_USERNAME,
+                constants.DB_PASSWORD,
+                constants.DB_NAME,
+                constants.ENCRYPTION_KEY,
+                self.handler,
             )
         except MySQLdb._exceptions.OperationalError:
             print("ERROR: Couldn't initialize the db session. Is the mysql service started ?")
