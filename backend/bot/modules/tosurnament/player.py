@@ -16,6 +16,13 @@ from common.api.spreadsheet import HttpError, InvalidWorksheet
 from common.api import osu
 
 
+class InvalidTimezone(commands.CommandError):
+    """Special exception in case the timezone provided is invalid."""
+
+    def __init__(self, timezone):
+        self.timezone = timezone
+
+
 class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     """Tosurnament player commands"""
 
@@ -41,8 +48,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet.range_timezone:
             if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])$", timezone, re.IGNORECASE):
-                await self.send_reply(ctx, ctx.command.name, "invalid_timezone")
-                return
+                raise InvalidTimezone(timezone)
             timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
         if players_spreadsheet.range_team_name:
             await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
@@ -70,6 +76,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         except (discord.Forbidden, discord.HTTPException):
             pass
         await self.send_reply(ctx, ctx.command.name, "success")
+
+    @register.error
+    async def register_handler(self, ctx, error):
+        """Error handler of register function."""
+        if isinstance(error, InvalidTimezone):
+            await self.send_reply(ctx, ctx.command.name, "invalid_timezone", error.timezone)
 
     async def is_a_player(self, bracket, user_name):
         """Returns if the user is a player in the bracket and its team_info if he is."""
