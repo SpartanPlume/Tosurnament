@@ -58,7 +58,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         team_info.ranks[0].value = str(osu_user.rank)
         team_info.bws_ranks[0].value = str(osu_user.rank)  # TODO
         team_info.osu_ids[0].value = str(osu_user.id)
-        team_info.pps[0].value = str(int(osu_user.pp))
+        team_info.pps[0].value = str(int(float(osu_user.pp)))
         team_info.timezones[0].value = timezone
         self.add_update_spreadsheet_background_task(players_spreadsheet)
         await self.send_reply(ctx, ctx.command.name, "success")
