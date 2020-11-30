@@ -257,7 +257,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             if bracket.schedules_spreadsheet:
                 await self.sync_a_spreadsheet(bracket.schedules_spreadsheet, spreadsheet_ids)
             if bracket.players_spreadsheet:
-                await self.sync_a_spreadsheet(bracket.schedules_spreadsheet, spreadsheet_ids)
+                await self.sync_a_spreadsheet(bracket.players_spreadsheet, spreadsheet_ids)
         await self.send_reply(ctx, ctx.command.name, "success")
 
     @commands.command(aliases=["sts"])

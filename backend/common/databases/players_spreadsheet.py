@@ -1,8 +1,14 @@
 """Players spreadsheet table"""
 
+import re
 from discord.ext import commands
 from common.databases.base_spreadsheet import BaseSpreadsheet
-from common.api.spreadsheet import find_corresponding_cell_best_effort, find_corresponding_cells_best_effort, Cell
+from common.api.spreadsheet import (
+    find_corresponding_cell_best_effort,
+    find_corresponding_cells_best_effort,
+    Cell,
+    from_letter_base,
+)
 
 
 class PlayersSpreadsheet(BaseSpreadsheet):
@@ -262,6 +268,12 @@ class TeamInfo:
         else:
             range_to_use = players_spreadsheet.range_team
         cells = players_spreadsheet.spreadsheet.get_range(range_to_use)
+        if not cells:
+            worksheet, range_to_use = players_spreadsheet.spreadsheet.get_worksheet_and_range(range_to_use)
+            splitted_range = range_to_use.split(":")[0]
+            column, row, _ = re.split(r"(\d+)", splitted_range)
+            cells = [[Cell(from_letter_base(column), int(row) - 1, "")]]
+            worksheet.cells = cells
         for row in cells:
             used = False
             for cell in row:
