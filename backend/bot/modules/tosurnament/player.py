@@ -54,7 +54,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.UserNotFound(osu_name)
         team_info.players[0].value = osu_user.name
         team_info.discord[0].value = str(ctx.author)
-        team_info.discord_id[0].value = str(ctx.author.id)
+        team_info.discord_ids[0].value = str(ctx.author.id)
         team_info.ranks[0].value = str(osu_user.rank)
         team_info.bws_ranks[0].value = str(osu_user.rank)  # TODO
         team_info.osu_ids[0].value = str(osu_user.id)
