@@ -274,6 +274,7 @@ class TeamInfo:
             column, row, _ = re.split(r"(\d+)", splitted_range)
             cells = [[Cell(from_letter_base(column), int(row) - 1, "")]]
             worksheet.cells = cells
+        used = False
         for row in cells:
             used = False
             for cell in row:
@@ -282,6 +283,11 @@ class TeamInfo:
                     break
             if not used:
                 break
+        if used:
+            worksheet, _ = players_spreadsheet.spreadsheet.get_worksheet_and_range(range_to_use)
+            cells = worksheet.cells
+            row = [Cell(row[0].x, row[0].y + 1, "")]
+            cells.append(row)
         if players_spreadsheet.range_team_name:
             return TeamInfo.from_team_name_cell(players_spreadsheet, row[0])
         else:

@@ -40,9 +40,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         bracket = tournament.current_bracket
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet.range_timezone:
-            if not re.match(r"UTC[-\+]([0-9]|1[0-4])$", timezone, re.IGNORECASE):
+            if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])$", timezone, re.IGNORECASE):
                 await self.send_reply(ctx, ctx.command.name, "invalid_timezone")
                 return
+            timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
         if players_spreadsheet.range_team_name:
             await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
             return
@@ -297,6 +298,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet:
             await players_spreadsheet.get_spreadsheet()
+            if not user.verified:
+                # TODO find player_name from discord_id in players_spreadsheet
+                pass
             ally_team_info, opponent_team_info = await self.get_teams_info(
                 ctx, tournament, players_spreadsheet, match_info, user
             )
