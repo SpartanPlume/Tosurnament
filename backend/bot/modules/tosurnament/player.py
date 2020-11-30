@@ -31,7 +31,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     @commands.command()
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
-    async def register(self, ctx, osu_link: str, timezone: str = ""):
+    async def register(self, ctx, osu_link: str, timezone: str = ""):  # TODO handle teams + multiples brackets
         """Registers the player to the tournament."""
         tournament = self.get_tournament(ctx.guild.id)
         if len(tournament.brackets) != 1:
@@ -61,6 +61,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         team_info.pps[0].value = str(int(float(osu_user.pp)))
         team_info.timezones[0].value = timezone
         self.add_update_spreadsheet_background_task(players_spreadsheet)
+        roles_to_give = [tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")]
+        roles_to_give.append(tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name))
+        await ctx.author.add_roles(*filter(None, roles_to_give))
+        try:
+            await ctx.author.edit(nick=osu_user.name)
+        except (discord.Forbidden, discord.HTTPException):
+            pass
         await self.send_reply(ctx, ctx.command.name, "success")
 
     async def is_a_player(self, bracket, user_name):
