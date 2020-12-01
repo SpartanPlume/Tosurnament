@@ -178,6 +178,10 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()  # TODO better exception
         await self.set_tournament_values(ctx, {"utc": utc})
 
+    @commands.command(aliases=["srp"])  # pragma: no cover
+    async def set_registration_phase(self, ctx, boolean: bool):
+        await self.set_tournament_values(ctx, {"registration_phase": boolean})
+
     async def set_tournament_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""
         tournament = self.get_tournament(ctx.guild.id)

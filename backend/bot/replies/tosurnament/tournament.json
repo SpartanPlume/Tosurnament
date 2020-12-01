@@ -162,6 +162,12 @@
     "usage": "Usage: `%0set_utc $./parameter`\n\n`<tz_info>` must be in the format: -hh:mm or +hh:mm.\nExample: `%0set_utc +02:00`",
     "success": "UTC set to `%1`."
   },
+  "set_registration_phase": {
+    "help": "Sets if the tournament is in the registration phase or not.",
+    "parameter": "<boolean>",
+    "usage": "Usage: `%0set_registration_phase $./parameter`\n\nExample: `%0set_registration_phase True`",
+    "success": "Registration phase set to `%1`."
+  },
   "sync_spreadsheet": {
     "help": "Synchronizes the local copy of the spreadsheets of the tournament with the online spreadsheets",
     "usage": "Usage: `%0sync_spreadsheet`",

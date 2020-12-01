@@ -47,6 +47,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         bracket = tournament.current_bracket
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet.range_timezone:
+            if not timezone:
+                raise commands.MissingRequiredArgument("timezone")
             if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])$", timezone, re.IGNORECASE):
                 raise InvalidTimezone(timezone)
             timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
@@ -627,8 +629,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def on_verified_user(self, guild, user):
         await self.get_player_role_for_user(guild, user)
 
-    async def give_player_role(self, guild):
-        tournament = self.get_tournament(guild.id)
+    async def give_player_role(self, guild, tournament):  # TODO: better
         player_role = tosurnament.get_role(guild.roles, tournament.player_role_id, "Player")
         if not player_role:
             return
@@ -636,20 +637,29 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             players_spreadsheet = bracket.players_spreadsheet
             if not players_spreadsheet:
                 continue
+            bracket_role = tosurnament.get_role(guild.roles, bracket.role_id, bracket.name)
             await players_spreadsheet.get_spreadsheet()
             if players_spreadsheet.range_team_name:
                 team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team_name
                 )
-                team_info = None
                 for team_name_cell in team_name_cells:
                     team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
-                if not team_info:
-                    continue
-                for player_cell in team_info.players:
-                    user = guild.get_member_named(player_cell.value)
-                    if user:
-                        await user.add_roles(player_role)
+                    team_name = team_info.team_name.value
+                    team_role = tosurnament.get_role(guild.roles, None, team_name)
+                    if not team_role:
+                        team_role = await guild.create_role(name=team_name, mentionable=False)
+                    for i, player_cell in enumerate(team_info.players):
+                        player_name = player_cell.value
+                        if not player_name:
+                            continue
+                        discord_tag = None
+                        if len(team_info.discord) > i and team_info.discord[i]:
+                            discord_tag = team_info.discord[i].value
+                        user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, player_name, discord_tag)
+                        member = user.get_member(guild)
+                        if member:
+                            await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))
             else:
                 team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team
@@ -662,7 +672,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                         else:
                             user = guild.get_member_named(team_info.team_name.value)
                         if user:
-                            await user.add_roles(player_role)
+                            await user.add_roles(*filter(None, [player_role, bracket_role]))
                     except Exception:
                         continue
 
@@ -672,17 +682,20 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             while not self.bot.is_closed():
                 for guild in self.bot.guilds:
                     try:
-                        await self.give_player_role(guild)
+                        tournament = self.get_tournament(guild.id)
+                        if tournament.registration_phase:
+                            await self.give_player_role(guild, tournament)
                     except asyncio.CancelledError:
                         return
-                    except Exception:
+                    except Exception as e:
+                        print(e)
                         continue
                 await asyncio.sleep(18000)
         except asyncio.CancelledError:
             return
 
     def background_task(self):
-        # self.bot.tasks.append(self.bot.loop.create_task(self.background_task_give_player_role()))
+        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_give_player_role()))
         pass
 
 

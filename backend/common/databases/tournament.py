@@ -48,6 +48,7 @@ class Tournament(Base):
     notify_no_staff_reschedule = bool(True)
     utc = str()
     template_code = str()
+    registration_phase = bool(False)
 
     @property
     def current_bracket(self):
