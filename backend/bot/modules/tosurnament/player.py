@@ -654,10 +654,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                         if not player_name:
                             continue
                         discord_tag = None
-                        if len(team_info.discord) > i and team_info.discord[i]:
+                        if len(team_info.discord) > i and team_info.discord[i].value:
                             discord_tag = team_info.discord[i].value
                         user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, player_name, discord_tag)
                         member = user.get_member(guild)
+                        if not member:
+                            member = guild.get_member_named(user.name)
                         if member:
                             await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))
             else:
@@ -687,8 +689,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                             await self.give_player_role(guild, tournament)
                     except asyncio.CancelledError:
                         return
-                    except Exception as e:
-                        print(e)
+                    except Exception:
                         continue
                 await asyncio.sleep(18000)
         except asyncio.CancelledError:
