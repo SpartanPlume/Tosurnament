@@ -4,8 +4,8 @@ from discord.ext import commands
 from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     Cell,
-    find_corresponding_cell_best_effort,
-    find_corresponding_cells_best_effort,
+    find_corresponding_cell_best_effort_from_range,
+    find_corresponding_cells_best_effort_from_range,
 )
 
 
@@ -89,85 +89,92 @@ class MatchInfo:
 
     @staticmethod
     def from_match_id_cell(schedules_spreadsheet, match_id_cell, filled_only=True):
-        match_id_best_effort_ys = match_id_cell.y_merge_range
         match_info = MatchInfo(match_id_cell)
         spreadsheet = schedules_spreadsheet.spreadsheet
-        match_info.team1 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_team1),
-            match_id_best_effort_ys,
-            match_id_cell.y,
+        match_info.team1 = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_team1,
+            match_id_cell,
             to_string=True,
         )
-        match_info.team2 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_team2),
-            match_id_best_effort_ys,
-            match_id_cell.y,
+        match_info.team2 = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_team2,
+            match_id_cell,
             to_string=True,
         )
-        match_info.score_team1 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_score_team1), match_id_best_effort_ys, match_id_cell.y,
+        match_info.score_team1 = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_score_team1,
+            match_id_cell,
         )
-        match_info.score_team2 = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_score_team2), match_id_best_effort_ys, match_id_cell.y,
+        match_info.score_team2 = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_score_team2,
+            match_id_cell,
         )
-        match_info.date = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_date), match_id_best_effort_ys, match_id_cell.y,
+        match_info.date = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_date,
+            match_id_cell,
         )
-        match_info.time = find_corresponding_cell_best_effort(
-            spreadsheet.get_range(schedules_spreadsheet.range_time), match_id_best_effort_ys, match_id_cell.y,
+        match_info.time = find_corresponding_cell_best_effort_from_range(
+            spreadsheet,
+            schedules_spreadsheet.range_time,
+            match_id_cell,
         )
         if schedules_spreadsheet.use_range:
-            match_info.referees = find_corresponding_cells_best_effort(
-                spreadsheet.get_range(schedules_spreadsheet.range_referee),
-                match_id_best_effort_ys,
-                match_id_cell.y,
+            match_info.referees = find_corresponding_cells_best_effort_from_range(
+                spreadsheet,
+                schedules_spreadsheet.range_referee,
+                match_id_cell,
                 filled_only,
             )
-            match_info.streamers = find_corresponding_cells_best_effort(
-                spreadsheet.get_range(schedules_spreadsheet.range_streamer),
-                match_id_best_effort_ys,
-                match_id_cell.y,
+            match_info.streamers = find_corresponding_cells_best_effort_from_range(
+                spreadsheet,
+                schedules_spreadsheet.range_streamer,
+                match_id_cell,
                 filled_only,
             )
-            match_info.commentators = find_corresponding_cells_best_effort(
-                spreadsheet.get_range(schedules_spreadsheet.range_commentator),
-                match_id_best_effort_ys,
-                match_id_cell.y,
+            match_info.commentators = find_corresponding_cells_best_effort_from_range(
+                spreadsheet,
+                schedules_spreadsheet.range_commentator,
+                match_id_cell,
                 filled_only,
             )
-            match_info.mp_links = find_corresponding_cells_best_effort(
-                spreadsheet.get_range(schedules_spreadsheet.range_mp_links),
-                match_id_best_effort_ys,
-                match_id_cell.y,
+            match_info.mp_links = find_corresponding_cells_best_effort_from_range(
+                spreadsheet,
+                schedules_spreadsheet.range_mp_links,
+                match_id_cell,
                 filled_only,
             )
         else:
             match_info.referees = [
-                find_corresponding_cell_best_effort(
-                    spreadsheet.get_range(schedules_spreadsheet.range_referee),
-                    match_id_best_effort_ys,
-                    match_id_cell.y,
+                find_corresponding_cell_best_effort_from_range(
+                    spreadsheet,
+                    schedules_spreadsheet.range_referee,
+                    match_id_cell,
                 )
             ]
             match_info.streamers = [
-                find_corresponding_cell_best_effort(
-                    spreadsheet.get_range(schedules_spreadsheet.range_streamer),
-                    match_id_best_effort_ys,
-                    match_id_cell.y,
+                find_corresponding_cell_best_effort_from_range(
+                    spreadsheet,
+                    schedules_spreadsheet.range_streamer,
+                    match_id_cell,
                 )
             ]
             match_info.commentators = [
-                find_corresponding_cell_best_effort(
-                    spreadsheet.get_range(schedules_spreadsheet.range_commentator),
-                    match_id_best_effort_ys,
-                    match_id_cell.y,
+                find_corresponding_cell_best_effort_from_range(
+                    spreadsheet,
+                    schedules_spreadsheet.range_commentator,
+                    match_id_cell,
                 )
             ]
             match_info.mp_links = [
-                find_corresponding_cell_best_effort(
-                    spreadsheet.get_range(schedules_spreadsheet.range_mp_links),
-                    match_id_best_effort_ys,
-                    match_id_cell.y,
+                find_corresponding_cell_best_effort_from_range(
+                    spreadsheet,
+                    schedules_spreadsheet.range_mp_links,
+                    match_id_cell,
                 )
             ]
         if not isinstance(match_info.date.value, str):

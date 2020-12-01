@@ -541,6 +541,23 @@ def find_corresponding_cell_best_effort(cells, ys, default_y, to_string=False):
     return default_cell
 
 
+def find_corresponding_cell_best_effort_from_range(spreadsheet, range_name, base_cell, to_string=False):
+    range_cells = spreadsheet.get_range(range_name)
+    corresponding_cell = find_corresponding_cell_best_effort(range_cells, [base_cell.y], base_cell.y, to_string)
+    if corresponding_cell.x == -1 and range_name:
+        worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
+        cells = worksheet.cells
+        splitted_range = range_name.split(":")[0]
+        column, _, _ = re.split(r"(\d+)", splitted_range)  # TODO: handle all kind of ranges
+        column = from_letter_base(column)
+        while len(cells) <= base_cell.y:  # TODO: handle different y from base_cell
+            cells.append([])
+        while len(cells[base_cell.y]) <= column:
+            cells[base_cell.y].append(Cell(len(cells[base_cell.y]), base_cell.y, ""))
+        corresponding_cell = cells[base_cell.y][column]
+    return corresponding_cell
+
+
 def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True, to_string=False):
     default_cells = []
     corresponding_cells = []
@@ -556,6 +573,30 @@ def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True,
                     default_cells.append(cell)
     if not corresponding_cells:
         return default_cells
+    return corresponding_cells
+
+
+def find_corresponding_cells_best_effort_from_range(
+    spreadsheet, range_name, base_cell, filled_only=True, to_string=False
+):
+    range_cells = spreadsheet.get_range(range_name)
+    corresponding_cells = find_corresponding_cells_best_effort(
+        range_cells, base_cell.y_merge_range, base_cell.y, filled_only, to_string
+    )
+    if not filled_only and not corresponding_cells and range_name:
+        worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
+        cells = worksheet.cells
+        splitted_range = range_name.split(":")[0]
+        column, _, _ = re.split(r"(\d+)", splitted_range)  # TODO: handle all kind of ranges
+        column = from_letter_base(column)
+        max_y = base_cell.y_merge_range[-1]
+        while len(cells) <= max_y:  # TODO: handle different y from base_cell
+            cells.append([])
+        while len(cells[max_y]) <= column:
+            cells[max_y].append(Cell(len(cells[max_y]), max_y, ""))
+        return find_corresponding_cells_best_effort(
+            spreadsheet.get_range(range_name), base_cell.y_merge_range, base_cell.y, filled_only, to_string
+        )
     return corresponding_cells
 
 

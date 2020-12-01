@@ -4,8 +4,8 @@ import re
 from discord.ext import commands
 from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
-    find_corresponding_cell_best_effort,
-    find_corresponding_cells_best_effort,
+    find_corresponding_cell_best_effort_from_range,
+    find_corresponding_cells_best_effort_from_range,
     Cell,
     from_letter_base,
 )
@@ -116,67 +116,66 @@ class TeamInfo:
     def from_player_cell(players_spreadsheet, player_cell):
         player_cell.change_value_to_string()
         team_info = TeamInfo(player_cell)
-        team_best_effort_y = player_cell.y
         team_info.set_discord(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_discord,
+                    player_cell,
                 )
             ]
         )
         team_info.set_discord_ids(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord_id),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_discord_id,
+                    player_cell,
                 )
             ]
         )
         team_info.set_ranks(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_rank),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_rank,
+                    player_cell,
                 )
             ]
         )
         team_info.set_bws_ranks(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_bws_rank),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_bws_rank,
+                    player_cell,
                 )
             ]
         )
         team_info.set_osu_ids(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_osu_id),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_osu_id,
+                    player_cell,
                 )
             ]
         )
         team_info.set_pps(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_pp),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_pp,
+                    player_cell,
                 )
             ]
         )
         team_info.set_timezones(
             [
-                find_corresponding_cell_best_effort(
-                    players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_timezone),
-                    [team_best_effort_y],
-                    team_best_effort_y,
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_timezone,
+                    player_cell,
                 )
             ]
         )
@@ -199,63 +198,62 @@ class TeamInfo:
     @staticmethod
     def from_team_name_cell(players_spreadsheet, team_name_cell):
         team_name_cell.change_value_to_string()
-        team_name_best_effort_ys = team_name_cell.y_merge_range
         team_info = TeamInfo(team_name_cell)
         team_info.set_players(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_team),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_team,
+                team_name_cell,
                 to_string=True,
             )
         )
         team_info.set_discord(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_discord,
+                team_name_cell,
             )
         )
         team_info.set_discord_ids(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_discord_id),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_discord_id,
+                team_name_cell,
             )
         )
         team_info.set_ranks(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_rank),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_rank,
+                team_name_cell,
             )
         )
         team_info.set_bws_ranks(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_bws_rank),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_bws_rank,
+                team_name_cell,
             )
         )
         team_info.set_osu_ids(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_osu_id),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_osu_id,
+                team_name_cell,
             )
         )
         team_info.set_pps(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_pp),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_pp,
+                team_name_cell,
             )
         )
         team_info.set_timezones(
-            find_corresponding_cells_best_effort(
-                players_spreadsheet.spreadsheet.get_range(players_spreadsheet.range_timezone),
-                team_name_best_effort_ys,
-                team_name_cell.y,
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_timezone,
+                team_name_cell,
             )
         )
         return team_info
@@ -271,7 +269,7 @@ class TeamInfo:
         if not cells:
             worksheet, range_to_use = players_spreadsheet.spreadsheet.get_worksheet_and_range(range_to_use)
             splitted_range = range_to_use.split(":")[0]
-            column, row, _ = re.split(r"(\d+)", splitted_range)
+            column, row, _ = re.split(r"(\d+)", splitted_range)  # TODO: handle all kind of ranges
             cells = [[Cell(from_letter_base(column), int(row) - 1, "")]]
             worksheet.cells = cells
         used = False
