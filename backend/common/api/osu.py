@@ -367,6 +367,7 @@ def get_from_string(string):
     """Returns the id or name of a user from string"""
     if "/" in string:
         string = string.rstrip("/")
+        string = re.sub(r"/(osu|taiko|fruits|mania)$", "", string)
         string = string.split("/")[-1]
         string = string.split("&")[0]
         string = string.split("#")[0]
