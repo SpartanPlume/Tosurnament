@@ -97,12 +97,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             )
             team_info = None
             for team_name_cell in team_name_cells:
-                team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
-            if not team_info:
-                return False, None
-            if user_name not in [cell.value for cell in team_info.players]:
-                return False, None
-            return True, team_info
+                team_info = TeamInfo.from_team_name_cell(players_spreadsheet, team_name_cell)
+                if user_name in [cell.value for cell in team_info.players]:
+                    return True, team_info
+            return False, None
         else:
             team_cells = players_spreadsheet.spreadsheet.find_cells(players_spreadsheet.range_team, user_name)
             if len(team_cells) < 1:
