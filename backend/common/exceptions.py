@@ -140,6 +140,10 @@ class InvalidMpLink(commands.CommandError):
 
     pass
 
+class pastNow(commands.CommandError):
+    """Special exception in case the proposed time is at the past."""
+
+    pass
 
 class PastDeadline(commands.CommandError):
     """Special exception in case the deadline is passed."""
