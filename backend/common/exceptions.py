@@ -140,8 +140,8 @@ class InvalidMpLink(commands.CommandError):
 
     pass
 
-class pastNow(commands.CommandError):
-    """Special exception in case the proposed time is at the past."""
+class TimeInThePast(commands.CommandError):
+    """Special exception in case the proposed time is in the past."""
 
     pass
 
