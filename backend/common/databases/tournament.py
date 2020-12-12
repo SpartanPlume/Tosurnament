@@ -74,7 +74,14 @@ class Tournament(Base):
         except KeyError:
             return None
 
-    def parse_date(self, date, date_formats=[], prefer_dates_from="current_period", relative_base="", to_timezone=""):
+    def parse_date(
+        self,
+        date,
+        date_formats=[],
+        prefer_dates_from="current_period",
+        relative_base=datetime.datetime.now(),
+        to_timezone="",
+    ):
         if self.utc:
             return dateparser.parse(
                 date,

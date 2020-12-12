@@ -23,12 +23,12 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Check function called before any command of the cog."""
         return self.admin_cog_check(ctx)
 
-    @commands.command(aliases=["stn"])  # pragma: no cover
+    @commands.command(aliases=["stn"])
     async def set_tournament_name(self, ctx, *, name: str):
         """Sets the tournament's name."""
         await self.set_tournament_values(ctx, {"name": name})
 
-    @commands.command(aliases=["sta"])  # pragma: no cover
+    @commands.command(aliases=["sta"])
     async def set_tournament_acronym(self, ctx, *, acronym: str):
         """Sets the tournament's acronym."""
         await self.set_tournament_values(ctx, {"acronym": acronym})
@@ -64,32 +64,32 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 brackets_string += "\n"
             await self.send_reply(ctx, ctx.command.name, "default", brackets_string)
 
-    @commands.command(aliases=["ssc"])  # pragma: no cover
+    @commands.command(aliases=["ssc"])
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the staff channel."""
         await self.set_tournament_values(ctx, {"staff_channel_id": channel.id})
 
-    @commands.command(aliases=["smnc"])  # pragma: no cover
+    @commands.command(aliases=["smnc"])
     async def set_match_notification_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the match notification channel."""
         await self.set_tournament_values(ctx, {"match_notification_channel_id": channel.id})
 
-    @commands.command(aliases=["srr"])  # pragma: no cover
+    @commands.command(aliases=["srr"])
     async def set_referee_role(self, ctx, *, role: discord.Role):
         """Sets the referee role."""
         await self.set_tournament_values(ctx, {"referee_role_id": role.id})
 
-    @commands.command(aliases=["ssr"])  # pragma: no cover
+    @commands.command(aliases=["ssr"])
     async def set_streamer_role(self, ctx, *, role: discord.Role):
         """Sets the streamer role."""
         await self.set_tournament_values(ctx, {"streamer_role_id": role.id})
 
-    @commands.command(aliases=["scr"])  # pragma: no cover
+    @commands.command(aliases=["scr"])
     async def set_commentator_role(self, ctx, *, role: discord.Role):
         """Sets the commentator role."""
         await self.set_tournament_values(ctx, {"commentator_role_id": role.id})
 
-    @commands.command(aliases=["spr"])  # pragma: no cover
+    @commands.command(aliases=["spr"])
     async def set_player_role(self, ctx, *, role: discord.Role):
         """Sets the player role."""
         await self.set_tournament_values(ctx, {"player_role_id": role.id})
@@ -276,7 +276,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         if not tournament.template_code:
             tournament.template_code = str(uuid.uuid4())
         settings_to_write = ""
-        for key, value in vars(tournament):
+        for key, value in vars(tournament).items():
             if key not in ["id", "template_code"] and not isinstance(value, bytes):
                 settings_to_write += key + "=" + value + "\n"
         with open("tournament_templates/" + tournament.template_code) as f:

@@ -13,3 +13,4 @@ omit =
     test/**
     common/api/osu.py
     common/api/challonge.py
+    /home/*
