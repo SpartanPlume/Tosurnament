@@ -214,6 +214,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_new_time
         if skip_deadline_validation:
             reschedule_deadline_hours = 0
+        if now > new_date:
+            raise tosurnament.TimeInThePast()
         if new_date.minute % 15 != 0:
             raise tosurnament.InvalidMinute()
         if new_date.hour == 0 and new_date.minute == 0:
@@ -474,6 +476,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await self.send_reply(ctx, ctx.command.name, "past_deadline_end")
         elif isinstance(error, tosurnament.SameDate):
             await self.send_reply(ctx, ctx.command.name, "same_date")
+        elif isinstance(error, tosurnament.TimeInThePast):
+            await self.send_reply(ctx, ctx.command.name, "past_now")
 
     async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
         """on_raw_reaction_add of the Tosurnament player module."""

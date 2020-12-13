@@ -14,6 +14,7 @@
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",
     "parameter": "<match_id> <datetime: MM/dd HH:mm>",
     "contact_referee": "\n\n%2, if you agree to this reschedule, write: `%0anr %3`",
+    "past_now": "Sorry, the requested time is in the past.",
     "impossible_reschedule": "Sorry, it is less than %1 hours before the **new requested date**, so the deadline is passed. $./contact_referee",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. $./contact_referee",
     "past_deadline_end": "Sorry, the requested time is after the final deadline. You can try contacting an admin.",
