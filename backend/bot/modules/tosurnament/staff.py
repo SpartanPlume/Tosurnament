@@ -212,13 +212,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     def format_take_match_string(self, string, match_ids):
         """Appends the match ids separated by a comma to the string."""
         if match_ids:
-            for i, match_id in enumerate(match_ids):
-                string += match_id
-                if i + 1 < len(match_ids):
-                    string += ", "
-                else:
-                    string += "\n"
-            return string
+            return string + ", ".join(str(match_id) for match_id in match_ids) + "\n"
         return ""
 
     def build_take_match_reply(self, user_details, take, invalid_match_ids):
@@ -237,7 +231,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         invalid_match_ids.remove(match_id)
                         continue
                 reply += self.format_take_match_string(
-                    self.get_string(command_name, "taken_match_ids", staff_title, staff_name), staff.taken_matches,
+                    self.get_string(command_name, "taken_match_ids", staff_title, staff_name),
+                    staff.taken_matches,
                 )
                 reply += self.format_take_match_string(
                     self.get_string(command_name, "not_taken_match_ids", staff_title, staff_name),
