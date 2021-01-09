@@ -102,52 +102,52 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         else:
             await self.set_tournament_values(ctx, {"team_captain_role_id": role.id})
 
-    @commands.command(aliases=["spt"])  # pragma: no cover
+    @commands.command(aliases=["spt"])
     async def set_ping_team(self, ctx, ping_team: bool):
         """Sets if team should be pinged or team captain should be pinged."""
         await self.set_tournament_values(ctx, {"reschedule_ping_team": ping_team})
 
-    @commands.command(aliases=["sprm"])  # pragma: no cover
+    @commands.command(aliases=["sprm"])
     async def set_post_result_message(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message": message})
 
-    @commands.command(aliases=["sprmt1ws"])  # pragma: no cover
+    @commands.command(aliases=["sprmt1ws"])
     async def set_post_result_message_team1_with_score(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_team1_with_score": message})
 
-    @commands.command(aliases=["sprmt2ws"])  # pragma: no cover
+    @commands.command(aliases=["sprmt2ws"])
     async def set_post_result_message_team2_with_score(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_team2_with_score": message})
 
-    @commands.command(aliases=["sprmml"])  # pragma: no cover
+    @commands.command(aliases=["sprmml"])
     async def set_post_result_message_mp_link(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_mp_link": message})
 
-    @commands.command(aliases=["sprmr"])  # pragma: no cover
+    @commands.command(aliases=["sprmr"])
     async def set_post_result_message_rolls(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_rolls": message})
 
-    @commands.command(aliases=["sprmb"])  # pragma: no cover
+    @commands.command(aliases=["sprmb"])
     async def set_post_result_message_bans(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_bans": message})
 
-    @commands.command(aliases=["sprmtb"])  # pragma: no cover
+    @commands.command(aliases=["sprmtb"])
     async def set_post_result_message_tb_bans(self, ctx, *, message: str = ""):
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_tb_bans": message})
 
-    @commands.command(aliases=["srdhbct"])  # pragma: no cover
+    @commands.command(aliases=["srdhbct"])
     async def set_reschedule_deadline_hours_before_current_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the current match time to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_current_time": hours})
 
-    @commands.command(aliases=["srdhbnt"])  # pragma: no cover
+    @commands.command(aliases=["srdhbnt"])
     async def set_reschedule_deadline_hours_before_new_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the new match time to reschedule a match."""
         await self.set_tournament_values(ctx, {"reschedule_deadline_hours_before_new_time": hours})
@@ -163,11 +163,11 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()
         await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
-    @commands.command(aliases=["snnsr"])  # pragma: no cover
+    @commands.command(aliases=["snnsr"])
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
         await self.set_tournament_values(ctx, {"notify_no_staff_reschedule": notify})
 
-    @commands.command(aliases=["su"])  # pragma: no cover
+    @commands.command(aliases=["su"])
     async def set_utc(self, ctx, utc: str):
         if utc:
             if not re.match(r"^[-\+]" + TIME_REGEX + r"$", utc):
@@ -178,7 +178,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()  # TODO better exception
         await self.set_tournament_values(ctx, {"utc": utc})
 
-    @commands.command(aliases=["srp"])  # pragma: no cover
+    @commands.command(aliases=["srp"])
     async def set_registration_phase(self, ctx, boolean: bool):
         await self.set_tournament_values(ctx, {"registration_phase": boolean})
 
@@ -247,21 +247,19 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 match_info.match_id.value,
             )
 
-    async def sync_a_spreadsheet(self, spreadsheet, spreadsheet_ids):
-        spreadsheet_id = spreadsheet.spreadsheet_id
-        if spreadsheet_id not in spreadsheet_ids:
-            await spreadsheet.get_spreadsheet(retry=True, force_sync=True)
-            spreadsheet_ids.append(spreadsheet_id)
-
     @commands.command(aliases=["ss", "sync_spreadsheets"])
     async def sync_spreadsheet(self, ctx):
         tournament = self.get_tournament(ctx.guild.id)
         spreadsheet_ids = []
         for bracket in tournament.brackets:
-            if bracket.schedules_spreadsheet:
-                await self.sync_a_spreadsheet(bracket.schedules_spreadsheet, spreadsheet_ids)
-            if bracket.players_spreadsheet:
-                await self.sync_a_spreadsheet(bracket.players_spreadsheet, spreadsheet_ids)
+            for spreadsheet_type in Bracket.get_spreadsheet_types().keys():
+                spreadsheet = bracket.get_spreadsheet_from_type(spreadsheet_type)
+                if not spreadsheet:
+                    continue
+                spreadsheet_id = spreadsheet.spreadsheet_id
+                if spreadsheet_id not in spreadsheet_ids:
+                    await spreadsheet.get_spreadsheet(retry=True, force_sync=True)
+                    spreadsheet_ids.append(spreadsheet_id)
         await self.send_reply(ctx, ctx.command.name, "success")
 
     @commands.command(aliases=["sts"])

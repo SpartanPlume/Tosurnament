@@ -4,6 +4,7 @@ All tests concerning the spreadsheet api module.
 
 import pytest
 from unittest import mock
+import hypothesis
 from hypothesis import strategies, given
 
 import socket
@@ -62,6 +63,7 @@ def test_spreadsheet_retrieve_spreadsheet(mock_spreadsheet_get):
     assert error.value.code == 408
 
 
+@hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck(3)])
 @given(table1=table_strategy, table2=table_strategy)
 @mock.patch(MODULE_TO_TEST + ".get_spreadsheet_with_values")
 def test_spreadsheet_retrieve_spreadsheet_with_given(mock_spreadsheet_get, table1, table2):
