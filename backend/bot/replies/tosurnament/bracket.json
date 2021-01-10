@@ -29,6 +29,12 @@
     "success": "Challonge set to `%1`.",
     "usage": "Usage: `%0set_challonge $./parameter`\n\nExample: `%0set_challonge http://challonge.com/testandroid`"
   },
+  "set_registration_end": {
+    "help": "Sets the registration end date",
+    "parameter": "<date>",
+    "success": "Registration end date set to `%1`.",
+    "usage": "Usage: `%0set_registration_end $./parameter`\n\nExample: `%0set_registration_end this monday 00:00 UTC`"
+  },
   "clear_player_role": {
     "help": "Removes the player role of users not present in the challonge",
     "success": "__Bracket:__ **%1**\n\n__Player's role removed:__ %2\n__Player's role kept:__ %3%4",
