@@ -6,7 +6,7 @@ import pytest
 
 from discord.ext import commands
 from bot.modules import module as base
-from bot.modules.tosurnament import bracket
+from bot.modules.tosurnament import bracket as bracket_module
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import PlayersSpreadsheet
@@ -14,71 +14,71 @@ from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.bracket"
-BRACKET_NAME = "Bracket name"
-BRACKET_NAME_2 = "Bracket name 2"
-SPREADSHEET_ID = "abcd1234"
-SHEET_NAME = "a sheet name"
-CHALLONGE_ID = "challonge_id"
-CHALLONGE_ID_URL = "https://www.challonge.com/" + CHALLONGE_ID + "/"
+
+
+def init_mocks():
+    mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    bracket = Bracket(id=1, tournament_id=1)
+    mock_bot.session.add_stub(bracket)
+    cog = tosurnament_mock.mock_cog(bracket_module.get_class(mock_bot))
+    return cog, mock_bot, bracket
 
 
 @pytest.mark.asyncio
 async def test_set_bracket_values(mocker):
     """Puts the input values into the corresponding bracket."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, name=BRACKET_NAME))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
-
-    await cog.set_bracket_values(tosurnament_mock.CtxMock(mock_bot), {"name": BRACKET_NAME_2})
+    cog, mock_bot, bracket = init_mocks()
+    bracket_name = "Bracket name"
+    assert bracket.name != bracket_name
+    await cog.set_bracket_values(tosurnament_mock.CtxMock(mock_bot), {"name": bracket_name})
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(Bracket(tournament_id=1, name=BRACKET_NAME_2))
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, name=bracket_name))
     )
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", BRACKET_NAME_2)
+    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", bracket_name)
 
 
 @pytest.mark.asyncio
 async def test_set_challonge(mocker):
     """Sets the challonge."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
-
-    await cog.set_challonge(cog, tosurnament_mock.CtxMock(mock_bot), challonge_tournament=CHALLONGE_ID_URL)
+    cog, mock_bot, bracket = init_mocks()
+    challonge_id = "challonge_id"
+    challonge_id_url = "https://www.challonge.com/" + challonge_id + "/"
+    assert bracket.challonge != challonge_id
+    await cog.set_challonge(cog, tosurnament_mock.CtxMock(mock_bot), challonge_tournament=challonge_id_url)
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=CHALLONGE_ID))
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=challonge_id))
     )
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", CHALLONGE_ID)
 
 
 @pytest.mark.asyncio
 async def test_set_bracket_spreadsheet(mocker):
     """Sets bracket spreadsheets."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+    cog, mock_bot, bracket = init_mocks()
     mock_ctx = tosurnament_mock.CtxMock(mock_bot)
+    spreadsheet_id = "abcd1234"
+    sheet_name = "a sheet name"
+    assert bracket.players_spreadsheet_id <= 0
+    assert bracket.schedules_spreadsheet_id <= 0
 
-    await cog.set_bracket_spreadsheet(mock_ctx, "players", SPREADSHEET_ID, "")
+    await cog.set_bracket_spreadsheet(mock_ctx, "players", spreadsheet_id, "")
     update_expected = [
         mocker.call(tosurnament_mock.Matcher(Bracket(tournament_id=1, players_spreadsheet_id=1))),
-        mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=SPREADSHEET_ID))),
+        mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=spreadsheet_id))),
     ]
     assert mock_bot.session.update.call_args_list == update_expected
-    await cog.set_bracket_spreadsheet(mock_ctx, "players", SPREADSHEET_ID, SHEET_NAME)
+    await cog.set_bracket_spreadsheet(mock_ctx, "players", spreadsheet_id, sheet_name)
     update_expected = [
-        mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=SPREADSHEET_ID, sheet_name=SHEET_NAME))),
+        mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name))),
     ]
     assert mock_bot.session.update.call_args_list[2:] == update_expected
 
-    await cog.set_bracket_spreadsheet(mock_ctx, "schedules", SPREADSHEET_ID, "")
+    await cog.set_bracket_spreadsheet(mock_ctx, "schedules", spreadsheet_id, "")
     update_expected = [
         mocker.call(
             tosurnament_mock.Matcher(Bracket(tournament_id=1, players_spreadsheet_id=1, schedules_spreadsheet_id=1))
         ),
-        mocker.call(tosurnament_mock.Matcher(SchedulesSpreadsheet(spreadsheet_id=SPREADSHEET_ID))),
+        mocker.call(tosurnament_mock.Matcher(SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id))),
     ]
     assert mock_bot.session.update.call_args_list[3:] == update_expected
 
@@ -86,23 +86,39 @@ async def test_set_bracket_spreadsheet(mocker):
 @pytest.mark.asyncio
 async def test_set_spreadsheet_values(mocker):
     """Sets spreadsheet values."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1, players_spreadsheet_id=1))
-    mock_bot.session.add_stub(SchedulesSpreadsheet(id=1))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+    cog, mock_bot, bracket = init_mocks()
     mock_ctx = tosurnament_mock.CtxMock(mock_bot)
+    bracket.players_spreadsheet_id = 1
+    bracket.schedules_spreadsheet_id = 1
+    schedules_spreadsheet = SchedulesSpreadsheet(id=1)
+    mock_bot.session.add_stub(schedules_spreadsheet)
+    spreadsheet_id = "abcd1234"
+    sheet_name = "a sheet name"
 
-    await cog.set_schedules_spreadsheet_values(mock_ctx, {"sheet_name": SHEET_NAME})
+    assert schedules_spreadsheet.spreadsheet_id != spreadsheet_id
+    await cog.set_spreadsheet_values(mock_ctx, "schedules", {"spreadsheet_id": spreadsheet_id})
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(SchedulesSpreadsheet(sheet_name=SHEET_NAME))
+        tosurnament_mock.Matcher(SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id))
     )
 
-    with pytest.raises(base.NoSpreadsheet):
-        await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": SHEET_NAME})
+    assert schedules_spreadsheet.sheet_name != sheet_name
+    await cog.set_schedules_spreadsheet_values(mock_ctx, {"sheet_name": sheet_name})
+    update_expected = [
+        mocker.call(
+            tosurnament_mock.Matcher(SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name))
+        )
+    ]
+    assert mock_bot.session.update.call_args_list[1:] == update_expected
 
-    mock_bot.session.add_stub(PlayersSpreadsheet(id=1))
-    await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": SHEET_NAME})
+    with pytest.raises(base.NoSpreadsheet):
+        await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": sheet_name})
+
+    players_spreadsheet = PlayersSpreadsheet(id=1)
+    mock_bot.session.add_stub(players_spreadsheet)
+    assert players_spreadsheet.sheet_name != sheet_name
+    await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": sheet_name})
+    update_expected = [mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(sheet_name=sheet_name)))]
+    assert mock_bot.session.update.call_args_list[2:] == update_expected
 
 
 @pytest.mark.asyncio
@@ -114,11 +130,7 @@ async def test_clear_player_role(mocker):
 @pytest.mark.asyncio
 async def test_copy_bracket_not_enough_bracket(mocker):
     """Copies a bracket settings to another one, but there is only one bracket."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
-
+    cog, mock_bot, _ = init_mocks()
     with pytest.raises(commands.UserInputError):
         await cog.copy_bracket(cog, tosurnament_mock.CtxMock(mock_bot), 1, 2)
 
@@ -126,11 +138,8 @@ async def test_copy_bracket_not_enough_bracket(mocker):
 @pytest.mark.asyncio
 async def test_copy_bracket_wrong_index(mocker):
     """Copies a bracket settings to another one, but input indexes are wrong."""
-    mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
-    mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
+    cog, mock_bot, _ = init_mocks()
     mock_bot.session.add_stub(Bracket(id=2, tournament_id=1))
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
 
     with pytest.raises(commands.UserInputError):
         await cog.copy_bracket(cog, tosurnament_mock.CtxMock(mock_bot), 1, 3)
@@ -148,17 +157,18 @@ async def test_copy_bracket(mocker):
     mock_bot.session.add_stub(
         Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1, players_spreadsheet_id=1, post_result_channel_id=1)
     )
+    sheet_name = "a sheet name"
     schedules_spreadsheet = SchedulesSpreadsheet(
-        id=1, sheet_name=SHEET_NAME + " s", range_match_id="B2:B", range_team1="C2:C"
+        id=1, sheet_name=sheet_name + " s", range_match_id="B2:B", range_team1="C2:C"
     )
     mock_bot.session.add_stub(schedules_spreadsheet)
 
     mock_bot.session.add_stub(Bracket(id=2, tournament_id=1, schedules_spreadsheet_id=2))
     mock_bot.session.add_stub(
-        SchedulesSpreadsheet(id=2, sheet_name=SHEET_NAME, range_match_id="A1:A", range_score_team1="B1:B")
+        SchedulesSpreadsheet(id=2, sheet_name=sheet_name, range_match_id="A1:A", range_score_team1="B1:B")
     )
 
-    cog = tosurnament_mock.mock_cog(bracket.get_class(mock_bot))
+    cog = tosurnament_mock.mock_cog(bracket_module.get_class(mock_bot))
     mock_ctx = tosurnament_mock.CtxMock(mock_bot)
 
     await cog.copy_bracket(cog, mock_ctx, 1, 2)
@@ -168,7 +178,7 @@ async def test_copy_bracket(mocker):
     assert mock_bot.session.tables[SchedulesSpreadsheet.__tablename__][1] != tosurnament_mock.Matcher(
         schedules_spreadsheet
     )
-    schedules_spreadsheet.sheet_name = SHEET_NAME
+    schedules_spreadsheet.sheet_name = sheet_name
     assert mock_bot.session.tables[SchedulesSpreadsheet.__tablename__][1] == tosurnament_mock.Matcher(
         schedules_spreadsheet
     )
