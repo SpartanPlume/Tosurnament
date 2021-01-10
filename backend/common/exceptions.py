@@ -140,10 +140,12 @@ class InvalidMpLink(commands.CommandError):
 
     pass
 
+
 class TimeInThePast(commands.CommandError):
     """Special exception in case the proposed time is in the past."""
 
     pass
+
 
 class PastDeadline(commands.CommandError):
     """Special exception in case the deadline is passed."""
@@ -242,3 +244,9 @@ class NoChallonge(commands.CommandError):
     def __init__(self, bracket):
         super().__init__()
         self.bracket = bracket
+
+
+class RegistrationEnded(commands.CommandError):
+    """Special exception in case someone tries to register while the registration phase ended."""
+
+    pass

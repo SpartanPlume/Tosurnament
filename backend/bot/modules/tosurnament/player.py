@@ -45,6 +45,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
             return
         bracket = tournament.current_bracket
+        if bracket.registration_end_date:
+            registration_end_date = datetime.datetime.strptime(
+                bracket.registration_end_date, tosurnament.DATABASE_DATE_FORMAT
+            )
+            if datetime.datetime.now() > registration_end_date:
+                raise tosurnament.RegistrationEnded()
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet.range_timezone:
             if not timezone:
@@ -84,6 +90,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         """Error handler of register function."""
         if isinstance(error, InvalidTimezone):
             await self.send_reply(ctx, ctx.command.name, "invalid_timezone", error.timezone)
+        elif isinstance(error, tosurnament.RegistrationEnded):
+            await self.send_reply(ctx, ctx.command.name, "registration_ended")
 
     async def is_a_player(self, bracket, user_name):
         """Returns if the user is a player in the bracket and its team_info if he is."""

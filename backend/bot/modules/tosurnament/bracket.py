@@ -46,6 +46,19 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         challonge_tournament = challonge.extract_tournament_id(challonge_tournament)
         await self.set_bracket_values(ctx, {"challonge": challonge_tournament})
 
+    @commands.command(aliases=["sre"])
+    async def set_registration_end(self, ctx, *, date: str):
+        """Sets the registration end date."""
+        tournament = self.get_tournament(ctx.guild.id)
+        try:
+            new_date = tournament.parse_date(date, prefer_dates_from="future")
+        except ValueError:
+            raise commands.UserInputError()
+        if not new_date:
+            raise commands.UserInputError()
+        new_date_string = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+        await self.set_bracket_values(ctx, {"registration_end_date": new_date_string})
+
     def is_player_in_challonge(self, member, teams_info, participants):
         user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
         if teams_info:

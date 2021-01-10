@@ -26,6 +26,7 @@ class Bracket(Base):
     schedules_spreadsheet_id = Id(-1)
     post_result_channel_id = int()
     current_round = str()
+    registration_end_date = str()
     # TODO set_all_post_result_channel
 
     def get_spreadsheet_from_type(self, spreadsheet_type):

@@ -4,8 +4,11 @@ All tests concerning the Tosurnament bracket module.
 
 import pytest
 
+import datetime
+
 from discord.ext import commands
 from bot.modules import module as base
+from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament import bracket as bracket_module
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
@@ -48,6 +51,30 @@ async def test_set_challonge(mocker):
     await cog.set_challonge(cog, tosurnament_mock.CtxMock(mock_bot), challonge_tournament=challonge_id_url)
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=challonge_id))
+    )
+
+
+@pytest.mark.asyncio
+async def test_set_registration_end_date_invalid_date(mocker):
+    """Sets the registration end date."""
+    cog, mock_bot, bracket = init_mocks()
+    date = "abcdef"
+    with pytest.raises(commands.UserInputError):
+        await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
+
+
+@pytest.mark.asyncio
+async def test_set_registration_end_date(mocker):
+    """Sets the registration end date."""
+    cog, mock_bot, bracket = init_mocks()
+    date = "1 week"
+    assert bracket.registration_end_date != date
+    await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
+    new_date = datetime.datetime.now() + datetime.timedelta(days=7)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(
+            Bracket(tournament_id=1, registration_end_date=new_date.strftime(tosurnament.DATABASE_DATE_FORMAT))
+        )
     )
 
 
