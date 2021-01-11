@@ -3,6 +3,7 @@
 from mysqldb_wrapper import Base, Id
 from common.databases.players_spreadsheet import PlayersSpreadsheet
 from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.qualifiers_spreadsheet import QualifiersSpreadsheet
 from common.api import challonge
 
 
@@ -15,6 +16,7 @@ class Bracket(Base):
         super().__init__(session, *args, **kwargs)
         self._players_spreadsheet = None
         self._schedules_spreadsheet = None
+        self._qualifiers_spreadsheet = None
         self._challonge_tournament = None
 
     id = Id()
@@ -24,6 +26,7 @@ class Bracket(Base):
     challonge = str()
     players_spreadsheet_id = Id(-1)
     schedules_spreadsheet_id = Id(-1)
+    qualifiers_spreadsheet_id = Id(-1)
     post_result_channel_id = int()
     current_round = str()
     registration_end_date = str()
@@ -44,7 +47,7 @@ class Bracket(Base):
 
     @classmethod
     def get_spreadsheet_types(cls):
-        return {"players": PlayersSpreadsheet, "schedules": SchedulesSpreadsheet}
+        return {"players": PlayersSpreadsheet, "schedules": SchedulesSpreadsheet, "qualifiers": QualifiersSpreadsheet}
 
     @property
     def players_spreadsheet(self):
@@ -65,6 +68,16 @@ class Bracket(Base):
                 .first()
             )
         return self._schedules_spreadsheet
+
+    @property
+    def qualifiers_spreadsheet(self):
+        if self._qualifiers_spreadsheet is None:
+            self._qualifiers_spreadsheet = (
+                self._session.query(QualifiersSpreadsheet)
+                .where(QualifiersSpreadsheet.id == self.qualifiers_spreadsheet_id)
+                .first()
+            )
+        return self._qualifiers_spreadsheet
 
     @property
     def challonge_tournament(self):

@@ -34,5 +34,14 @@
     "invalid_timezone": "`%1` is an invalid timezone.",
     "not_supported_yet": "This command does not support team tournaments or multiple brackets tournament yet.",
     "registration_ended": "The registration phase for this tournament is over."
+  },
+  "register_to_lobby": {
+    "help": "Registers to a qualifier lobby",
+    "parameter": "<lobby_id>",
+    "usage": "Usage: `%0register_to_lobby $./parameter`\n\nExample: `%0register_to_lobby Q1`",
+    "success": "You have been registered to the lobby `%1` successfully.",
+    "already_in_lobby": "You are already in the selected lobby.",
+    "lobby_not_found": "This lobby does not exist.",
+    "lobby_is_full": "This lobby is full."
   }
 }

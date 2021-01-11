@@ -7,7 +7,14 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DuplicateMatchId, DateIsNotString
+from common.databases.schedules_spreadsheet import (
+    MatchInfo,
+    MatchIdNotFound,
+    DuplicateMatchId,
+    DateIsNotString,
+    SchedulesSpreadsheet,
+)
+from common.databases.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
 from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
@@ -184,29 +191,54 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 role_store.not_taken_matches.append(match_info.match_id.value)
         return write_cells
 
+    def take_lobby_for_roles(self, qualifiers_spreadsheet, lobby_info, user_details, take):
+        """Takes or drops a match of a bracket for specified roles, if possible."""
+        staff_name = user_details.name.lower()
+        role_cell = lobby_info.referee
+        staffs = list(filter(None, [staff.strip().lower() for staff in role_cell.value.split("/")]))
+        if take and staff_name not in staffs:
+            staffs.append(user_details.name)
+            role_cell.value = " / ".join(staffs)
+            user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
+            return True
+        elif not take and staff_name in staffs:
+            staffs.remove(staff_name)
+            role_cell.value = " / ".join(staffs)
+            user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
+            return True
+        user_details.referee.not_taken_matches.append(lobby_info.lobby_id.value)
+        return False
+
     @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
         exceptions=[DuplicateMatchId, DateIsNotString]
     )
     async def take_or_drop_match_in_spreadsheets(
-        self, match_ids, user_details, take, left_match_ids, *schedules_spreadsheets, retry=False
+        self, match_ids, user_details, take, left_match_ids, *spreadsheets, retry=False
     ):
         """Takes or drops matches of a bracket, if possible."""
         user_details.clear_matches()
         left_match_ids.clear()
         left_match_ids.update(match_ids)
-        for schedules_spreadsheet in schedules_spreadsheets:
-            await schedules_spreadsheet.get_spreadsheet()
+        for spreadsheet in spreadsheets:
+            await spreadsheet.get_spreadsheet()
             for match_id in left_match_ids.copy():
-                try:
-                    match_info = MatchInfo.from_id(schedules_spreadsheet, match_id, False)
-                except MatchIdNotFound:
-                    continue
-                self.take_match_for_roles(schedules_spreadsheet, match_info, user_details, take)
+                if isinstance(spreadsheet, SchedulesSpreadsheet):
+                    try:
+                        match_info = MatchInfo.from_id(spreadsheet, match_id, False)
+                    except MatchIdNotFound:
+                        continue
+                    self.take_match_for_roles(spreadsheet, match_info, user_details, take)
+                elif user_details.referee:
+                    try:
+                        lobby_info = LobbyInfo.from_id(spreadsheet, match_id, False)
+                    except LobbyIdNotFound:
+                        continue
+                    self.take_lobby_for_roles(spreadsheet, lobby_info, user_details, take)
                 left_match_ids.remove(match_id)
         if left_match_ids and not retry:
             return False
-        for schedules_spreadsheet in schedules_spreadsheets:
-            self.add_update_spreadsheet_background_task(schedules_spreadsheet)
+        for spreadsheet in spreadsheets:
+            self.add_update_spreadsheet_background_task(spreadsheet)
         return True
 
     def format_take_match_string(self, string, match_ids):
@@ -251,12 +283,16 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         tournament = self.get_tournament(guild_id)
         invalid_match_ids = set()
         schedules_spreadsheets = []
+        qualifiers_spreadsheets = []
         for bracket in tournament.brackets:
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if schedules_spreadsheet:
                 schedules_spreadsheets.append(schedules_spreadsheet)
+            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
+            if qualifiers_spreadsheet:
+                qualifiers_spreadsheets.append(qualifiers_spreadsheet)
         await self.take_or_drop_match_in_spreadsheets(
-            match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets
+            match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets, *qualifiers_spreadsheets
         )
         await channel.send(self.build_take_match_reply(user_details, take, invalid_match_ids))
 

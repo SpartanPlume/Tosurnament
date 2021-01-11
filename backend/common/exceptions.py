@@ -250,3 +250,21 @@ class RegistrationEnded(commands.CommandError):
     """Special exception in case someone tries to register while the registration phase ended."""
 
     pass
+
+
+class AlreadyInLobby(commands.CommandError):
+    """Special exception in case someone tries to register to a lobby he's already in."""
+
+    pass
+
+
+class LobbyNotFound(commands.CommandError):
+    """Special exception in case someone tries to register to a lobby that does not exist."""
+
+    pass
+
+
+class LobbyIsFull(commands.CommandError):
+    """Special exception in case someone tries to register to a lobby that is full."""
+
+    pass

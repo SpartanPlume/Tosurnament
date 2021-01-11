@@ -9,6 +9,7 @@ from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.players_spreadsheet import TeamInfo, TeamNotFound
 from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
+from common.databases.qualifiers_spreadsheet import LobbyInfo
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
@@ -92,6 +93,73 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await self.send_reply(ctx, ctx.command.name, "invalid_timezone", error.timezone)
         elif isinstance(error, tosurnament.RegistrationEnded):
             await self.send_reply(ctx, ctx.command.name, "registration_ended")
+
+    @commands.command(aliases=["rtl"])
+    async def register_to_lobby(self, ctx, *, lobby_id: str):  # TODO: improve, was in a rush =)
+        """Registers to a qualifier lobby."""
+        tournament = self.get_tournament(ctx.guild.id)
+        user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+        for bracket in tournament.brackets:
+            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
+            if not qualifiers_spreadsheet:
+                continue
+            await qualifiers_spreadsheet.get_spreadsheet()
+            lobby_id_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                qualifiers_spreadsheet.range_lobby_id
+            )
+            lobby_id_cells = [lobby_id_cell for lobby_id_cell in lobby_id_cells if lobby_id_cell.value]
+            players_spreadsheet = bracket.players_spreadsheet
+            if players_spreadsheet:
+                await players_spreadsheet.get_spreadsheet()
+                team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
+                team_name = team_info.team_name.value
+            else:
+                if not user.verified:
+                    continue
+                team_name = user.name
+            lobby_infos = []
+            for lobby_id_cell in lobby_id_cells:
+                lobby_infos.append(
+                    LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell, filled_only=False)
+                )
+            lobby_found = False
+            for lobby_info in lobby_infos:
+                if lobby_info.lobby_id.value.lower() == lobby_id.lower():
+                    first_empty_cell = None
+                    for team_cell in lobby_info.teams:
+                        if not first_empty_cell and not team_cell.value:
+                            first_empty_cell = team_cell
+                        if team_name.lower() == team_cell.value.lower():
+                            raise tosurnament.AlreadyInLobby()
+                    if not first_empty_cell:
+                        raise tosurnament.LobbyIsFull()
+                    first_empty_cell.value = team_name
+                    lobby_found = True
+                    break
+            if not lobby_found:
+                continue
+            for lobby_info in lobby_infos:
+                for team_cell in lobby_info.teams:
+                    if (
+                        lobby_info.lobby_id.value.lower() != lobby_id.lower()
+                        and team_name.lower() == team_cell.value.lower()
+                    ):
+                        team_cell.value = ""
+                        break
+            self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
+            await self.send_reply(ctx, ctx.command.name, "success", lobby_id)
+            return
+        raise tosurnament.LobbyNotFound()
+
+    @register_to_lobby.error
+    async def register_to_lobby_handler(self, ctx, error):
+        """Error handler of register_to_lobby function."""
+        if isinstance(error, tosurnament.AlreadyInLobby):
+            await self.send_reply(ctx, ctx.command.name, "already_in_lobby")
+        elif isinstance(error, tosurnament.LobbyNotFound):
+            await self.send_reply(ctx, ctx.command.name, "lobby_not_found")
+        elif isinstance(error, tosurnament.LobbyIsFull):
+            await self.send_reply(ctx, ctx.command.name, "lobby_is_full")
 
     async def is_a_player(self, bracket, user_name):
         """Returns if the user is a player in the bracket and its team_info if he is."""

@@ -541,14 +541,34 @@ def find_corresponding_cell_best_effort(cells, ys, default_y, to_string=False):
     return default_cell
 
 
+def find_corresponding_qualifier_cell_best_effort(cells, base_cell, max_difference_with_base=0, to_string=False):
+    default_cell = Cell(-1, -1, "")
+    for y in base_cell.y_merge_range:
+        for row in cells:
+            for cell in row:
+                if cell.x <= base_cell.x:
+                    continue
+                if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
+                    continue
+                if to_string:
+                    cell.change_value_to_string()
+                if cell.y == y and cell.value:
+                    return cell
+                elif cell.y == base_cell.y and default_cell.x == -1:
+                    default_cell = cell
+    return default_cell
+
+
 def find_corresponding_cell_best_effort_from_range(spreadsheet, range_name, base_cell, to_string=False):
     range_cells = spreadsheet.get_range(range_name)
-    corresponding_cell = find_corresponding_cell_best_effort(range_cells, [base_cell.y], base_cell.y, to_string)
+    corresponding_cell = find_corresponding_cell_best_effort(
+        range_cells, base_cell.y_merge_range, base_cell.y, to_string
+    )
     if corresponding_cell.x == -1 and range_name:
         worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
         cells = worksheet.cells
         splitted_range = range_name.split(":")[0]
-        column, _, _ = re.split(r"(\d+)", splitted_range)  # TODO: handle all kind of ranges
+        column = re.split(r"(\d+)", splitted_range)[0]  # TODO: handle all kind of ranges
         column = from_letter_base(column)
         while len(cells) <= base_cell.y:  # TODO: handle different y from base_cell
             cells.append([])
@@ -570,6 +590,30 @@ def find_corresponding_cells_best_effort(cells, ys, default_y, filled_only=True,
                     if not filled_only or cell.value:
                         corresponding_cells.append(cell)
                 if cell.y == default_y:
+                    default_cells.append(cell)
+    if not corresponding_cells:
+        return default_cells
+    return corresponding_cells
+
+
+def find_corresponding_qualifier_cells_best_effort(
+    cells, base_cell, max_difference_with_base=0, filled_only=True, to_string=False
+):
+    default_cells = []
+    corresponding_cells = []
+    for y in base_cell.y_merge_range:
+        for row in cells:
+            for cell in row:
+                if cell.x <= base_cell.x:
+                    continue
+                if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
+                    continue
+                if to_string:
+                    cell.change_value_to_string()
+                if cell.y == y:
+                    if not filled_only or cell.value:
+                        corresponding_cells.append(cell)
+                if cell.y == base_cell.y:
                     default_cells.append(cell)
     if not corresponding_cells:
         return default_cells

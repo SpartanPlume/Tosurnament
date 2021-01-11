@@ -251,6 +251,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         """Sets the schedules spreadsheet."""
         await self.set_bracket_spreadsheet(ctx, "schedules", spreadsheet_id, sheet_name)
 
+    @commands.command(aliases=["sqs"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet(self, ctx, spreadsheet_id: str, *, sheet_name: str = ""):
+        """Sets the qualifiers spreadsheet."""
+        await self.set_bracket_spreadsheet(ctx, "qualifiers", spreadsheet_id, sheet_name)
+
     async def set_bracket_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
@@ -433,6 +438,46 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_timezone": cell_range})
 
+    @commands.command(aliases=["sqssn"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
+        """Sets the sheet name of the qualifiers spreadsheet."""
+        await self.set_qualifiers_spreadsheet_values(ctx, {"sheet_name": sheet_name})
+
+    @commands.command(aliases=["sqsrli"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_range_lobby_id(self, ctx, *, cell_range: str):
+        """Sets the qualifiers spreadsheet range lobby id."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_spreadsheet_values(ctx, {"range_lobby_id": cell_range})
+
+    @commands.command(aliases=["sqsrts"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_range_teams(self, ctx, *, cell_range: str):
+        """Sets the qualifiers spreadsheet range teams."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_spreadsheet_values(ctx, {"range_teams": cell_range})
+
+    @commands.command(aliases=["sqsrr"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_range_referee(self, ctx, *, cell_range: str):
+        """Sets the qualifiers spreadsheet range referee."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_spreadsheet_values(ctx, {"range_referee": cell_range})
+
+    @commands.command(aliases=["sqsrd"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_range_date(self, ctx, *, cell_range: str):
+        """Sets the qualifiers spreadsheet range date."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_spreadsheet_values(ctx, {"range_date": cell_range})
+
+    @commands.command(aliases=["sqsrt"])  # pragma: no cover
+    async def set_qualifiers_spreadsheet_range_time(self, ctx, *, cell_range: str):
+        """Sets the qualifiers spreadsheet range time."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_spreadsheet_values(ctx, {"range_time": cell_range})
+
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         await self.set_spreadsheet_values(ctx, "schedules", values)
@@ -440,6 +485,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     async def set_players_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         await self.set_spreadsheet_values(ctx, "players", values)
+
+    async def set_qualifiers_spreadsheet_values(self, ctx, values):
+        """Puts the input values into the corresponding bracket."""
+        await self.set_spreadsheet_values(ctx, "qualifiers", values)
 
     async def set_spreadsheet_values(self, ctx, spreadsheet_type, values):
         tournament = self.get_tournament(ctx.guild.id)

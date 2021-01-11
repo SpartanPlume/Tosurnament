@@ -182,6 +182,36 @@ class TeamInfo:
         return team_info
 
     @staticmethod
+    def from_discord_id(players_spreadsheet, discord_id):
+        discord_id = str(discord_id)
+        discord_id_cells = players_spreadsheet.spreadsheet.find_cells(players_spreadsheet.range_discord_id, discord_id)
+        if not discord_id_cells:
+            raise TeamNotFound(discord_id)
+        discord_id_cell = discord_id_cells[0]
+        return TeamInfo.from_discord_id_cell(players_spreadsheet, discord_id_cell)
+
+    @staticmethod
+    def from_discord_id_cell(players_spreadsheet, discord_id_cell):
+        if players_spreadsheet.range_team_name:
+            team_name_cell = find_corresponding_cell_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_team_name,
+                discord_id_cell,
+            )
+            if team_name_cell.x == -1:
+                raise TeamNotFound(discord_id_cell.value)
+            return TeamInfo.from_team_name_cell(players_spreadsheet, team_name_cell)
+        else:
+            player_cell = find_corresponding_cell_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_team,
+                discord_id_cell,
+            )
+            if player_cell.x == -1:
+                raise TeamNotFound(discord_id_cell.value)
+            return TeamInfo.from_player_cell(players_spreadsheet, player_cell)
+
+    @staticmethod
     def from_team_name(players_spreadsheet, team_name):
         team_name = str(team_name)
         if not players_spreadsheet.range_team_name:
