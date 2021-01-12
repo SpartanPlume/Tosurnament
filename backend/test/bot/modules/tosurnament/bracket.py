@@ -42,6 +42,52 @@ async def test_set_bracket_values(mocker):
 
 
 @pytest.mark.asyncio
+async def test_set_bracket_name(mocker):
+    """Sets the bracket name."""
+    cog, mock_bot, bracket = init_mocks()
+    bracket_name = "Bracket name"
+    assert bracket.name != bracket_name
+    await cog.set_bracket_name(cog, tosurnament_mock.CtxMock(mock_bot), name=bracket_name)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, name=bracket_name))
+    )
+
+
+@pytest.mark.asyncio
+async def test_set_bracket_role(mocker):
+    """Sets the bracket role."""
+    cog, mock_bot, bracket = init_mocks()
+    role = tosurnament_mock.RoleMock("role", 324987)
+    assert bracket.role_id != role.id
+    await cog.set_bracket_role(cog, tosurnament_mock.CtxMock(mock_bot), role=role)
+    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Bracket(tournament_id=1, role_id=role.id)))
+
+
+@pytest.mark.asyncio
+async def test_set_current_bracket_round(mocker):
+    """Sets the round of the current bracket."""
+    cog, mock_bot, bracket = init_mocks()
+    current_round = "RO64"
+    assert bracket.current_round != current_round
+    await cog.set_current_bracket_round(cog, tosurnament_mock.CtxMock(mock_bot), current_round=current_round)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, current_round=current_round))
+    )
+
+
+@pytest.mark.asyncio
+async def test_set_post_result_channel(mocker):
+    """Sets the post result channel."""
+    cog, mock_bot, bracket = init_mocks()
+    channel = tosurnament_mock.ChannelMock(324769)
+    assert bracket.post_result_channel_id != channel.id
+    await cog.set_post_result_channel(cog, tosurnament_mock.CtxMock(mock_bot), channel=channel)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, post_result_channel_id=channel.id))
+    )
+
+
+@pytest.mark.asyncio
 async def test_set_challonge(mocker):
     """Sets the challonge."""
     cog, mock_bot, bracket = init_mocks()
@@ -59,6 +105,16 @@ async def test_set_registration_end_date_invalid_date(mocker):
     """Sets the registration end date."""
     cog, mock_bot, bracket = init_mocks()
     date = "abcdef"
+    with pytest.raises(commands.UserInputError):
+        await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
+
+
+@pytest.mark.asyncio
+async def test_set_registration_end_date_value_error(mocker):
+    """Sets the registration end date."""
+    cog, mock_bot, bracket = init_mocks()
+    mocker.patch("common.databases.tournament.dateparser.parse", mocker.Mock(side_effect=ValueError()))
+    date = "1 week"
     with pytest.raises(commands.UserInputError):
         await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
 
@@ -146,6 +202,18 @@ async def test_set_spreadsheet_values(mocker):
     await cog.set_players_spreadsheet_values(mock_ctx, {"sheet_name": sheet_name})
     update_expected = [mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(sheet_name=sheet_name)))]
     assert mock_bot.session.update.call_args_list[2:] == update_expected
+
+
+@pytest.mark.asyncio
+async def test_set_schedules_spreadsheet_sheet_name(mocker):
+    """Sets the schedules spreasheet's sheet name."""
+    cog, mock_bot, bracket = init_mocks()
+    sheet_name = "a sheet name"
+    assert bracket.sheet_name != sheet_name
+    await cog.set_schedules_spreadsheet_sheet_name(cog, tosurnament_mock.CtxMock(mock_bot), sheet_name=sheet_name)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, sheet_name=sheet_name))
+    )
 
 
 @pytest.mark.asyncio

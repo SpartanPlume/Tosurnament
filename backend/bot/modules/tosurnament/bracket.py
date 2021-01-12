@@ -20,22 +20,22 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         """Check function called before any command of the cog."""
         return self.admin_cog_check(ctx)
 
-    @commands.command(aliases=["sbn"])  # pragma: no cover
+    @commands.command(aliases=["sbn"])
     async def set_bracket_name(self, ctx, *, name: str):
         """Modifies the current bracket's name."""
         await self.set_bracket_values(ctx, {"name": name})
 
-    @commands.command(aliases=["sbr"])  # pragma: no cover
+    @commands.command(aliases=["sbr"])
     async def set_bracket_role(self, ctx, *, role: discord.Role):
         """Modifies the current bracket's role."""
         await self.set_bracket_values(ctx, {"role_id": role.id})
 
-    @commands.command(aliases=["scbr"])  # pragma: no cover
+    @commands.command(aliases=["scbr"])
     async def set_current_bracket_round(self, ctx, *, current_round: str = ""):
         """Sets the round of the current bracket."""
         await self.set_bracket_values(ctx, {"current_round": current_round})
 
-    @commands.command(aliases=["sprc"])  # pragma: no cover
+    @commands.command(aliases=["sprc"])
     async def set_post_result_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the post result's channel."""
         await self.set_bracket_values(ctx, {"post_result_channel_id": channel.id})

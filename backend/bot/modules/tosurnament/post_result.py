@@ -234,11 +234,28 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         others
     ):
         await self.post_result_one_liner_(
-            ctx, match_id, score_team1, score_team2, best_of, roll_team1, roll_team2, n_warmup, others,
+            ctx,
+            match_id,
+            score_team1,
+            score_team2,
+            best_of,
+            roll_team1,
+            roll_team2,
+            n_warmup,
+            others,
         )
 
     async def post_result_one_liner_(
-        self, ctx, match_id, score_team1, score_team2, best_of, roll_team1, roll_team2, n_warmup, others,
+        self,
+        ctx,
+        match_id,
+        score_team1,
+        score_team2,
+        best_of,
+        roll_team1,
+        roll_team2,
+        n_warmup,
+        others,
     ):
         """Allows referees to post the result of a match"""
         tournament, bracket = await self.init_post_result(ctx, match_id)
@@ -479,7 +496,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 participant2.set_match_score(prbuilder.score_team2)
         if not participant1 or not participant2:
             await self.send_reply(
-                error_channel, "post_result", "participant_not_found", prbuilder.match_id,
+                error_channel,
+                "post_result",
+                "participant_not_found",
+                prbuilder.match_id,
             )
             return None
         participant_matches = [match for match in participant1.matches if match.state == "open"]
@@ -573,7 +593,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
         score_team1 = post_result_message.score_team1
         score_team2 = post_result_message.score_team2
-        if score_team1 < 0 and score_team2 < 0:
+        if score_team1 == 0 and score_team2 == 0:
             team1_info, team2_info = await self.get_teams_infos(bracket, match_info.team1.value, match_info.team2.value)
             if team1_info and team2_info:
                 players_id_team1 = get_players_id(team1_info)
