@@ -527,7 +527,7 @@ def extract_spreadsheet_id(string):
     return string
 
 
-def find_corresponding_cell_best_effort(cells, ys, default_y, max_difference_with_base=0, to_string=False):
+def find_corresponding_cell_best_effort(cells, ys, base_cell, max_difference_with_base=0, to_string=False):
     default_cell = Cell(-1, -1, "")
     for y in ys:
         for row in cells:
@@ -538,7 +538,7 @@ def find_corresponding_cell_best_effort(cells, ys, default_y, max_difference_wit
                     cell.change_value_to_string()
                 if cell.y == y and cell.value:
                     return cell
-                elif cell.y == default_y and default_cell.x == -1:
+                elif cell.y == base_cell.y and default_cell.x == -1:
                     default_cell = cell
     return default_cell
 
@@ -566,7 +566,7 @@ def find_corresponding_cell_best_effort_from_range(
 ):
     range_cells = spreadsheet.get_range(range_name)
     corresponding_cell = find_corresponding_cell_best_effort(
-        range_cells, base_cell.y_merge_range, base_cell.y, to_string
+        range_cells, base_cell.y_merge_range, base_cell, max_difference_with_base, to_string
     )
     if corresponding_cell.x == -1 and range_name:
         worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
@@ -633,7 +633,7 @@ def find_corresponding_cells_best_effort_from_range(
 ):
     range_cells = spreadsheet.get_range(range_name)
     corresponding_cells = find_corresponding_cells_best_effort(
-        range_cells, base_cell.y_merge_range, base_cell, filled_only, to_string
+        range_cells, base_cell.y_merge_range, base_cell, max_difference_with_base, filled_only, to_string
     )
     if not filled_only and not corresponding_cells and range_name:
         worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
@@ -647,7 +647,12 @@ def find_corresponding_cells_best_effort_from_range(
         while len(cells[max_y]) <= column:
             cells[max_y].append(Cell(len(cells[max_y]), max_y, ""))
         return find_corresponding_cells_best_effort(
-            spreadsheet.get_range(range_name), base_cell.y_merge_range, base_cell, filled_only, to_string
+            spreadsheet.get_range(range_name),
+            base_cell.y_merge_range,
+            base_cell,
+            max_difference_with_base,
+            filled_only,
+            to_string,
         )
     return corresponding_cells
 

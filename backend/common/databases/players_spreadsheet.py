@@ -123,6 +123,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_discord,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -132,6 +133,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_discord_id,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -141,6 +143,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_rank,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -150,6 +153,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_bws_rank,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -159,6 +163,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_osu_id,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -168,6 +173,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_pp,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -177,6 +183,7 @@ class TeamInfo:
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_timezone,
                     player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams
                 )
             ]
         )
@@ -235,6 +242,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_team,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
                 to_string=True,
             )
         )
@@ -243,6 +251,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_discord,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_discord_ids(
@@ -250,6 +259,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_discord_id,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_ranks(
@@ -257,6 +267,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_rank,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_bws_ranks(
@@ -264,6 +275,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_bws_rank,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_osu_ids(
@@ -271,6 +283,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_osu_id,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_pps(
@@ -278,6 +291,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_pp,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         team_info.set_timezones(
@@ -285,6 +299,7 @@ class TeamInfo:
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_timezone,
                 team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams
             )
         )
         return team_info
