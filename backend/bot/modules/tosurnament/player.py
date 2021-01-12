@@ -388,9 +388,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet:
             await players_spreadsheet.get_spreadsheet()
-            if not user.verified:
-                # TODO find player_name from discord_id in players_spreadsheet
-                pass
             ally_team_info, opponent_team_info = await self.get_teams_info(
                 ctx, tournament, players_spreadsheet, match_info, user
             )

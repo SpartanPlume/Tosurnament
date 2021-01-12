@@ -532,6 +532,8 @@ def find_corresponding_cell_best_effort(cells, ys, base_cell, max_difference_wit
     for y in ys:
         for row in cells:
             for cell in row:
+                if cell.x <= base_cell.x:
+                    continue
                 if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
                     continue
                 if to_string:
@@ -590,6 +592,8 @@ def find_corresponding_cells_best_effort(
     for y in ys:
         for row in cells:
             for cell in row:
+                if cell.x <= base_cell.x:
+                    continue
                 if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
                     continue
                 if to_string:
