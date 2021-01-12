@@ -438,6 +438,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_timezone": cell_range})
 
+    @commands.command(aliases=["spsmrft"])  # pragma: no cover
+    async def set_players_spreadsheet_max_range_for_teams(self, ctx, *, length: int):
+        """Sets the players spreadsheet max range length for teams."""
+        await self.set_players_spreadsheet_values(ctx, {"max_range_for_teams": length})
+
     @commands.command(aliases=["sqssn"])  # pragma: no cover
     async def set_qualifiers_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
         """Sets the sheet name of the qualifiers spreadsheet."""

@@ -215,6 +215,12 @@
     "success": "Players spreadsheet range timezone set to `%1`.",
     "usage": "Usage: `%0set_players_spreadsheet_range_timezone $./parameter`\n\nExample: `%0set_players_spreadsheet_range_timezone D2:D`"
   },
+  "set_players_spreadsheet_max_range_for_teams": {
+    "help": "Sets the players spreadsheet max range length for teams.",
+    "parameter": "[<range_length>]",
+    "success": "Players spreadsheet max range length for teams set to `%1`.",
+    "usage": "Usage: `%0set_players_spreadsheet_max_range_for_teams $./parameter`\n\nExample: `%0set_players_spreadsheet_max_range_for_teams 8`"
+  },
   "set_qualifiers_spreadsheet_sheet_name": {
     "help": "Sets the sheet name of the qualifiers spreadsheet.",
     "parameter": "<sheet_name>",

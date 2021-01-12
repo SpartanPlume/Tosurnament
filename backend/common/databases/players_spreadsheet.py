@@ -29,6 +29,7 @@ class PlayersSpreadsheet(BaseSpreadsheet):
     range_osu_id = str()
     range_pp = str()
     range_timezone = str()
+    max_range_for_teams = int(0)
 
 
 class TeamNotFound(commands.CommandError):
