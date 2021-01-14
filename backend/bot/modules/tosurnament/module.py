@@ -216,19 +216,24 @@ class TosurnamentBaseModule(BaseModule):
                 self.bot.info("Trying to update online spreadsheet...")
                 Spreadsheet.pickle_from_id.cache_clear()
                 spreadsheet = Spreadsheet.pickle_from_id(spreadsheet_id)
+                spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
+                spreadsheet_ids.remove(spreadsheet.id)
+                self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
                 if not spreadsheet:
+                    self.bot.error("Spreadsheet pickle not found")
                     return
                 try:
                     spreadsheet.update()
                 except HttpError as e:
                     self.bot.info("Exception raised while trying to update online spreadsheet")
                     self.bot.info_exception(e)
+                    spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
+                    if spreadsheet.id not in spreadsheet_ids:
+                        spreadsheet_ids.append(spreadsheet.id)
+                        self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
                     await asyncio.sleep(10)
                     continue
                 self.bot.info("Updated online spreadsheet successfully")
-                spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
-                spreadsheet_ids.remove(spreadsheet.id)
-                self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
                 return
         except asyncio.CancelledError:
             return
