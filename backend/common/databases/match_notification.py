@@ -14,6 +14,7 @@ class MatchNotification(Base):
     message_id_hash = bytes()
     message_id = int()
     match_id = str()
+    teams_mentions = str()
     team1_mention = str()
     team2_mention = str()
     date_info = str()
