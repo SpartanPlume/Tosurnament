@@ -358,9 +358,16 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 team_role = tosurnament.get_role(guild.roles, None, team_name)
                 if team_role:
                     return team_role.mention
-            user = tosurnament.UserAbstraction.get_from_osu_name(
-                self.bot, team_info.players[0].value, team_info.discord[0].value
-            )
+            if team_info.discord_ids:
+                user = tosurnament.UserAbstraction.get_from_osu_name(
+                    self.bot, team_info.players[0].value, int(team_info.discord_ids[0].value)
+                )
+            elif team_info.discord:
+                user = tosurnament.UserAbstraction.get_from_osu_name(
+                    self.bot, team_info.players[0].value, team_info.discord[0].value
+                )
+            else:
+                user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, team_info.players[0].value)
             member = user.get_member(guild)
             if member:
                 return member.mention
@@ -368,6 +375,65 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
             return escape_markdown(team_name)
+
+    async def qualifier_match_notification(self, guild, tournament, bracket, channel, lobby_info, delta):
+        if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
+            return
+        players_spreadsheet = bracket.players_spreadsheet
+        teams = []
+        for team_cell in lobby_info.teams:
+            team = await self.get_team_mention(guild, players_spreadsheet, team_cell.value)
+            teams.append(team)
+        referee_name = lobby_info.referee.value
+        referee_role = None
+        notification_type = "notification"
+        if referee_name:
+            user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, referee_name)
+            if user.verified:
+                referee = user.get_member(guild)
+            else:
+                referee = guild.get_member_named(referee_name)
+            if referee:
+                referee = referee.mention
+            else:
+                referee = referee_name
+        else:
+            referee_role = tosurnament.get_role(guild.roles, tournament.referee_role_id, "Referee")
+            if referee_role:
+                referee = referee_role.mention
+                notification_type = "notification_no_referee"
+            else:
+                referee = ""
+                notification_type = "notification_no_referre_no_role"
+        minutes_before_match = str(int(delta.seconds / 60) + 1)
+        teams_mentions = "\n".join(teams)
+        message = await self.send_reply(
+            channel,
+            "qualifier_match_notification",
+            notification_type,
+            lobby_info.lobby_id.value,
+            teams_mentions,
+            referee,
+            minutes_before_match,
+        )
+        if referee_role:
+            match_notification = MatchNotification(
+                message_id_hash=message.id,
+                message_id=message.id,
+                tournament_id=tournament.id,
+                bracket_id=bracket.id,
+                match_id=lobby_info.lobby_id.value,
+                teams_mentions=teams_mentions,
+                date_info=minutes_before_match,
+                notification_type=2,
+            )
+            self.bot.session.add(match_notification)
+        try:
+            await message.add_reaction("👀")
+            if referee_role:
+                await message.add_reaction("💪")
+        except Exception as e:
+            self.bot.info(str(type(e)) + ": " + str(e))
 
     async def player_match_notification(self, guild, tournament, bracket, channel, match_info, delta):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
@@ -479,36 +545,59 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return
         matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
         for bracket in tournament.brackets:
-            schedules_spreadsheet = bracket.schedules_spreadsheet
-            if not schedules_spreadsheet:
-                continue
-            await schedules_spreadsheet.get_spreadsheet(retry=True)
             now = datetime.datetime.utcnow()
-            match_ids = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                schedules_spreadsheet.range_match_id
-            )
-            for match_id_cell in match_ids:
-                if match_id_cell.value.upper() in matches_to_ignore:
-                    continue
-                match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-                date_format = "%d %B"
-                if schedules_spreadsheet.date_format:
-                    date_format = schedules_spreadsheet.date_format
-                match_date = tournament.parse_date(
-                    match_info.get_datetime(),
-                    date_formats=list(filter(None, [date_format + " %H:%M"])),
-                    to_timezone="UTC",
+            schedules_spreadsheet = bracket.schedules_spreadsheet
+            if schedules_spreadsheet:
+                await schedules_spreadsheet.get_spreadsheet(retry=True)
+                match_ids = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    schedules_spreadsheet.range_match_id
                 )
-                if match_date:
-                    delta = match_date - now
-                    if player_match_notification_channel:
-                        await self.player_match_notification(
-                            guild, tournament, bracket, player_match_notification_channel, match_info, delta
-                        )
-                    if staff_channel:
-                        await self.referee_match_notification(
-                            guild, tournament, bracket, staff_channel, match_info, delta, match_date
-                        )
+                for match_id_cell in match_ids:
+                    if match_id_cell.value.upper() in matches_to_ignore:
+                        continue
+                    match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
+                    date_format = "%d %B"
+                    if schedules_spreadsheet.date_format:
+                        date_format = schedules_spreadsheet.date_format
+                    match_date = tournament.parse_date(
+                        match_info.get_datetime(),
+                        date_formats=list(filter(None, [date_format + " %H:%M"])),
+                        to_timezone="UTC",
+                    )
+                    if match_date:
+                        delta = match_date - now
+                        if player_match_notification_channel:
+                            await self.player_match_notification(
+                                guild, tournament, bracket, player_match_notification_channel, match_info, delta
+                            )
+                        if staff_channel:
+                            await self.referee_match_notification(
+                                guild, tournament, bracket, staff_channel, match_info, delta, match_date
+                            )
+            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
+            if qualifiers_spreadsheet:
+                await qualifiers_spreadsheet.get_spreadsheet(retry=True)
+                lobby_ids = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    qualifiers_spreadsheet.range_lobby_id
+                )
+                for lobby_id_cell in lobby_ids:
+                    if lobby_id_cell.value.upper() in matches_to_ignore:
+                        continue
+                    lobby_info = LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell)
+                    date_format = "%d %B"
+                    if schedules_spreadsheet and schedules_spreadsheet.date_format:
+                        date_format = schedules_spreadsheet.date_format
+                    lobby_date = tournament.parse_date(
+                        lobby_info.get_datetime(),
+                        date_formats=list(filter(None, [date_format + " %H:%M"])),
+                        to_timezone="UTC",
+                    )
+                    if lobby_date:
+                        delta = lobby_date - now
+                        if player_match_notification_channel:
+                            await self.qualifier_match_notification(
+                                guild, tournament, bracket, player_match_notification_channel, lobby_info, delta
+                            )
 
     async def match_notification_wrapper(self, guild, tournament):
         previous_notification_date = None
@@ -634,6 +723,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 True,
                 set(),
                 bracket.schedules_spreadsheet,
+                bracket.qualifiers_spreadsheet,
             )
             # TODO if not write_cells send error
         except Exception as e:
@@ -644,19 +734,34 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         command_name = "player_match_notification"
         if match_notification.notification_type == 1:
             command_name = "referee_match_notification"
+        elif match_notification.notification_type == 2:
+            command_name = "qualifier_match_notification"
         match_notification_message = await channel.fetch_message(match_notification.message_id)
-        await match_notification_message.edit(
-            content=self.get_string(
-                command_name,
-                "edited",
-                match_notification.match_id,
-                match_notification.team1_mention,
-                match_notification.team2_mention,
-                referee_role.mention,
-                match_notification.date_info,
-                user.mention,
+        if match_notification.notification_type == 2:
+            await match_notification_message.edit(
+                content=self.get_string(
+                    command_name,
+                    "edited",
+                    match_notification.match_id,
+                    match_notification.teams_mentions,
+                    referee_role.mention,
+                    match_notification.date_info,
+                    user.mention,
+                )
             )
-        )
+        else:
+            await match_notification_message.edit(
+                content=self.get_string(
+                    command_name,
+                    "edited",
+                    match_notification.match_id,
+                    match_notification.team1_mention,
+                    match_notification.team2_mention,
+                    referee_role.mention,
+                    match_notification.date_info,
+                    user.mention,
+                )
+            )
         self.bot.session.delete(match_notification)
 
     async def reaction_on_staff_reschedule_message(self, message_id, emoji, guild, channel, user):

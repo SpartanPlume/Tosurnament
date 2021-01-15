@@ -390,49 +390,49 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         await self.set_players_spreadsheet_values(ctx, {"range_team": cell_range})
 
     @commands.command(aliases=["spsrd"])  # pragma: no cover
-    async def set_players_spreadsheet_range_discord(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_discord(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range discord."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_discord": cell_range})
 
     @commands.command(aliases=["spsrdi"])  # pragma: no cover
-    async def set_players_spreadsheet_range_discord_id(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_discord_id(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range discord id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_discord_id": cell_range})
 
     @commands.command(aliases=["spsrr"])  # pragma: no cover
-    async def set_players_spreadsheet_range_rank(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_rank(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range rank."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_rank": cell_range})
 
     @commands.command(aliases=["spsrbr"])  # pragma: no cover
-    async def set_players_spreadsheet_range_bws_rank(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_bws_rank(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range bws rank."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_bws_rank": cell_range})
 
     @commands.command(aliases=["spsroi"])  # pragma: no cover
-    async def set_players_spreadsheet_range_osu_id(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_osu_id(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range osu id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_osu_id": cell_range})
 
     @commands.command(aliases=["spsrp"])  # pragma: no cover
-    async def set_players_spreadsheet_range_pp(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_pp(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range pp."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_pp": cell_range})
 
     @commands.command(aliases=["spsrtz"])  # pragma: no cover
-    async def set_players_spreadsheet_range_timezone(self, ctx, *, cell_range: str):
+    async def set_players_spreadsheet_range_timezone(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range timezone."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
@@ -477,7 +477,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_date": cell_range})
 
     @commands.command(aliases=["sqsrt"])  # pragma: no cover
-    async def set_qualifiers_spreadsheet_range_time(self, ctx, *, cell_range: str):
+    async def set_qualifiers_spreadsheet_range_time(self, ctx, *, cell_range: str = ""):
         """Sets the qualifiers spreadsheet range time."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()

@@ -49,6 +49,14 @@
     "help": "Removes the staff member's name on the spreadsheet of the Commentator column for the corresponding matches.",
     "usage": "Usage: `%0drop_match_as_commentator $../take_match/parameter`\n\nExample: `%0drop_match_as_commentator 1A 2A 2B`"
   },
+  "qualifier_match_notification": {
+    "common_begin": "_ _\n**__Qualifier lobby %1__\n\n%2**\n\n__Referee:__ ",
+    "common_end": "\n\nThis lobby will start in %4 minutes.",
+    "notification": "$./common_begin%3$./common_end",
+    "notification_no_referee": "$./common_begin**No Referee** (%3, if you want to take this lobby, react with :muscle:)$./common_end",
+    "notification_no_referre_no_role": "$./common_begin**No Referee** (and referee role not found)$./common_end",
+    "edited": "$./common_begin%5$./common_end\n\n*P.S: No need for a %3 anymore.*"
+  },
   "player_match_notification": {
     "common_begin": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ ",
     "common_end": "\n\nThis match will start in %5 minutes.",
