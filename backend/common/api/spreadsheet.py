@@ -609,24 +609,37 @@ def find_corresponding_cells_best_effort(
 
 
 def find_corresponding_qualifier_cells_best_effort(
-    cells, base_cell, max_difference_with_base=0, filled_only=True, to_string=False
+    spreadsheet, cells, base_cell, max_difference_with_base=0, filled_only=True, to_string=False
 ):
     default_cells = []
     corresponding_cells = []
-    for y in base_cell.y_merge_range:
-        for row in cells:
-            for cell in row:
-                if cell.x <= base_cell.x:
-                    continue
-                if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
-                    continue
-                if to_string:
-                    cell.change_value_to_string()
-                if cell.y == y:
-                    if not filled_only or cell.value:
-                        corresponding_cells.append(cell)
-                if cell.y == base_cell.y:
-                    default_cells.append(cell)
+    last_y = -1
+    all_x = set()
+    for row in cells:
+        for cell in row:
+            last_y = cell.y
+            if cell.x <= base_cell.x:
+                continue
+            if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
+                continue
+            if to_string:
+                cell.change_value_to_string()
+            if cell.y in base_cell.y_merge_range and (not filled_only or cell.value):
+                corresponding_cells.append(cell)
+                all_x.add(cell.x)
+            if cell.y == base_cell.y:
+                default_cells.append(cell)
+    if not filled_only:
+        y = last_y + 1
+        all_x = sorted(all_x)
+        worksheet = spreadsheet.get_worksheet()
+        while y <= max(base_cell.y_merge_range):
+            new_row = []
+            for x in all_x:
+                new_row.append(Cell(x, y, ""))
+            worksheet.cells.append(new_row)
+            corresponding_cells = [*corresponding_cells, *new_row]
+            y += 1
     if not corresponding_cells:
         return default_cells
     return corresponding_cells

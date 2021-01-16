@@ -76,6 +76,7 @@ class LobbyInfo:
         lobby_info = LobbyInfo(lobby_id_cell)
         spreadsheet = qualifiers_spreadsheet.spreadsheet
         lobby_info.teams = find_corresponding_qualifier_cells_best_effort(
+            spreadsheet,
             spreadsheet.get_range(qualifiers_spreadsheet.range_teams),
             lobby_id_cell,
             qualifiers_spreadsheet.max_range_for_lobby,
