@@ -3,6 +3,7 @@
 import json
 import re
 import os
+import copy
 
 JSONDecodeError = json.JSONDecodeError
 

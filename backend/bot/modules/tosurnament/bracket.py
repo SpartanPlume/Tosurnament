@@ -256,6 +256,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         """Sets the qualifiers spreadsheet."""
         await self.set_bracket_spreadsheet(ctx, "qualifiers", spreadsheet_id, sheet_name)
 
+    @commands.command(aliases=["sqrs"])  # pragma: no cover
+    async def set_qualifiers_results_spreadsheet(self, ctx, spreadsheet_id: str, *, sheet_name: str = ""):
+        """Sets the qualifiers spreadsheet."""
+        await self.set_bracket_spreadsheet(ctx, "qualifiers_results", spreadsheet_id, sheet_name)
+
     async def set_bracket_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
@@ -483,6 +488,20 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_time": cell_range})
 
+    @commands.command(aliases=["sqrsroi"])  # pragma: no cover
+    async def set_qualifiers_results_spreadsheet_range_osu_id(self, ctx, *, cell_range: str):
+        """Sets the qualifiers results spreadsheet range osu id."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_results_spreadsheet_values(ctx, {"range_osu_id": cell_range})
+
+    @commands.command(aliases=["sqrsrs"])  # pragma: no cover
+    async def set_qualifiers_results_spreadsheet_range_score(self, ctx, *, cell_range: str):
+        """Sets the qualifiers results spreadsheet range score."""
+        if not spreadsheet.check_range(cell_range):
+            raise commands.UserInputError()
+        await self.set_qualifiers_results_spreadsheet_values(ctx, {"range_score": cell_range})
+
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         await self.set_spreadsheet_values(ctx, "schedules", values)
@@ -494,6 +513,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     async def set_qualifiers_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         await self.set_spreadsheet_values(ctx, "qualifiers", values)
+
+    async def set_qualifiers_results_spreadsheet_values(self, ctx, values):
+        """Puts the input values into the corresponding bracket."""
+        await self.set_spreadsheet_values(ctx, "qualifiers_results", values)
 
     async def set_spreadsheet_values(self, ctx, spreadsheet_type, values):
         tournament = self.get_tournament(ctx.guild.id)

@@ -1,4 +1,27 @@
 {
+  "create_qualifiers_results_message": {
+    "help": "Creates the qualifiers results message",
+    "parameter": "<channel> [<status>]",
+    "usage": "Usage: `%0create_qualifiers_results_message $./parameter`\n\nExample: `%0create_qualifiers_results_message #qualifiers_results ENDED`",
+    "embed": {
+      "embed": {
+        "title": "%1 Qualifiers %2",
+        "thumbnail": {
+          "url": "%7"
+        },
+        "fields": [
+          {
+            "name": "Top 10 Leaderboard",
+            "value": "%3"
+          },
+          {
+            "name": "Qualifiers Results",
+            "value": ":first_place: 1st Place: **%4**\n:thumbsup: Average Score: %5\n:scream: Cut Off: %6"
+          }
+        ]
+      }
+    }
+  },
   "allow_next_reschedule": {
     "help": "Allows a match to be reschedule without any time constraint applied",
     "parameter": "<match_id> [<allowed_hours>]",

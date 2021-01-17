@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime
+import discord
 from discord.utils import escape_markdown
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
@@ -15,12 +16,15 @@ from common.databases.schedules_spreadsheet import (
     SchedulesSpreadsheet,
 )
 from common.databases.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
+from common.databases.qualifiers_results_spreadsheet import QualifiersResultInfo
 from common.databases.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule
+from common.databases.qualifiers_results_message import QualifiersResultsMessage
 from common.api.spreadsheet import Spreadsheet, InvalidWorksheet
+from common.api import osu
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -35,6 +39,98 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if ctx.guild is None:
             raise commands.NoPrivateMessage()
         return True
+
+    async def create_or_update_qualifiers_results_message(self, ctx, qualifiers_results_message, status):
+        tournament = self.get_tournament(ctx.guild.id)
+        tosurnament_guild = self.get_guild(ctx.guild.id)
+        admin_role = tosurnament.get_role(ctx.author.roles, tosurnament_guild.admin_role_id)
+        referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
+        if not admin_role and not ctx.guild.owner == ctx.author and not referee_role:
+            raise tosurnament.NotRequiredRole("Referee")
+        if len(tournament.brackets) > 1:
+            await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
+            return
+        bracket = tournament.current_bracket
+        qualifiers_results_spreadsheet = bracket.qualifiers_results_spreadsheet
+        if not qualifiers_results_spreadsheet:
+            raise tosurnament.NoSpreadsheet("qualifiers_results")
+        await qualifiers_results_spreadsheet.get_spreadsheet(retry=True, force_sync=True)
+        results_info = QualifiersResultInfo.get_all(qualifiers_results_spreadsheet)
+        top10 = []
+        scores = []
+        cut_off = None
+        for i, result_info in enumerate(results_info):
+            score = result_info.score.value
+            if score <= 0.0:
+                continue
+            scores.append(score)
+            if i < 10:
+                top10.append(result_info)
+            if i == 31:
+                cut_off = result_info
+        avg_score = sum(scores) / len(scores)
+        top10_string = ""
+        for i, result_info in enumerate(top10):
+            osu_name = result_info.osu_id.value
+            osu_user = osu.get_user(osu_name)
+            if not osu_user:
+                flag = ":flag_white:"
+            else:
+                flag = ":flag_" + osu_user.country.lower() + ":"
+            top10_string += "`" + str(i + 1)
+            if i < 9:
+                top10_string += ". `"
+            else:
+                top10_string += ".`"
+            top10_string += flag + " **" + escape_markdown(osu_name) + "** "
+            top10_string += "(%.2f%%)\n" % (result_info.score.value * 100)
+        channel = ctx.guild.get_channel(qualifiers_results_message.channel_id)
+        if qualifiers_results_message.message_id > 0:
+            message = await channel.fetch_message(qualifiers_results_message.message_id)
+            await message.delete()
+        message = await self.send_reply(
+            channel,
+            "create_qualifiers_results_message",
+            "embed",
+            tournament.name,
+            status,
+            top10_string,
+            escape_markdown(top10[0].osu_id.value),
+            "%.2f%%" % (avg_score * 100),
+            "%.2f%% `(32. %s)`" % ((cut_off.score.value * 100), escape_markdown(cut_off.osu_id.value)),
+            str(ctx.guild.icon_url),
+        )
+        qualifiers_results_message.message_id = message.id
+        self.bot.session.update(qualifiers_results_message)
+
+    @commands.command(aliases=["uqrm"])
+    async def update_qualifiers_results_message(self, ctx, status: str = "ONGOING"):
+        """Updates the qualifiers results message."""
+        tournament = self.get_tournament(ctx.guild.id)
+        qualifiers_results_message = (
+            self.bot.session.query(QualifiersResultsMessage)
+            .where(QualifiersResultsMessage.tournament_id == tournament.id)
+            .first()
+        )
+        if qualifiers_results_message:
+            await self.create_or_update_qualifiers_results_message(ctx, qualifiers_results_message, status)
+
+    @commands.command(aliases=["cqrm"])
+    async def create_qualifiers_results_message(self, ctx, channel: discord.TextChannel, status: str = "ONGOING"):
+        """Creates the qualifiers results message."""
+        tournament = self.get_tournament(ctx.guild.id)
+        qualifiers_results_message = (
+            self.bot.session.query(QualifiersResultsMessage)
+            .where(QualifiersResultsMessage.tournament_id == tournament.id)
+            .first()
+        )
+        if qualifiers_results_message:
+            self.bot.session.delete(qualifiers_results_message)
+        qualifiers_results_message = QualifiersResultsMessage(
+            tournament_id=tournament.id, bracket_id=tournament.current_bracket.id, channel_id=channel.id
+        )
+        self.bot.session.add(qualifiers_results_message)
+        await self.create_or_update_qualifiers_results_message(ctx, qualifiers_results_message, status)
 
     @commands.command(aliases=["anr"])
     async def allow_next_reschedule(self, ctx, match_id: str, allowed_hours: int = 24):

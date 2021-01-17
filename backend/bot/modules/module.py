@@ -1,5 +1,6 @@
 """Base of all modules. Contains utility functions."""
 
+import copy
 import inspect
 import discord
 from discord.ext import commands
@@ -99,11 +100,27 @@ class BaseModule(commands.Cog):
             print("ERROR: reply not found: " + field_name)  # ! To transform to log
         return ""
 
+    def get_embed_and_content(self, command_name, field_name, *args):
+        """Gets string from strings.json file"""
+        module_name = inspect.getmodule(inspect.stack()[1][0]).__name__[12:]
+        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
+        content = None
+        embed = None
+        if isinstance(reply, dict):
+            reply = copy.deepcopy(reply)
+            reply = load_json.replace_in_object(reply, self.bot.command_prefix, *args)
+            if "content" in reply:
+                content = reply["content"]
+            if "embed" in reply:
+                embed = discord.Embed.from_dict(reply["embed"])
+        return embed, content
+
     async def send_message(self, channel, reply, *args):
         """Sends back a message/embed response."""
         content = None
         embed = None
         if isinstance(reply, dict):
+            reply = copy.deepcopy(reply)
             reply = load_json.replace_in_object(reply, self.bot.command_prefix, *args)
             if "content" in reply:
                 content = reply["content"]
