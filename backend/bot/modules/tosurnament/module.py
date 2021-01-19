@@ -251,19 +251,20 @@ class TosurnamentBaseModule(BaseModule):
         self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
         self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
 
-    async def find_player_identification(self, ctx, bracket, user_name):
+    async def find_player_identification(self, ctx, bracket, user_details):
         players_spreadsheet = bracket.players_spreadsheet
         if not players_spreadsheet:
-            return user_name
+            return user_details.name
         await players_spreadsheet.get_spreadsheet()
-        if players_spreadsheet.range_team_name:
-            cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
-            for cell in cells:
-                team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
-                if user_name in [cell.value for cell in team_info.players]:
+        cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
+        for cell in cells:
+            team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
+            if players_spreadsheet.range_discord_id:
+                if str(user_details.discord_id) in [str(cell.value) for cell in team_info.discord_ids]:
                     return team_info.team_name.value
-        else:
-            return user_name
+            if user_details.name in [str(cell.value) for cell in team_info.players]:
+                return team_info.team_name.value
+        return user_details.name
 
     def get_spreadsheet_error(self, error_code):  # TODO
         if error_code == 499:
