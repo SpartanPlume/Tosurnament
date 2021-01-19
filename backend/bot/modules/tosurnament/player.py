@@ -341,20 +341,32 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                         return team1_info, team2_info
                     elif user.name in [cell.value.lower() for cell in team2_info.players]:
                         return team2_info, team1_info
-                if str(ctx.author) in [cell.value for cell in team1_info.discord]:
-                    return team1_info, team2_info
-                elif str(ctx.author) in [cell.value for cell in team2_info.discord]:
-                    return team2_info, team1_info
+                if players_spreadsheet.range_discord_id:
+                    if str(ctx.author.id) in [str(cell.value) for cell in team1_info.discord_ids]:
+                        return team1_info, team2_info
+                    elif str(ctx.author.id) in [str(cell.value) for cell in team2_info.discord_ids]:
+                        return team2_info, team1_info
+                if players_spreadsheet.range_discord:
+                    if str(ctx.author) in [cell.value for cell in team1_info.discord]:
+                        return team1_info, team2_info
+                    elif str(ctx.author) in [cell.value for cell in team2_info.discord]:
+                        return team2_info, team1_info
                 raise tosurnament.InvalidMatch()
         if user.verified:
             if user.name == team1_info.players[0].value:
                 return team1_info, team2_info
             elif user.name == team2_info.players[0].value:
                 return team2_info, team1_info
-        if str(ctx.author) == team1_info.discord[0].value:
-            return team1_info, team2_info
-        elif str(ctx.author) == team2_info.discord[0].value:
-            return team2_info, team1_info
+        if players_spreadsheet.range_discord_id:
+            if str(ctx.author.id) == str(team1_info.discord_ids[0].value):
+                return team1_info, team2_info
+            elif str(ctx.author.id) == str(team2_info.discord_ids[0].value):
+                return team2_info, team1_info
+        if players_spreadsheet.range_discord:
+            if str(ctx.author) == team1_info.discord[0].value:
+                return team1_info, team2_info
+            elif str(ctx.author) == team2_info.discord[0].value:
+                return team2_info, team1_info
         raise tosurnament.InvalidMatch()
 
     @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
@@ -395,9 +407,18 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 return False
             team_name = ally_team_info.team_name.value
             opponent_team_name = opponent_team_info.team_name.value
-            opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
-            )
+            if players_spreadsheet.range_discord_id:
+                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
+                    ctx.bot, opponent_team_info.players[0].value, int(opponent_team_info.discord_ids[0].value)
+                )
+            elif players_spreadsheet.range_discord:
+                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
+                    ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
+                )
+            else:
+                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
+                    ctx.bot, opponent_team_info.players[0].value
+                )
         else:
             team_name = user.name
             if team_name == match_info.team1.value:
