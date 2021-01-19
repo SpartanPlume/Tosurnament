@@ -283,219 +283,219 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         self.bot.session.update(any_spreadsheet)
         await self.send_reply(ctx, ctx.command.name, "success", spreadsheet_id)
 
-    @commands.command(aliases=["ssssn"])  # pragma: no cover
+    @commands.command(aliases=["ssssn"])
     async def set_schedules_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
         """Sets the sheet name of the schedules spreadsheet."""
         await self.set_schedules_spreadsheet_values(ctx, {"sheet_name": sheet_name})
 
-    @commands.command(aliases=["sssdf"])  # pragma: no cover
+    @commands.command(aliases=["sssdf"])
     async def set_schedules_spreadsheet_date_format(self, ctx, *, date_format: str = ""):
         """Sets the date format used in the date range of the schedules spreadsheet."""
         await self.set_schedules_spreadsheet_values(ctx, {"date_format": date_format})
 
-    @commands.command(aliases=["ssssir"])  # pragma: no cover
+    @commands.command(aliases=["ssssir"])
     async def set_schedules_spreadsheet_staff_is_range(self, ctx, use_range: bool):
         """Sets the staff_is_range of the schedules spreadsheet."""
         await self.set_schedules_spreadsheet_values(ctx, {"use_range": use_range})
 
-    @commands.command(aliases=["sssrmi"])  # pragma: no cover
+    @commands.command(aliases=["sssrmi"])
     async def set_schedules_spreadsheet_range_match_id(self, ctx, *, cell_range: str):
         """Sets the schedules spreadsheet range match id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_match_id": cell_range})
 
-    @commands.command(aliases=["sssrt1"])  # pragma: no cover
+    @commands.command(aliases=["sssrt1"])
     async def set_schedules_spreadsheet_range_team1(self, ctx, *, cell_range: str):
         """Sets the schedules spreadsheet range team1."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_team1": cell_range})
 
-    @commands.command(aliases=["sssrt2"])  # pragma: no cover
+    @commands.command(aliases=["sssrt2"])
     async def set_schedules_spreadsheet_range_team2(self, ctx, *, cell_range: str):
         """Sets the schedules spreadsheet range team2."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_team2": cell_range})
 
-    @commands.command(aliases=["sssrst1"])  # pragma: no cover
+    @commands.command(aliases=["sssrst1"])
     async def set_schedules_spreadsheet_range_score_team1(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range score team1."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_score_team1": cell_range})
 
-    @commands.command(aliases=["sssrst2"])  # pragma: no cover
+    @commands.command(aliases=["sssrst2"])
     async def set_schedules_spreadsheet_range_score_team2(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range score team2."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_score_team2": cell_range})
 
-    @commands.command(aliases=["sssrd"])  # pragma: no cover
+    @commands.command(aliases=["sssrd"])
     async def set_schedules_spreadsheet_range_date(self, ctx, *, cell_range: str):
         """Sets the schedules spreadsheet range date."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_date": cell_range})
 
-    @commands.command(aliases=["sssrt"])  # pragma: no cover
+    @commands.command(aliases=["sssrt"])
     async def set_schedules_spreadsheet_range_time(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range time."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_time": cell_range})
 
-    @commands.command(aliases=["sssrr"])  # pragma: no cover
+    @commands.command(aliases=["sssrr"])
     async def set_schedules_spreadsheet_range_referee(self, ctx, *, cell_range: str):
         """Sets the schedules spreadsheet range referee."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_referee": cell_range})
 
-    @commands.command(aliases=["sssrs"])  # pragma: no cover
+    @commands.command(aliases=["sssrs"])
     async def set_schedules_spreadsheet_range_streamer(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range streamer."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_streamer": cell_range})
 
-    @commands.command(aliases=["sssrc"])  # pragma: no cover
+    @commands.command(aliases=["sssrc"])
     async def set_schedules_spreadsheet_range_commentator(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range commentator."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_commentator": cell_range})
 
-    @commands.command(aliases=["sssrml"])  # pragma: no cover
+    @commands.command(aliases=["sssrml"])
     async def set_schedules_spreadsheet_range_mp_links(self, ctx, *, cell_range: str = ""):
         """Sets the schedules spreadsheet range mp links."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {"range_mp_links": cell_range})
 
-    @commands.command(aliases=["spssn"])  # pragma: no cover
+    @commands.command(aliases=["spssn"])
     async def set_players_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
         """Sets the sheet name of the players spreadsheet."""
         await self.set_players_spreadsheet_values(ctx, {"sheet_name": sheet_name})
 
-    @commands.command(aliases=["spsrtn"])  # pragma: no cover
+    @commands.command(aliases=["spsrtn"])
     async def set_players_spreadsheet_range_team_name(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range team name."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_team_name": cell_range})
 
-    @commands.command(aliases=["spsrt"])  # pragma: no cover
+    @commands.command(aliases=["spsrt"])
     async def set_players_spreadsheet_range_team(self, ctx, *, cell_range: str):
         """Sets the players spreadsheet range team."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_team": cell_range})
 
-    @commands.command(aliases=["spsrd"])  # pragma: no cover
+    @commands.command(aliases=["spsrd"])
     async def set_players_spreadsheet_range_discord(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range discord."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_discord": cell_range})
 
-    @commands.command(aliases=["spsrdi"])  # pragma: no cover
+    @commands.command(aliases=["spsrdi"])
     async def set_players_spreadsheet_range_discord_id(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range discord id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_discord_id": cell_range})
 
-    @commands.command(aliases=["spsrr"])  # pragma: no cover
+    @commands.command(aliases=["spsrr"])
     async def set_players_spreadsheet_range_rank(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range rank."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_rank": cell_range})
 
-    @commands.command(aliases=["spsrbr"])  # pragma: no cover
+    @commands.command(aliases=["spsrbr"])
     async def set_players_spreadsheet_range_bws_rank(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range bws rank."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_bws_rank": cell_range})
 
-    @commands.command(aliases=["spsroi"])  # pragma: no cover
+    @commands.command(aliases=["spsroi"])
     async def set_players_spreadsheet_range_osu_id(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range osu id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_osu_id": cell_range})
 
-    @commands.command(aliases=["spsrp"])  # pragma: no cover
+    @commands.command(aliases=["spsrp"])
     async def set_players_spreadsheet_range_pp(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range pp."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_pp": cell_range})
 
-    @commands.command(aliases=["spsrtz"])  # pragma: no cover
+    @commands.command(aliases=["spsrtz"])
     async def set_players_spreadsheet_range_timezone(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range timezone."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {"range_timezone": cell_range})
 
-    @commands.command(aliases=["spsmrft"])  # pragma: no cover
+    @commands.command(aliases=["spsmrft"])
     async def set_players_spreadsheet_max_range_for_teams(self, ctx, *, length: int):
         """Sets the players spreadsheet max range length for teams."""
         await self.set_players_spreadsheet_values(ctx, {"max_range_for_teams": length})
 
-    @commands.command(aliases=["sqssn"])  # pragma: no cover
+    @commands.command(aliases=["sqssn"])
     async def set_qualifiers_spreadsheet_sheet_name(self, ctx, *, sheet_name: str = ""):
         """Sets the sheet name of the qualifiers spreadsheet."""
         await self.set_qualifiers_spreadsheet_values(ctx, {"sheet_name": sheet_name})
 
-    @commands.command(aliases=["sqsrli"])  # pragma: no cover
+    @commands.command(aliases=["sqsrli"])
     async def set_qualifiers_spreadsheet_range_lobby_id(self, ctx, *, cell_range: str):
         """Sets the qualifiers spreadsheet range lobby id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_lobby_id": cell_range})
 
-    @commands.command(aliases=["sqsrts"])  # pragma: no cover
+    @commands.command(aliases=["sqsrts"])
     async def set_qualifiers_spreadsheet_range_teams(self, ctx, *, cell_range: str):
         """Sets the qualifiers spreadsheet range teams."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_teams": cell_range})
 
-    @commands.command(aliases=["sqsrr"])  # pragma: no cover
+    @commands.command(aliases=["sqsrr"])
     async def set_qualifiers_spreadsheet_range_referee(self, ctx, *, cell_range: str):
         """Sets the qualifiers spreadsheet range referee."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_referee": cell_range})
 
-    @commands.command(aliases=["sqsrd"])  # pragma: no cover
+    @commands.command(aliases=["sqsrd"])
     async def set_qualifiers_spreadsheet_range_date(self, ctx, *, cell_range: str):
         """Sets the qualifiers spreadsheet range date."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_date": cell_range})
 
-    @commands.command(aliases=["sqsrt"])  # pragma: no cover
+    @commands.command(aliases=["sqsrt"])
     async def set_qualifiers_spreadsheet_range_time(self, ctx, *, cell_range: str = ""):
         """Sets the qualifiers spreadsheet range time."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {"range_time": cell_range})
 
-    @commands.command(aliases=["sqrsroi"])  # pragma: no cover
+    @commands.command(aliases=["sqrsroi"])
     async def set_qualifiers_results_spreadsheet_range_osu_id(self, ctx, *, cell_range: str):
         """Sets the qualifiers results spreadsheet range osu id."""
         if not spreadsheet.check_range(cell_range):
             raise commands.UserInputError()
         await self.set_qualifiers_results_spreadsheet_values(ctx, {"range_osu_id": cell_range})
 
-    @commands.command(aliases=["sqrsrs"])  # pragma: no cover
+    @commands.command(aliases=["sqrsrs"])
     async def set_qualifiers_results_spreadsheet_range_score(self, ctx, *, cell_range: str):
         """Sets the qualifiers results spreadsheet range score."""
         if not spreadsheet.check_range(cell_range):
