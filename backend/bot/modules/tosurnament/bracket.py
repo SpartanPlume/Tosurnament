@@ -63,8 +63,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
         if teams_info:
             for team_info in teams_info:
-                if (user.verified and user.name.lower() in [cell.value for cell in team_info.players]) or (
-                    str(member) in [cell.value for cell in team_info.discord]
+                if (
+                    (user.verified and user.name.lower() in [str(cell.value) for cell in team_info.players])
+                    or (str(user.discord_id) in [str(cell.value) for cell in team_info.discord_ids])
+                    or (str(member) in [str(cell.value) for cell in team_info.discord])
                 ):
                     if team_info.team_name.value.lower() in participants:
                         return team_info.team_name.value
