@@ -41,7 +41,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         for role_name, role_store in user_details.get_staff_roles_as_dict().items():
             if role_store:
                 changed_name |= spreadsheet.change_value_in_range(
-                    getattr(schedules_spreadsheet, "range_" + role_name.lower()), previous_name, new_name,
+                    getattr(schedules_spreadsheet, "range_" + role_name.lower()),
+                    previous_name,
+                    new_name,
                 )
         if changed_name:
             self.add_update_spreadsheet_background_task(schedules_spreadsheet)
@@ -101,7 +103,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not bracket_role or tosurnament.get_role(ctx.author.roles, bracket.role_id):
             has_bracket_role = True
         if user_details.player:
-            team_name = await self.find_player_identification(ctx, bracket, user_name)
+            team_name = await self.find_player_identification(ctx, bracket, user_details)
         matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
         for match_info, match_date in matches_data:
             if (
