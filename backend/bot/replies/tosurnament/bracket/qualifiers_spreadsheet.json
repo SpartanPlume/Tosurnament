@@ -1,0 +1,44 @@
+{
+  "set_qualifiers_spreadsheet": {
+    "help": "Sets the qualifiers spreadsheet",
+    "parameter": "<spreadsheet_id> [<sheet_name>]",
+    "success": "Qualifiers spreadsheet set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet 1234567890ABCDEF`"
+  },
+  "set_qualifiers_spreadsheet_sheet_name": {
+    "help": "Sets the sheet name of the qualifiers spreadsheet.",
+    "parameter": "<sheet_name>",
+    "success": "Qualifiers spreadsheet sheet name set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_sheet_name $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_sheet_name My Sheet Name`"
+  },
+  "set_qualifiers_spreadsheet_range_lobby_id": {
+    "help": "Sets the qualifiers spreadsheet range lobby id.",
+    "parameter": "<range>",
+    "success": "Qualifiers spreadsheet range lobby id set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_range_lobby_id $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_range_lobby_id D2:D`"
+  },
+  "set_qualifiers_spreadsheet_range_teams": {
+    "help": "Sets the qualifiers spreadsheet range teams.",
+    "parameter": "<range>",
+    "success": "Qualifiers spreadsheet range teams set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_range_teams $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_range_teams D2:D`"
+  },
+  "set_qualifiers_spreadsheet_range_referee": {
+    "help": "Sets the qualifiers spreadsheet range referee.",
+    "parameter": "<range>",
+    "success": "Qualifiers spreadsheet range referee set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_range_referee $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_range_referee D2:D`"
+  },
+  "set_qualifiers_spreadsheet_range_date": {
+    "help": "Sets the qualifiers spreadsheet range date.",
+    "parameter": "<range>",
+    "success": "Qualifiers spreadsheet range date set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_range_date $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_range_date D2:D`"
+  },
+  "set_qualifiers_spreadsheet_range_time": {
+    "help": "Sets the qualifiers spreadsheet range time.",
+    "parameter": "[<range>]",
+    "success": "Qualifiers spreadsheet range time set to `%1`.",
+    "usage": "Usage: `%0set_qualifiers_spreadsheet_range_time $./parameter`\n\nExample: `%0set_qualifiers_spreadsheet_range_time D2:D`"
+  }
+}

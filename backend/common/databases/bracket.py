@@ -6,6 +6,7 @@ from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
 from common.databases.qualifiers_spreadsheet import QualifiersSpreadsheet
 from common.databases.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
 from common.api import challonge
+from common.api import spreadsheet
 
 
 class Bracket(Base):
@@ -47,6 +48,17 @@ class Bracket(Base):
             bot.session.update(self)
             return spreadsheet
         return None
+
+    def update_spreadsheet_of_type(self, bot, spreadsheet_type, spreadsheet_id, sheet_name):
+        any_spreadsheet = self.get_spreadsheet_from_type(spreadsheet_type)
+        if not any_spreadsheet:
+            any_spreadsheet = self.create_spreadsheet_from_type(bot, spreadsheet_type)
+        spreadsheet_id = spreadsheet.extract_spreadsheet_id(spreadsheet_id)
+        any_spreadsheet.spreadsheet_id = spreadsheet_id
+        if sheet_name:
+            any_spreadsheet.sheet_name = sheet_name
+        bot.session.update(any_spreadsheet)
+        return spreadsheet_id
 
     @classmethod
     def get_spreadsheet_types(cls):
