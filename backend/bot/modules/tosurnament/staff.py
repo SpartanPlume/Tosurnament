@@ -271,12 +271,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             elif len(role_cells) > 0:
                 role_cell = role_cells[0]
                 max_take = getattr(schedules_spreadsheet, "max_" + role_name.lower())
-                staffs = list(filter(None, [staff.strip().lower() for staff in role_cell.value.split("/")]))
-                if take and len(staffs) < max_take and staff_name not in staffs:
+                staffs = list(filter(None, [staff.strip() for staff in role_cell.value.split("/")]))
+                lower_staffs = [staff.lower() for staff in staffs]
+                if take and len(staffs) < max_take and staff_name not in lower_staffs:
                     staffs.append(user_details.name)
                     role_cell.value = " / ".join(staffs)
                     take_match = True
-                elif not take and staff_name in staffs:
+                elif not take and staff_name in lower_staffs:
                     staffs.remove(staff_name)
                     role_cell.value = " / ".join(staffs)
                     take_match = True
@@ -291,13 +292,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         staff_name = user_details.name.lower()
         role_cell = lobby_info.referee
-        staffs = list(filter(None, [staff.strip().lower() for staff in role_cell.value.split("/")]))
-        if take and staff_name not in staffs:
+        staffs = list(filter(None, [staff.strip() for staff in role_cell.value.split("/")]))
+        lower_staffs = [staff.lower() for staff in staffs]
+        if take and staff_name not in lower_staffs:
             staffs.append(user_details.name)
             role_cell.value = " / ".join(staffs)
             user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
             return True
-        elif not take and staff_name in staffs:
+        elif not take and staff_name in lower_staffs:
             staffs.remove(staff_name)
             role_cell.value = " / ".join(staffs)
             user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
