@@ -277,10 +277,15 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     staffs.append(user_details.name)
                     role_cell.value = " / ".join(staffs)
                     take_match = True
-                elif not take and staff_name in lower_staffs:
-                    staffs.remove(staff_name)
-                    role_cell.value = " / ".join(staffs)
-                    take_match = True
+                elif not take:
+                    try:
+                        idx = lower_staffs.index(staff_name)
+                        staffs.pop(idx)
+                        role_cell.value = " / ".join(staffs)
+                        role_store.taken_matches.append(match_info.match_id.value)
+                        return True
+                    except ValueError:
+                        pass
             if take_match:
                 role_store.taken_matches.append(match_info.match_id.value)
                 write_cells = True
@@ -299,11 +304,15 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             role_cell.value = " / ".join(staffs)
             user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
             return True
-        elif not take and staff_name in lower_staffs:
-            staffs.remove(staff_name)
-            role_cell.value = " / ".join(staffs)
-            user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
-            return True
+        elif not take:
+            try:
+                idx = lower_staffs.index(staff_name)
+                staffs.pop(idx)
+                role_cell.value = " / ".join(staffs)
+                user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
+                return True
+            except ValueError:
+                pass
         user_details.referee.not_taken_matches.append(lobby_info.lobby_id.value)
         return False
 
