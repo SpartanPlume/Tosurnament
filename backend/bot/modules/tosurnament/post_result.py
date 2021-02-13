@@ -35,13 +35,13 @@ class PostResultBuilder:
         self.tb_bans_team2 = ""
 
     def get_score_team1(self):
-        if self.score_team1 < 0:
+        if self.score_team1 < 0 or self.score_team1 == -1 + 2 ** 32:
             return "FF"
         else:
             return str(self.score_team1)
 
     def get_score_team2(self):
-        if self.score_team2 < 0:
+        if self.score_team2 < 0 or self.score_team2 == -1 + 2 ** 32:
             return "FF"
         else:
             return str(self.score_team2)
@@ -205,7 +205,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
     async def post_result(self, ctx, match_id: str):
         """Allows referees to post the result of a match"""
         tournament, bracket = await self.init_post_result(ctx, match_id)
-        await self.step0(ctx, match_id, -1, -1, tournament, bracket)
+        await self.step0(ctx, match_id, -1 + 2 ** 32, -1 + 2 ** 32, tournament, bracket)
 
     @commands.command(aliases=["prws"])
     async def post_result_with_scores(self, ctx, match_id: str, score_team1: int, score_team2: int):
@@ -304,6 +304,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             tb_bans_team2="\n".join(tb_bans_team2),
         )
         message = await self.step7_send_message(ctx, tournament, post_result_message)
+        if post_result_message.score_team1 < 0:
+            post_result_message.score_team1 = 2 ** 32 - 1
+        if post_result_message.score_team2 < 0:
+            post_result_message.score_team2 = 2 ** 32 - 1
         self.bot.session.add(post_result_message)
         await self.add_reaction_to_setup_message(message)
 
@@ -345,6 +349,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             score_team1=score_team1,
             score_team2=score_team2,
         )
+        if post_result_message.score_team1 < 0:
+            post_result_message.score_team1 = 2 ** 32 - 1
+        if post_result_message.score_team2 < 0:
+            post_result_message.score_team2 = 2 ** 32 - 1
         self.bot.session.add(post_result_message)
         await self.add_reaction_to_setup_message(message)
 
@@ -759,6 +767,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         )
         post_result_message.setup_message_id = message.id
         post_result_message.step = new_step
+        if post_result_message.score_team1 < 0:
+            post_result_message.score_team1 = 2 ** 32 - 1
+        if post_result_message.score_team2 < 0:
+            post_result_message.score_team2 = 2 ** 32 - 1
         self.bot.session.update(post_result_message)
         await self.add_reaction_to_setup_message(message)
 
