@@ -692,28 +692,28 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         self.bot.info("answer of step " + str(post_result_message.step))
         await steps[post_result_message.step - 1](ctx, tournament, post_result_message, parameter)
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the Tosurnament post_result module"""
-        await self.reaction_on_setup_message(message_id, emoji, guild, channel, user)
+        await self.reaction_on_setup_message(ctx, emoji)
 
-    async def reaction_on_setup_message(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_setup_message(self, ctx, emoji):
         """Change the setup message step"""
         try:
-            tournament = self.get_tournament(guild.id)
+            tournament = self.get_tournament(ctx.guild.id)
         except tosurnament.NoTournament:
             return
         post_result_message = (
             self.bot.session.query(PostResultMessage)
             .where(PostResultMessage.tournament_id == tournament.id)
-            .where(PostResultMessage.referee_id == user.id)
+            .where(PostResultMessage.referee_id == ctx.author.id)
             .first()
         )
         if not post_result_message or post_result_message.setup_message_id <= 0:
             return
         if emoji.name == "❌":
             self.bot.session.delete(post_result_message)
-            await self.delete_setup_message(channel, post_result_message)
-            await self.send_reply(channel, "post_result", "cancel")
+            await self.delete_setup_message(ctx.channel, post_result_message)
+            await self.send_reply(ctx.channel, "post_result", "cancel")
             return
         emoji_steps = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣"]
         if emoji.name not in emoji_steps:
@@ -721,11 +721,11 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         step = emoji_steps.index(emoji.name) + 1
         try:
             if step == 8:
-                await self.step7_send_message(channel, tournament, post_result_message)
+                await self.step7_send_message(ctx.channel, tournament, post_result_message)
             else:
-                await self.update_post_result_setup_message(post_result_message, channel, step)
+                await self.update_post_result_setup_message(post_result_message, ctx.channel, step)
         except Exception as e:
-            await self.on_cog_command_error(channel, "post_result", e)
+            await self.on_cog_command_error(ctx.channel, "post_result", e)
 
     async def add_reaction_to_setup_message(self, message):
         try:

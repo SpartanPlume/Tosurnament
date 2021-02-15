@@ -206,9 +206,13 @@ class Client(commands.Bot):
         user = guild.get_member(payload.user_id)
         if not user or user.bot:
             return
+        message = await channel.fetch_message(payload.message_id)
+        ctx = commands.Context(bot=self, channel=channel, guild=guild, message=message, prefix=self.command_prefix)
+        # Author needs to be changed after creation as it reassigns it during creation
+        ctx.author = user
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_add"):
-                await module.on_raw_reaction_add(payload.message_id, payload.emoji, guild, channel, user)
+                await module.on_raw_reaction_add(ctx, payload.emoji)
         spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 
     async def on_raw_reaction_remove(self, payload):
@@ -219,9 +223,13 @@ class Client(commands.Bot):
         user = guild.get_member(payload.user_id)
         if not user or user.bot:
             return
+        message = await channel.fetch_message(payload.message_id)
+        ctx = commands.Context(bot=self, channel=channel, guild=guild, message=message, prefix=self.command_prefix)
+        # Author needs to be changed after creation as it reassigns it during creation
+        ctx.author = user
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_remove"):
-                await module.on_raw_reaction_remove(payload.message_id, payload.emoji, guild, channel, user)
+                await module.on_raw_reaction_remove(ctx, payload.emoji)
         spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 
     async def on_member_join(self, member):

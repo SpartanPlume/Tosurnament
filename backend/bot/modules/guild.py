@@ -58,19 +58,22 @@ class GuildCog(base.BaseModule, name="guild"):
             self.bot.session.add(GuildVerifyMessage(message_id=message.id, guild_id=ctx.guild.id))
         await message.add_reaction("🛎️")
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the Guild module."""
-        await self.reaction_on_verify_message(message_id, emoji, guild, channel, user)
+        await self.reaction_on_verify_message(ctx, emoji)
 
-    async def reaction_on_verify_message(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_verify_message(self, ctx, emoji):
         """Verifies the user."""
-        if emoji.name == "🛎️":
+        guild_verify_message = (
+            self.bot.session.query(GuildVerifyMessage).where(GuildVerifyMessage.guild_id == ctx.guild.id).first()
+        )
+        if guild_verify_message and emoji.name == "🛎️":
             try:
-                self.get_verified_user(user.id)
+                self.get_verified_user(ctx.author.id)
             except Exception as e:
-                await self.on_cog_command_error(user, "setup_verification_channel", e)
+                await self.on_cog_command_error(ctx.author, "setup_verification_channel", e)
                 return
-            await self.bot.on_verified_user(guild, user)
+            await self.bot.on_verified_user(ctx.guild, ctx.author)
 
     async def on_verified_user(self, guild, user):
         bot_guild = self.get_guild(guild.id)

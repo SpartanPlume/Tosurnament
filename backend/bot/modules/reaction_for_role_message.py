@@ -160,19 +160,19 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         self.bot.session.delete(reaction_for_role_message)
         await self.send_reply(ctx, ctx.command.name, "success")
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the reaction_for_role_message module"""
-        await self.reaction_on_message(message_id, emoji, guild, channel, user, True)
+        await self.reaction_on_message(ctx, emoji, True)
 
-    async def on_raw_reaction_remove(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_remove(self, ctx, emoji):
         """on_raw_reaction_remove of the reaction_for_role_message module"""
-        await self.reaction_on_message(message_id, emoji, guild, channel, user, False)
+        await self.reaction_on_message(ctx, emoji, False)
 
-    async def reaction_on_message(self, message_id, emoji, guild, channel, user, add):
+    async def reaction_on_message(self, ctx, emoji, add):
         """Gives or removes the appropriate role."""
         reaction_for_role_message = (
             self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.message_id == message_id)
+            .where(ReactionForRoleMessage.message_id == ctx.message.id)
             .first()
         )
         if not reaction_for_role_message:
@@ -184,14 +184,14 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         roles = list(filter(None, reaction_for_role_message.roles.split("\n")))
         index = emojis.index(emoji_name)
 
-        role = guild.get_role(int(roles[index]))
+        role = ctx.guild.get_role(int(roles[index]))
         if not role:
             return
         try:
             if add:
-                await user.add_roles(role)
+                await ctx.author.add_roles(role)
             else:
-                await user.remove_roles(role)
+                await ctx.author.remove_roles(role)
         except Exception:
             return
 

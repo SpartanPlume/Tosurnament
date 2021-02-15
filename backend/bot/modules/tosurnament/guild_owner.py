@@ -53,23 +53,25 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         end_tournament_message = EndTournamentMessage(message_id=message.id)
         self.bot.session.add(end_tournament_message)
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the Tosurnament guild_owner module."""
-        await self.reaction_on_end_tournament_message(message_id, emoji, guild, channel, user)
+        await self.reaction_on_end_tournament_message(ctx, emoji)
 
-    async def reaction_on_end_tournament_message(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_end_tournament_message(self, ctx, emoji):
         """Ends a tournament."""
-        if user.id != guild.owner.id:
+        if ctx.author.id != ctx.guild.owner.id:
             return
         if emoji.name != "✅" and emoji.name != "❎":
             return
         end_tournament_message = (
-            self.bot.session.query(EndTournamentMessage).where(EndTournamentMessage.message_id == message_id).first()
+            self.bot.session.query(EndTournamentMessage)
+            .where(EndTournamentMessage.message_id == ctx.message.id)
+            .first()
         )
         if not end_tournament_message:
             return
         try:
-            tournament = self.get_tournament(guild.id)
+            tournament = self.get_tournament(ctx.guild.id)
         except tosurnament.NoTournament:
             self.bot.session.delete(end_tournament_message)
             return
@@ -84,10 +86,10 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             ).delete()
             self.bot.session.delete(tournament)
             self.bot.session.delete(end_tournament_message)
-            await self.send_reply(channel, "end_tournament", "success")
+            await self.send_reply(ctx.channel, "end_tournament", "success")
         else:
             self.bot.session.delete(end_tournament_message)
-            await self.send_reply(channel, "end_tournament", "refused")
+            await self.send_reply(ctx.channel, "end_tournament", "refused")
 
 
 def get_class(bot):

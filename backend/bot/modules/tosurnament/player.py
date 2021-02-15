@@ -573,51 +573,51 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         elif isinstance(error, tosurnament.TimeInThePast):
             await self.send_reply(ctx, ctx.command.name, "past_now")
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the Tosurnament player module."""
-        await self.reaction_on_reschedule_message(message_id, emoji, guild, channel, user)
+        await self.reaction_on_reschedule_message(ctx, emoji)
 
-    async def reaction_on_reschedule_message(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_reschedule_message(self, ctx, emoji):
         """Reschedules a match or denies the reschedule."""
         reschedule_message = (
-            self.bot.session.query(RescheduleMessage).where(RescheduleMessage.message_id == message_id).first()
+            self.bot.session.query(RescheduleMessage).where(RescheduleMessage.message_id == ctx.message.id).first()
         )
         if not reschedule_message or reschedule_message.in_use:
             return
-        if user.id != reschedule_message.opponent_user_id:
+        if ctx.author.id != reschedule_message.opponent_user_id:
             return
         reschedule_message.in_use = True
         self.bot.session.update(reschedule_message)
         bracket = None
         try:
-            tournament = self.get_tournament(guild.id)
+            tournament = self.get_tournament(ctx.guild.id)
             tournament.current_bracket_id = reschedule_message.bracket_id
             if not tournament.current_bracket:
                 raise tosurnament.UnknownError("Bracket not found")
             if emoji.name == "👍":
-                await self.agree_to_reschedule(reschedule_message, guild, channel, user, tournament)
+                await self.agree_to_reschedule(ctx, reschedule_message, tournament)
             elif emoji.name == "👎":
                 self.bot.session.delete(reschedule_message)
                 ally_to_mention = None
                 if reschedule_message.ally_team_role_id:
-                    ally_to_mention = tosurnament.get_role(guild.roles, reschedule_message.ally_team_role_id)
+                    ally_to_mention = tosurnament.get_role(ctx.guild.roles, reschedule_message.ally_team_role_id)
                 if not ally_to_mention:
-                    ally_to_mention = guild.get_member(reschedule_message.ally_user_id)
+                    ally_to_mention = ctx.guild.get_member(reschedule_message.ally_user_id)
                 if ally_to_mention:
                     await self.send_reply(
-                        channel, "reschedule", "refused", ally_to_mention.mention, reschedule_message.match_id
+                        ctx.channel, "reschedule", "refused", ally_to_mention.mention, reschedule_message.match_id
                     )
                 else:
-                    raise tosurnament.OpponentNotFound(user.mention)
+                    raise tosurnament.OpponentNotFound(ctx.author.mention)
             else:
                 reschedule_message.in_use = False
                 self.bot.session.update(reschedule_message)
         except Exception as e:
             reschedule_message.in_use = False
             self.bot.session.update(reschedule_message)
-            await self.reaction_on_reschedule_message_handler(channel, e, bracket)
+            await self.reaction_on_reschedule_message_handler(ctx.channel, e, bracket)
 
-    async def agree_to_reschedule(self, reschedule_message, guild, channel, user, tournament):
+    async def agree_to_reschedule(self, ctx, reschedule_message, tournament):
         """Updates the schedules spreadsheet with reschedule time."""
         schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
         if not schedules_spreadsheet:
@@ -652,18 +652,18 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
         ally_to_mention = None
         if reschedule_message.ally_team_role_id:
-            ally_to_mention = tosurnament.get_role(guild.roles, reschedule_message.ally_team_role_id)
+            ally_to_mention = tosurnament.get_role(ctx.guild.roles, reschedule_message.ally_team_role_id)
         if not ally_to_mention:
-            ally_to_mention = guild.get_member(reschedule_message.ally_user_id)
+            ally_to_mention = ctx.guild.get_member(reschedule_message.ally_user_id)
         if ally_to_mention:
-            await self.send_reply(channel, "reschedule", "accepted", ally_to_mention.mention, match_id)
+            await self.send_reply(ctx.channel, "reschedule", "accepted", ally_to_mention.mention, match_id)
         else:
             # TODO not raise
-            raise tosurnament.OpponentNotFound(user.mention)
+            raise tosurnament.OpponentNotFound(ctx.author.mention)
 
-        referees_to_ping, _ = self.find_staff_to_ping(guild, match_info.referees)
-        streamers_to_ping, _ = self.find_staff_to_ping(guild, match_info.streamers)
-        commentators_to_ping, _ = self.find_staff_to_ping(guild, match_info.commentators)
+        referees_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.referees)
+        streamers_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.streamers)
+        commentators_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.commentators)
 
         new_date_string = tosurnament.get_pretty_date(tournament, new_date)
         staff_channel = None
@@ -673,7 +673,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if staff_channel:
                 to_channel = staff_channel
             else:
-                to_channel = channel
+                to_channel = ctx.channel
             sent_message = await self.send_reply(
                 to_channel,
                 "reschedule",

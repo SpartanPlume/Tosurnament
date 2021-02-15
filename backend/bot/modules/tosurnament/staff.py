@@ -796,17 +796,17 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         self.bot.tasks.append(self.bot.loop.create_task(self.background_task_match_notification()))
         self.bot.tasks.append(self.bot.loop.create_task(self.background_task_clean_allowed_reschedule()))
 
-    async def on_raw_reaction_add(self, message_id, emoji, guild, channel, user):
+    async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the Tosurnament staff module."""
-        await self.reaction_on_match_notification(message_id, emoji, guild, channel, user)
-        await self.reaction_on_staff_reschedule_message(message_id, emoji, guild, channel, user)
+        await self.reaction_on_match_notification(ctx, emoji)
+        await self.reaction_on_staff_reschedule_message(ctx, emoji)
 
-    async def reaction_on_match_notification(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_match_notification(self, ctx, emoji):
         """Allows a referee to take a match from its notification."""
         if emoji.name != "💪":
             return
         match_notification = (
-            self.bot.session.query(MatchNotification).where(MatchNotification.message_id_hash == message_id).first()
+            self.bot.session.query(MatchNotification).where(MatchNotification.message_id_hash == ctx.message.id).first()
         )
         if not match_notification or match_notification.in_use:
             return
@@ -814,7 +814,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not tournament:
             self.bot.session.delete(match_notification)
             return
-        referee_role = tosurnament.get_role(user.roles, tournament.referee_role_id, "Referee")
+        referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
         if not referee_role:
             return
         match_notification.in_use = True
@@ -826,7 +826,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         try:
             await self.take_or_drop_match_in_spreadsheets(
                 [match_notification.match_id],
-                tosurnament.UserDetails.get_as_referee(self.bot, user),
+                tosurnament.UserDetails.get_as_referee(self.bot, ctx.author),
                 True,
                 set(),
                 bracket.schedules_spreadsheet,
@@ -836,14 +836,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             match_notification.in_use = False
             self.bot.session.update(match_notification)
-            await self.on_cog_command_error(channel, "take_match", e)
+            await self.on_cog_command_error(ctx.channel, "take_match", e)
             return
         command_name = "player_match_notification"
         if match_notification.notification_type == 1:
             command_name = "referee_match_notification"
         elif match_notification.notification_type == 2:
             command_name = "qualifier_match_notification"
-        match_notification_message = await channel.fetch_message(match_notification.message_id)
+        match_notification_message = await ctx.channel.fetch_message(match_notification.message_id)
         if match_notification.notification_type == 2:
             await match_notification_message.edit(
                 content=self.get_string(
@@ -853,7 +853,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     match_notification.teams_mentions,
                     referee_role.mention,
                     match_notification.date_info,
-                    user.mention,
+                    ctx.author.mention,
                 )
             )
         else:
@@ -866,18 +866,18 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     match_notification.team2_mention,
                     referee_role.mention,
                     match_notification.date_info,
-                    user.mention,
+                    ctx.author.mention,
                 )
             )
         self.bot.session.delete(match_notification)
 
-    async def reaction_on_staff_reschedule_message(self, message_id, emoji, guild, channel, user):
+    async def reaction_on_staff_reschedule_message(self, ctx, emoji):
         """Removes the referee from the schedule spreadsheet"""
         if emoji.name != "❌":
             return
         staff_reschedule_message = (
             self.bot.session.query(StaffRescheduleMessage)
-            .where(StaffRescheduleMessage.message_id == message_id)
+            .where(StaffRescheduleMessage.message_id == ctx.message.id)
             .first()
         )
         if not staff_reschedule_message or staff_reschedule_message.in_use:
@@ -892,10 +892,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if commentator_id
         ]
         if staff_reschedule_message.staff_id:
-            if user.id != staff_reschedule_message.staff_id:
+            if ctx.author.id != staff_reschedule_message.staff_id:
                 return
         else:
-            if user.id not in referees_id and user.id not in streamers_id and user.id not in commentators_id:
+            if (
+                ctx.author.id not in referees_id
+                and ctx.author.id not in streamers_id
+                and ctx.author.id not in commentators_id
+            ):
                 return
         tournament = (
             self.bot.session.query(Tournament).where(Tournament.id == staff_reschedule_message.tournament_id).first()
@@ -913,24 +917,24 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not schedules_spreadsheet:
             return
         try:
-            user_details = tosurnament.UserDetails.get_from_user(self.bot, user, tournament)
+            user_details = tosurnament.UserDetails.get_from_user(self.bot, ctx.author, tournament)
             await self.take_or_drop_match_in_spreadsheets(
                 [staff_reschedule_message.match_id], user_details, False, set(), schedules_spreadsheet
             )
             # TODO if not write_cells send error + update message instead of reply
             if staff_reschedule_message.staff_id:
-                await channel.send(self.build_take_match_reply(user_details, False, set()))
+                await ctx.channel.send(self.build_take_match_reply(user_details, False, set()))
             else:
-                if user.id in referees_id:
-                    referees_id.remove(user.id)
+                if ctx.author.id in referees_id:
+                    referees_id.remove(ctx.author.id)
                     staff_reschedule_message.referees_id = "\n".join([str(referee_id) for referee_id in referees_id])
-                if user.id in streamers_id:
-                    streamers_id.remove(user.id)
+                if ctx.author.id in streamers_id:
+                    streamers_id.remove(ctx.author.id)
                     staff_reschedule_message.streamers_id = "\n".join(
                         [str(streamer_id) for streamer_id in streamers_id]
                     )
-                if user.id in commentators_id:
-                    commentators_id.remove(user.id)
+                if ctx.author.id in commentators_id:
+                    commentators_id.remove(ctx.author.id)
                     staff_reschedule_message.commentators_id = "\n".join(
                         [str(commentator_id) for commentator_id in commentators_id]
                     )
@@ -947,19 +951,21 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT
                 )
                 new_date_string = tosurnament.get_pretty_date(tournament, new_date)
-                message = await channel.fetch_message(message_id)
+                message = await ctx.channel.fetch_message(ctx.message.id)
                 referees = [
                     referee.mention
-                    for referee in list(filter(None, [guild.get_member(referee_id) for referee_id in referees_id]))
+                    for referee in list(filter(None, [ctx.guild.get_member(referee_id) for referee_id in referees_id]))
                 ]
                 streamers = [
                     streamer.mention
-                    for streamer in list(filter(None, [guild.get_member(streamer_id) for streamer_id in streamers_id]))
+                    for streamer in list(
+                        filter(None, [ctx.guild.get_member(streamer_id) for streamer_id in streamers_id])
+                    )
                 ]
                 commentators = [
                     commentator.mention
                     for commentator in list(
-                        filter(None, [guild.get_member(commentator_id) for commentator_id in commentators_id])
+                        filter(None, [ctx.guild.get_member(commentator_id) for commentator_id in commentators_id])
                     )
                 ]
                 if referees + streamers + commentators:
@@ -993,7 +999,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             staff_reschedule_message.in_use = False
             self.bot.session.update(staff_reschedule_message)
-            await self.on_cog_command_error(channel, "take_match", e)
+            await self.on_cog_command_error(ctx.channel, "take_match", e)
             return
 
 
