@@ -1,21 +1,21 @@
 {
   "set_admin_role": {
-    "usage": "Usage: `%0set_admin_role $./parameter`\n\nExample: `%0set_admin_role Admin`",
     "help": "All of those with the <role> role can do admin command on the bot.",
     "parameter": "<role>",
+    "example_parameter": "Admin",
     "success": "Admin role set to `%1`."
   },
   "set_verified_role": {
-    "usage": "Usage: `%0set_verified_role $./parameter`\n\nExample: `%0set_verified_role Verified`",
     "help": "All of those with the <role> role have been verified, meaning they have their osu! account linked to their Discord account.",
     "parameter": "<role>",
+    "example_parameter": "Verified",
     "success": "Verified role set to `%1`."
   },
   "setup_verification_channel": {
-    "usage": "Usage: `%setup_verification_channel $./parameter`\n\nExample: `%setup_verification_channel #verify`",
     "help": "Setups a channel for people to understand the verification process and do it.",
     "parameter": "<channel>",
+    "example_parameter": "#verify",
     "success": "",
-    "setup": "Hello! You need to be authentificated with this bot (Tosurnament) before being able to fully join this guild. The authentification process is simple, just send a message with the command described below and follow the instructions.\n\n$auth/link/usage\n\nSo if your osu username is `Spartan Plume` (for example), just send me `%0link Spartan Plume`.\n\nOnce you have been authentificated, just react on this message with the :bellhop: emoji."
+    "setup": "Hello! You need to be authentificated with this bot (Tosurnament) before being able to fully join this guild. The authentification process is simple, just send a message to this bot with the command: `%0link <osu_name>` where you replace `<osu_name>` by your osu username.\n\nSo if your osu username is `Spartan Plume` (for example), just send `%0link Spartan Plume`.\n\nOnce you have been authentificated, just react on this message with the :bellhop: emoji."
   }
 }

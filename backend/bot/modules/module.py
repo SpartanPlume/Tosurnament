@@ -72,7 +72,7 @@ class BaseModule(commands.Cog):
         for key, value in values.items():
             setattr(table, key, value)
         self.bot.session.update(table)
-        await self.send_reply(ctx, ctx.command.name, "success", value, stack_depth=2)
+        await self.send_reply(ctx, "success", value, stack_depth=2)
 
     def get_guild(self, guild_id):
         return self.bot.session.query(Guild).where(Guild.guild_id == guild_id).first()
@@ -90,30 +90,24 @@ class BaseModule(commands.Cog):
             raise UserNotVerified()
         return user
 
-    def get_string(self, command_name, field_name, *args):
+    def get_module_name_from_stack(self, stack_depth):
+        stack = inspect.currentframe().f_back
+        while stack_depth > 0:
+            stack = stack.f_back
+            stack_depth -= 1
+        return stack.f_globals["__name__"][12:]
+
+    def get_string(self, ctx, field_name, *args, stack_depth=1):
         """Gets string from strings.json file"""
-        module_name = inspect.getmodule(inspect.stack()[1][0]).__name__[12:]
-        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
+        module_name = self.get_module_name_from_stack(stack_depth)
+        modules = module_name.split(".")[:-1]
+        reply = self.find_reply(self.bot.strings, field_name, modules + [ctx.command.cog_name, ctx.command.name])
         if reply:
             return load_json.replace_in_string(reply, self.bot.command_prefix, *args)
         else:
-            print("ERROR: reply not found: " + field_name)  # ! To transform to log
+            if field_name not in ["parameter", "example_parameter"]:
+                self.bot.error("Reply not found: " + ctx.command.cog_name + ": " + ctx.command.name + ": " + field_name)
         return ""
-
-    def get_embed_and_content(self, command_name, field_name, *args):
-        """Gets string from strings.json file"""
-        module_name = inspect.getmodule(inspect.stack()[1][0]).__name__[12:]
-        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
-        content = None
-        embed = None
-        if isinstance(reply, dict):
-            reply = copy.deepcopy(reply)
-            reply = load_json.replace_in_object(reply, self.bot.command_prefix, *args)
-            if "content" in reply:
-                content = reply["content"]
-            if "embed" in reply:
-                embed = discord.Embed.from_dict(reply["embed"])
-        return embed, content
 
     async def send_message(self, channel, reply, *args):
         """Sends back a message/embed response."""
@@ -142,79 +136,100 @@ class BaseModule(commands.Cog):
             return replies["module"][field_name]
         return None
 
-    async def send_reply(self, channel, command_name, field_name, *args, stack_depth=1):
+    async def send_reply(self, ctx, field_name, *args, channel=None, stack_depth=1):
         """Sends a reply found in the replies files."""
-        module_name = inspect.getmodule(inspect.stack()[stack_depth][0]).__name__[12:]
+        module_name = self.get_module_name_from_stack(stack_depth)
+        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [ctx.command.name])
+        if reply:
+            if not channel:
+                channel = ctx.channel
+            return await self.send_message(channel, reply, *args)
+        else:
+            self.bot.error("Reply not found: " + ctx.command.cog_name + ": " + ctx.command.name + ": " + field_name)
+        return None
+
+    async def send_reply_in_bg_task(self, channel, command_name, field_name, *args):
+        """Sends a reply found in the replies files."""
+        module_name = self.get_module_name_from_stack(1)
         reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
         if reply:
             return await self.send_message(channel, reply, *args)
         else:
-            print("ERROR: reply not found: " + field_name)  # ! To transform to log
+            self.bot.error("Reply not found: bg_task: " + command_name + ": " + field_name)
         return None
 
     async def send_usage(self, ctx):
         """Sends a usage reply found in the replies files."""
-        reply = self.bot.strings
-        module_name = inspect.getmodule(inspect.stack()[2][0]).__name__[12:]
-        modules = module_name.split(".")
-        if modules and modules[-1] == "module":
-            modules = modules[:-1]
-        reply = self.find_reply(self.bot.strings, "usage", modules + [ctx.command.cog_name, ctx.command.name])
+        command_string = self.bot.command_prefix + ctx.command.name
+        reply = "Usage: `" + command_string
+        parameters = self.get_string(ctx, "parameter", stack_depth=3)
+        if parameters:
+            reply += " " + parameters + "`"
+            example = self.get_string(ctx, "example_parameter", stack_depth=3)
+            if example:
+                reply += "\n\nExample: `" + command_string + " " + example + "`"
+        else:
+            reply += "`"
+        usage_info = self.get_string(ctx, "usage_info", stack_depth=3)
+        if usage_info:
+            reply += "\n\n" + usage_info
         if reply:
             return await self.send_message(ctx, reply)
         return None
 
     async def cog_command_error(self, ctx, error):
-        await self.on_cog_command_error(ctx, ctx.command.name, error)
+        await self.on_cog_command_error(ctx, error)
 
-    async def on_cog_command_error(self, channel, command_name, error):
+    async def on_cog_command_error(self, ctx, error, channel=None):
+        if not channel:
+            channel = ctx.channel
         self.bot.info_exception(error)
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.send_usage(channel)
+            await self.send_usage(ctx)
         elif isinstance(error, commands.BadArgument):
-            await self.send_usage(channel)
+            await self.send_usage(ctx)
         elif isinstance(error, commands.UserInputError):
-            await self.send_usage(channel)
+            await self.send_usage(ctx)
         elif isinstance(error, commands.NoPrivateMessage):
-            await self.send_reply(channel, command_name, "not_on_a_server")
+            await self.send_reply(ctx, "not_on_a_server", channel=channel)
         elif isinstance(error, commands.DisabledCommand):
-            await self.send_reply(channel, command_name, "disabled_command")
+            await self.send_reply(ctx, "disabled_command", channel=channel)
         elif isinstance(error, commands.BotMissingPermissions):
             for missing_permission in error.missing_perms:
                 if missing_permission == "manage_nicknames":
-                    await self.send_reply(channel, command_name, "change_nickname_forbidden")
+                    await self.send_reply(ctx, "change_nickname_forbidden", channel=channel)
                     return True
                 elif missing_permission == "manage_roles":
-                    await self.send_reply(channel, command_name, "change_role_forbidden")
+                    await self.send_reply(ctx, "change_role_forbidden", channel=channel)
                     return True
             return False
         elif isinstance(error, discord.Forbidden):
             if error.code == 50007:
-                await self.send_reply(channel, command_name, "restricted_dm")
+                await self.send_reply(ctx, "restricted_dm", channel=channel)
                 return True
             return False
         elif isinstance(error, UnknownError):
-            await self.send_reply(channel, command_name, "unknown_error")
+            await self.send_reply(ctx, "unknown_error", channel=channel)
         elif isinstance(error, NotGuildOwner):
-            await self.send_reply(channel, command_name, "not_guild_owner")
+            await self.send_reply(ctx, "not_guild_owner", channel=channel)
         elif isinstance(error, NotBotAdmin):
-            await self.send_reply(channel, command_name, "no_rights")
+            await self.send_reply(ctx, "no_rights", channel=channel)
         elif isinstance(error, InvalidRoleName):
-            await self.send_reply(channel, command_name, "invalid_role_name", error.role_name)
+            await self.send_reply(ctx, "invalid_role_name", error.role_name, channel=channel)
         elif isinstance(error, RoleDoesNotExist):
-            await self.send_reply(channel, command_name, "role_does_not_exist", error.role)
+            await self.send_reply(ctx, "role_does_not_exist", error.role, channel=channel)
         elif isinstance(error, NotRequiredRole):
-            await self.send_reply(channel, command_name, "not_required_role", error.role)
+            await self.send_reply(ctx, "not_required_role", error.role, channel=channel)
         elif isinstance(error, UserNotFound):
-            await self.send_reply(channel, command_name, "user_not_found", error.username)
+            await self.send_reply(ctx, "user_not_found", error.username, channel=channel)
         elif isinstance(error, UserNotLinked):
-            await self.send_reply(channel, command_name, "not_linked")
+            await self.send_reply(ctx, "not_linked", channel=channel)
         elif isinstance(error, UserNotVerified):
-            await self.send_reply(channel, command_name, "not_verified")
+            await self.send_reply(ctx, "not_verified", channel=channel)
         elif isinstance(error, OsuError):
-            await self.send_reply(channel, command_name, "osu_error")
+            await self.send_reply(ctx, "osu_error", channel=channel)
         elif isinstance(error, commands.CommandInvokeError):
-            return await self.on_cog_command_error(channel, command_name, error.original)
+            return await self.on_cog_command_error(ctx, error.original, channel=channel)
         else:
             return False
         return True

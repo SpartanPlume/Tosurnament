@@ -24,7 +24,7 @@ class TosurnamentQualifiersResultsSpreadsheetCog(
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
         spreadsheet_id = bracket.update_spreadsheet_of_type(self.bot, "qualifiers_results", spreadsheet_id, sheet_name)
-        await self.send_reply(ctx, ctx.command.name, "success", spreadsheet_id)
+        await self.send_reply(ctx, "success", spreadsheet_id)
 
     async def set_qualifiers_results_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""

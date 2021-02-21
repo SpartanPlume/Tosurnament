@@ -2,7 +2,8 @@
   "create_qualifiers_results_message": {
     "help": "Creates the qualifiers results message",
     "parameter": "<channel> [<status>]",
-    "usage": "Usage: `%0create_qualifiers_results_message $./parameter`\n\nExample: `%0create_qualifiers_results_message #qualifiers_results ENDED`",
+    "example_parameter": "#qualifiers_results ENDED",
+    "not_supported_yet": "Qualifiers results message is not supported for multiple brackets tournament yet.",
     "embed": {
       "embed": {
         "title": "%1 Qualifiers %2",
@@ -25,32 +26,40 @@
   "allow_next_reschedule": {
     "help": "Allows a match to be reschedule without any time constraint applied",
     "parameter": "<match_id> [<allowed_hours>]",
-    "usage": "Usage: `%0allow_next_reschedule $./parameter`\n\nExample: `%0allow_next_reschedule C2`",
+    "example_parameter": "C2",
     "success": "The match `%1` is now allowed to be rescheduled without deadline checks once (if successful) during the next `%2` hours.\n\n%3 / %4, you can now reschedule your match.",
     "not_referee_of_match": "You cannot allow the reschedule of a match of which you are not the referee."
   },
   "take_match": {
     "help": "Puts the staff member's name on the spreadsheet in all roles column (only for roles they have) for the corresponding matches.",
     "parameter": "<match_id(s)>",
+    "example_parameter": "1A 2A 2B",
     "taken_match_ids": "As a __%1__, %2 **succesfully took** the matches: ",
     "not_taken_match_ids": "As a __%1__, %2, those matches were **already taken**: ",
     "invalid_match_ids": "Those matches does not exist: ",
-    "not_staff": "You do not have any staff roles (Referee, Streamer...), so you cannot use this command.",
-    "staff_notification": "$../../player/reschedule/staff_notification",
-    "staff_notification_all_staff_removed": "$../../player/reschedule/no_staff_notification\n\nAll the staffs that had taken this match dropped it.",
-    "usage": "Usage: `%0take_match $./parameter`\n\nExample: `%0take_match 1A 2A 2B`"
+    "not_staff": "You do not have any staff roles (Referee, Streamer...), so you cannot use this command."
   },
   "take_match_as_referee": {
     "help": "Puts the staff member's name on the spreadsheet in the Referee column for the corresponding matches.",
-    "usage": "Usage: `%0take_match_as_referee $../take_match/parameter`\n\nExample: `%0take_match_as_referee 1A 2A 2B`"
+    "parameter": "$../take_match/parameter",
+    "example_parameter": "$../take_match/example_parameter",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
   },
   "take_match_as_streamer": {
     "help": "Puts the staff member's name on the spreadsheet in the Streamer column for the corresponding matches.",
-    "usage": "Usage: `%0take_match_as_streamer $../take_match/parameter`\n\nExample: `%0take_match_as_streamer 1A 2A 2B`"
+    "usage": "Usage: `%0take_match_as_streamer $../take_match/parameter`\n\nExample: `%0take_match_as_streamer 1A 2A 2B`",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
   },
   "take_match_as_commentator": {
     "help": "Puts the staff member's name on the spreadsheet in the Commentator column for the corresponding matches.",
-    "usage": "Usage: `%0take_match_as_commentator $../take_match/parameter`\n\nExample: `%0take_match_as_commentator 1A 2A 2B`"
+    "usage": "Usage: `%0take_match_as_commentator $../take_match/parameter`\n\nExample: `%0take_match_as_commentator 1A 2A 2B`",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
   },
   "drop_match": {
     "help": "Removes the staff member's name on the spreadsheet of all roles column (only for roles they have) for the corresponding matches.",
@@ -62,15 +71,24 @@
   },
   "drop_match_as_referee": {
     "help": "Removes the staff member's name on the spreadsheet of the Referee column for the corresponding matches.",
-    "usage": "Usage: `%0drop_match_as_referee $../take_match/parameter`\n\nExample: `%0drop_match_as_referee 1A 2A 2B`"
+    "usage": "Usage: `%0drop_match_as_referee $../take_match/parameter`\n\nExample: `%0drop_match_as_referee 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids"
   },
   "drop_match_as_streamer": {
     "help": "Removes the staff member's name on the spreadsheet of the Streamer column for the corresponding matches.",
-    "usage": "Usage: `%0drop_match_as_streamer $../take_match/parameter`\n\nExample: `%0drop_match_as_streamer 1A 2A 2B`"
+    "usage": "Usage: `%0drop_match_as_streamer $../take_match/parameter`\n\nExample: `%0drop_match_as_streamer 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids"
   },
   "drop_match_as_commentator": {
     "help": "Removes the staff member's name on the spreadsheet of the Commentator column for the corresponding matches.",
-    "usage": "Usage: `%0drop_match_as_commentator $../take_match/parameter`\n\nExample: `%0drop_match_as_commentator 1A 2A 2B`"
+    "usage": "Usage: `%0drop_match_as_commentator $../take_match/parameter`\n\nExample: `%0drop_match_as_commentator 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../drop_match/invalid_match_ids"
   },
   "qualifier_match_notification": {
     "common_begin": "_ _\n**__Qualifier lobby %1__\n\n%2**\n\n__Referee:__ ",
@@ -94,10 +112,13 @@
     "notification": "$./common\n\n$./description",
     "edited": "$./common\n\n~~$./description~~\n\nThis match has been taken by %6."
   },
+  "reaction_on_staff_reschedule_message": {
+    "staff_notification": "$../../player/reaction_on_reschedule_message/staff_notification",
+    "staff_notification_all_staff_removed": "$../../player/reaction_on_reschedule_message/no_staff_notification\n\nAll the staffs that had taken this match dropped it."
+  },
   "show_next_matches": {
     "help": "Shows a list of next matches (by default 5 next matches)",
     "parameter": "[<n_match_to_show> = 5] [<where_has_no_referee> = False]",
-    "usage": "Usage: `%0show_next_matches $./parameter`\n\nExample: `%0show_next_matches 10 True`",
     "no_match_without_referee": "There is no more matches without a referee.",
     "no_match": "There is no more matches."
   }

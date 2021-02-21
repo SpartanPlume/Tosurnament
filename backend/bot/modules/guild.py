@@ -1,5 +1,6 @@
 """Contains all guild settings commands."""
 
+import inspect
 import discord
 from discord.ext import commands
 from bot.modules import module as base
@@ -35,7 +36,7 @@ class GuildCog(base.BaseModule, name="guild"):
         for key, value in values.items():
             setattr(guild, key, value)
         self.bot.session.update(guild)
-        await self.send_reply(ctx, ctx.command.name, "success", value)
+        await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["svc"])
     async def setup_verification_channel(self, ctx, channel: discord.TextChannel):
@@ -47,7 +48,7 @@ class GuildCog(base.BaseModule, name="guild"):
         verified_role = base.get_role(ctx.guild.roles, verified_role_id, "Verified")
         if not verified_role:
             raise base.RoleDoesNotExist("Verified")
-        message = await self.send_reply(channel, ctx.command.name, "setup")
+        message = await self.send_reply(ctx, "setup", channel=channel)
         guild_verify_message = (
             self.bot.session.query(GuildVerifyMessage).where(GuildVerifyMessage.guild_id == ctx.guild.id).first()
         )
@@ -64,6 +65,7 @@ class GuildCog(base.BaseModule, name="guild"):
 
     async def reaction_on_verify_message(self, ctx, emoji):
         """Verifies the user."""
+        ctx.command.name = inspect.currentframe().f_code.co_name
         guild_verify_message = (
             self.bot.session.query(GuildVerifyMessage).where(GuildVerifyMessage.guild_id == ctx.guild.id).first()
         )
@@ -71,7 +73,7 @@ class GuildCog(base.BaseModule, name="guild"):
             try:
                 self.get_verified_user(ctx.author.id)
             except Exception as e:
-                await self.on_cog_command_error(ctx.author, "setup_verification_channel", e)
+                await self.on_cog_command_error(ctx, e, channel=ctx.author.dm_channel)
                 return
             await self.bot.on_verified_user(ctx.guild, ctx.author)
 

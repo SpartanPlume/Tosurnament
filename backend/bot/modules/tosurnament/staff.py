@@ -1,5 +1,6 @@
 """Staff commands"""
 
+import inspect
 import asyncio
 import datetime
 import discord
@@ -48,7 +49,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not admin_role and not ctx.guild.owner == ctx.author and not referee_role:
             raise tosurnament.NotRequiredRole("Referee")
         if len(tournament.brackets) > 1:
-            await self.send_reply(ctx, ctx.command.name, "not_supported_yet")
+            await self.send_reply(ctx, "not_supported_yet")
             return
         bracket = tournament.current_bracket
         qualifiers_results_spreadsheet = bracket.qualifiers_results_spreadsheet
@@ -89,8 +90,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             message = await channel.fetch_message(qualifiers_results_message.message_id)
             await message.delete()
         message = await self.send_reply(
-            channel,
-            "create_qualifiers_results_message",
+            ctx,
             "embed",
             tournament.name,
             status,
@@ -99,6 +99,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             "%.2f%%" % (avg_score * 100),
             "%.2f%% `(32. %s)`" % ((cut_off.score.value * 100), escape_markdown(cut_off.osu_id.value)),
             str(ctx.guild.icon_url),
+            channel=channel,
         )
         qualifiers_results_message.message_id = message.id
         self.bot.session.update(qualifiers_results_message)
@@ -150,7 +151,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             try:
                 match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
             except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
-                await self.on_cog_command_error(ctx, ctx.command.name, e)
+                await self.on_cog_command_error(ctx, e)
                 continue
             except MatchIdNotFound as e:
                 self.bot.info(str(type(e)) + ": " + str(e))
@@ -174,77 +175,67 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
         )
         self.bot.session.add(allowed_reschedule)
-        await self.send_reply(ctx, ctx.command.name, "success", match_id, allowed_hours, team1, team2)
+        await self.send_reply(ctx, "success", match_id, allowed_hours, team1, team2)
 
     @allow_next_reschedule.error
     async def allow_next_reschedule_handler(self, ctx, error):
         """Error handler of allow_next_reschedule function."""
         if isinstance(error, tosurnament.NotRefereeOfMatch):
-            await self.send_reply(ctx, ctx.command.name, "not_referee_of_match")
+            await self.send_reply(ctx, "not_referee_of_match")
 
     @commands.command(aliases=["take_matches", "tm"])
     async def take_match(self, ctx, *args):
         """Allows staffs to take matches"""
         user_details = tosurnament.UserDetails.get_from_ctx(ctx)
         if not user_details.is_staff():
-            await self.send_reply(ctx, ctx.command.name, "not_staff")
+            await self.send_reply(ctx, "not_staff")
         else:
-            await self.take_or_drop_match_with_ctx(ctx, args, True, user_details)
+            await self.take_or_drop_match(ctx, args, True, user_details)
 
     @commands.command(aliases=["take_matches_as_referee", "tmar"])
     @tosurnament.has_tournament_role("Referee")
     async def take_match_as_referee(self, ctx, *args):
         """Allows referees to take matches"""
-        await self.take_or_drop_match_with_ctx(
-            ctx, args, True, tosurnament.UserDetails.get_as_referee(self.bot, ctx.author)
-        )
+        await self.take_or_drop_match(ctx, args, True, tosurnament.UserDetails.get_as_referee(self.bot, ctx.author))
 
     @commands.command(aliases=["take_matches_as_streamer", "tmas"])
     @tosurnament.has_tournament_role("Streamer")
     async def take_match_as_streamer(self, ctx, *args):
         """Allows streamers to take matches"""
-        await self.take_or_drop_match_with_ctx(
-            ctx, args, True, tosurnament.UserDetails.get_as_streamer(self.bot, ctx.author)
-        )
+        await self.take_or_drop_match(ctx, args, True, tosurnament.UserDetails.get_as_streamer(self.bot, ctx.author))
 
     @commands.command(aliases=["take_matches_as_commentator", "tmac"])
     @tosurnament.has_tournament_role("Commentator")
     async def take_match_as_commentator(self, ctx, *args):
         """Allows commentators to take matches"""
-        await self.take_or_drop_match_with_ctx(
-            ctx, args, True, tosurnament.UserDetails.get_as_commentator(self.bot, ctx.author)
-        )
+        await self.take_or_drop_match(ctx, args, True, tosurnament.UserDetails.get_as_commentator(self.bot, ctx.author))
 
     @commands.command(aliases=["drop_matches", "dm"])
     async def drop_match(self, ctx, *args):
         """Allows staffs to drop matches"""
         user_details = tosurnament.UserDetails.get_from_ctx(ctx)
         if not user_details.is_staff():
-            await self.send_reply(ctx, ctx.command.name, "not_staff")
+            await self.send_reply(ctx, "not_staff")
         else:
-            await self.take_or_drop_match_with_ctx(ctx, args, False, user_details)
+            await self.take_or_drop_match(ctx, args, False, user_details)
 
     @commands.command(aliases=["drop_matches_as_referee", "dmar"])
     @tosurnament.has_tournament_role("Referee")
     async def drop_match_as_referee(self, ctx, *args):
         """Allows referees to drop matches"""
-        await self.take_or_drop_match_with_ctx(
-            ctx, args, False, tosurnament.UserDetails.get_as_referee(self.bot, ctx.author)
-        )
+        await self.take_or_drop_match(ctx, args, False, tosurnament.UserDetails.get_as_referee(self.bot, ctx.author))
 
     @commands.command(aliases=["drop_matches_as_streamer", "dmas"])
     @tosurnament.has_tournament_role("Streamer")
     async def drop_match_as_streamer(self, ctx, *args):
         """Allows streamers to drop matches"""
-        await self.take_or_drop_match_with_ctx(
-            ctx, args, False, tosurnament.UserDetails.get_as_streamer(self.bot, ctx.author)
-        )
+        await self.take_or_drop_match(ctx, args, False, tosurnament.UserDetails.get_as_streamer(self.bot, ctx.author))
 
     @commands.command(aliases=["drop_matches_as_commentator", "dmac"])
     @tosurnament.has_tournament_role("Commentator")
     async def drop_match_as_commentator(self, ctx, *args):
         """Allows commentators to drop matches"""
-        await self.take_or_drop_match_with_ctx(
+        await self.take_or_drop_match(
             ctx, args, False, tosurnament.UserDetails.get_as_commentator(self.bot, ctx.author)
         )
 
@@ -354,13 +345,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return string + ", ".join(str(match_id) for match_id in match_ids) + "\n"
         return ""
 
-    def build_take_match_reply(self, user_details, take, invalid_match_ids):
+    def build_take_match_reply(self, ctx, user_details, invalid_match_ids):
         """Builds the reply depending on matches taken or not and invalid matches."""
         staff_name = escape_markdown(user_details.name)
         reply = ""
-        command_name = "take_match"
-        if not take:
-            command_name = "drop_match"
         for staff_title, staff in user_details.get_staff_roles_as_dict().items():
             if staff:
                 for match_id in invalid_match_ids.copy():
@@ -370,24 +358,21 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         invalid_match_ids.remove(match_id)
                         continue
                 reply += self.format_take_match_string(
-                    self.get_string(command_name, "taken_match_ids", staff_title, staff_name),
+                    self.get_string(ctx, "taken_match_ids", staff_title, staff_name),
                     staff.taken_matches,
                 )
                 reply += self.format_take_match_string(
-                    self.get_string(command_name, "not_taken_match_ids", staff_title, staff_name),
+                    self.get_string(ctx, "not_taken_match_ids", staff_title, staff_name),
                     staff.not_taken_matches,
                 )
-        reply += self.format_take_match_string(self.get_string(command_name, "invalid_match_ids"), invalid_match_ids)
+        reply += self.format_take_match_string(self.get_string(ctx, "invalid_match_ids"), invalid_match_ids)
         return reply
 
-    async def take_or_drop_match_with_ctx(self, ctx, match_ids, take, user_details):
-        await self.take_or_drop_match(ctx.guild.id, ctx.channel, match_ids, take, user_details)
-
-    async def take_or_drop_match(self, guild_id, channel, match_ids, take, user_details):
+    async def take_or_drop_match(self, ctx, match_ids, take, user_details):
         if not match_ids:
             raise commands.UserInputError()
         match_ids = set(match_ids)
-        tournament = self.get_tournament(guild_id)
+        tournament = self.get_tournament(ctx.guild.id)
         invalid_match_ids = set()
         schedules_spreadsheets = []
         qualifiers_spreadsheets = []
@@ -401,7 +386,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         await self.take_or_drop_match_in_spreadsheets(
             match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets, *qualifiers_spreadsheets
         )
-        await channel.send(self.build_take_match_reply(user_details, take, invalid_match_ids))
+        await ctx.send(self.build_take_match_reply(ctx, user_details, invalid_match_ids))
 
     @commands.command(aliases=["snm", "show_next_match"])
     async def show_next_matches(self, ctx, n_match_to_show: int = 5, where_has_no_referee: bool = False):
@@ -451,9 +436,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if reply_string:
             await ctx.send(reply_string)
         elif where_has_no_referee:
-            await self.send_reply(ctx, ctx.command.name, "no_match_without_referee")
+            await self.send_reply(ctx, "no_match_without_referee")
         else:
-            await self.send_reply(ctx, ctx.command.name, "no_match")
+            await self.send_reply(ctx, "no_match")
 
     async def get_team_mention(self, guild, players_spreadsheet, team_name):
         if not players_spreadsheet:
@@ -514,7 +499,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 notification_type = "notification_no_referre_no_role"
         minutes_before_match = str(int(delta.seconds / 60) + 1)
         teams_mentions = "\n".join(teams)
-        message = await self.send_reply(
+        message = await self.send_reply_in_bg_task(
             channel,
             "qualifier_match_notification",
             notification_type,
@@ -570,7 +555,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 referee = ""
                 notification_type = "notification_no_referre_no_role"
         minutes_before_match = str(int(delta.seconds / 60) + 1)
-        message = await self.send_reply(
+        message = await self.send_reply_in_bg_task(
             channel,
             "player_match_notification",
             notification_type,
@@ -613,7 +598,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         match_date_str = tosurnament.get_pretty_date(tournament, match_date)
         team1 = escape_markdown(match_info.team1.value)
         team2 = escape_markdown(match_info.team2.value)
-        message = await self.send_reply(
+        message = await self.send_reply_in_bg_task(
             channel,
             "referee_match_notification",
             "notification",
@@ -803,6 +788,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     async def reaction_on_match_notification(self, ctx, emoji):
         """Allows a referee to take a match from its notification."""
+        ctx.command.name = inspect.currentframe().f_code.co_name
         if emoji.name != "💪":
             return
         match_notification = (
@@ -836,18 +822,18 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             match_notification.in_use = False
             self.bot.session.update(match_notification)
-            await self.on_cog_command_error(ctx.channel, "take_match", e)
+            await self.on_cog_command_error(ctx, e)
             return
-        command_name = "player_match_notification"
+        ctx.command.name = "player_match_notification"
         if match_notification.notification_type == 1:
-            command_name = "referee_match_notification"
+            ctx.command.name = "referee_match_notification"
         elif match_notification.notification_type == 2:
-            command_name = "qualifier_match_notification"
+            ctx.command.name = "qualifier_match_notification"
         match_notification_message = await ctx.channel.fetch_message(match_notification.message_id)
         if match_notification.notification_type == 2:
             await match_notification_message.edit(
                 content=self.get_string(
-                    command_name,
+                    ctx,
                     "edited",
                     match_notification.match_id,
                     match_notification.teams_mentions,
@@ -859,7 +845,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         else:
             await match_notification_message.edit(
                 content=self.get_string(
-                    command_name,
+                    ctx,
                     "edited",
                     match_notification.match_id,
                     match_notification.team1_mention,
@@ -873,6 +859,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     async def reaction_on_staff_reschedule_message(self, ctx, emoji):
         """Removes the referee from the schedule spreadsheet"""
+        ctx.command.name = inspect.currentframe().f_code.co_name
         if emoji.name != "❌":
             return
         staff_reschedule_message = (
@@ -923,7 +910,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             )
             # TODO if not write_cells send error + update message instead of reply
             if staff_reschedule_message.staff_id:
-                await ctx.channel.send(self.build_take_match_reply(user_details, False, set()))
+                await ctx.channel.send(self.build_take_match_reply(ctx, user_details, set()))
             else:
                 if ctx.author.id in referees_id:
                     referees_id.remove(ctx.author.id)
@@ -971,7 +958,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 if referees + streamers + commentators:
                     await message.edit(
                         content=self.get_string(
-                            "take_match",
+                            ctx,
                             "staff_notification",
                             staff_reschedule_message.match_id,
                             staff_reschedule_message.team1,
@@ -987,7 +974,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     self.bot.session.delete(staff_reschedule_message)
                     await message.edit(
                         content=self.get_string(
-                            "take_match",
+                            ctx,
                             "staff_notification_all_staff_removed",
                             staff_reschedule_message.match_id,
                             staff_reschedule_message.team1,
@@ -999,7 +986,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             staff_reschedule_message.in_use = False
             self.bot.session.update(staff_reschedule_message)
-            await self.on_cog_command_error(ctx.channel, "take_match", e)
+            await self.on_cog_command_error(ctx, e)
             return
 
 

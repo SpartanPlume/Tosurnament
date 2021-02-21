@@ -1,18 +1,17 @@
 {
-  "not_guild_owner": "You need to be the owner of the server to use this command.",
   "not_on_a_server": "This command can only be ran on a server.",
+  "disabled_command": "This command has been disabled.",
   "change_nickname_forbidden": "Sorry, I can't change your nickname. Either you have better rights than the bot or the bot doesn't have the `Manage Nicknames` right. Please contact an admin.",
   "change_role_forbidden": "Sorry, I can't add you a role. The bot doesn't have the `Manage Roles` right. Please contact an admin.",
+  "restricted_dm": "I can't send you a dm to initiate the linking process. Please allow message from server members temporarily.",
   "unknown_error": "Oops, something went wrong. Please contact me on discord (`Spartan Plume#5172`).",
-  "disabled_command": "This command has been disabled.",
-  "spreadsheet_error": "Uh-oh, seems like I encountered an issue with the %1 access to the %2 spreadsheet. Please contact an admin.",
+  "not_guild_owner": "You need to be the owner of the server to use this command.",
+  "no_rights": "You don't have the rights to use this command.",
   "invalid_role_name": "Sorry, `%1` is an invalid role name for Discord. Please contact an admin.",
-  "not_linked": "Your account is not linked. Please use the `%0link $auth/link/parameter` command.",
-  "not_verified": "Your account is not verified. Please run the `%0auth` command.",
-  "user_not_found": "User `%1` not found.",
-  "osu_error": "Oops, an error has occured. Please try again later. If the problem persists, contact me on discord (`Spartan Plume#5172`).",
   "role_does_not_exist": "The `%1` role does not exist. Ask the admin to create it to use this command.",
   "not_required_role": "You need the `%1` role to use this command.",
-  "no_rights": "You don't have the rights to use this command.",
-  "restricted_dm": "I can't send you a dm to initiate the linking process. Please allow message from server members temporarily."
+  "user_not_found": "User `%1` not found.",
+  "not_linked": "Your account is not linked. Please use the `%0link $auth/link/parameter` command.",
+  "not_verified": "Your account is not verified. Please run the `%0auth` command.",
+  "osu_error": "Oops, an error has occured. Please try again later. If the problem persists, contact me on discord (`Spartan Plume#5172`)."
 }

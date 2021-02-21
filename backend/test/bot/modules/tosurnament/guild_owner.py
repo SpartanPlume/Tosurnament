@@ -34,7 +34,10 @@ async def test_create_tournament_already_created():
 
     with pytest.raises(tosurnament.TournamentAlreadyCreated):
         await cog.create_tournament(
-            cog, tosurnament_mock.CtxMock(mock_bot), TOURNAMENT_ACRONYM, TOURNAMENT_NAME,
+            cog,
+            tosurnament_mock.CtxMock(mock_bot),
+            TOURNAMENT_ACRONYM,
+            TOURNAMENT_NAME,
         )
 
 
@@ -52,9 +55,7 @@ async def test_create_tournament(mocker):
     bracket_matcher = tosurnament_mock.Matcher(Bracket(tournament_id=1, name=TOURNAMENT_NAME))
     expected = [mocker.call(tournament_matcher), mocker.call(bracket_matcher)]
     assert mock_bot.session.add.call_args_list == expected
-    cog.send_reply.assert_called_with(
-        mocker.ANY, mocker.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, TOURNAMENT_NAME
-    )
+    cog.send_reply.assert_called_with(mocker.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, TOURNAMENT_NAME)
 
 
 @pytest.mark.asyncio
@@ -64,7 +65,11 @@ async def test_create_tournament_with_bracket_name(mocker):
     cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
 
     await cog.create_tournament(
-        cog, tosurnament_mock.CtxMock(mock_bot), TOURNAMENT_ACRONYM, TOURNAMENT_NAME, BRACKET_NAME,
+        cog,
+        tosurnament_mock.CtxMock(mock_bot),
+        TOURNAMENT_ACRONYM,
+        TOURNAMENT_NAME,
+        BRACKET_NAME,
     )
     assert mock_bot.session.update.call_count == 1
     tournament_matcher = tosurnament_mock.Matcher(
@@ -73,9 +78,7 @@ async def test_create_tournament_with_bracket_name(mocker):
     bracket_matcher = tosurnament_mock.Matcher(Bracket(tournament_id=1, name=BRACKET_NAME))
     expected = [mocker.call(tournament_matcher), mocker.call(bracket_matcher)]
     assert mock_bot.session.add.call_args_list == expected
-    cog.send_reply.assert_called_with(
-        mocker.ANY, mocker.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, BRACKET_NAME
-    )
+    cog.send_reply.assert_called_with(mocker.ANY, "success", TOURNAMENT_ACRONYM, TOURNAMENT_NAME, BRACKET_NAME)
 
 
 @pytest.mark.asyncio
@@ -86,7 +89,7 @@ async def test_end_tournament(mocker):
     cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
 
     await cog.end_tournament(cog, tosurnament_mock.CtxMock(mock_bot))
-    cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "are_you_sure")
+    cog.send_reply.assert_called_with(mocker.ANY, "are_you_sure")
     mock_bot.session.add.assert_called_once_with(tosurnament_mock.Matcher(EndTournamentMessage()))
 
 
@@ -172,7 +175,7 @@ async def test_reaction_on_end_tournament_message_refuse(mocker):
         tosurnament_mock.ChannelMock(),
         tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
-    cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "refused")
+    cog.send_reply.assert_called_with(mocker.ANY, "refused")
 
 
 @pytest.mark.asyncio
@@ -209,7 +212,7 @@ async def test_reaction_on_end_tournament_message(mocker):
         tosurnament_mock.ChannelMock(),
         tosurnament_mock.UserMock(user_id=tosurnament_mock.GuildMock.OWNER_ID),
     )
-    cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "success")
+    cog.send_reply.assert_called_with(mocker.ANY, "success")
 
     assert len(mock_bot.session.tables[Tournament.__tablename__]) == 1
     assert len(mock_bot.session.tables[Bracket.__tablename__]) == 1

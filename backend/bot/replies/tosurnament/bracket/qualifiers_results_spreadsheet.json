@@ -2,25 +2,25 @@
   "set_qualifiers_results_spreadsheet": {
     "help": "Sets the qualifiers results spreadsheet",
     "parameter": "<spreadsheet_id> [<sheet_name>]",
-    "success": "Qualifiers results spreadsheet set to `%1`.",
-    "usage": "Usage: `%0set_qualifiers_results_spreadsheet $./parameter`\n\nExample: `%0set_qualifiers_results_spreadsheet 1234567890ABCDEF`"
+    "example_parameter": "1234567890ABCDEF",
+    "success": "Qualifiers results spreadsheet set to `%1`."
   },
   "set_qualifiers_results_spreadsheet_sheet_name": {
     "help": "Sets the sheet name of the qualifiers results spreadsheet.",
     "parameter": "<sheet_name>",
-    "success": "Qualifiers results spreadsheet sheet name set to `%1`.",
-    "usage": "Usage: `%0set_qualifiers_results_spreadsheet_sheet_name $./parameter`\n\nExample: `%0set_qualifiers_results_spreadsheet_sheet_name My Sheet Name`"
+    "example_parameter": "My Sheet Name",
+    "success": "Qualifiers results spreadsheet sheet name set to `%1`."
   },
   "set_qualifiers_results_spreadsheet_range_osu_id": {
     "help": "Sets the qualifiers results spreadsheet range osu id.",
     "parameter": "[<range>]",
-    "success": "Qualifiers results spreadsheet range osu id set to `%1`.",
-    "usage": "Usage: `%0set_qualifiers_results_spreadsheet_range_osu_id $./parameter`\n\nExample: `%0set_qualifiers_results_spreadsheet_range_osu_id D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Qualifiers results spreadsheet range osu id set to `%1`."
   },
   "set_qualifiers_results_spreadsheet_range_score": {
     "help": "Sets the qualifiers results spreadsheet range score.",
     "parameter": "[<range>]",
-    "success": "Qualifiers results spreadsheet range score set to `%1`.",
-    "usage": "Usage: `%0set_qualifiers_results_spreadsheet_range_score $./parameter`\n\nExample: `%0set_qualifiers_results_spreadsheet_range_score D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Qualifiers results spreadsheet range score set to `%1`."
   }
 }

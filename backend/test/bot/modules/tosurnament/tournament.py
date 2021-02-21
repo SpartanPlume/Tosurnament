@@ -48,7 +48,7 @@ async def test_set_tournament_values(mocker):
 
     await cog.set_tournament_values(tosurnament_mock.CtxMock(mock_bot), {"current_bracket_id": 1})
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(current_bracket_id=1)))
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", 1)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", 1)
 
 
 @pytest.mark.asyncio
@@ -61,7 +61,7 @@ async def test_create_bracket(mocker):
     await cog.create_bracket(cog, tosurnament_mock.CtxMock(mock_bot), name=BRACKET_NAME)
     mock_bot.session.add.assert_called_once_with(tosurnament_mock.Matcher(Bracket(tournament_id=1, name=BRACKET_NAME)))
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(current_bracket_id=1)))
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", BRACKET_NAME)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", BRACKET_NAME)
 
 
 @pytest.mark.asyncio
@@ -77,7 +77,7 @@ async def test_get_bracket(mocker):
     expected_output += "2: `" + BRACKET_NAME_2 + "`\n"
 
     await cog.get_bracket(cog, tosurnament_mock.CtxMock(mock_bot))
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "default", expected_output)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "default", expected_output)
 
 
 @pytest.mark.asyncio
@@ -91,7 +91,7 @@ async def test_get_a_bracket(mocker):
 
     await cog.get_bracket(cog, tosurnament_mock.CtxMock(mock_bot), number=2)
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(current_bracket_id=2)))
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", BRACKET_NAME_2)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", BRACKET_NAME_2)
 
 
 @pytest.mark.asyncio
@@ -437,10 +437,10 @@ async def test_add_match_to_ignore(mocker):
         [MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3]
     )
     expected_replies = [
-        mocker.call(mocker.ANY, mocker.ANY, "success", " ".join([MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3])),
-        mocker.call(mocker.ANY, mocker.ANY, "not_found", INVALID_MATCH_ID.lower()),
-        mocker.call(mocker.ANY, mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_1),
-        mocker.call(mocker.ANY, mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_2.upper()),
+        mocker.call(mocker.ANY, "success", " ".join([MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3])),
+        mocker.call(mocker.ANY, "not_found", INVALID_MATCH_ID.lower()),
+        mocker.call(mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_1),
+        mocker.call(mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_2.upper()),
     ]
     assert cog.send_reply.call_args_list == expected_replies
 
@@ -470,13 +470,13 @@ async def test_remove_match_to_ignore(mocker):
     await cog.remove_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_2, MATCH_ID_3)
     assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == MATCH_ID_1
     expected_replies = [
-        mocker.call(mocker.ANY, mocker.ANY, "success", MATCH_ID_1),
+        mocker.call(mocker.ANY, "success", MATCH_ID_1),
         mocker.call(
-            tosurnament_mock.ChannelMock(tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID),
             mocker.ANY,
             "to_not_ignore",
             mocker.ANY,
             MATCH_ID_3,
+            channel=tosurnament_mock.ChannelMock(tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID),
         ),
     ]
     assert cog.send_reply.call_args_list == expected_replies

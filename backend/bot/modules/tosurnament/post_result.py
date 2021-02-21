@@ -50,17 +50,17 @@ class PostResultBuilder:
         links = osu.build_mp_links(self.mp_links.split("\n"))
         return "\n".join(["<" + link + ">" for link in links])
 
-    def build(self, blueprint, bot, tournament):
+    def build(self, ctx, blueprint, bot, tournament):
         result = blueprint
 
-        team1_with_score = bot.get_string("post_result", "default_team1_with_score")
+        team1_with_score = bot.get_string(ctx, "default_team1_with_score")
         if tournament.post_result_message_team1_with_score:
             team1_with_score = tournament.post_result_message_team1_with_score
         if self.score_team1 > self.score_team2:
             team1_with_score = "**" + team1_with_score + "**"
         result = result.replace("%_team1_with_score_", team1_with_score)
 
-        team2_with_score = bot.get_string("post_result", "default_team2_with_score")
+        team2_with_score = bot.get_string(ctx, "default_team2_with_score")
         if tournament.post_result_message_team2_with_score:
             team2_with_score = tournament.post_result_message_team2_with_score
         if self.score_team2 > self.score_team1:
@@ -71,7 +71,7 @@ class PostResultBuilder:
             if tournament.post_result_message_mp_link:
                 result = result.replace("%_mp_link_", tournament.post_result_message_mp_link)
             else:
-                result = result.replace("%_mp_link_", bot.get_string("post_result", "default_mp_link"))
+                result = result.replace("%_mp_link_", bot.get_string(ctx, "default_mp_link"))
         else:
             result = result.replace("%_mp_link_", "")
 
@@ -79,7 +79,7 @@ class PostResultBuilder:
             if tournament.post_result_message_rolls:
                 result = result.replace("%_rolls_", tournament.post_result_message_rolls)
             else:
-                result = result.replace("%_rolls_", bot.get_string("post_result", "default_rolls"))
+                result = result.replace("%_rolls_", bot.get_string(ctx, "default_rolls"))
         else:
             result = result.replace("%_rolls_", "")
 
@@ -87,7 +87,7 @@ class PostResultBuilder:
             if tournament.post_result_message_bans:
                 result = result.replace("%_bans_", tournament.post_result_message_bans)
             else:
-                result = result.replace("%_bans_", bot.get_string("post_result", "default_bans"))
+                result = result.replace("%_bans_", bot.get_string(ctx, "default_bans"))
         else:
             result = result.replace("%_bans_", "")
 
@@ -95,7 +95,7 @@ class PostResultBuilder:
             if tournament.post_result_message_tb_bans:
                 result = result.replace("%_tb_bans_", tournament.post_result_message_tb_bans)
             else:
-                result = result.replace("%_tb_bans_", bot.get_string("post_result", "default_tb_bans"))
+                result = result.replace("%_tb_bans_", bot.get_string(ctx, "default_tb_bans"))
         else:
             result = result.replace("%_tb_bans_", "")
 
@@ -339,7 +339,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     async def step0(self, ctx, match_id, score_team1, score_team2, tournament, bracket):
         """Step 0 (initialization) of the post_result_command"""
-        message = await self.send_reply(ctx, "post_result", "step1", match_id)
+        message = await self.send_reply(ctx, "step1", match_id)
         post_result_message = PostResultMessage(
             tournament_id=tournament.id,
             bracket_id=bracket.id,
@@ -415,7 +415,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message.bans_team1 = parameter
         await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 7)
 
-    async def step7_send_message(self, channel, tournament, post_result_message):
+    async def step7_send_message(self, ctx, tournament, post_result_message):
         bracket = self.bot.session.query(Bracket).where(Bracket.id == post_result_message.bracket_id).first()
         if not bracket:
             self.bot.session.delete(post_result_message)
@@ -425,16 +425,16 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             raise tosurnament.NoSpreadsheet("schedules")
         await schedules_spreadsheet.get_spreadsheet()
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
-        prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, channel)
+        prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, ctx)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
-            result_string = self.get_string("post_result", "default")
-        result_string = prbuilder.build(result_string, self, tournament)
+            result_string = self.get_string(ctx, "default")
+        result_string = prbuilder.build(ctx, result_string, self, tournament)
 
-        await self.update_post_result_setup_message(post_result_message, channel, 8)
+        await self.update_post_result_setup_message(ctx, post_result_message, 8)
 
-        preview_message = await self.send_reply(channel, "post_result", "preview", result_string)
+        preview_message = await self.send_reply(ctx, "preview", result_string)
         post_result_message.preview_message_id = preview_message.id
 
     async def step7(self, ctx, tournament, post_result_message, parameter):
@@ -460,7 +460,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             for match in challonge_tournament.matches:
                 if not match.state == "complete":
                     return
-            self.send_reply(error_channel, "post_result", "group_stages_complete")
+            await self.send_reply(ctx, "group_stage_complete", channel=error_channel)
         elif challonge_tournament.state == "underway":
             matches = challonge.get_matches_of_participant(challonge_tournament.id, loser_participant.id)
             for match in matches:
@@ -503,12 +503,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 participant2 = participant
                 participant2.set_match_score(prbuilder.score_team2)
         if not participant1 or not participant2:
-            await self.send_reply(
-                error_channel,
-                "post_result",
-                "participant_not_found",
-                prbuilder.match_id,
-            )
+            await self.send_reply(ctx, "participant_not_found", prbuilder.match_id, channel=error_channel)
             return None
         participant_matches = [match for match in participant1.matches if match.state == "open"]
         for match in participant_matches:
@@ -522,12 +517,12 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 if match.has_participant(participant1) and match.has_participant(participant2):
                     return match
         await self.send_reply(
-            error_channel,
-            "post_result",
+            ctx,
             "match_not_found",
             prbuilder.match_id,
             prbuilder.team_name1,
             prbuilder.team_name2,
+            channel=error_channel,
         )
         return None
 
@@ -540,7 +535,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 ctx, tournament, challonge_tournament, error_channel, prbuilder, True
             )
         except challonge.ChallongeException as e:
-            await self.on_cog_command_error(error_channel, "post_result", e)
+            await self.on_cog_command_error(ctx, e, channel=error_channel)
             return
 
     async def get_teams_infos(self, bracket, team_name1, team_name2):
@@ -596,7 +591,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                         if current_round == ROUNDS[0]:
                             current_round = "LF"
             except challonge.ChallongeException as e:
-                await self.on_cog_command_error(error_channel, "", e)
+                await self.on_cog_command_error(ctx, e, channel=error_channel)
         prbuilder.bracket_round = current_round
 
         score_team1 = post_result_message.score_team1
@@ -633,7 +628,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
-            result_string = self.get_string("post_result", "default")
+            result_string = self.get_string(ctx, "default")
         result_string = prbuilder.build(result_string, self, tournament)
         if bracket.challonge:
             await self.step8_challonge(ctx, tournament, error_channel, prbuilder)
@@ -698,6 +693,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     async def reaction_on_setup_message(self, ctx, emoji):
         """Change the setup message step"""
+        ctx.command.name = "post_result"
         try:
             tournament = self.get_tournament(ctx.guild.id)
         except tosurnament.NoTournament:
@@ -713,7 +709,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if emoji.name == "❌":
             self.bot.session.delete(post_result_message)
             await self.delete_setup_message(ctx.channel, post_result_message)
-            await self.send_reply(ctx.channel, "post_result", "cancel")
+            await self.send_reply(ctx, "cancel")
             return
         emoji_steps = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣"]
         if emoji.name not in emoji_steps:
@@ -723,9 +719,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             if step == 8:
                 await self.step7_send_message(ctx.channel, tournament, post_result_message)
             else:
-                await self.update_post_result_setup_message(post_result_message, ctx.channel, step)
+                await self.update_post_result_setup_message(ctx, post_result_message, step)
         except Exception as e:
-            await self.on_cog_command_error(ctx.channel, "post_result", e)
+            await self.on_cog_command_error(ctx, e)
 
     async def add_reaction_to_setup_message(self, message):
         try:
@@ -746,13 +742,13 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await ctx.message.delete()
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
-        await self.update_post_result_setup_message(post_result_message, ctx.channel, new_step)
+        await self.update_post_result_setup_message(ctx, post_result_message, new_step)
 
-    async def update_post_result_setup_message(self, post_result_message, channel, new_step):
-        await self.delete_setup_message(channel, post_result_message)
+    async def update_post_result_setup_message(self, ctx, post_result_message, new_step):
+        ctx.command.name = "post_result"
+        await self.delete_setup_message(ctx.channel, post_result_message)
         message = await self.send_reply(
-            channel,
-            "post_result",
+            ctx,
             "step" + str(new_step),
             post_result_message.match_id,
             post_result_message.best_of,
@@ -775,10 +771,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await self.add_reaction_to_setup_message(message)
 
     async def post_result_common_handler(self, ctx, error):
-        if isinstance(error, tosurnament.InvalidMatchId):
-            await self.send_reply(ctx, "post_result", "invalid_match_id")
-        elif isinstance(error, tosurnament.InvalidMpLink):
-            await self.send_reply(ctx, "post_result", "invalid_mp_link")
+        if isinstance(error, tosurnament.InvalidMpLink):
+            await self.send_reply(ctx, "invalid_mp_link")
 
     @answer.error
     async def answer_handler(self, ctx, error):
@@ -825,7 +819,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if tournament.post_result_message:
             bp_result_string = tournament.post_result_message
         else:
-            bp_result_string = self.get_string("post_result", "default")
+            bp_result_string = self.get_string(ctx, "default")
         result_string = "__Normal preview:__\n" + pr_builder.build(bp_result_string, self, tournament)
         pr_builder.score_team1 = -1
         pr_builder.score_team2 = 0

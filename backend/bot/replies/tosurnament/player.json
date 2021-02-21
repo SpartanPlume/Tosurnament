@@ -1,35 +1,35 @@
 {
   "get_player_role": {
-    "usage": "Usage: `%0get_player_role`",
     "help": "Gets the player role and other associated roles.",
-    "parameter": "",
     "success": "Your player roles have been given."
   },
   "reschedule": {
-    "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
     "help": "Asks for a reschedule",
-    "duplicate_match_id": "There are multiple matches with this ID. Please contact an admin.",
     "invalid_minute": "Invalid minutes. You can use either 00, 15, 30 or 45. Example: `17:15` is valid, `17:16` is not.",
     "invalid_match": "You can't reschedule a match you're not in.\n\n__Please check:__\n- Is it the correct match ID ?\n- If your account is not linked, did your discord tag change (check the numbers too) ? If it changed, you can try contacting an admin or using the `;link` command.\n- If your account is linked, it means you changed your osu name, please use `;name_change`.",
     "not_team_captain": "You're not the team captain of your team, you can't use this command.",
-    "parameter": "<match_id> <datetime: MM/dd HH:mm>",
     "contact_referee": "\n\n%2, if you agree to this reschedule, write: `%0anr %3`",
     "past_now": "Sorry, the requested time is in the past.",
     "impossible_reschedule": "Sorry, it is less than %1 hours before the **new requested date**, so the deadline is passed. $./contact_referee",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. $./contact_referee",
     "past_deadline_end": "Sorry, the requested time is after the final deadline. You can try contacting an admin.",
-    "refused": ":x: %1, your reschedule for the match %2 has been refused.",
     "removed_from_match": "%1, you have **successfully been removed** from the match %2.",
     "same_date": "You can't reschedule your match to the time it is already scheduled to.",
-    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
-    "staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
     "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message.",
-    "usage": "Usage: `%0reschedule $./parameter`\n\nExample: `%0reschedule 12C 01/02 03:00`\nExample 2: `%0reschedule 12C 3 Apr 12h30`\n\n**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format."
+    "parameter": "<match_id> <datetime: MM/dd HH:mm>",
+    "example_parameter": "12C 3 Apr 12h30",
+    "usage_information": "**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format."
+  },
+  "reaction_on_reschedule_message": {
+    "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
+    "refused": ":x: %1, your reschedule for the match %2 has been refused.",
+    "staff_notification": "$./no_staff_notification\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
+    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5."
   },
   "register": {
     "help": "Registers the player to the tournament",
     "parameter": "<osu profile link/name/id> <timezone>",
-    "usage": "Usage: `%0register $./parameter`\n\nExample: `%0register \"Spartan Plume\" UTC+1`",
+    "example_parameter": "\"Spartan Plume\" UTC+1",
     "success": "You have been registered successfully.",
     "invalid_timezone": "`%1` is an invalid timezone.",
     "not_supported_yet": "This command does not support team tournaments or multiple brackets tournament yet.",
@@ -38,7 +38,7 @@
   "register_to_lobby": {
     "help": "Registers to a qualifier lobby",
     "parameter": "<lobby_id>",
-    "usage": "Usage: `%0register_to_lobby $./parameter`\n\nExample: `%0register_to_lobby Q1`",
+    "example_parameter": "Q1",
     "success": "You have been registered to the lobby `%1` successfully.",
     "already_in_lobby": "You are already in the selected lobby.",
     "lobby_not_found": "This lobby does not exist.",

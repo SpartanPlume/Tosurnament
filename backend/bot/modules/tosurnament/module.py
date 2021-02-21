@@ -277,65 +277,67 @@ class TosurnamentBaseModule(BaseModule):
     async def handle_spreadsheet_error(self, ctx, error_code, error_type, spreadsheet_type):  # TODO
         """Sends an appropriate error message in case of error with the spreadsheet api."""
         if error_code == 499:
-            await self.send_reply(ctx, ctx.command.name, "connection_reset_by_peer")
+            await self.send_reply(ctx, "connection_reset_by_peer")
         elif error_code == 408:
-            await self.send_reply(ctx, ctx.command.name, "request_timeout")
+            await self.send_reply(ctx, "request_timeout")
         else:
-            await self.send_reply(ctx, ctx.command.name, "spreadsheet_error", error_type, spreadsheet_type)
+            await self.send_reply(ctx, "spreadsheet_error", error_type, spreadsheet_type)
 
-    async def on_cog_command_error(self, channel, command_name, error):
-        error_found = await super().on_cog_command_error(channel, command_name, error)
+    async def on_cog_command_error(self, ctx, error, channel=None):
+        if not channel:
+            channel = ctx.channel
+        error_found = await super().on_cog_command_error(ctx, error, channel=channel)
         if error_found:
             return True
         if isinstance(error, NoTournament):
-            await self.send_reply(channel, command_name, "no_tournament")
+            await self.send_reply(ctx, "no_tournament", channel=channel)
         elif isinstance(error, NoBracket):
-            await self.send_reply(channel, command_name, "no_bracket")
+            await self.send_reply(ctx, "no_bracket", channel=channel)
         elif isinstance(error, NoSpreadsheet):
-            await self.send_reply(channel, command_name, "no_spreadsheet", error.spreadsheet)
+            await self.send_reply(ctx, "no_spreadsheet", error.spreadsheet, channel=channel)
         elif isinstance(error, InvalidWorksheet):
-            await self.send_reply(channel, command_name, "invalid_worksheet", error.worksheet)
+            await self.send_reply(ctx, "invalid_worksheet", error.worksheet, channel=channel)
         elif isinstance(error, SpreadsheetError):
-            await self.send_reply(channel, command_name, "spreadsheet_error")
+            await self.send_reply(ctx, "spreadsheet_error", channel=channel)
         elif isinstance(error, OpponentNotFound):
-            await self.send_reply(channel, command_name, "opponent_not_found", error.mention)
+            await self.send_reply(ctx, "opponent_not_found", error.mention, channel=channel)
         elif isinstance(error, SpreadsheetHttpError):
             await self.send_reply(
-                channel,
-                command_name,
+                ctx,
                 self.get_spreadsheet_error(error.code),
                 error.operation,
                 error.bracket_name,
                 error.spreadsheet,
+                channel=channel,
             )
         elif isinstance(error, DuplicateTeam):
-            await self.send_reply(channel, command_name, "duplicate_team", error.team)
+            await self.send_reply(ctx, "duplicate_team", error.team, channel=channel)
         elif isinstance(error, TeamNotFound):
-            await self.send_reply(channel, command_name, "team_not_found", error.team)
+            await self.send_reply(ctx, "team_not_found", error.team, channel=channel)
         elif isinstance(error, DuplicateMatchId):
-            await self.send_reply(channel, command_name, "duplicate_match_id", error.match_id)
+            await self.send_reply(ctx, "duplicate_match_id", error.match_id, channel=channel)
         elif isinstance(error, MatchIdNotFound):
-            await self.send_reply(channel, command_name, "match_id_not_found", error.match_id)
+            await self.send_reply(ctx, "match_id_not_found", error.match_id, channel=channel)
         elif isinstance(error, DateIsNotString):
-            await self.send_reply(channel, command_name, "date_is_not_string", error.type)
+            await self.send_reply(ctx, "date_is_not_string", error.type, channel=channel)
         elif isinstance(error, DuplicatePlayer):
-            await self.send_reply(channel, command_name, "duplicate_player", error.player)
+            await self.send_reply(ctx, "duplicate_player", error.player, channel=channel)
         elif isinstance(error, InvalidDateOrFormat):
-            await self.send_reply(channel, command_name, "invalid_date_or_format")
+            await self.send_reply(ctx, "invalid_date_or_format", channel=channel)
         elif isinstance(error, UserAlreadyPlayer):
-            await self.send_reply(channel, command_name, "already_player")
+            await self.send_reply(ctx, "already_player", channel=channel)
         elif isinstance(error, NotAPlayer):
-            await self.send_reply(channel, command_name, "not_a_player")
+            await self.send_reply(ctx, "not_a_player", channel=channel)
         elif isinstance(error, InvalidMatchIdOrNoBracketRole):
-            await self.send_reply(channel, command_name, "invalid_match_id_or_no_bracket_role")
+            await self.send_reply(ctx, "invalid_match_id_or_no_bracket_role", channel=channel)
         elif isinstance(error, InvalidMatchId):
-            await self.send_reply(channel, command_name, "invalid_match_id")
+            await self.send_reply(ctx, "invalid_match_id", channel=channel)
         elif isinstance(error, NoChallonge):
-            await self.send_reply(channel, command_name, "no_challonge", error.bracket)
+            await self.send_reply(ctx, "no_challonge", error.bracket, channel=channel)
         elif isinstance(error, challonge.NoRights):
-            await self.send_reply(channel, command_name, "challonge_no_rights")
+            await self.send_reply(ctx, "challonge_no_rights", channel=channel)
         elif isinstance(error, challonge.NotFound):
-            await self.send_reply(channel, command_name, "challonge_not_found")
+            await self.send_reply(ctx, "challonge_not_found", channel=channel)
         else:
             return False
         return True

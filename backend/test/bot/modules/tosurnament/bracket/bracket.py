@@ -40,7 +40,7 @@ async def test_set_bracket_values(mocker):
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(Bracket(tournament_id=1, name=bracket_name))
     )
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", bracket_name)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", bracket_name)
 
 
 @pytest.mark.asyncio
@@ -140,38 +140,6 @@ async def test_set_registration_end_date(mocker):
 async def test_clear_player_role(mocker):
     """Removes the player roles of all players not present in the challonge."""
     # TODO
-
-
-# @pytest.mark.asyncio
-# async def test_set_bracket_spreadsheet(mocker):
-#     """Sets bracket spreadsheets."""
-#     cog, mock_bot, bracket = init_mocks()
-#     mock_ctx = tosurnament_mock.CtxMock(mock_bot)
-#     spreadsheet_id = "abcd1234"
-#     sheet_name = "a sheet name"
-#     assert bracket.players_spreadsheet_id <= 0
-#     assert bracket.schedules_spreadsheet_id <= 0
-
-#     await cog.set_bracket_spreadsheet(mock_ctx, "players", spreadsheet_id, "")
-#     update_expected = [
-#         mocker.call(tosurnament_mock.Matcher(Bracket(tournament_id=1, players_spreadsheet_id=1))),
-#         mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=spreadsheet_id))),
-#     ]
-#     assert mock_bot.session.update.call_args_list == update_expected
-#     await cog.set_bracket_spreadsheet(mock_ctx, "players", spreadsheet_id, sheet_name)
-#     update_expected = [
-#         mocker.call(tosurnament_mock.Matcher(PlayersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name))),
-#     ]
-#     assert mock_bot.session.update.call_args_list[2:] == update_expected
-
-#     await cog.set_bracket_spreadsheet(mock_ctx, "schedules", spreadsheet_id, "")
-#     update_expected = [
-#         mocker.call(
-#             tosurnament_mock.Matcher(Bracket(tournament_id=1, players_spreadsheet_id=1, schedules_spreadsheet_id=1))
-#         ),
-#         mocker.call(tosurnament_mock.Matcher(SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id))),
-#     ]
-#     assert mock_bot.session.update.call_args_list[3:] == update_expected
 
 
 @pytest.mark.asyncio

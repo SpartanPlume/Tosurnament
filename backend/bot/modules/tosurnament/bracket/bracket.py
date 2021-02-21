@@ -163,7 +163,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         brackets = tournament.brackets
         bracket = self.get_bracket_from_index(brackets, bracket_index)
         if not bracket:
-            await self.send_reply(ctx, ctx.command.name, "default", self.get_all_brackets_string(brackets))
+            await self.send_reply(ctx, "default", self.get_all_brackets_string(brackets))
             return
         if not bracket.challonge:
             raise tosurnament.NoChallonge(bracket.name)
@@ -206,14 +206,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             if participant.lower() not in players_found:
                 players_not_found.append(participant)
         if players_not_found:
-            success_extra += self.get_string(ctx.command.name, "players_not_found", "\n".join(players_not_found))
+            success_extra += self.get_string(ctx, "players_not_found", "\n".join(players_not_found))
         if users_role_not_removed:
-            success_extra += self.get_string(
-                ctx.command.name, "users_role_not_removed", "\n".join(users_role_not_removed)
-            )
-        await self.send_reply(
-            ctx, ctx.command.name, "success", bracket.name, n_user_roles_removed, len(players_found), success_extra
-        )
+            success_extra += self.get_string(ctx, "users_role_not_removed", "\n".join(users_role_not_removed))
+        await self.send_reply(ctx, "success", bracket.name, n_user_roles_removed, len(players_found), success_extra)
 
     @commands.command(aliases=["gpr"])
     async def give_player_role(self, ctx, bracket_index: int = None):
@@ -222,7 +218,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         brackets = tournament.brackets
         bracket = self.get_bracket_from_index(brackets, bracket_index)
         if not bracket:
-            await self.send_reply(ctx, ctx.command.name, "default", self.get_all_brackets_string(brackets))
+            await self.send_reply(ctx, "default", self.get_all_brackets_string(brackets))
             return
         if not bracket.challonge:
             raise tosurnament.NoChallonge(bracket.name)
@@ -258,12 +254,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             if participant.lower() not in players_found:
                 players_not_found.append(participant)
         if players_not_found:
-            success_extra += self.get_string(ctx.command.name, "players_not_found", "\n".join(players_not_found))
+            success_extra += self.get_string(ctx, "players_not_found", "\n".join(players_not_found))
         if users_role_not_added:
-            success_extra += self.get_string(ctx.command.name, "users_role_not_added", "\n".join(users_role_not_added))
-        await self.send_reply(
-            ctx, ctx.command.name, "success", bracket.name, n_user_roles_added, len(players_not_found), success_extra
-        )
+            success_extra += self.get_string(ctx, "users_role_not_added", "\n".join(users_role_not_added))
+        await self.send_reply(ctx, "success", bracket.name, n_user_roles_added, len(players_not_found), success_extra)
 
     async def set_bracket_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
@@ -271,7 +265,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         for key, value in values.items():
             setattr(tournament.current_bracket, key, value)
         self.bot.session.update(tournament.current_bracket)
-        await self.send_reply(ctx, ctx.command.name, "success", value)
+        await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["cp"])
     async def copy_bracket(self, ctx, index_from: int, index_to: int):
@@ -293,7 +287,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                     spreadsheet_from.copy_to(spreadsheet_to)
                     self.bot.session.update(spreadsheet_to)
 
-            await self.send_reply(ctx, ctx.command.name, "success", bracket_from.name, bracket_to.name)
+            await self.send_reply(ctx, "success", bracket_from.name, bracket_to.name)
             return
         raise commands.UserInputError()
 

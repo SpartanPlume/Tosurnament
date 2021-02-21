@@ -2,6 +2,7 @@
   "post_result": {
     "help": "Post the result of a match",
     "parameter": "<match_id>",
+    "example_parameter": "12C",
     "step1": "Match ID: **%1**\nStep 1/8: **Best Of ?**\n\nUse `%0answer <number>`. For example, `%0answer 3`",
     "step2": "Match ID: **%1**\nStep 2/8: **Roll of Team 1 ?**\n\nUse `%0answer <number>`. For example, `%0answer 3`",
     "step3": "Match ID: **%1**\nStep 3/8: **Roll of Team 2 ?**\n\nUse `%0answer <number>`. For example, `%0answer 3`",
@@ -20,29 +21,29 @@
     "default_tb_bans": "\n\n__**TB Bans:**__\n**%team1:** %tb_bans_team1\n**%team2:** %tb_bans_team2",
     "cancel": "You cancelled the result posting.",
     "success": "",
-    "usage": "Usage: `%0post_result $./parameter`\n\nExample: `%0post_result 12C`",
     "invalid_match_id": "Match not found with the ID: %1",
     "invalid_mp_link": "Invalid mp link(s)",
-    "match_not_found": "**Challonge error:** Match %1 (%2 vs %3) not found. Maybe the score has already been filled ?"
+    "match_not_found": "**Challonge error:** Match %1 (%2 vs %3) not found. Maybe the score has already been filled ?",
+    "group_stage_complete": "The group stage is now complete. You can now finish the group stage on challonge and after that use the `%0clear_player_role` command to remove the player roles to all eliminated teams."
   },
   "post_result_with_scores": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2>",
-    "usage": "Usage: `%0post_result_with_scores` $./parameter\n\nExample: `%0post_result_with_scores 12C 5 3`"
+    "example_parameter": "12C 5 3"
   },
   "post_result_one_liner": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
-    "usage": "Usage: `%0post_result_one_liner $./parameter`\n\nExample: `%0post_result_one_liner 12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "example_parameter": "12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2"
   },
   "post_result_one_liner_with_rolls": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <roll_team1> <roll_team2> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
-    "usage": "Usage: `%0post_result_one_liner_with_rolls $./parameter`\n\nExample: `%0post_result_one_liner_with_rolls 12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "example_parameter": "12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
   },
   "test_post_result_message": {
     "help": "Shows the post result message with default values",
     "parameter": "[<nb_bans>] [<nb_tb_bans>]",
-    "usage": "Usage: `%0test_post_result_message $./parameter`\n\nExample: `%0test_post_result_message`"
+    "example_parameter": "2 3"
   }
 }

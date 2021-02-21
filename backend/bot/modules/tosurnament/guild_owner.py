@@ -1,5 +1,6 @@
 """Contains all guild owner commands related to Tosurnament."""
 
+import inspect
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
@@ -37,19 +38,19 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         self.bot.session.add(bracket)
         tournament.current_bracket_id = bracket.id
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success", acronym, name, bracket_name)
+        await self.send_reply(ctx, "success", acronym, name, bracket_name)
 
     @create_tournament.error
     async def create_tournament_handler(self, ctx, error):
         """Error handler of create_tournament function."""
         if isinstance(error, tosurnament.TournamentAlreadyCreated):
-            await self.send_reply(ctx, ctx.command.name, "tournament_already_created")
+            await self.send_reply(ctx, "tournament_already_created")
 
     @commands.command(aliases=["et"])
     async def end_tournament(self, ctx):
         """Sends a message to react on, to be sure that the user wants to end the tournament."""
         self.get_tournament(ctx.guild.id)  # Check if there is a running tournament
-        message = await self.send_reply(ctx, ctx.command.name, "are_you_sure")
+        message = await self.send_reply(ctx, "are_you_sure")
         end_tournament_message = EndTournamentMessage(message_id=message.id)
         self.bot.session.add(end_tournament_message)
 
@@ -59,6 +60,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
 
     async def reaction_on_end_tournament_message(self, ctx, emoji):
         """Ends a tournament."""
+        ctx.command.name = inspect.currentframe().f_code.co_name
         if ctx.author.id != ctx.guild.owner.id:
             return
         if emoji.name != "✅" and emoji.name != "❎":
@@ -86,10 +88,10 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             ).delete()
             self.bot.session.delete(tournament)
             self.bot.session.delete(end_tournament_message)
-            await self.send_reply(ctx.channel, "end_tournament", "success")
+            await self.send_reply(ctx, "success")
         else:
             self.bot.session.delete(end_tournament_message)
-            await self.send_reply(ctx.channel, "end_tournament", "refused")
+            await self.send_reply(ctx, "refused")
 
 
 def get_class(bot):

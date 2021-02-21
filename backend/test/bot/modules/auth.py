@@ -30,7 +30,9 @@ async def test_link_already_verified():
 
     with pytest.raises(auth.UserAlreadyVerified):
         await cog.link(
-            cog, tosurnament_mock.CtxMock(mock_bot), osu_name=tosurnament_mock.OSU_USER_NAME,
+            cog,
+            tosurnament_mock.CtxMock(mock_bot),
+            osu_name=tosurnament_mock.OSU_USER_NAME,
         )
 
 
@@ -44,7 +46,9 @@ async def test_link_user_not_found(mocker):
 
     with pytest.raises(base.UserNotFound):
         await cog.link(
-            cog, tosurnament_mock.CtxMock(mock_bot), osu_name=tosurnament_mock.OSU_USER_NAME,
+            cog,
+            tosurnament_mock.CtxMock(mock_bot),
+            osu_name=tosurnament_mock.OSU_USER_NAME,
         )
 
 
@@ -68,7 +72,7 @@ async def test_link(mocker):
         )
     )
     assert mock_bot.session.update.call_count == 0
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", CODE_ASCII)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII)
 
 
 @pytest.mark.asyncio
@@ -99,7 +103,7 @@ async def test_link_regenerate_code(mocker):
         )
     )
     mock_bot.session.update.assert_called_once_with(user_matcher)
-    cog.send_reply.assert_called_once_with(mocker.ANY, mocker.ANY, "success", CODE_ASCII)
+    cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII)
 
 
 @pytest.mark.asyncio
@@ -184,4 +188,4 @@ async def test_auth(mocker):
 
     await cog.auth(cog, tosurnament_mock.CtxMock(mock_bot))
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(User(verified=True, code=CODE_ASCII)))
-    cog.send_reply.assert_called_with(mocker.ANY, mocker.ANY, "success")
+    cog.send_reply.assert_called_with(mocker.ANY, "success")

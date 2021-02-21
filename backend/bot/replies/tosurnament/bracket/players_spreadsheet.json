@@ -2,73 +2,73 @@
   "set_players_spreadsheet": {
     "help": "Sets the players spreadsheet to allow registration",
     "parameter": "<spreadsheet_id> [<sheet_name>]",
-    "success": "Players spreadsheet set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet $./parameter`\n\nExample: `%0set_players_spreadsheet 1234567890ABCDEF`"
+    "example_parameter": "1234567890ABCDEF",
+    "success": "Players spreadsheet set to `%1`."
   },
   "set_players_spreadsheet_sheet_name": {
     "help": "Sets the sheet name of the players spreadsheet.",
     "parameter": "<sheet_name>",
-    "success": "Players spreadsheet sheet name set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_sheet_name $./parameter`\n\nExample: `%0set_players_spreadsheet_sheet_name My Sheet Name`"
+    "example_parameter": "My Sheet Name",
+    "success": "Players spreadsheet sheet name set to `%1`."
   },
   "set_players_spreadsheet_range_team_name": {
     "help": "Sets the players spreadsheet range team name.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range team name set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_team_name $./parameter`\n\nExample: `%0set_players_spreadsheet_range_team_name D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range team name set to `%1`."
   },
   "set_players_spreadsheet_range_team": {
     "help": "Sets the players spreadsheet range team.",
     "parameter": "<range>",
-    "success": "Players spreadsheet range team set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_team $./parameter`\n\nExample: `%0set_players_spreadsheet_range_team D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range team set to `%1`."
   },
   "set_players_spreadsheet_range_discord": {
     "help": "Sets the players spreadsheet range discord.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range discord set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_discord $./parameter`\n\nExample: `%0set_players_spreadsheet_range_discord D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range discord set to `%1`."
   },
   "set_players_spreadsheet_range_discord_id": {
     "help": "Sets the players spreadsheet range discord id.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range discord id set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_discord_id $./parameter`\n\nExample: `%0set_players_spreadsheet_range_discord_id D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range discord id set to `%1`."
   },
   "set_players_spreadsheet_range_rank": {
     "help": "Sets the players spreadsheet range rank.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range rank set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_rank $./parameter`\n\nExample: `%0set_players_spreadsheet_range_rank D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range rank set to `%1`."
   },
   "set_players_spreadsheet_range_bws_rank": {
     "help": "Sets the players spreadsheet range bws_rank.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range bws_rank set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_bws_rank $./parameter`\n\nExample: `%0set_players_spreadsheet_range_bws_rank D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range bws_rank set to `%1`."
   },
   "set_players_spreadsheet_range_osu_id": {
     "help": "Sets the players spreadsheet range osu_id.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range osu_id set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_osu_id $./parameter`\n\nExample: `%0set_players_spreadsheet_range_osu_id D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range osu_id set to `%1`."
   },
   "set_players_spreadsheet_range_pp": {
     "help": "Sets the players spreadsheet range pp.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range pp set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_pp $./parameter`\n\nExample: `%0set_players_spreadsheet_range_pp D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range pp set to `%1`."
   },
   "set_players_spreadsheet_range_timezone": {
     "help": "Sets the players spreadsheet range timezone.",
     "parameter": "[<range>]",
-    "success": "Players spreadsheet range timezone set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_range_timezone $./parameter`\n\nExample: `%0set_players_spreadsheet_range_timezone D2:D`"
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range timezone set to `%1`."
   },
   "set_players_spreadsheet_max_range_for_teams": {
     "help": "Sets the players spreadsheet max range length for teams.",
     "parameter": "[<range_length>]",
-    "success": "Players spreadsheet max range length for teams set to `%1`.",
-    "usage": "Usage: `%0set_players_spreadsheet_max_range_for_teams $./parameter`\n\nExample: `%0set_players_spreadsheet_max_range_for_teams 8`"
+    "example_parameter": "8",
+    "success": "Players spreadsheet max range length for teams set to `%1`."
   }
 }

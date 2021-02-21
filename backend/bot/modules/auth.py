@@ -62,13 +62,13 @@ class AuthCog(base.BaseModule, name="auth"):
             user.osu_name_hash = osu_name.lower()
             self.bot.session.update(user)
 
-        await self.send_reply(ctx.author, ctx.command.name, "success", code)
+        await self.send_reply(ctx, "success", code, channel=ctx.author.dm_channel)
 
     @link.error
     async def link_handler(self, ctx, error):
         """Error handler of link function."""
         if isinstance(error, UserAlreadyVerified):
-            await self.send_reply(ctx, ctx.command.name, "already_verified")
+            await self.send_reply(ctx, "already_verified")
 
     @commands.command()
     async def auth(self, ctx):
@@ -99,14 +99,14 @@ class AuthCog(base.BaseModule, name="auth"):
             user.verified = True
             self.bot.session.update(user)
 
-        await self.send_reply(ctx.author, ctx.command.name, "success")
+        await self.send_reply(ctx, "success", channel=ctx.author.dm_channel)
 
     @auth.error
     async def auth_handler(self, ctx, error):
         if isinstance(error, UserAlreadyVerified):
-            await self.send_reply(ctx, ctx.command.name, "already_verified")
+            await self.send_reply(ctx, "already_verified")
         elif isinstance(error, WrongCodeError):
-            await self.send_reply(ctx, ctx.command.name, "wrong_code")
+            await self.send_reply(ctx, "wrong_code")
 
 
 def get_class(bot):

@@ -6,7 +6,7 @@ from bot.modules import module as base
 from common.databases.reaction_for_role_message import ReactionForRoleMessage
 
 
-class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
+class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message"):
     """ReactionForRoleMessage settings commands."""
 
     def __init__(self, bot):
@@ -38,7 +38,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         if reaction_for_role_message and reaction_for_role_message.setup_channel_id:
             await self.delete_setup_messages(reaction_for_role_message)
             self.bot.session.delete(reaction_for_role_message)
-        setup_message = await self.send_reply(ctx, ctx.command.name, "success", "None\n")
+        setup_message = await self.send_reply(ctx, "success", "None\n")
         preview_message = await ctx.send(message_text)
         reaction_for_role_message = ReactionForRoleMessage(
             guild_id=ctx.guild.id,
@@ -61,23 +61,23 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
             .first()
         )
         if not reaction_for_role_message:
-            await self.send_reply(ctx, ctx.command.name, "error")
+            await self.send_reply(ctx, "error")
             return
         emojis = list(filter(None, reaction_for_role_message.emojis.split("\n")))
         if new_emoji in emojis:
-            await self.send_reply(ctx, ctx.command.name, "emoji_duplicate")
+            await self.send_reply(ctx, "emoji_duplicate")
             return
         try:
             await ctx.message.add_reaction(new_emoji)
         except discord.InvalidArgument:
-            await self.send_reply(ctx, ctx.command.name, "invalid_emoji", new_emoji)
+            await self.send_reply(ctx, "invalid_emoji", new_emoji)
             return
         except discord.NotFound:
-            await self.send_reply(ctx, ctx.command.name, "emoji_not_found", new_emoji)
+            await self.send_reply(ctx, "emoji_not_found", new_emoji)
             return
         except discord.HTTPException as e:
             if e.status == 400:
-                await self.send_reply(ctx, ctx.command.name, "emoji_not_found", new_emoji)
+                await self.send_reply(ctx, "emoji_not_found", new_emoji)
                 return
             raise e
         roles = list(filter(None, reaction_for_role_message.roles.split("\n")))
@@ -93,7 +93,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
         roles.append(str(new_role.id))
 
         await self.delete_setup_messages(reaction_for_role_message)
-        setup_message = await self.send_reply(ctx, ctx.command.name, "success", current_emoji_role_pairs)
+        setup_message = await self.send_reply(ctx, "success", current_emoji_role_pairs)
         preview_message = await ctx.send(reaction_for_role_message.text)
 
         reaction_for_role_message.setup_channel_id = ctx.channel.id
@@ -116,10 +116,10 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
             .first()
         )
         if not reaction_for_role_message:
-            await self.send_reply(ctx, ctx.command.name, "error")
+            await self.send_reply(ctx, "error")
             return
         if not reaction_for_role_message.emojis or not reaction_for_role_message.roles:
-            await self.send_reply(ctx, ctx.command.name, "no_emoji")
+            await self.send_reply(ctx, "no_emoji")
             return
 
         await self.delete_setup_messages(reaction_for_role_message)
@@ -131,7 +131,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
 
         channel = self.bot.get_channel(reaction_for_role_message.channel_id)
         if not channel:
-            await self.send_reply(ctx, ctx.command.name, "channel_error")
+            await self.send_reply(ctx, "channel_error")
             self.bot.session.delete(reaction_for_role_message)
             return
         message = await channel.send(reaction_for_role_message.text)
@@ -154,11 +154,11 @@ class ReactionForRoleMessageCog(base.BaseModule, name="guild"):
             .first()
         )
         if not reaction_for_role_message:
-            await self.send_reply(ctx, ctx.command.name, "error")
+            await self.send_reply(ctx, "error")
             return
         await self.delete_setup_messages(reaction_for_role_message)
         self.bot.session.delete(reaction_for_role_message)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, "success")
 
     async def on_raw_reaction_add(self, ctx, emoji):
         """on_raw_reaction_add of the reaction_for_role_message module"""

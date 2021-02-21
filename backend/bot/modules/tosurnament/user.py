@@ -57,12 +57,12 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         new_name = user.osu_name
         osu_user = osu.get_user(user.osu_id)
         if not osu_user:
-            await self.send_reply(ctx, ctx.command.name, "osu_get_user_error")
+            await self.send_reply(ctx, "osu_get_user_error")
         if osu_user.name != new_name:
             previous_name = new_name
             new_name = osu_user.name
         if not previous_name:
-            await self.send_reply(ctx, ctx.command.name, "change_name_unneeded")
+            await self.send_reply(ctx, "change_name_unneeded")
             return
 
         # TODO: allow disabling write on spreadsheet
@@ -83,17 +83,17 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         #                     if participant.name == previous_name:
         #                         participant.update_name(new_name)
         #         except Exception as e:
-        #             await self.on_cog_command_error(ctx, ctx.command.name, e)
+        #             await self.on_cog_command_error(ctx, e)
         #             return
         try:
             await ctx.author.edit(nick=new_name)
         except discord.Forbidden:
-            await self.send_reply(ctx, ctx.command.name, "change_nickname_forbidden")
+            await self.send_reply(ctx, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
         user.osu_name_hash = new_name.lower()
         self.bot.session.update(user)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, "success")
 
     async def fill_matches_info_for_roles(self, ctx, tournament, bracket, user_details):
         user_name = user_details.name
@@ -133,12 +133,12 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             try:
                 await self.fill_matches_info_for_roles(ctx, tournament, bracket, user_details)
             except Exception as e:
-                await self.on_cog_command_error(ctx, ctx.command.name, e)
-        reply_string = self.get_string(ctx.command.name, "success", tournament.acronym, tournament.name) + "\n"
+                await self.on_cog_command_error(ctx, e)
+        reply_string = self.get_string(ctx, "success", tournament.acronym, tournament.name) + "\n"
         for role_name, role_store in user_details.get_as_dict().items():
             if role_store and role_store.taken_matches:
                 tmp_reply_string = "\n"
-                tmp_reply_string += self.get_string(ctx.command.name, "role_match", role_name)
+                tmp_reply_string += self.get_string(ctx, "role_match", role_name)
                 for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
                     tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date)
                     if bracket_name and bracket_name != tournament.name:
@@ -160,14 +160,14 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         if not user:
             raise tosurnament.UserNotLinked()
         await self.send_reply(
-            ctx.author,
-            ctx.command.name,
+            ctx,
             "success",
             user.discord_id_snowflake,
             user.osu_id,
             user.osu_name,
             user.osu_previous_name,
             str(user.verified),
+            channel=ctx.author.dm_channel
         )
 
 

@@ -1,14 +1,14 @@
 {
   "create_reaction_for_role_message": {
-    "usage": "Usage: `%0create_reaction_for_role_message $./parameter`\nThe emojis and roles will be asked after.\n\nExample: `%0create_reaction_for_role_message #channel If you react with :emoji:, you'll get an awesome role!`",
     "help": "Creates a message to react on to have specific roles.",
     "parameter": "<channel> <text>",
+    "example_parameter": "#channel My message with :emoji: to say the role that will be given",
     "success": "You can now use `%0add_emoji_role_pair $../add_emoji_role_pair/parameter`, this will add the emoji on the message that when reacted on, it gives the associated role. You can check with the preview below.\n\nTo post the message, use `%0post_reaction_for_role_message`.\n\nTo cancel the message creation, use `%0cancel_reaction_for_role_message_creation`.\n\n__Current emoji/role pairs:__\n%1\n__Preview:__"
   },
   "add_emoji_role_pair": {
-    "usage": "Usage: `%0add_emoji_role_pair $./parameter`\n\nExample: `%0add_emoji_role_pair :white_check_mark: @role`",
     "help": "",
-    "parameter": "<emoji> <pair>",
+    "parameter": "<emoji> <role>",
+    "example_parameter": ":emoji: Role",
     "success": "$../create_reaction_for_role_message/success",
     "error": "You need to use the `%0create_reaction_for_role_message` command before being able to use this one.",
     "emoji_duplicate": "This emoji is already used for the message.",
@@ -16,17 +16,13 @@
     "emoji_not_found": "I am unable to find the emoji `%1`, is it available in this server ?"
   },
   "post_reaction_for_role_message": {
-    "usage": "Usage: `%post_reaction_for_role_message",
     "help": "",
-    "parameter": "",
     "error": "$../add_emoji_role_pair/error",
     "channel_error": "Uh-oh, it seems the the targetted channel does not exist anymore. Please create a new reaction for role message.",
     "no_emoji": "You need to set at least one emoji/role pair to post the message."
   },
   "cancel_reaction_for_role_message_creation": {
-    "usage": "Usage: `%cancel_reaction_for_role_message_creation",
     "help": "",
-    "parameter": "",
     "success": "Reaction for role message creation cancelled.",
     "error": "$../add_emoji_role_pair/error"
   }

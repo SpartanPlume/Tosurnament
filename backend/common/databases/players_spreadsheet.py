@@ -20,9 +20,9 @@ class PlayersSpreadsheet(BaseSpreadsheet):
 
     __tablename__ = "players_spreadsheet"
 
-    range_team_name = str("")
-    range_team = str("A2:A")
-    range_discord = str("B2:B")
+    range_team_name = str()
+    range_team = str()
+    range_discord = str()
     range_discord_id = str()
     range_rank = str()
     range_bws_rank = str()

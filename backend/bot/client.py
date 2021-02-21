@@ -26,6 +26,12 @@ async def add_command_feedback(ctx):
         return
 
 
+class ReactionCommand:
+    def __init__(self, cog_name="", name=""):
+        self.cog_name = cog_name
+        self.name = name
+
+
 class Client(commands.Bot):
     """Child of discord.Client to simplify event management"""
 
@@ -198,37 +204,44 @@ class Client(commands.Bot):
             if hasattr(module, "background_task"):
                 module.background_task()
 
-    async def on_raw_reaction_add(self, payload):
+    async def create_ctx_from_reaction(self, payload):
         if not payload.guild_id:
-            return
+            return None
         channel = self.get_channel(payload.channel_id)
         guild = channel.guild
         user = guild.get_member(payload.user_id)
         if not user or user.bot:
-            return
+            return None
         message = await channel.fetch_message(payload.message_id)
-        ctx = commands.Context(bot=self, channel=channel, guild=guild, message=message, prefix=self.command_prefix)
+        ctx = commands.Context(
+            bot=self,
+            channel=channel,
+            guild=guild,
+            message=message,
+            prefix=self.command_prefix,
+            command=ReactionCommand(),
+        )
         # Author needs to be changed after creation as it reassigns it during creation
         ctx.author = user
+        return ctx
+
+    async def on_raw_reaction_add(self, payload):
+        ctx = await self.create_ctx_from_reaction(payload)
+        if not ctx:
+            return
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_add"):
+                ctx.command.cog_name = module.qualified_name
                 await module.on_raw_reaction_add(ctx, payload.emoji)
         spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 
     async def on_raw_reaction_remove(self, payload):
-        if not payload.guild_id:
+        ctx = await self.create_ctx_from_reaction(payload)
+        if not ctx:
             return
-        channel = self.get_channel(payload.channel_id)
-        guild = channel.guild
-        user = guild.get_member(payload.user_id)
-        if not user or user.bot:
-            return
-        message = await channel.fetch_message(payload.message_id)
-        ctx = commands.Context(bot=self, channel=channel, guild=guild, message=message, prefix=self.command_prefix)
-        # Author needs to be changed after creation as it reassigns it during creation
-        ctx.author = user
         for module in self.modules:
             if hasattr(module, "on_raw_reaction_remove"):
+                ctx.command.cog_name = module.qualified_name
                 await module.on_raw_reaction_remove(ctx, payload.emoji)
         spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
 

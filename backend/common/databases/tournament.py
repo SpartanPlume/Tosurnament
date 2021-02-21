@@ -67,6 +67,9 @@ class Tournament(Base):
                 raise UnknownError("No brackets found")
         return self._brackets
 
+    def get_bracket_from_id(self, bracket_id):
+        return next((bracket for bracket in self.brackets if bracket.id == bracket_id), None)
+
     def get_role_id(self, role_name):
         field = role_name.lower().replace(" ", "_") + "_role_id"
         try:

@@ -5,6 +5,7 @@ import os
 import uuid
 import dateparser
 import discord
+from discord import channel
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
@@ -41,7 +42,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         self.bot.session.add(bracket)
         tournament.current_bracket_id = bracket.id
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success", name)
+        await self.send_reply(ctx, "success", name)
 
     @commands.command(aliases=["get_brackets", "gb"])
     async def get_bracket(self, ctx, *, number: int = None):
@@ -54,7 +55,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()
             tournament.current_bracket_id = brackets[number].id
             self.bot.session.update(tournament)
-            await self.send_reply(ctx, ctx.command.name, "success", brackets[number].name)
+            await self.send_reply(ctx, "success", brackets[number].name)
         else:
             brackets_string = ""
             for i, bracket in enumerate(brackets):
@@ -62,7 +63,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 if bracket.id == tournament.current_bracket_id:
                     brackets_string += " (current bracket)"
                 brackets_string += "\n"
-            await self.send_reply(ctx, ctx.command.name, "default", brackets_string)
+            await self.send_reply(ctx, "default", brackets_string)
 
     @commands.command(aliases=["ssc"])
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
@@ -188,7 +189,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         for key, value in values.items():
             setattr(tournament, key, value)
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success", value)
+        await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["amti", "add_matches_to_ignore"])
     async def add_match_to_ignore(self, ctx, *match_ids):
@@ -219,9 +220,9 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         matches_to_ignore.sort()
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
-        await self.send_reply(ctx, ctx.command.name, "success", " ".join(matches_to_ignore))
+        await self.send_reply(ctx, "success", " ".join(matches_to_ignore))
         if match_ids:
-            await self.send_reply(ctx, ctx.command.name, "not_found", " ".join(match_ids))
+            await self.send_reply(ctx, "not_found", " ".join(match_ids))
         reply_type = "to_ignore"
         if not add:
             reply_type = "to_not_ignore"
@@ -239,13 +240,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             ]
             staffs_not_found = set([*referees_not_found, *streamers_not_found, *commentators_not_found])
             to_ping = "/".join([*set([staff.mention for staff in staffs_to_ping]), *staffs_not_found])
-            await self.send_reply(
-                staff_channel,
-                ctx.command.name,
-                reply_type,
-                to_ping,
-                match_info.match_id.value,
-            )
+            await self.send_reply(ctx, reply_type, to_ping, match_info.match_id.value, channel=staff_channel)
 
     @commands.command(aliases=["ss", "sync_spreadsheets"])
     async def sync_spreadsheet(self, ctx):
@@ -260,7 +255,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 if spreadsheet_id not in spreadsheet_ids:
                     await spreadsheet.get_spreadsheet(retry=True, force_sync=True)
                     spreadsheet_ids.append(spreadsheet_id)
-        await self.send_reply(ctx, ctx.command.name, "success")
+        await self.send_reply(ctx, "success")
 
     @commands.command(aliases=["sts"])
     async def save_tournament_settings(self, ctx):
@@ -279,14 +274,14 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 settings_to_write += key + "=" + value + "\n"
         with open("tournament_templates/" + tournament.template_code) as f:
             f.write(settings_to_write)
-        await self.send_reply(ctx, ctx.command.name, "success", tournament.template_code)
+        await self.send_reply(ctx, "success", tournament.template_code)
 
     @save_tournament_settings.error
     async def save_tournament_settings_handler(self, ctx, error):
         """Error handler of save_tournament_settings function."""
         if isinstance(error, OSError):
             self.log.error("The tournament template file could not be created or deleted.")
-            await self.send_reply(ctx, ctx.command.name, "OSError")
+            await self.send_reply(ctx, "OSError")
 
 
 def get_class(bot):

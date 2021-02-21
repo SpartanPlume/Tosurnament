@@ -1,23 +1,17 @@
 {
   "name_change": {
     "help": "Changes your nickname to your osu username",
-    "parameter": "",
-    "usage": "Usage: %0name_change",
     "osu_get_user_error": "Couldn't get your username from osu!. If you already used this command on another server you can ignore this message.",
     "success": "Nickname successfully changed.",
     "change_name_unneeded": "You didn't change name."
   },
   "get_matches": {
     "help": "Gets a list of taken matches.",
-    "parameter": "",
     "success": "**%1: %2** | List of matches",
-    "role_match": "As a **__%1__**:\n",
-    "usage": "Usage: %0get_matches"
+    "role_match": "As a **__%1__**:\n"
   },
   "show_my_info": {
     "help": "Dm you the user information stored on the bot.",
-    "parameter": "",
-    "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5",
-    "usage": "Usage: %show_my_info"
+    "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5"
   }
 }
