@@ -83,7 +83,7 @@ class Tournament(Base):
         date_formats=[],
         prefer_dates_from="current_period",
         relative_base=datetime.datetime.now(),
-        to_timezone="",
+        to_timezone="+00:00",
     ):
         if self.utc:
             return dateparser.parse(
@@ -93,8 +93,7 @@ class Tournament(Base):
                     "PREFER_DATES_FROM": prefer_dates_from,
                     "RELATIVE_BASE": relative_base,
                     "TIMEZONE": self.utc,
-                    "TO_TIMEZONE": to_timezone,
-                    "RETURN_AS_TIMEZONE_AWARE": False,
+                    "RETURN_AS_TIMEZONE_AWARE": True,
                     "DATE_ORDER": "DMY",
                 },
             )
@@ -105,7 +104,8 @@ class Tournament(Base):
                 settings={
                     "PREFER_DATES_FROM": prefer_dates_from,
                     "RELATIVE_BASE": relative_base,
-                    "RETURN_AS_TIMEZONE_AWARE": False,
+                    "TIMEZONE": "+00:00",
+                    "RETURN_AS_TIMEZONE_AWARE": True,
                     "DATE_ORDER": "DMY",
                 },
             )

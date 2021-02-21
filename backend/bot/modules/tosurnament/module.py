@@ -177,7 +177,7 @@ class TosurnamentBaseModule(BaseModule):
         match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         matches_to_ignore = tournament.matches_to_ignore.split("\n")
         for match_id_cell in match_ids_cells:
             if match_id_cell.value in matches_to_ignore:

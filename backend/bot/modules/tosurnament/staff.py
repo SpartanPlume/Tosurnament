@@ -314,6 +314,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         self, match_ids, user_details, take, left_match_ids, *spreadsheets, retry=False
     ):
         """Takes or drops matches of a bracket, if possible."""
+        spreadsheets = list(filter(None, spreadsheets))
         user_details.clear_matches()
         left_match_ids.clear()
         left_match_ids.update(match_ids)
@@ -640,7 +641,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             return
         matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
         for bracket in tournament.brackets:
-            now = datetime.datetime.utcnow()
+            now = datetime.datetime.now(datetime.timezone.utc)
             schedules_spreadsheet = bracket.schedules_spreadsheet
             if schedules_spreadsheet:
                 await schedules_spreadsheet.get_spreadsheet(retry=True)
@@ -657,7 +658,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     match_date = tournament.parse_date(
                         match_info.get_datetime(),
                         date_formats=list(filter(None, [date_format + " %H:%M"])),
-                        to_timezone="UTC",
                     )
                     if match_date:
                         delta = match_date - now
@@ -685,7 +685,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     lobby_date = tournament.parse_date(
                         lobby_info.get_datetime(),
                         date_formats=list(filter(None, [date_format + " %H:%M"])),
-                        to_timezone="UTC",
                     )
                     if lobby_date:
                         delta = lobby_date - now
@@ -712,7 +711,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     and delta.seconds < 900
                     and int(now.minute / 15) == int(previous_notification_date.minute / 15)
                 ):
-                    return
+                    pass
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
             self.bot.session.update(tosurnament_guild)
             await self.match_notification(guild, tournament)

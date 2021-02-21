@@ -431,7 +431,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 raise tosurnament.InvalidMatch()
             opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
 
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         new_date = self.validate_new_date(
             ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
         )
