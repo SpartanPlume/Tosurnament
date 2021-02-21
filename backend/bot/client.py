@@ -46,6 +46,7 @@ class Client(commands.Bot):
         self.init_db()
         self.init_spreadsheet_service()
         self.init_background_tasks()
+        self.init_available_languages()
         if self.error_code != 0:
             return
         self.before_invoke(add_command_feedback)
@@ -109,6 +110,15 @@ class Client(commands.Bot):
     def init_spreadsheet_service(self):
         """Initializes the connection to the Google Spreadsheet API."""
         spreadsheet.start_service()
+
+    def init_available_languages(self):
+        """Initializes the list of available languages of the bot."""
+        languages = set()
+        for root, _, files in os.walk("bot/replies"):
+            for filename in files:
+                if filename.endswith(".json"):
+                    languages.add(filename[:-5])
+        self.languages = list(sorted(languages))
 
     def log(self, level, message, exc_info=False):
         """Logs message."""

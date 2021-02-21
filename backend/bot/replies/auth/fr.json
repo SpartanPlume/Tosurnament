@@ -1,0 +1,16 @@
+{
+    "link": {
+      "help": "Lie votre compte osu! à votre compte discord.",
+      "parameter": "<osu_username>",
+      "example_parameter": "Spartan Plume",
+      "success": "Merci d'authentifier votre compte osu! en mettant ce code \n\n`%1`\n\n en tant que votre localisation sur votre profile osu!.\n\nEnsuite, envoyer la command `%0auth`.",
+      "already_verified": "Votre compte est déjà vérifié."
+    },
+    "auth": {
+      "help": "Vous authentifie après avoir lié votre compte osu! et mis le code sur votre page de profile.",
+      "success": "Félicitations, votre compte a été vérifié.",
+      "wrong_code": "Votre localisation est différent du code qui vous a été donné. Si vous avez oublié votre code ou fait une erreur dans votre nom d'utilisateur, vous êtes prié de réutiliser la commande `%0link`.",
+      "already_verified": "$../link/already_verified"
+    }
+  }
+  

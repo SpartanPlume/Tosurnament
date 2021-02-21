@@ -500,6 +500,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         minutes_before_match = str(int(delta.seconds / 60) + 1)
         teams_mentions = "\n".join(teams)
         message = await self.send_reply_in_bg_task(
+            guild,
             channel,
             "qualifier_match_notification",
             notification_type,
@@ -556,6 +557,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 notification_type = "notification_no_referre_no_role"
         minutes_before_match = str(int(delta.seconds / 60) + 1)
         message = await self.send_reply_in_bg_task(
+            guild,
             channel,
             "player_match_notification",
             notification_type,
@@ -599,6 +601,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         team1 = escape_markdown(match_info.team1.value)
         team2 = escape_markdown(match_info.team2.value)
         message = await self.send_reply_in_bg_task(
+            guild,
             channel,
             "referee_match_notification",
             "notification",

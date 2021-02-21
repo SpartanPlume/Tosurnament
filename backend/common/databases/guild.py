@@ -13,3 +13,4 @@ class Guild(Base):
     verified_role_id = int()
     admin_role_id = int()
     last_notification_date = str()
+    language = str()

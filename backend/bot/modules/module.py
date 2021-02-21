@@ -101,7 +101,9 @@ class BaseModule(commands.Cog):
         """Gets string from strings.json file"""
         module_name = self.get_module_name_from_stack(stack_depth)
         modules = module_name.split(".")[:-1]
-        reply = self.find_reply(self.bot.strings, field_name, modules + [ctx.command.cog_name, ctx.command.name])
+        reply = self.find_reply(
+            ctx.guild, self.bot.strings, field_name, modules + [ctx.command.cog_name], ctx.command.name
+        )
         if reply:
             return load_json.replace_in_string(reply, self.bot.command_prefix, *args)
         else:
@@ -124,22 +126,37 @@ class BaseModule(commands.Cog):
             content = load_json.replace_in_string(reply, self.bot.command_prefix, *args)
         return await channel.send(content, embed=embed)
 
-    def find_reply(self, replies, field_name, modules):
+    def find_reply(self, guild, replies, field_name, modules, command_name):
+        language = "en"
+        if guild:
+            tosurnament_guild = self.bot.session.query(Guild).where(Guild.guild_id == guild.id).first()
+            if tosurnament_guild and tosurnament_guild.language:
+                language = tosurnament_guild.language
+        return self.find_reply_recursive(language, replies, field_name, modules, command_name)
+
+    def find_reply_recursive(self, language, replies, field_name, modules, command_name):
         reply = None
         if modules and modules[0] in replies:
-            reply = self.find_reply(replies[modules[0]], field_name, modules[1:])
+            reply = self.find_reply_recursive(language, replies[modules[0]], field_name, modules[1:], command_name)
         if reply:
             return reply
-        elif field_name in replies:
-            return replies[field_name]
-        elif "module" in replies and field_name in replies["module"]:
-            return replies["module"][field_name]
+        elif (
+            language in replies and command_name in replies[language] and field_name in replies[language][command_name]
+        ):
+            return replies[language][command_name][field_name]
+        elif "en" in replies and command_name in replies["en"] and field_name in replies["en"][command_name]:
+            return replies["en"][command_name][field_name]
+        elif "module" in replies:
+            if language in replies["module"] and field_name in replies["module"][language]:
+                return replies["module"][language][field_name]
+            elif "en" in replies["module"] and field_name in replies["module"]["en"]:
+                return replies["module"]["en"][field_name]
         return None
 
     async def send_reply(self, ctx, field_name, *args, channel=None, stack_depth=1):
         """Sends a reply found in the replies files."""
         module_name = self.get_module_name_from_stack(stack_depth)
-        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [ctx.command.name])
+        reply = self.find_reply(ctx.guild, self.bot.strings, field_name, module_name.split("."), ctx.command.name)
         if reply:
             if not channel:
                 channel = ctx.channel
@@ -148,10 +165,10 @@ class BaseModule(commands.Cog):
             self.bot.error("Reply not found: " + ctx.command.cog_name + ": " + ctx.command.name + ": " + field_name)
         return None
 
-    async def send_reply_in_bg_task(self, channel, command_name, field_name, *args):
+    async def send_reply_in_bg_task(self, guild, channel, command_name, field_name, *args):
         """Sends a reply found in the replies files."""
         module_name = self.get_module_name_from_stack(1)
-        reply = self.find_reply(self.bot.strings, field_name, module_name.split(".") + [command_name])
+        reply = self.find_reply(guild, self.bot.strings, field_name, module_name.split("."), command_name)
         if reply:
             return await self.send_message(channel, reply, *args)
         else:
@@ -161,13 +178,13 @@ class BaseModule(commands.Cog):
     async def send_usage(self, ctx):
         """Sends a usage reply found in the replies files."""
         command_string = self.bot.command_prefix + ctx.command.name
-        reply = "Usage: `" + command_string
+        reply = self.get_string(ctx, "usage") + ": `" + command_string
         parameters = self.get_string(ctx, "parameter", stack_depth=3)
         if parameters:
             reply += " " + parameters + "`"
             example = self.get_string(ctx, "example_parameter", stack_depth=3)
             if example:
-                reply += "\n\nExample: `" + command_string + " " + example + "`"
+                reply += "\n\n" + self.get_string(ctx, "example") + ": `" + command_string + " " + example + "`"
         else:
             reply += "`"
         usage_info = self.get_string(ctx, "usage_info", stack_depth=3)

@@ -159,6 +159,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         user = self.get_user(ctx.author.id)
         if not user:
             raise tosurnament.UserNotLinked()
+        if not ctx.author.dm_channel:
+            await ctx.author.create_dm()
         await self.send_reply(
             ctx,
             "success",
@@ -167,7 +169,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             user.osu_name,
             user.osu_previous_name,
             str(user.verified),
-            channel=ctx.author.dm_channel
+            channel=ctx.author.dm_channel,
         )
 
 

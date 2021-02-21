@@ -28,6 +28,17 @@ class GuildCog(base.BaseModule, name="guild"):
         """Sets the verified role."""
         await self.set_guild_values(ctx, {"verified_role_id": role.id})
 
+    @commands.command(aliases=["sl"])
+    async def set_language(self, ctx, *, language: str = None):
+        """Sets the language the bot needs to use on this server."""
+        if language:
+            if language in self.bot.languages:
+                await self.set_guild_values(ctx, {"language": language})
+            else:
+                await self.send_reply(ctx, "invalid_language")
+        else:
+            await self.send_reply(ctx, "default", ", ".join(self.bot.languages))
+
     async def set_guild_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""
         guild = self.get_guild(ctx.guild.id)
@@ -73,6 +84,8 @@ class GuildCog(base.BaseModule, name="guild"):
             try:
                 self.get_verified_user(ctx.author.id)
             except Exception as e:
+                if not ctx.author.dm_channel:
+                    await ctx.author.create_dm()
                 await self.on_cog_command_error(ctx, e, channel=ctx.author.dm_channel)
                 return
             await self.bot.on_verified_user(ctx.guild, ctx.author)
