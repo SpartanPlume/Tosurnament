@@ -224,6 +224,10 @@ class BaseModule(commands.Cog):
             if error.code == 50007:
                 await self.send_reply(ctx, "restricted_dm", channel=channel)
                 return True
+            elif error.code == 50013:
+                if not ctx.author.dm_channel:
+                    await ctx.author.create_dm()
+                await self.send_reply(ctx, "lack_permission", channel=ctx.author.dm_channel)
             return False
         elif isinstance(error, UnknownError):
             await self.send_reply(ctx, "unknown_error", channel=channel)
