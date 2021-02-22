@@ -141,7 +141,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 tmp_reply_string += self.get_string(ctx, "role_match", role_name)
                 for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
                     tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date)
-                    if bracket_name and bracket_name != tournament.name:
+                    if len(tournament.brackets) > 1:
                         tmp_reply_string += " | " + bracket_name
                     tmp_reply_string += " | **" + match_info.match_id.value + "**:\n"
                     tmp_reply_string += match_info.team1.value + " vs " + match_info.team2.value + "\n"
