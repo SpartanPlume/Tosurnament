@@ -203,33 +203,37 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
 
     async def add_or_remove_match_to_ignore(self, ctx, match_ids, add):
         """Removes matches in the list of matches to ignore in other commands."""
-        match_ids = set([match_id.lower() for match_id in match_ids])
+        match_ids = {match_id.casefold(): match_id for match_id in match_ids}
         tournament = self.get_tournament(ctx.guild.id)
         matches_to_ignore = tournament.matches_to_ignore.split("\n")
         all_match_infos = []
         for bracket in tournament.brackets:
-            all_match_infos.extend(await self.get_match_infos_from_id(bracket, match_ids))
-        user_role_referee = tosurnament.UserDetails.Role()
+            all_match_infos.extend(await self.get_match_infos_from_id(bracket, match_ids.keys()))
+        matches_found = []
         for match_info in all_match_infos:
-            if add and match_info.match_id.value not in matches_to_ignore:
-                matches_to_ignore.append(match_info.match_id.value)
-                user_role_referee.taken_matches.append((match_info))
-            elif not add and match_info.match_id.value in matches_to_ignore:
-                matches_to_ignore.remove(match_info.match_id.value)
-                user_role_referee.taken_matches.append((match_info))
+            match_id = match_info.match_id.value
+            if add and match_id not in matches_to_ignore:
+                matches_to_ignore.append(match_id)
+            elif not add and match_id in matches_to_ignore:
+                matches_to_ignore.remove(match_id)
+            else:
+                continue
+            matches_found.append(match_info)
+            match_ids.pop(match_id.casefold())
         matches_to_ignore.sort()
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
         self.bot.session.update(tournament)
         await self.send_reply(ctx, "success", " ".join(matches_to_ignore))
-        if match_ids:
-            await self.send_reply(ctx, "not_found", " ".join(match_ids))
+        matches_not_found = [match_id for match_id in match_ids.values()]
+        if matches_not_found:
+            await self.send_reply(ctx, "not_found", " ".join(matches_not_found))
         reply_type = "to_ignore"
         if not add:
             reply_type = "to_not_ignore"
         staff_channel = ctx
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-        for match_info in user_role_referee.taken_matches:
+        for match_info in matches_found:
             referees_to_ping, referees_not_found = self.find_staff_to_ping(ctx.guild, match_info.referees)
             streamers_to_ping, streamers_not_found = self.find_staff_to_ping(ctx.guild, match_info.streamers)
             commentators_to_ping, commentators_not_found = self.find_staff_to_ping(ctx.guild, match_info.commentators)

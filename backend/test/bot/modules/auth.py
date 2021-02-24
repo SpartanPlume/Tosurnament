@@ -72,7 +72,9 @@ async def test_link(mocker):
         )
     )
     assert mock_bot.session.update.call_count == 0
-    cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII)
+    cog.send_reply.assert_called_once_with(
+        mocker.ANY, "success", CODE_ASCII, channel=tosurnament_mock.ChannelMock(tosurnament_mock.AUTHOR_DM_CHANNEL_ID)
+    )
 
 
 @pytest.mark.asyncio
@@ -103,7 +105,9 @@ async def test_link_regenerate_code(mocker):
         )
     )
     mock_bot.session.update.assert_called_once_with(user_matcher)
-    cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII)
+    cog.send_reply.assert_called_once_with(
+        mocker.ANY, "success", CODE_ASCII, channel=tosurnament_mock.ChannelMock(tosurnament_mock.AUTHOR_DM_CHANNEL_ID)
+    )
 
 
 @pytest.mark.asyncio
@@ -188,4 +192,6 @@ async def test_auth(mocker):
 
     await cog.auth(cog, tosurnament_mock.CtxMock(mock_bot))
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(User(verified=True, code=CODE_ASCII)))
-    cog.send_reply.assert_called_with(mocker.ANY, "success")
+    cog.send_reply.assert_called_with(
+        mocker.ANY, "success", channel=tosurnament_mock.ChannelMock(tosurnament_mock.AUTHOR_DM_CHANNEL_ID)
+    )

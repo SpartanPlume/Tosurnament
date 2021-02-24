@@ -165,14 +165,16 @@ USER_ID = 20934809
 NOT_USER_ID = 18349804
 USER_NAME = "User name"
 USER_TAG = "User name#" + str(USER_ID)
+AUTHOR_DM_CHANNEL_ID = 324987
 
 
 class UserMock(BaseMock):
-    def __init__(self, *, user_id=USER_ID, user_name=USER_NAME):
+    def __init__(self, user_id=USER_ID, user_name=USER_NAME):
         self.id = user_id
         self.roles = []
         self.display_name = user_name
         self.mention = user_name
+        self.dm_channel = ChannelMock(AUTHOR_DM_CHANNEL_ID)
 
 
 GUILD_ID = 325098354
@@ -197,14 +199,31 @@ class ChannelMock(BaseMock):
         self.id = channel_id
 
 
+class CommandMock(BaseMock):
+    def __init__(self, cog_name="", name=""):
+        self.cog_name = cog_name
+        self.name = name
+
+
+MESSAGE_ID = 3249076
+
+
+class MessageMock(BaseMock):
+    def __init__(self, message_id=MESSAGE_ID):
+        self.id = MESSAGE_ID
+
+
 class CtxMock(BaseMock):
-    def __init__(self, bot=BotMock(), author=UserMock(), guild=GuildMock()):
+    def __init__(self, bot=BotMock(), author=UserMock(), guild=GuildMock(), cog=None):
         self.bot = bot
         self.author = author
         self.guild = guild
+        self.message = MessageMock()
 
-        self.command = mock.Mock()
-        self.command.name = ""
+        cog_name = ""
+        if cog:
+            cog_name = cog.qualified_name
+        self.command = CommandMock(cog_name)
 
 
 class EmojiMock(BaseMock):

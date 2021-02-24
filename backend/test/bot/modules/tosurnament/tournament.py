@@ -14,7 +14,8 @@ from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
 from common.databases.base_spreadsheet import BaseSpreadsheet
 from common.databases.players_spreadsheet import PlayersSpreadsheet
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.schedules_spreadsheet import SchedulesSpreadsheet, MatchInfo
+from common.api.spreadsheet import Cell
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.tournament"
@@ -425,22 +426,40 @@ async def test_add_match_to_ignore(mocker):
 
     mock_bot = tosurnament_mock.BotMock()
     mock_bot.session.add_stub(
-        Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, matches_to_ignore=MATCH_ID_3, current_bracket_id=1)
+        Tournament(
+            id=1,
+            guild_id=tosurnament_mock.GUILD_ID,
+            matches_to_ignore=MATCH_ID_3,
+            current_bracket_id=1,
+        )
     )
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1))
     mock_bot.session.add_stub(SchedulesSpreadsheet(id=1, spreadsheet_id="single", sheet_name="Tier 1"))
 
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
+    cog.get_match_infos_from_id = mocker.AsyncMock(
+        return_value=[
+            MatchInfo(Cell(-1, -1, MATCH_ID_1)),
+            MatchInfo(Cell(-1, -1, MATCH_ID_2.upper())),
+        ]
+    )
 
-    await cog.add_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_1, MATCH_ID_2, INVALID_MATCH_ID)
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot)
+    await cog.add_match_to_ignore(cog, mock_ctx, MATCH_ID_1, MATCH_ID_2, INVALID_MATCH_ID)
     assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == "\n".join(
         [MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3]
     )
     expected_replies = [
         mocker.call(mocker.ANY, "success", " ".join([MATCH_ID_1, MATCH_ID_2.upper(), MATCH_ID_3])),
-        mocker.call(mocker.ANY, "not_found", INVALID_MATCH_ID.lower()),
-        mocker.call(mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_1),
-        mocker.call(mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_2.upper()),
+        mocker.call(mocker.ANY, "not_found", INVALID_MATCH_ID),
+        mocker.call(mocker.ANY, "to_ignore", mocker.ANY, MATCH_ID_1, channel=mock_ctx),
+        mocker.call(
+            mocker.ANY,
+            "to_ignore",
+            mocker.ANY,
+            MATCH_ID_2.upper(),
+            channel=mock_ctx,
+        ),
     ]
     assert cog.send_reply.call_args_list == expected_replies
 
@@ -466,11 +485,18 @@ async def test_remove_match_to_ignore(mocker):
     mock_bot.session.add_stub(SchedulesSpreadsheet(id=1, spreadsheet_id="single", sheet_name="Tier 1"))
 
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
+    cog.get_match_infos_from_id = mocker.AsyncMock(
+        return_value=[
+            MatchInfo(Cell(-1, -1, MATCH_ID_2.upper())),
+            MatchInfo(Cell(-1, -1, MATCH_ID_3)),
+        ]
+    )
 
     await cog.remove_match_to_ignore(cog, tosurnament_mock.CtxMock(mock_bot), MATCH_ID_2, MATCH_ID_3)
     assert mock_bot.session.tables[Tournament.__tablename__][0].matches_to_ignore == MATCH_ID_1
     expected_replies = [
         mocker.call(mocker.ANY, "success", MATCH_ID_1),
+        mocker.call(mocker.ANY, "not_found", MATCH_ID_2),
         mocker.call(
             mocker.ANY,
             "to_not_ignore",

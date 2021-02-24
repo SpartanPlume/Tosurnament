@@ -163,9 +163,8 @@ class TosurnamentBaseModule(BaseModule):
         )
         match_infos = []
         for match_id_cell in match_ids_cells:
-            if match_id_cell.value.lower() in match_ids:
+            if match_id_cell.value.casefold() in match_ids:
                 match_infos.append(MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell))
-                match_ids.remove(match_id_cell.value.lower())
         return match_infos
 
     async def get_next_matches_info_for_bracket(self, tournament, bracket):
