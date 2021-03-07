@@ -48,17 +48,14 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def get_bracket(self, ctx, *, number: int = None):
         """Sets a bracket as current bracket or shows them all."""
         tournament = self.get_tournament(ctx.guild.id)
-        brackets = tournament.brackets
-        if number or number == 0:
-            number -= 1
-            if not (number >= 0 and number < len(brackets)):
-                raise commands.UserInputError()
-            tournament.current_bracket_id = brackets[number].id
+        bracket = self.get_bracket_from_index(tournament.brackets, number)
+        if bracket:
+            tournament.current_bracket_id = bracket.id
             self.bot.session.update(tournament)
-            await self.send_reply(ctx, "success", brackets[number].name)
+            await self.send_reply(ctx, "success", bracket.name)
         else:
             brackets_string = ""
-            for i, bracket in enumerate(brackets):
+            for i, bracket in enumerate(tournament.brackets):
                 brackets_string += str(i + 1) + ": `" + bracket.name + "`"
                 if bracket.id == tournament.current_bracket_id:
                     brackets_string += " (current bracket)"
@@ -217,7 +214,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             elif not add and match_id in matches_to_ignore:
                 matches_to_ignore.remove(match_id)
             else:
-                continue
+                continue  # pragma: no cover
             matches_found.append(match_info)
             match_ids.pop(match_id.casefold())
         matches_to_ignore.sort()

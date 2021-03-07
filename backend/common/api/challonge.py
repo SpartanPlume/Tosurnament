@@ -73,6 +73,22 @@ class Tournament(Base):
         new_object = Tournament(t["tournament"])
         self.__dict__.update(new_object.__dict__)
 
+    def get_running_participants(self):
+        participants = self.participants
+        running_participant_ids = set()
+        for match in self.matches:
+            if match.state != "complete":
+                if match.player1_id:
+                    running_participant_ids.add(match.player1_id)
+                if match.player2_id:
+                    running_participant_ids.add(match.player2_id)
+        running_participants = []
+        for participant in participants:
+            for running_participant_id in running_participant_ids:
+                if participant.has_id(running_participant_id):
+                    running_participants.append(participant.name)
+        return running_participants
+
     @property
     def matches(self):
         if self._matches is None:

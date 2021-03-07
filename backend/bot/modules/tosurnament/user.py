@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import osu
+from common.databases.players_spreadsheet import TeamInfo
 
 
 class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
@@ -95,33 +96,52 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot.session.update(user)
         await self.send_reply(ctx, "success")
 
+    async def find_team_name_of_member(self, ctx, bracket):
+        players_spreadsheet = bracket.players_spreadsheet
+        if not players_spreadsheet:
+            return ctx.author.display_name
+        if not players_spreadsheet.range_team_name:
+            user = tosurnament.UserAbstraction.get_from_user(self.bot, ctx.author)
+            if user.verified:
+                return user.name
+            return ctx.author.display_name
+        await players_spreadsheet.get_spreadsheet()
+        team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+            players_spreadsheet.range_team_name
+        )
+        for team_name_cell in team_name_cells:
+            team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
+            player_index = self.get_index_of_player_in_team(ctx.author, team_info)
+            if player_index != -1:
+                return team_info.team_name.value
+        return None
+
     async def fill_matches_info_for_roles(self, ctx, tournament, bracket, user_details):
         user_name = user_details.name
         team_name = None
-        has_bracket_role = False
-        bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
-        if not bracket_role or tosurnament.get_role(ctx.author.roles, bracket.role_id):
-            has_bracket_role = True
         if user_details.player:
-            team_name = await self.find_player_identification(ctx, bracket, user_details)
+            bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
+            if not bracket_role or tosurnament.get_role(ctx.author.roles, bracket.role_id):
+                team_name = await self.find_team_name_of_member(ctx, bracket)
         matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
         for match_info, match_date in matches_data:
-            if (
-                user_details.player
-                and has_bracket_role
-                and team_name
-                and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name))
-            ):
+            if team_name and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name)):
                 user_details.player.taken_matches.append((bracket.name, match_info, match_date))
-            for referee_cell in match_info.referees:
-                if user_details.referee and referee_cell.has_value(user_name):
-                    user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
-            for streamer_cell in match_info.streamers:
-                if user_details.streamer and streamer_cell.has_value(user_name):
-                    user_details.streamer.taken_matches.append((bracket.name, match_info, match_date))
-            for commentator_cell in match_info.commentators:
-                if user_details.commentator and commentator_cell.has_value(user_name):
-                    user_details.commentator.taken_matches.append((bracket.name, match_info, match_date))
+            if user_details.referee:
+                for referee_cell in match_info.referees:
+                    if referee_cell.has_value(user_name):
+                        user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
+                        break
+            if user_details.streamer:
+                for streamer_cell in match_info.streamers:
+                    if streamer_cell.has_value(user_name):
+                        user_details.streamer.taken_matches.append((bracket.name, match_info, match_date))
+                        break
+            if user_details.commentator:
+                for commentator_cell in match_info.commentators:
+                    if commentator_cell.has_value(user_name):
+                        user_details.commentator.taken_matches.append((bracket.name, match_info, match_date))
+                        break
 
     @commands.command(aliases=["get_match", "gm", "list_matches", "list_match", "lm", "see_matches", "see_match", "sm"])
     @commands.guild_only()
@@ -159,8 +179,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         user = self.get_user(ctx.author.id)
         if not user:
             raise tosurnament.UserNotLinked()
-        if not ctx.author.dm_channel:
-            await ctx.author.create_dm()
+        dm_channel = await ctx.author.create_dm()
         await self.send_reply(
             ctx,
             "success",
@@ -169,7 +188,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             user.osu_name,
             user.osu_previous_name,
             str(user.verified),
-            channel=ctx.author.dm_channel,
+            channel=dm_channel,
         )
 
 

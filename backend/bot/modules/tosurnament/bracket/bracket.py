@@ -3,9 +3,7 @@
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
-from common.api import spreadsheet
 from common.api import challonge
-from common.databases.players_spreadsheet import TeamInfo
 from common.databases.bracket import Bracket
 
 
@@ -59,39 +57,18 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         new_date_string = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
         await self.set_bracket_values(ctx, {"registration_end_date": new_date_string})
 
-    def is_player_in_team(self, member, team_info):
-        user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
-        player_index = None
-        if user.verified:
-            try:
-                player_index = [str(cell.value).lower() for cell in team_info.players].index(user.name.lower())
-            except ValueError:
-                pass
-        if player_index is None:
-            try:
-                player_index = [str(cell.value) for cell in team_info.discord_ids].index(str(user.discord_id))
-            except ValueError:
-                pass
-        if player_index is None:
-            try:
-                player_index = [str(cell.value) for cell in team_info.discord].index(str(member))
-            except ValueError:
-                pass
-        if player_index is None:
-            return None
-        return team_info.players[player_index].value
-
     def is_player_in_challonge(self, member, teams_info, participants):
-        participants_lower = [participant.lower() for participant in participants]
+        participants_casefold = [participant.casefold() for participant in participants]
         user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
         if teams_info:
             for team_info in teams_info:
-                if player_name := self.is_player_in_team(member, team_info):
-                    if player_name.lower() in participants_lower:
+                if player_index := self.get_index_of_player_in_team(member, team_info):
+                    player_name = team_info.players[player_index].value
+                    if player_name.casefold() in participants_casefold:
                         return team_info, player_name
                     else:
                         return None, None
-        elif user.verified and user.name.lower() in participants_lower:
+        elif user.verified and user.name.casefold() in participants_casefold:
             return None, user.name
         return None, None
 
@@ -100,61 +77,6 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         for i, bracket in enumerate(brackets):
             brackets_string += str(i + 1) + ": `" + bracket.name + "`\n"
         return brackets_string
-
-    def get_bracket_from_index(self, brackets, bracket_index):
-        """Gets the real index of the wanted bracket or shows the possible brackets to select."""
-        if len(brackets) != 1:
-            if bracket_index is None:
-
-                return None
-            elif bracket_index <= 0 or bracket_index > len(brackets):
-                raise commands.UserInputError()
-            bracket_index -= 1
-        else:
-            bracket_index = 0
-        return brackets[bracket_index]
-
-    async def get_all_teams_infos_and_roles(self, ctx, players_spreadsheet):
-        teams_info = []
-        teams_roles = []
-        if players_spreadsheet:
-            await players_spreadsheet.get_spreadsheet()
-            if players_spreadsheet.range_team_name:
-                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                    players_spreadsheet.range_team_name
-                )
-            else:
-                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                    players_spreadsheet.range_team
-                )
-            teams_info = []
-            for cell in team_cells:
-                try:
-                    team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
-                except Exception:
-                    continue
-                if players_spreadsheet.range_team_name:
-                    if team_role := tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.value):
-                        teams_roles.append(team_role)
-                teams_info.append(team_info)
-        return teams_info, teams_roles
-
-    def get_left_participants_in_challonge(self, bracket):
-        challonge_tournament = challonge.get_tournament(bracket.challonge)
-        participants = challonge_tournament.participants
-        left_participant_ids = set()
-        for match in challonge_tournament.matches:
-            if match.state != "complete":
-                if match.player1_id:
-                    left_participant_ids.add(match.player1_id)
-                if match.player2_id:
-                    left_participant_ids.add(match.player2_id)
-        left_participants = []
-        for participant in participants:
-            for left_participant_id in left_participant_ids:
-                if participant.has_id(left_participant_id):
-                    left_participants.append(participant.name)
-        return left_participants
 
     @commands.command(aliases=["cpr"])
     async def clear_player_role(self, ctx, bracket_index: int = None, remove_player_role: bool = True):
@@ -175,10 +97,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         else:
             roles_to_removes = list(filter(None, [bracket_role, team_captain_role]))
 
-        teams_info, teams_roles = await self.get_all_teams_infos_and_roles(ctx, bracket.players_spreadsheet)
+        teams_info, teams_roles = await self.get_all_teams_infos_and_roles(ctx.guild, bracket.players_spreadsheet)
         roles_to_removes = [*roles_to_removes, *teams_roles]
 
-        left_participants = self.get_left_participants_in_challonge(bracket)
+        challonge_tournament = challonge.get_tournament(bracket.challonge)
+        running_participants = challonge_tournament.get_running_participants()
 
         players_found = []
         n_user_roles_removed = 0
@@ -189,7 +112,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                     continue
             elif player_role and not tosurnament.get_role(member.roles, player_role.id):
                 continue
-            _, player_name = self.is_player_in_challonge(member, teams_info, left_participants)
+            _, player_name = self.is_player_in_challonge(member, teams_info, running_participants)
             if player_name:
                 players_found.append(player_name.lower())
             else:
@@ -202,7 +125,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
 
         success_extra = ""
         players_not_found = []
-        for participant in left_participants:
+        for participant in running_participants:
             if participant.lower() not in players_found:
                 players_not_found.append(participant)
         if players_not_found:
@@ -227,15 +150,16 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
         roles_to_add = list(filter(None, [player_role, bracket_role]))
 
-        left_participants = self.get_left_participants_in_challonge(bracket)
+        challonge_tournament = challonge.get_tournament(bracket.challonge)
+        running_participants = challonge_tournament.get_running_participants()
 
-        teams_info, _ = await self.get_all_teams_infos_and_roles(ctx, bracket.players_spreadsheet)
+        teams_info, _ = await self.get_all_teams_infos_and_roles(ctx.guild, bracket.players_spreadsheet)
 
         n_user_roles_added = 0
         users_role_not_added = []
         players_found = []
         for member in ctx.guild.members:
-            team_info, player_name = self.is_player_in_challonge(member, teams_info, left_participants)
+            team_info, player_name = self.is_player_in_challonge(member, teams_info, running_participants)
             if player_name:
                 players_found.append(player_name.lower())
                 team_role = tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.value)
@@ -250,7 +174,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
 
         success_extra = ""
         players_not_found = []
-        for participant in left_participants:
+        for participant in running_participants:
             if participant.lower() not in players_found:
                 players_not_found.append(participant)
         if players_not_found:

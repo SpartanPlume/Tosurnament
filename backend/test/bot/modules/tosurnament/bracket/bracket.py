@@ -3,6 +3,7 @@ All tests concerning the Tosurnament bracket module.
 """
 
 import pytest
+from unittest import mock
 
 import datetime
 
@@ -127,8 +128,11 @@ async def test_set_registration_end_date(mocker):
     cog, mock_bot, bracket = init_mocks()
     date = "1 week"
     assert bracket.registration_end_date != date
-    await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
     new_date = datetime.datetime.now() + datetime.timedelta(days=7)
+    assert bracket.registration_end_date != new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+    parse_date_mock = mocker.Mock(return_value=new_date)
+    with mock.patch.object(Tournament, "parse_date", new=parse_date_mock):
+        await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(
             Bracket(tournament_id=1, registration_end_date=new_date.strftime(tosurnament.DATABASE_DATE_FORMAT))

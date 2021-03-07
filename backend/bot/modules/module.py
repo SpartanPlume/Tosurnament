@@ -59,13 +59,18 @@ class BaseModule(commands.Cog):
     def admin_cog_check(self, ctx):
         if not ctx.guild:
             raise commands.NoPrivateMessage()
+        if not self.is_admin(ctx):
+            raise NotBotAdmin()
+        return True
+
+    def is_admin(self, ctx):
         if ctx.guild.owner == ctx.author:
             return True
         guild = self.get_guild(ctx.guild.id)
         if not guild or not guild.admin_role_id:
-            raise NotBotAdmin()
+            return False
         if not get_role(ctx.author.roles, guild.admin_role_id):
-            raise NotBotAdmin()
+            return False
         return True
 
     async def update_table(self, ctx, table, values):
@@ -225,9 +230,8 @@ class BaseModule(commands.Cog):
                 await self.send_reply(ctx, "restricted_dm", channel=channel)
                 return True
             elif error.code == 50013:
-                if not ctx.author.dm_channel:
-                    await ctx.author.create_dm()
-                await self.send_reply(ctx, "lack_permission", channel=ctx.author.dm_channel)
+                dm_channel = await ctx.author.create_dm()
+                await self.send_reply(ctx, "lack_permission", channel=dm_channel)
             return False
         elif isinstance(error, UnknownError):
             await self.send_reply(ctx, "unknown_error", channel=channel)

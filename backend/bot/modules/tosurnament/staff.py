@@ -43,10 +43,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     async def create_or_update_qualifiers_results_message(self, ctx, qualifiers_results_message, status):
         tournament = self.get_tournament(ctx.guild.id)
-        tosurnament_guild = self.get_guild(ctx.guild.id)
-        admin_role = tosurnament.get_role(ctx.author.roles, tosurnament_guild.admin_role_id)
         referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
-        if not admin_role and not ctx.guild.owner == ctx.author and not referee_role:
+        if not self.is_admin(ctx) and not ctx.guild.owner == ctx.author and not referee_role:
             raise tosurnament.NotRequiredRole("Referee")
         if len(tournament.brackets) > 1:
             await self.send_reply(ctx, "not_supported_yet")
@@ -137,10 +135,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def allow_next_reschedule(self, ctx, match_id: str, allowed_hours: int = 24):
         """Allows a match to be reschedule without any time constraint applied."""
         tournament = self.get_tournament(ctx.guild.id)
-        tosurnament_guild = self.get_guild(ctx.guild.id)
-        admin_role = tosurnament.get_role(ctx.author.roles, tosurnament_guild.admin_role_id)
+        is_admin = self.is_admin(ctx)
         referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
-        if not admin_role and not ctx.guild.owner == ctx.author and not referee_role:
+        if is_admin and not ctx.guild.owner == ctx.author and not referee_role:
             raise tosurnament.NotRequiredRole("Referee")
         match_found = False
         for bracket in tournament.brackets:
@@ -157,7 +154,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 self.bot.info(str(type(e)) + ": " + str(e))
                 continue
             match_found = True
-            if admin_role or ctx.guild.owner == ctx.author:
+            if is_admin:
                 break
             user = tosurnament.UserAbstraction.get_from_ctx(ctx)
             is_referee_of_match = False
@@ -167,6 +164,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     break
             if not is_referee_of_match:
                 raise tosurnament.NotRefereeOfMatch()
+            break
         if not match_found:
             raise MatchIdNotFound(match_id)
         team1 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team1.value)

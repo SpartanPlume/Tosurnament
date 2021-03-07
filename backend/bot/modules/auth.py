@@ -62,9 +62,8 @@ class AuthCog(base.BaseModule, name="auth"):
             user.osu_name_hash = osu_name.lower()
             self.bot.session.update(user)
 
-        if not ctx.author.dm_channel:
-            await ctx.author.create_dm()
-        await self.send_reply(ctx, "success", code, channel=ctx.author.dm_channel)
+        dm_channel = await ctx.author.create_dm()
+        await self.send_reply(ctx, "success", code, channel=dm_channel)
 
     @link.error
     async def link_handler(self, ctx, error):
@@ -101,9 +100,8 @@ class AuthCog(base.BaseModule, name="auth"):
             user.verified = True
             self.bot.session.update(user)
 
-        if not ctx.author.dm_channel:
-            await ctx.author.create_dm()
-        await self.send_reply(ctx, "success", channel=ctx.author.dm_channel)
+        dm_channel = await ctx.author.create_dm()
+        await self.send_reply(ctx, "success", channel=dm_channel)
 
     @auth.error
     async def auth_handler(self, ctx, error):

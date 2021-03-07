@@ -101,6 +101,7 @@ async def test_get_a_bracket_that_does_not_exist():
     mock_bot = tosurnament_mock.BotMock()
     mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
     mock_bot.session.add_stub(Bracket(tournament_id=1, name=BRACKET_NAME))
+    mock_bot.session.add_stub(Bracket(tournament_id=1, name=BRACKET_NAME_2))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
 
     with pytest.raises(discord.ext.commands.UserInputError):

@@ -84,9 +84,8 @@ class GuildCog(base.BaseModule, name="guild"):
             try:
                 self.get_verified_user(ctx.author.id)
             except Exception as e:
-                if not ctx.author.dm_channel:
-                    await ctx.author.create_dm()
-                await self.on_cog_command_error(ctx, e, channel=ctx.author.dm_channel)
+                dm_channel = await ctx.author.create_dm()
+                await self.on_cog_command_error(ctx, e, channel=dm_channel)
                 return
             await self.bot.on_verified_user(ctx.guild, ctx.author)
 

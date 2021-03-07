@@ -112,7 +112,9 @@ async def test_reaction_on_end_tournament_message_invalid_emoji():
     cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
 
     await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(mock_bot, cog=cog),
+        tosurnament_mock.CtxMock(
+            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
+        ),
         tosurnament_mock.EmojiMock("=)"),
     )
     assert mock_bot.session.query.call_count == 0

@@ -135,6 +135,26 @@ class TosurnamentBaseModule(BaseModule):
             raise NoTournament()
         return tournament
 
+    def get_index_of_player_in_team(self, member, team_info):
+        user = UserAbstraction.get_from_user(self.bot, member)
+        player_index = -1
+        if user.verified:
+            try:
+                player_index = [str(cell.value).lower() for cell in team_info.players].index(user.name.lower())
+            except ValueError:
+                pass
+        if player_index == -1:
+            try:
+                player_index = [str(cell.value) for cell in team_info.discord_ids].index(str(user.discord_id))
+            except ValueError:
+                pass
+        if player_index == -1:
+            try:
+                player_index = [str(cell.value) for cell in team_info.discord].index(str(member))
+            except ValueError:
+                pass
+        return player_index
+
     def find_staff_to_ping(self, guild, staff_cells):
         staff_names_to_ping = set()
         for staff_cell in staff_cells:
@@ -193,6 +213,30 @@ class TosurnamentBaseModule(BaseModule):
             matches_data.append((match_info, match_date))
         return matches_data
 
+    async def get_all_teams_infos_and_roles(self, guild, players_spreadsheet):
+        teams_info = []
+        teams_roles = []
+        if players_spreadsheet:
+            await players_spreadsheet.get_spreadsheet()
+            if players_spreadsheet.range_team_name:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team_name
+                )
+            else:
+                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                    players_spreadsheet.range_team
+                )
+            for cell in team_cells:
+                try:
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
+                except Exception:
+                    continue
+                if players_spreadsheet.range_team_name:
+                    if team_role := get_role(guild.roles, None, team_info.team_name.value):
+                        teams_roles.append(team_role)
+                teams_info.append(team_info)
+        return teams_info, teams_roles
+
     def get_spreadsheet_ids_to_update_pickle(self):
         if not os.path.exists("pickles"):
             os.mkdir("pickles")
@@ -250,20 +294,17 @@ class TosurnamentBaseModule(BaseModule):
         self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
         self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
 
-    async def find_player_identification(self, ctx, bracket, user_details):
-        players_spreadsheet = bracket.players_spreadsheet
-        if not players_spreadsheet:
-            return user_details.name
-        await players_spreadsheet.get_spreadsheet()
-        cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(players_spreadsheet.range_team_name)
-        for cell in cells:
-            team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
-            if players_spreadsheet.range_discord_id:
-                if str(user_details.discord_id) in [str(cell.value) for cell in team_info.discord_ids]:
-                    return team_info.team_name.value
-            if user_details.name in [str(cell.value) for cell in team_info.players]:
-                return team_info.team_name.value
-        return user_details.name
+    def get_bracket_from_index(self, brackets, shown_index):
+        """Gets the bracket corresponding to the shown index (shown index starts at 1)."""
+        if len(brackets) != 1:
+            if shown_index is None:
+                return None
+            elif shown_index <= 0 or shown_index > len(brackets):
+                raise commands.UserInputError()
+            shown_index -= 1
+        else:
+            shown_index = 0
+        return brackets[shown_index]
 
     def get_spreadsheet_error(self, error_code):  # TODO
         if error_code == 499:
@@ -374,22 +415,6 @@ def get_pretty_date(tournament, date):
                 if int(minute) > 0:
                     utc += ":" + minute
     return "**" + date.strftime(PRETTY_DATE_FORMAT) + utc + "**"
-
-
-def is_bot_admin():
-    """Check function to know if the user is a bot admin."""
-
-    async def predicate(ctx):
-        guild = ctx.bot.session.query(Guild).where(Guild.guild_id == ctx.guild.id).first()
-        if not guild:
-            raise NotBotAdmin()
-        if not guild.admin_role_id and ctx.guild.owner != ctx.author:
-            raise NotBotAdmin()
-        if ctx.guild.owner != ctx.author and not get_role(ctx.author.roles, guild.admin_role_id):
-            raise NotBotAdmin()
-        return True
-
-    return commands.check(predicate)
 
 
 def retry_and_update_spreadsheet_pickle_on_false_or_exceptions(_func=None, *, exceptions=[]):

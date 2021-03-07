@@ -165,16 +165,21 @@ USER_ID = 20934809
 NOT_USER_ID = 18349804
 USER_NAME = "User name"
 USER_TAG = "User name#" + str(USER_ID)
-AUTHOR_DM_CHANNEL_ID = 324987
 
 
 class UserMock(BaseMock):
+    DM_CHANNEL_ID = 324987
+
     def __init__(self, user_id=USER_ID, user_name=USER_NAME):
         self.id = user_id
         self.roles = []
         self.display_name = user_name
         self.mention = user_name
-        self.dm_channel = ChannelMock(AUTHOR_DM_CHANNEL_ID)
+        self.dm_channel = None
+
+    async def create_dm(self):
+        self.dm_channel = ChannelMock(self.DM_CHANNEL_ID)
+        return self.dm_channel
 
 
 GUILD_ID = 325098354
