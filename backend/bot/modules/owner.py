@@ -39,6 +39,7 @@ class AdminCog(base.BaseModule, name="admin"):
     @commands.command(hidden=True)
     async def announce(self, ctx, *, message: str):
         """Sends an annoucement to all servers that have a tournament running."""
+        users_already_sent_to = []
         for guild in self.bot.guilds:
             tournament = self.bot.session.query(Tournament).where(Tournament.guild_id == guild.id).first()
             if tournament:
@@ -55,10 +56,12 @@ class AdminCog(base.BaseModule, name="admin"):
                         continue
                 except Exception:
                     pass
-            try:
-                await guild.owner.send(message)
-            except Exception:
-                continue
+            if guild.owner.id not in users_already_sent_to:
+                try:
+                    await guild.owner.send(message)
+                    users_already_sent_to.append(guild.owner.id)
+                except Exception:
+                    continue
 
 
 def get_class(bot):
