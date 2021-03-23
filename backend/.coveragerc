@@ -8,6 +8,7 @@ exclude_lines =
     def setup\(bot\)
     @[a-z_]*\.error
     def on_raw_reaction_add
+    def background_task
 omit =
     common/config.py
     test/**

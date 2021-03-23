@@ -15,18 +15,20 @@ from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
 from common.databases.players_spreadsheet import PlayersSpreadsheet
 from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.qualifiers_spreadsheet import QualifiersSpreadsheet
-from common.databases.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
+from common.databases.user import User
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.bracket.bracket"
+BRACKET1_NAME = "Bracket 1"
+PARTICIPANT_LIST = ["Participant 1", "ParTiCIpanT 2", "participant 3", "PARTICIPANT 4", tosurnament_mock.USER_NAME]
 
 
-def init_mocks():
+def init_mocks(n_of_brackets=1):
     mock_bot = tosurnament_mock.BotMock()
     mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
-    bracket = Bracket(id=1, tournament_id=1)
-    mock_bot.session.add_stub(bracket)
+    for i in range(n_of_brackets):
+        bracket = Bracket(id=i + 1, tournament_id=1, name=("Bracket " + str(i + 1)))
+        mock_bot.session.add_stub(bracket)
     cog = tosurnament_mock.mock_cog(bracket_module.get_class(mock_bot))
     return cog, mock_bot, bracket
 
@@ -63,7 +65,9 @@ async def test_set_bracket_role(mocker):
     role = tosurnament_mock.RoleMock("role", 324987)
     assert bracket.role_id != role.id
     await cog.set_bracket_role(cog, tosurnament_mock.CtxMock(mock_bot), role=role)
-    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Bracket(tournament_id=1, role_id=role.id)))
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, role_id=role.id, name=BRACKET1_NAME))
+    )
 
 
 @pytest.mark.asyncio
@@ -74,7 +78,7 @@ async def test_set_current_bracket_round(mocker):
     assert bracket.current_round != current_round
     await cog.set_current_bracket_round(cog, tosurnament_mock.CtxMock(mock_bot), current_round=current_round)
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(Bracket(tournament_id=1, current_round=current_round))
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, current_round=current_round, name=BRACKET1_NAME))
     )
 
 
@@ -86,7 +90,7 @@ async def test_set_post_result_channel(mocker):
     assert bracket.post_result_channel_id != channel.id
     await cog.set_post_result_channel(cog, tosurnament_mock.CtxMock(mock_bot), channel=channel)
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(Bracket(tournament_id=1, post_result_channel_id=channel.id))
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, post_result_channel_id=channel.id, name=BRACKET1_NAME))
     )
 
 
@@ -99,7 +103,7 @@ async def test_set_challonge(mocker):
     assert bracket.challonge != challonge_id
     await cog.set_challonge(cog, tosurnament_mock.CtxMock(mock_bot), challonge_tournament=challonge_id_url)
     mock_bot.session.update.assert_called_once_with(
-        tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=challonge_id))
+        tosurnament_mock.Matcher(Bracket(tournament_id=1, challonge=challonge_id, name=BRACKET1_NAME))
     )
 
 
@@ -135,15 +139,67 @@ async def test_set_registration_end_date(mocker):
         await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(
-            Bracket(tournament_id=1, registration_end_date=new_date.strftime(tosurnament.DATABASE_DATE_FORMAT))
+            Bracket(
+                tournament_id=1,
+                registration_end_date=new_date.strftime(tosurnament.DATABASE_DATE_FORMAT),
+                name=BRACKET1_NAME,
+            )
         )
     )
+
+
+def test_is_player_in_challonge_not_a_participant(mocker):
+    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    cog = tosurnament_mock.mock_cog(bracket_module.get_class(tosurnament_mock.BotMock()))
+    member_name = "abvdsrjgfkh"
+    member = tosurnament_mock.UserMock(user_name=member_name)
+    team_info, player_name = cog.is_player_in_challonge(member, [], PARTICIPANT_LIST)
+    assert not team_info
+    assert not player_name
+
+
+def test_is_player_in_challonge_no_teams_info(mocker):
+    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    mock_bot = tosurnament_mock.BotMock()
+    cog = tosurnament_mock.mock_cog(bracket_module.get_class(mock_bot))
+    member_name = tosurnament_mock.USER_NAME
+    mock_bot.session.add_stub(User(discord_id=tosurnament_mock.USER_ID, osu_name=member_name, verified=True))
+    member = tosurnament_mock.UserMock(user_name=member_name)
+    team_info, player_name = cog.is_player_in_challonge(member, [], PARTICIPANT_LIST)
+    assert not team_info
+    assert player_name == member_name
+
+
+@pytest.mark.asyncio
+async def test_is_player_in_challonge(mocker):
+    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    cog = tosurnament_mock.mock_cog(bracket_module.get_class(tosurnament_mock.BotMock()))
+    member = tosurnament_mock.UserMock()
+    teams_info = []
+    participants = []
+    cog.is_player_in_challonge(member, teams_info, participants)
 
 
 @pytest.mark.asyncio
 async def test_clear_player_role(mocker):
     """Removes the player roles of all players not present in the challonge."""
     # TODO
+
+
+@pytest.mark.asyncio
+async def test_clear_player_role_multi_brackets_no_specified_bracket(mocker):
+    """Removes the player roles of all players not present in the challonge."""
+    cog, mock_bot, _ = init_mocks(2)
+    await cog.clear_player_role(cog, tosurnament_mock.CtxMock(mock_bot))
+    cog.send_reply.assert_called_once_with(mocker.ANY, "default", "1: `Bracket 1`\n2: `Bracket 2`\n")
+
+
+@pytest.mark.asyncio
+async def test_clear_player_role_no_challonge(mocker):
+    """Removes the player roles of all players not present in the challonge."""
+    cog, mock_bot, _ = init_mocks()
+    with pytest.raises(base.NoChallonge):
+        await cog.clear_player_role(cog, tosurnament_mock.CtxMock(mock_bot))
 
 
 @pytest.mark.asyncio
