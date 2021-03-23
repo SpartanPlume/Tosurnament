@@ -110,12 +110,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             lobby_id_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 qualifiers_spreadsheet.range_lobby_id
             )
-            lobby_id_cells = [lobby_id_cell for lobby_id_cell in lobby_id_cells if lobby_id_cell.value]
             players_spreadsheet = bracket.players_spreadsheet
             if players_spreadsheet:
                 await players_spreadsheet.get_spreadsheet()
                 team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
-                team_name = team_info.team_name.value
+                team_name = team_info.team_name.get()
             else:
                 if not user.verified:
                     continue
@@ -127,16 +126,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
             lobby_found = False
             for lobby_info in lobby_infos:
-                if lobby_info.lobby_id.value.lower() == lobby_id.lower():
+                if lobby_info.lobby_id.casefold() == lobby_id.casefold():
                     first_empty_cell = None
                     for team_cell in lobby_info.teams:
-                        if not first_empty_cell and not team_cell.value:
+                        if not first_empty_cell and not team_cell:
                             first_empty_cell = team_cell
-                        if team_name.lower() == team_cell.value.lower():
+                        if team_name.casefold() == team_cell.casefold():
                             raise tosurnament.AlreadyInLobby()
                     if not first_empty_cell:
                         raise tosurnament.LobbyIsFull()
-                    first_empty_cell.value = team_name
+                    first_empty_cell.set(team_name)
                     lobby_found = True
                     break
             if not lobby_found:
@@ -144,10 +143,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             for lobby_info in lobby_infos:
                 for team_cell in lobby_info.teams:
                     if (
-                        lobby_info.lobby_id.value.lower() != lobby_id.lower()
-                        and team_name.lower() == team_cell.value.lower()
+                        lobby_info.lobby_id.casefold() != lobby_id.casefold()
+                        and team_name.casefold() == team_cell.casefold()
                     ):
-                        team_cell.value = ""
+                        team_cell.set("")
                         break
             self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
             await self.send_reply(ctx, "success", lobby_id)
@@ -172,7 +171,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             player_index = self.get_index_of_player_in_team(member, team_info)
             if player_index != -1:
                 roles_to_give = [player_role]
-                team_name = team_info.team_name.value
+                team_name = team_info.team_name.get()
                 team_role = tosurnament.get_role(guild.roles, None, team_name)
                 if not team_role:
                     try:
@@ -239,7 +238,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
             if now > deadline:
                 referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
-                raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.value)
+                raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.get())
             if tournament.reschedule_deadline_end:
                 try:
                     deadline_end = tournament.parse_date(
@@ -277,7 +276,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if now > deadline:
             referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
             raise tosurnament.ImpossibleReschedule(
-                reschedule_deadline_hours, referees_mentions, match_info.match_id.value
+                reschedule_deadline_hours, referees_mentions, match_info.match_id.get()
             )
         return new_date
 
@@ -296,8 +295,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def get_teams_info(self, ctx, tournament, players_spreadsheet, match_info):
         """Returns ally and enemy team info"""
         try:
-            team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.value)
-            team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.value)
+            team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.get())
+            team2_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team2.get())
         except tosurnament.SpreadsheetHttpError as e:
             await self.on_cog_command_error(ctx, e)
             return None, None
@@ -346,7 +345,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if retry:
                 self.bot.info_exception(e)
             return False
-        match_id = match_info.match_id.value
+        match_id = match_info.match_id.get()
 
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet:
@@ -356,26 +355,26 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             )
             if not ally_team_info:
                 return False
-            team_name = ally_team_info.team_name.value
-            opponent_team_name = opponent_team_info.team_name.value
+            team_name = ally_team_info.team_name.get()
+            opponent_team_name = opponent_team_info.team_name.get()
             if players_spreadsheet.range_discord_id:
                 opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].value, int(opponent_team_info.discord_ids[0].value)
+                    ctx.bot, opponent_team_info.players[0].get(), int(opponent_team_info.discord_ids[0].get())
                 )
             elif players_spreadsheet.range_discord:
                 opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].value, opponent_team_info.discord[0].value
+                    ctx.bot, opponent_team_info.players[0].get(), opponent_team_info.discord[0].get()
                 )
             else:
                 opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].value
+                    ctx.bot, opponent_team_info.players[0].get()
                 )
         else:
             team_name = user.name
-            if team_name == match_info.team1.value:
-                opponent_team_name = match_info.team2.value
-            elif team_name == match_info.team2.value:
-                opponent_team_name = match_info.team1.value
+            if team_name == match_info.team1:
+                opponent_team_name = match_info.team2.get()
+            elif team_name == match_info.team2:
+                opponent_team_name = match_info.team1.get()
             else:
                 raise tosurnament.InvalidMatch()
             opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
@@ -580,12 +579,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
         if schedules_spreadsheet.range_date and schedules_spreadsheet.range_time:
-            match_info.date.value = new_date.strftime(date_format)
-            match_info.time.value = new_date.strftime("%H:%M")
+            match_info.date.set(new_date.strftime(date_format))
+            match_info.time.set(new_date.strftime("%H:%M"))
         elif schedules_spreadsheet.range_date:
-            match_info.date.value = new_date.strftime(date_format + " %H:%M")
+            match_info.date.set(new_date.strftime(date_format + " %H:%M"))
         elif schedules_spreadsheet.range_time:
-            match_info.time.value = new_date.strftime(date_format + " %H:%M")
+            match_info.time.set(new_date.strftime(date_format + " %H:%M"))
         else:
             raise tosurnament.UnknownError("No date range")
 
@@ -620,8 +619,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 ctx,
                 "staff_notification",
                 match_id,
-                match_info.team1.value,
-                match_info.team2.value,
+                match_info.team1.get(),
+                match_info.team2.get(),
                 previous_date_string,
                 new_date_string,
                 " / ".join([referee.mention for referee in referees_to_ping]),
@@ -633,8 +632,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 tournament_id=reschedule_message.tournament_id,
                 bracket_id=tournament.current_bracket.id,
                 message_id=sent_message.id,
-                team1=match_info.team1.value,
-                team2=match_info.team2.value,
+                team1=match_info.team1.get(),
+                team2=match_info.team2.get(),
                 match_id=match_id,
                 previous_date=reschedule_message.previous_date,
                 new_date=reschedule_message.new_date,
@@ -648,8 +647,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 ctx,
                 "no_staff_notification",
                 match_id,
-                match_info.team1.value,
-                match_info.team2.value,
+                match_info.team1.get(),
+                match_info.team2.get(),
                 previous_date_string,
                 new_date_string,
                 channel=staff_channel,
@@ -674,44 +673,28 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 continue
             bracket_role = tosurnament.get_role(guild.roles, bracket.role_id, bracket.name)
             await players_spreadsheet.get_spreadsheet()
-            if players_spreadsheet.range_team_name:
-                team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                    players_spreadsheet.range_team_name
-                )
-                for team_name_cell in team_name_cells:
-                    team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
-                    team_name = team_info.team_name.value
-                    team_role = tosurnament.get_role(guild.roles, None, team_name)
+            team_infos, team_roles = self.get_all_teams_infos_and_roles(guild, players_spreadsheet)
+            for team_info_index, team_info in enumerate(team_infos):
+                team_role = None
+                if players_spreadsheet.range_team_name:
+                    team_role = team_roles[team_info_index]
                     if not team_role:
-                        team_role = await guild.create_role(name=team_name, mentionable=False)
-                    for i, player_cell in enumerate(team_info.players):
-                        player_name = player_cell.value
-                        if not player_name:
-                            continue
-                        discord_tag = None
-                        if len(team_info.discord) > i and team_info.discord[i].value:
-                            discord_tag = team_info.discord[i].value
-                        user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, player_name, discord_tag)
-                        member = user.get_member(guild)
-                        if not member:
-                            member = guild.get_member_named(user.name)
-                        if member:
-                            await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))
-            else:
-                team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                    players_spreadsheet.range_team
-                )
-                for cell in team_cells:
-                    try:
-                        team_info = TeamInfo.from_player_name(players_spreadsheet, cell.value)
-                        if team_info.discord[0].value:
-                            user = guild.get_member_named(team_info.discord[0].value)
-                        else:
-                            user = guild.get_member_named(team_info.team_name.value)
-                        if user:
-                            await user.add_roles(*filter(None, [player_role, bracket_role]))
-                    except Exception:
+                        team_role = await guild.create_role(name=team_info.team_name.get(), mentionable=False)
+                for i, player_cell in enumerate(team_info.players):
+                    if not player_cell:
                         continue
+                    discord_tag = None
+                    if len(team_info.discord) > i and team_info.discord[i]:
+                        discord_tag = team_info.discord[i].get()
+                    user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, player_cell.get(), discord_tag)
+                    member = user.get_member(guild)
+                    if not member:
+                        member = guild.get_member_named(user.name)
+                    if member:
+                        try:
+                            await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))
+                        except Exception:
+                            continue
 
     async def background_task_give_player_role(self):
         try:

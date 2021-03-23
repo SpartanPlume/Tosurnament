@@ -224,7 +224,7 @@ class TeamInfo:
                 discord_id_cell,
             )
             if team_name_cell.x == -1:
-                raise TeamNotFound(discord_id_cell.value)
+                raise TeamNotFound(discord_id_cell.get())
             return TeamInfo.from_team_name_cell(players_spreadsheet, team_name_cell)
         else:
             player_cell = find_corresponding_cell_best_effort_from_range(
@@ -233,7 +233,7 @@ class TeamInfo:
                 discord_id_cell,
             )
             if player_cell.x == -1:
-                raise TeamNotFound(discord_id_cell.value)
+                raise TeamNotFound(discord_id_cell.get())
             return TeamInfo.from_player_cell(players_spreadsheet, player_cell)
 
     @staticmethod
@@ -347,7 +347,7 @@ class TeamInfo:
         for row in cells:
             used = False
             for cell in row:
-                if cell.value:
+                if cell:
                     used = True
                     break
             if not used:

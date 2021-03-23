@@ -140,17 +140,17 @@ class TosurnamentBaseModule(BaseModule):
         player_index = -1
         if user.verified:
             try:
-                player_index = [str(cell.value).lower() for cell in team_info.players].index(user.name.lower())
+                player_index = [cell.casefold() for cell in team_info.players].index(user.name.casefold())
             except ValueError:
                 pass
         if player_index == -1:
             try:
-                player_index = [str(cell.value) for cell in team_info.discord_ids].index(str(user.discord_id))
+                player_index = team_info.discord_ids.index(str(user.discord_id))
             except ValueError:
                 pass
         if player_index == -1:
             try:
-                player_index = [str(cell.value) for cell in team_info.discord].index(str(member))
+                player_index = team_info.discord.index(str(member))
             except ValueError:
                 pass
         return player_index
@@ -158,10 +158,10 @@ class TosurnamentBaseModule(BaseModule):
     def find_staff_to_ping(self, guild, staff_cells):
         staff_names_to_ping = set()
         for staff_cell in staff_cells:
-            if staff_cell.value:
-                tmp_staff_names = staff_cell.value.split("/")
-                for staff_name in tmp_staff_names:
-                    staff_names_to_ping.add(staff_name.strip())
+            for staff_name in staff_cell.split("/"):
+                staff_name = staff_name.strip()
+                if staff_name:
+                    staff_names_to_ping.add(staff_name)
         staffs = []
         staffs_not_found = []
         for staff_name in staff_names_to_ping:
@@ -183,7 +183,7 @@ class TosurnamentBaseModule(BaseModule):
         )
         match_infos = []
         for match_id_cell in match_ids_cells:
-            if match_id_cell.value.casefold() in match_ids:
+            if match_id_cell.casefold() in match_ids:
                 match_infos.append(MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell))
         return match_infos
 
@@ -197,9 +197,9 @@ class TosurnamentBaseModule(BaseModule):
             schedules_spreadsheet.range_match_id
         )
         now = datetime.datetime.now(datetime.timezone.utc)
-        matches_to_ignore = tournament.matches_to_ignore.split("\n")
+        matches_to_ignore = [match.casefold() for match in tournament.matches_to_ignore.split("\n")]
         for match_id_cell in match_ids_cells:
-            if match_id_cell.value in matches_to_ignore:
+            if match_id_cell.casefold() in matches_to_ignore:
                 continue
             match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
             date_format = "%d %B"
@@ -226,14 +226,17 @@ class TosurnamentBaseModule(BaseModule):
                 team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team
                 )
-            for cell in team_cells:
+            for team_cell in team_cells:
                 try:
-                    team_info = TeamInfo.from_team_name(players_spreadsheet, cell.value)
+                    team_info = TeamInfo.from_team_name(players_spreadsheet, str(team_cell))
                 except Exception:
                     continue
-                if players_spreadsheet.range_team_name:
-                    if team_role := get_role(guild.roles, None, team_info.team_name.value):
-                        teams_roles.append(team_role)
+                if players_spreadsheet.range_team_name and (
+                    team_role := get_role(guild.roles, None, team_info.team_name)
+                ):
+                    teams_roles.append(team_role)
+                else:
+                    teams_roles.append(None)
                 teams_info.append(team_info)
         return teams_info, teams_roles
 

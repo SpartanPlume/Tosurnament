@@ -74,7 +74,7 @@ class MatchInfo:
         self.mp_links = []
 
     def get_datetime(self):
-        return " ".join(filter(None, [self.date.value, self.time.value]))
+        return " ".join(filter(None, [self.date.get(), self.time.get()]))
 
     @staticmethod
     def from_id(schedules_spreadsheet, match_id, filled_only=True):
@@ -177,8 +177,8 @@ class MatchInfo:
                     match_id_cell,
                 )
             ]
-        if not isinstance(match_info.date.value, str):
+        if match_info.date.value_type != str:
             raise DateIsNotString("date")
-        if not isinstance(match_info.time.value, str):
+        if match_info.time.value_type != str:
             raise DateIsNotString("time")
         return match_info

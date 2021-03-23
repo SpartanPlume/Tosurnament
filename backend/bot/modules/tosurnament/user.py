@@ -106,14 +106,11 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 return user.name
             return ctx.author.display_name
         await players_spreadsheet.get_spreadsheet()
-        team_name_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-            players_spreadsheet.range_team_name
-        )
-        for team_name_cell in team_name_cells:
-            team_info = TeamInfo.from_team_name(players_spreadsheet, team_name_cell.value)
+        team_infos, _ = self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
+        for team_info in team_infos:
             player_index = self.get_index_of_player_in_team(ctx.author, team_info)
-            if player_index != -1:
-                return team_info.team_name.value
+            if player_index >= 0:
+                return team_info.team_name.get()
         return None
 
     async def fill_matches_info_for_roles(self, ctx, tournament, bracket, user_details):
@@ -163,8 +160,8 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                     tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date)
                     if len(tournament.brackets) > 1:
                         tmp_reply_string += " | " + bracket_name
-                    tmp_reply_string += " | **" + match_info.match_id.value + "**:\n"
-                    tmp_reply_string += match_info.team1.value + " vs " + match_info.team2.value + "\n"
+                    tmp_reply_string += " | **" + match_info.match_id.get() + "**:\n"
+                    tmp_reply_string += match_info.team1.get() + " vs " + match_info.team2.get() + "\n"
                     if len(reply_string) + len(tmp_reply_string) >= 2000:
                         await ctx.author.send(reply_string)
                         reply_string = tmp_reply_string

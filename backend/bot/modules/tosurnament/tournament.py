@@ -228,7 +228,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             all_match_infos.extend(await self.get_match_infos_from_id(bracket, match_ids.keys()))
         matches_found = []
         for match_info in all_match_infos:
-            match_id = match_info.match_id.value
+            match_id = match_info.match_id.get()
             if add and match_id not in matches_to_ignore:
                 matches_to_ignore.append(match_id)
             elif not add and match_id in matches_to_ignore:
@@ -261,7 +261,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             ]
             staffs_not_found = set([*referees_not_found, *streamers_not_found, *commentators_not_found])
             to_ping = "/".join([*set([staff.mention for staff in staffs_to_ping]), *staffs_not_found])
-            await self.send_reply(ctx, reply_type, to_ping, match_info.match_id.value, channel=staff_channel)
+            await self.send_reply(ctx, reply_type, to_ping, match_info.match_id.get(), channel=staff_channel)
 
     @commands.command(aliases=["ss", "sync_spreadsheets"])
     async def sync_spreadsheet(self, ctx):

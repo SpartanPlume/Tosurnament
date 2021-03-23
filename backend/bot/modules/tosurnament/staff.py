@@ -59,7 +59,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         scores = []
         cut_off = None
         for i, result_info in enumerate(results_info):
-            score = result_info.score.value
+            score = result_info.score.get()
             if score <= 0.0:
                 continue
             scores.append(score)
@@ -70,7 +70,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         avg_score = sum(scores) / len(scores)
         top10_string = ""
         for i, result_info in enumerate(top10):
-            osu_name = result_info.osu_id.value
+            osu_name = result_info.osu_id.get()
             osu_user = osu.get_user(osu_name)
             if not osu_user:
                 flag = ":flag_white:"
@@ -82,7 +82,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             else:
                 top10_string += ".`"
             top10_string += flag + " **" + escape_markdown(osu_name) + "** "
-            top10_string += "(%.2f%%)\n" % (result_info.score.value * 100)
+            top10_string += "(%.2f%%)\n" % (result_info.score.get() * 100)
         channel = ctx.guild.get_channel(qualifiers_results_message.channel_id)
         if qualifiers_results_message.message_id > 0:
             message = await channel.fetch_message(qualifiers_results_message.message_id)
@@ -93,9 +93,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             tournament.name,
             status,
             top10_string,
-            escape_markdown(top10[0].osu_id.value),
+            escape_markdown(top10[0].osu_id.get()),
             "%.2f%%" % (avg_score * 100),
-            "%.2f%% `(32. %s)`" % ((cut_off.score.value * 100), escape_markdown(cut_off.osu_id.value)),
+            "%.2f%% `(32. %s)`" % ((cut_off.score.get() * 100), escape_markdown(cut_off.osu_id.get())),
             str(ctx.guild.icon_url),
             channel=channel,
         )
@@ -167,8 +167,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             break
         if not match_found:
             raise MatchIdNotFound(match_id)
-        team1 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team1.value)
-        team2 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team2.value)
+        team1 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team1.get())
+        team2 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team2.get())
         allowed_reschedule = AllowedReschedule(
             tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
         )
@@ -240,69 +240,69 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     def take_match_for_roles(self, schedules_spreadsheet, match_info, user_details, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         write_cells = False
-        staff_name = user_details.name.lower()
+        staff_name = user_details.name.casefold()
         for role_name, role_store in user_details.get_staff_roles_as_dict().items():
             if not role_store:
                 continue
             take_match = False
             role_cells = getattr(match_info, role_name.lower() + "s")
             if schedules_spreadsheet.use_range:
-                if not (take and staff_name in [cell.value.lower() for cell in role_cells]):
+                if not (take and staff_name in [cell.casefold() for cell in role_cells]):
                     for role_cell in role_cells:
-                        if take and not role_cell.value:
-                            role_cell.value = user_details.name
+                        if take and not role_cell:
+                            role_cell.set(user_details.name)
                             take_match = True
                             break
-                        elif not take and role_cell.value.lower() == staff_name:
-                            role_cell.value = ""
+                        elif not take and role_cell.casefold() == staff_name:
+                            role_cell.set("")
                             take_match = True
                             break
             elif len(role_cells) > 0:
                 role_cell = role_cells[0]
                 max_take = getattr(schedules_spreadsheet, "max_" + role_name.lower())
-                staffs = list(filter(None, [staff.strip() for staff in role_cell.value.split("/")]))
-                lower_staffs = [staff.lower() for staff in staffs]
-                if take and len(staffs) < max_take and staff_name not in lower_staffs:
+                staffs = list(filter(None, [staff.strip() for staff in role_cell.split("/")]))
+                casefold_staffs = [staff.casefold() for staff in staffs]
+                if take and len(staffs) < max_take and staff_name not in casefold_staffs:
                     staffs.append(user_details.name)
-                    role_cell.value = " / ".join(staffs)
+                    role_cell.set(" / ".join(staffs))
                     take_match = True
                 elif not take:
                     try:
-                        idx = lower_staffs.index(staff_name)
+                        idx = casefold_staffs.index(staff_name)
                         staffs.pop(idx)
-                        role_cell.value = " / ".join(staffs)
-                        role_store.taken_matches.append(match_info.match_id.value)
+                        role_cell.set(" / ".join(staffs))
+                        role_store.taken_matches.append(match_info.match_id.get())
                         return True
                     except ValueError:
                         pass
             if take_match:
-                role_store.taken_matches.append(match_info.match_id.value)
+                role_store.taken_matches.append(match_info.match_id.get())
                 write_cells = True
             if not take_match:
-                role_store.not_taken_matches.append(match_info.match_id.value)
+                role_store.not_taken_matches.append(match_info.match_id.get())
         return write_cells
 
     def take_lobby_for_roles(self, qualifiers_spreadsheet, lobby_info, user_details, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
-        staff_name = user_details.name.lower()
+        staff_name = user_details.name.casefold()
         role_cell = lobby_info.referee
-        staffs = list(filter(None, [staff.strip() for staff in role_cell.value.split("/")]))
-        lower_staffs = [staff.lower() for staff in staffs]
-        if take and staff_name not in lower_staffs:
+        staffs = list(filter(None, [staff.strip() for staff in role_cell.split("/")]))
+        casefold_staffs = [staff.casefold() for staff in staffs]
+        if take and staff_name not in casefold_staffs:
             staffs.append(user_details.name)
-            role_cell.value = " / ".join(staffs)
-            user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
+            role_cell.set(" / ".join(staffs))
+            user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
             return True
         elif not take:
             try:
-                idx = lower_staffs.index(staff_name)
+                idx = casefold_staffs.index(staff_name)
                 staffs.pop(idx)
-                role_cell.value = " / ".join(staffs)
-                user_details.referee.taken_matches.append(lobby_info.lobby_id.value)
+                role_cell.set(" / ".join(staffs))
+                user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
                 return True
             except ValueError:
                 pass
-        user_details.referee.not_taken_matches.append(lobby_info.lobby_id.value)
+        user_details.referee.not_taken_matches.append(lobby_info.lobby_id.get())
         return False
 
     @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
@@ -395,7 +395,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
             if where_has_no_referee:
                 for match_info, match_date in matches_data:
-                    if list(filter(None, [cell.value for cell in match_info.referees])):
+                    if list(filter(None, [cell for cell in match_info.referees])):
                         continue
                     matches.append((match_info, match_date))
             else:
@@ -410,21 +410,21 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             tmp_reply_string = ""
             if reply_string:
                 tmp_reply_string += "\n-------------------------------\n"
-            tmp_reply_string += "**Match " + match_info.match_id.value + ":** "
+            tmp_reply_string += "**Match " + match_info.match_id.get() + ":** "
             tmp_reply_string += (
-                escape_markdown(match_info.team1.value) + " vs " + escape_markdown(match_info.team2.value) + "\n"
+                escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
             )
             tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
-            referees = list(filter(None, [cell.value for cell in match_info.referees]))
+            referees = list(filter(None, [cell for cell in match_info.referees]))
             tmp_reply_string += "__Referee:__ "
             if referees:
                 tmp_reply_string += "/".join(referees)
             else:
                 tmp_reply_string += "**None**"
-            streamers = list(filter(None, [cell.value for cell in match_info.streamers]))
+            streamers = list(filter(None, [cell for cell in match_info.streamers]))
             if streamers:
                 tmp_reply_string += "\n__Streamer:__ " + "/".join(streamers)
-            commentators = list(filter(None, [cell.value for cell in match_info.commentators]))
+            commentators = list(filter(None, [cell for cell in match_info.commentators]))
             if commentators:
                 tmp_reply_string += "\n__Commentator:__ " + "/".join(commentators)
             if len(reply_string) + len(tmp_reply_string) >= 2000:
@@ -451,14 +451,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     return team_role.mention
             if team_info.discord_ids:
                 user = tosurnament.UserAbstraction.get_from_osu_name(
-                    self.bot, team_info.players[0].value, int(team_info.discord_ids[0].value)
+                    self.bot, team_info.players[0].get(), int(team_info.discord_ids[0].get())
                 )
             elif team_info.discord:
                 user = tosurnament.UserAbstraction.get_from_osu_name(
-                    self.bot, team_info.players[0].value, team_info.discord[0].value
+                    self.bot, team_info.players[0].get(), team_info.discord[0].get()
                 )
             else:
-                user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, team_info.players[0].value)
+                user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, team_info.players[0].get())
             member = user.get_member(guild)
             if member:
                 return member.mention
@@ -473,9 +473,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         players_spreadsheet = bracket.players_spreadsheet
         teams = []
         for team_cell in lobby_info.teams:
-            team = await self.get_team_mention(guild, players_spreadsheet, team_cell.value)
+            team = await self.get_team_mention(guild, players_spreadsheet, team_cell.get())
             teams.append(team)
-        referee_name = lobby_info.referee.value
+        referee_name = lobby_info.referee.get()
         referee_role = None
         notification_type = "notification"
         if referee_name:
@@ -503,7 +503,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             channel,
             "qualifier_match_notification",
             notification_type,
-            lobby_info.lobby_id.value,
+            lobby_info.lobby_id.get(),
             teams_mentions,
             referee,
             minutes_before_match,
@@ -514,7 +514,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 message_id=message.id,
                 tournament_id=tournament.id,
                 bracket_id=bracket.id,
-                match_id=lobby_info.lobby_id.value,
+                match_id=lobby_info.lobby_id.get(),
                 teams_mentions=teams_mentions,
                 date_info=minutes_before_match,
                 notification_type=2,
@@ -531,9 +531,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
         players_spreadsheet = bracket.players_spreadsheet
-        team1 = await self.get_team_mention(guild, players_spreadsheet, match_info.team1.value)
-        team2 = await self.get_team_mention(guild, players_spreadsheet, match_info.team2.value)
-        referee_name = match_info.referees[0].value
+        team1 = await self.get_team_mention(guild, players_spreadsheet, match_info.team1.get())
+        team2 = await self.get_team_mention(guild, players_spreadsheet, match_info.team2.get())
+        referee_name = match_info.referees[0].get()
         referee_role = None
         notification_type = "notification"
         if referee_name:
@@ -560,7 +560,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             channel,
             "player_match_notification",
             notification_type,
-            match_info.match_id.value,
+            match_info.match_id.get(),
             team1,
             team2,
             referee,
@@ -572,7 +572,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 message_id=message.id,
                 tournament_id=tournament.id,
                 bracket_id=bracket.id,
-                match_id=match_info.match_id.value,
+                match_id=match_info.match_id.get(),
                 team1_mention=team1,
                 team2_mention=team2,
                 date_info=minutes_before_match,
@@ -587,7 +587,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             self.bot.info(str(type(e)) + ": " + str(e))
 
     async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta, match_date):
-        if list(filter(None, [cell.value for cell in match_info.referees])):
+        if list(filter(None, [cell for cell in match_info.referees])):
             return
         if not (delta.days == 0 and delta.seconds >= 20700 and delta.seconds < 21600):
             return
@@ -597,14 +597,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         else:
             referee = "Referees"
         match_date_str = tosurnament.get_pretty_date(tournament, match_date)
-        team1 = escape_markdown(match_info.team1.value)
-        team2 = escape_markdown(match_info.team2.value)
+        team1 = escape_markdown(match_info.team1.get())
+        team2 = escape_markdown(match_info.team2.get())
         message = await self.send_reply_in_bg_task(
             guild,
             channel,
             "referee_match_notification",
             "notification",
-            match_info.match_id.value,
+            match_info.match_id.get(),
             team1,
             team2,
             referee,
@@ -615,7 +615,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             message_id=message.id,
             tournament_id=tournament.id,
             bracket_id=bracket.id,
-            match_id=match_info.match_id.value,
+            match_id=match_info.match_id.get(),
             team1_mention=team1,
             team2_mention=team2,
             date_info=match_date_str,
@@ -637,7 +637,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
         if not player_match_notification_channel and not staff_channel:
             return
-        matches_to_ignore = [match_id.upper() for match_id in tournament.matches_to_ignore.split("\n")]
+        matches_to_ignore = [match_id.casefold() for match_id in tournament.matches_to_ignore.split("\n")]
         for bracket in tournament.brackets:
             now = datetime.datetime.now(datetime.timezone.utc)
             schedules_spreadsheet = bracket.schedules_spreadsheet
@@ -647,7 +647,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     schedules_spreadsheet.range_match_id
                 )
                 for match_id_cell in match_ids:
-                    if match_id_cell.value.upper() in matches_to_ignore:
+                    if match_id_cell.casefold() in matches_to_ignore:
                         continue
                     match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
                     date_format = "%d %B"
@@ -674,7 +674,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     qualifiers_spreadsheet.range_lobby_id
                 )
                 for lobby_id_cell in lobby_ids:
-                    if lobby_id_cell.value.upper() in matches_to_ignore:
+                    if lobby_id_cell.casefold() in matches_to_ignore:
                         continue
                     lobby_info = LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell)
                     date_format = "%d %B"

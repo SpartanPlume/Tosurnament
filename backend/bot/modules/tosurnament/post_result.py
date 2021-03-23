@@ -142,7 +142,7 @@ class PostResultBuilder:
 def get_players_id(team_info):
     players = []
     for player_cell in team_info.players:
-        players.append(player_cell.value)
+        players.append(player_cell.get())
     return osu.usernames_to_ids(players)
 
 
@@ -443,15 +443,15 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await self.step7_send_message(ctx, tournament, post_result_message)
 
     async def step8_write_in_spreadsheet(self, bracket, match_info, prbuilder):
-        match_info.score_team1.value = prbuilder.get_score_team1()
-        match_info.score_team2.value = prbuilder.get_score_team2()
+        match_info.score_team1.set(prbuilder.get_score_team1())
+        match_info.score_team2.set(prbuilder.get_score_team2())
         mp_links = osu.build_mp_links(prbuilder.mp_links.split("\n"))
         i = 0
         while i < len(match_info.mp_links) and i < len(mp_links):
             if i + 1 == len(match_info.mp_links):
-                match_info.mp_links[i].value = "/".join(mp_links[i:])
+                match_info.mp_links[i].set("/".join(mp_links[i:]))
             else:
-                match_info.mp_links[i].value = mp_links[i]
+                match_info.mp_links[i].set(mp_links[i])
             i += 1
         self.add_update_spreadsheet_background_task(bracket.schedules_spreadsheet)
 
@@ -474,17 +474,16 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
                 if bracket_role:
                     roles_to_remove.append(bracket_role)
-                team_name = team_info.team_name.value
-                team_role = tosurnament.get_role(ctx.guild.roles, None, team_name)
+                team_role = tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.get())
                 if team_role:
                     roles_to_remove.append(team_role)
-                if team_info.discord[0].value:
-                    member = ctx.guild.get_member_named(team_info.discord[0].value)
+                if team_info.discord[0]:
+                    member = ctx.guild.get_member_named(team_info.discord[0].get())
                     if member:
                         await member.remove_roles(*roles_to_remove)
                 else:
                     for player_cell in team_info.players:
-                        member = ctx.guild.get_member_named(player_cell.value)
+                        member = ctx.guild.get_member_named(player_cell.get())
                         if member:
                             await member.remove_roles(*roles_to_remove)
             except Exception:
@@ -553,8 +552,8 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         prbuilder.tournament_name = tournament.name
         prbuilder.bracket_name = bracket.name
         prbuilder.match_id = post_result_message.match_id
-        prbuilder.team_name1 = match_info.team1.value
-        prbuilder.team_name2 = match_info.team2.value
+        prbuilder.team_name1 = match_info.team1.get()
+        prbuilder.team_name2 = match_info.team2.get()
         prbuilder.roll_team1 = post_result_message.roll_team1
         prbuilder.roll_team2 = post_result_message.roll_team2
         prbuilder.bans_team1 = post_result_message.bans_team1
@@ -597,7 +596,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         score_team1 = post_result_message.score_team1
         score_team2 = post_result_message.score_team2
         if score_team1 == 0 and score_team2 == 0:
-            team1_info, team2_info = await self.get_teams_infos(bracket, match_info.team1.value, match_info.team2.value)
+            team1_info, team2_info = await self.get_teams_infos(bracket, match_info.team1.get(), match_info.team2.get())
             if team1_info and team2_info:
                 players_id_team1 = get_players_id(team1_info)
                 players_id_team2 = get_players_id(team2_info)

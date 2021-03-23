@@ -58,7 +58,7 @@ class LobbyInfo:
         self.time = Cell(-1, -1, "")
 
     def get_datetime(self):
-        return " ".join(filter(None, [self.date.value, self.time.value]))
+        return " ".join(filter(None, [self.date.get(), self.time.get()]))
 
     @staticmethod
     def from_id(qualifiers_spreadsheet, lobby_id, filled_only=True):
@@ -98,8 +98,8 @@ class LobbyInfo:
             lobby_id_cell,
             qualifiers_spreadsheet.max_range_for_lobby,
         )
-        if not isinstance(lobby_info.date.value, str):
+        if lobby_info.date.value_type != str:
             raise DateIsNotString("date")
-        if not isinstance(lobby_info.time.value, str):
+        if lobby_info.time.value_type != str:
             raise DateIsNotString("time")
         return lobby_info
