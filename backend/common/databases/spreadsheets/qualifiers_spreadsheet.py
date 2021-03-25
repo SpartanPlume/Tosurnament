@@ -1,7 +1,7 @@
 """Qualifiers spreadsheet table"""
 
 from discord.ext import commands
-from common.databases.base_spreadsheet import BaseSpreadsheet
+from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_qualifier_cell_best_effort,
     find_corresponding_qualifier_cells_best_effort,

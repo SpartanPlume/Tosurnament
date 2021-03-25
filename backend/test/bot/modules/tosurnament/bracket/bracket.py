@@ -13,8 +13,8 @@ from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament.bracket import bracket as bracket_module
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.players_spreadsheet import PlayersSpreadsheet
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
 from common.databases.user import User
 import test.resources.mock.tosurnament as tosurnament_mock
 

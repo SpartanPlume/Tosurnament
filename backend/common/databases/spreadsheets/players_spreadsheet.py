@@ -2,7 +2,7 @@
 
 import re
 from discord.ext import commands
-from common.databases.base_spreadsheet import BaseSpreadsheet
+from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_cell_best_effort_from_range,
     find_corresponding_cells_best_effort_from_range,

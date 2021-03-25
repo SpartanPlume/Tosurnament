@@ -8,15 +8,19 @@ import functools
 from discord.ext import commands
 from bot.modules.module import *
 from common.databases.tournament import Tournament
-from common.databases.base_spreadsheet import BaseSpreadsheet
-from common.databases.schedules_spreadsheet import DuplicateMatchId, MatchIdNotFound, DateIsNotString, MatchInfo
-from common.databases.players_spreadsheet import (
+from common.databases.spreadsheets.base_spreadsheet import BaseSpreadsheet, SpreadsheetHttpError
+from common.databases.spreadsheets.schedules_spreadsheet import (
+    DuplicateMatchId,
+    MatchIdNotFound,
+    DateIsNotString,
+    MatchInfo,
+)
+from common.databases.spreadsheets.players_spreadsheet import (
     TeamInfo,
     DuplicateTeam,
     TeamNotFound,
 )
 from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
-from common.databases.base_spreadsheet import SpreadsheetHttpError
 from common.api import challonge
 
 PRETTY_DATE_FORMAT = "%A %d %B at %H:%M UTC"

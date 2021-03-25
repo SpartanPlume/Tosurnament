@@ -1,10 +1,10 @@
 """Bracket table"""
 
 from mysqldb_wrapper import Base, Id
-from common.databases.players_spreadsheet import PlayersSpreadsheet
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.qualifiers_spreadsheet import QualifiersSpreadsheet
-from common.databases.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
+from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
+from common.databases.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
 from common.api import challonge
 from common.api import spreadsheet
 
@@ -37,7 +37,7 @@ class Bracket(Base):
     # TODO set_all_post_result_channel
 
     def get_spreadsheet_from_type(self, spreadsheet_type):
-        return getattr(self, spreadsheet_type + "_spreadsheet")
+        return getattr(self, "_get_" + spreadsheet_type + "_spreadsheet_from_database")()
 
     def create_spreadsheet_from_type(self, bot, spreadsheet_type):
         spreadsheet_types = Bracket.get_spreadsheet_types()
@@ -69,50 +69,71 @@ class Bracket(Base):
             "qualifiers_results": QualifiersResultsSpreadsheet,
         }
 
-    async def get_players_spreadsheet(self, retry=False, force_sync=False):
+    def _get_players_spreadsheet_from_database(self):
         if self._players_spreadsheet is None:
             self._players_spreadsheet = (
                 self._session.query(PlayersSpreadsheet)
                 .where(PlayersSpreadsheet.id == self.players_spreadsheet_id)
                 .first()
             )
+        return self._players_spreadsheet
+
+    async def get_players_spreadsheet(self, retry=False, force_sync=False):
+        if self._players_spreadsheet is None:
+            self._get_players_spreadsheet_from_database()
             if self._players_spreadsheet:
                 await self._players_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._players_spreadsheet
 
-    async def get_schedules_spreadsheet(self, retry=False, force_sync=False):
+    def _get_schedules_spreadsheet_from_database(self):
         if self._schedules_spreadsheet is None:
             self._schedules_spreadsheet = (
                 self._session.query(SchedulesSpreadsheet)
                 .where(SchedulesSpreadsheet.id == self.schedules_spreadsheet_id)
                 .first()
             )
+        return self._schedules_spreadsheet
+
+    async def get_schedules_spreadsheet(self, retry=False, force_sync=False):
+        if self._schedules_spreadsheet is None:
+            self._get_schedules_spreadsheet_from_database()
             if self._schedules_spreadsheet:
                 await self._schedules_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._schedules_spreadsheet
 
-    async def get_qualifiers_spreadsheet(self, retry=False, force_sync=False):
+    def _get_qualifiers_spreadsheet_from_database(self):
         if self._qualifiers_spreadsheet is None:
             self._qualifiers_spreadsheet = (
                 self._session.query(QualifiersSpreadsheet)
                 .where(QualifiersSpreadsheet.id == self.qualifiers_spreadsheet_id)
                 .first()
             )
+        return self._qualifiers_spreadsheet
+
+    async def get_qualifiers_spreadsheet(self, retry=False, force_sync=False):
+        if self._qualifiers_spreadsheet is None:
+            self._get_qualifiers_spreadsheet_from_database()
             if self._qualifiers_spreadsheet:
                 await self._qualifiers_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._qualifiers_spreadsheet
 
-    async def qualifiers_results_spreadsheet(self, retry=False, force_sync=False):
+    def _get_qualifiers_results_spreadsheet_from_database(self):
         if self._qualifiers_results_spreadsheet is None:
             self._qualifiers_results_spreadsheet = (
                 self._session.query(QualifiersResultsSpreadsheet)
                 .where(QualifiersResultsSpreadsheet.id == self.qualifiers_results_spreadsheet_id)
                 .first()
             )
+        return self._qualifiers_results_spreadsheet
+
+    async def qualifiers_results_spreadsheet(self, retry=False, force_sync=False):
+        if self._qualifiers_results_spreadsheet is None:
+            self._get_qualifiers_results_spreadsheet_from_database()
             if self._qualifiers_results_spreadsheet:
                 await self._qualifiers_results_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._qualifiers_results_spreadsheet
 
+    # TODO: getter + async too
     @property
     def challonge_tournament(self):
         if self._challonge_tournament is None:

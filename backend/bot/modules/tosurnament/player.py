@@ -9,9 +9,9 @@ from discord import channel
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.players_spreadsheet import TeamInfo, TeamNotFound
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
-from common.databases.qualifiers_spreadsheet import LobbyInfo
+from common.databases.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
+from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
+from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyInfo
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.allowed_reschedule import AllowedReschedule

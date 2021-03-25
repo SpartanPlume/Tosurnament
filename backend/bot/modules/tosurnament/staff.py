@@ -9,16 +9,16 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.schedules_spreadsheet import (
+from common.databases.spreadsheets.schedules_spreadsheet import (
     MatchInfo,
     MatchIdNotFound,
     DuplicateMatchId,
     DateIsNotString,
     SchedulesSpreadsheet,
 )
-from common.databases.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
-from common.databases.qualifiers_results_spreadsheet import QualifiersResultInfo
-from common.databases.players_spreadsheet import TeamInfo
+from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
+from common.databases.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultInfo
+from common.databases.spreadsheets.players_spreadsheet import TeamInfo
 from common.databases.guild import Guild
 from common.databases.match_notification import MatchNotification
 from common.databases.staff_reschedule_message import StaffRescheduleMessage

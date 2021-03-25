@@ -5,16 +5,15 @@ All tests concerning the Tosurnament tournament module.
 import pytest
 from unittest import mock
 
-import asyncio
 import discord
 from hypothesis import strategies, given
 
 from bot.modules.tosurnament import tournament as tournament_module
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.base_spreadsheet import BaseSpreadsheet
-from common.databases.players_spreadsheet import PlayersSpreadsheet
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet, MatchInfo
+from common.databases.spreadsheets.base_spreadsheet import BaseSpreadsheet
+from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet, MatchInfo
 from common.api.spreadsheet import Cell
 import test.resources.mock.tosurnament as tosurnament_mock
 

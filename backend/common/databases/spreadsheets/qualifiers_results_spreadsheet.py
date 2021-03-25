@@ -1,6 +1,6 @@
 """Qualifiers results spreadsheet table"""
 
-from common.databases.base_spreadsheet import BaseSpreadsheet
+from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_qualifier_cell_best_effort,
     Cell,

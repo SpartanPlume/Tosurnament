@@ -11,8 +11,8 @@ from bot.modules.tosurnament import guild_owner
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.players_spreadsheet import PlayersSpreadsheet
+from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.databases.reschedule_message import RescheduleMessage
 from common.databases.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.end_tournament_message import EndTournamentMessage

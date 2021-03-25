@@ -10,7 +10,7 @@ from bot.modules import module as base
 from bot.modules.tosurnament.bracket import players_spreadsheet as module_to_test
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.players_spreadsheet import PlayersSpreadsheet
+from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.bracket.players_spreadsheet"

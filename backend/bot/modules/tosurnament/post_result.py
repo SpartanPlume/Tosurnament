@@ -6,8 +6,8 @@ from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
-from common.databases.players_spreadsheet import TeamInfo
-from common.databases.schedules_spreadsheet import MatchInfo, MatchIdNotFound
+from common.databases.spreadsheets.players_spreadsheet import TeamInfo
+from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound
 from common.databases.post_result_message import PostResultMessage
 from common.api import osu
 from common.api import challonge
