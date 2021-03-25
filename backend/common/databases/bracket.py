@@ -69,44 +69,48 @@ class Bracket(Base):
             "qualifiers_results": QualifiersResultsSpreadsheet,
         }
 
-    @property
-    def players_spreadsheet(self):
+    async def get_players_spreadsheet(self, retry=False, force_sync=False):
         if self._players_spreadsheet is None:
             self._players_spreadsheet = (
                 self._session.query(PlayersSpreadsheet)
                 .where(PlayersSpreadsheet.id == self.players_spreadsheet_id)
                 .first()
             )
+            if self._players_spreadsheet:
+                await self._players_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._players_spreadsheet
 
-    @property
-    def schedules_spreadsheet(self):
+    async def get_schedules_spreadsheet(self, retry=False, force_sync=False):
         if self._schedules_spreadsheet is None:
             self._schedules_spreadsheet = (
                 self._session.query(SchedulesSpreadsheet)
                 .where(SchedulesSpreadsheet.id == self.schedules_spreadsheet_id)
                 .first()
             )
+            if self._schedules_spreadsheet:
+                await self._schedules_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._schedules_spreadsheet
 
-    @property
-    def qualifiers_spreadsheet(self):
+    async def get_qualifiers_spreadsheet(self, retry=False, force_sync=False):
         if self._qualifiers_spreadsheet is None:
             self._qualifiers_spreadsheet = (
                 self._session.query(QualifiersSpreadsheet)
                 .where(QualifiersSpreadsheet.id == self.qualifiers_spreadsheet_id)
                 .first()
             )
+            if self._qualifiers_spreadsheet:
+                await self._qualifiers_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._qualifiers_spreadsheet
 
-    @property
-    def qualifiers_results_spreadsheet(self):
+    async def qualifiers_results_spreadsheet(self, retry=False, force_sync=False):
         if self._qualifiers_results_spreadsheet is None:
             self._qualifiers_results_spreadsheet = (
                 self._session.query(QualifiersResultsSpreadsheet)
                 .where(QualifiersResultsSpreadsheet.id == self.qualifiers_results_spreadsheet_id)
                 .first()
             )
+            if self._qualifiers_results_spreadsheet:
+                await self._qualifiers_results_spreadsheet.get_spreadsheet(retry, force_sync)
         return self._qualifiers_results_spreadsheet
 
     @property

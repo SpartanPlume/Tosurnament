@@ -50,10 +50,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             await self.send_reply(ctx, "not_supported_yet")
             return
         bracket = tournament.current_bracket
-        qualifiers_results_spreadsheet = bracket.qualifiers_results_spreadsheet
+        qualifiers_results_spreadsheet = await bracket.get_qualifiers_results_spreadsheet(retry=True, force_sync=True)
         if not qualifiers_results_spreadsheet:
             raise tosurnament.NoSpreadsheet("qualifiers_results")
-        await qualifiers_results_spreadsheet.get_spreadsheet(retry=True, force_sync=True)
         results_info = QualifiersResultInfo.get_all(qualifiers_results_spreadsheet)
         top10 = []
         scores = []
@@ -141,10 +140,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             raise tosurnament.NotRequiredRole("Referee")
         match_found = False
         for bracket in tournament.brackets:
-            schedules_spreadsheet = bracket.schedules_spreadsheet
+            schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
             if not schedules_spreadsheet:
                 continue
-            await schedules_spreadsheet.get_spreadsheet()
             try:
                 match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
             except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
@@ -167,8 +165,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             break
         if not match_found:
             raise MatchIdNotFound(match_id)
-        team1 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team1.get())
-        team2 = await self.get_team_mention(ctx.guild, bracket.players_spreadsheet, match_info.team2.get())
+        players_spreadsheet = await bracket.get_players_spreadsheet()
+        team1 = await self.get_team_mention(ctx.guild, players_spreadsheet, match_info.team1.get())
+        team2 = await self.get_team_mention(ctx.guild, players_spreadsheet, match_info.team2.get())
         allowed_reschedule = AllowedReschedule(
             tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
         )
@@ -317,7 +316,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         left_match_ids.clear()
         left_match_ids.update(match_ids)
         for spreadsheet in spreadsheets:
-            await spreadsheet.get_spreadsheet()
             for match_id in left_match_ids.copy():
                 if isinstance(spreadsheet, SchedulesSpreadsheet):
                     try:
@@ -376,11 +374,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         schedules_spreadsheets = []
         qualifiers_spreadsheets = []
         for bracket in tournament.brackets:
-            schedules_spreadsheet = bracket.schedules_spreadsheet
-            if schedules_spreadsheet:
+            if schedules_spreadsheet := await bracket.get_schedules_spreadsheet():
                 schedules_spreadsheets.append(schedules_spreadsheet)
-            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
-            if qualifiers_spreadsheet:
+            if qualifiers_spreadsheet := await bracket.get_qualifiers_spreadsheet():
                 qualifiers_spreadsheets.append(qualifiers_spreadsheet)
         await self.take_or_drop_match_in_spreadsheets(
             match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets, *qualifiers_spreadsheets
@@ -442,23 +438,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def get_team_mention(self, guild, players_spreadsheet, team_name):
         if not players_spreadsheet:
             return escape_markdown(team_name)
-        await players_spreadsheet.get_spreadsheet()
         try:
             team_info = TeamInfo.from_team_name(players_spreadsheet, team_name)
             if players_spreadsheet.range_team_name:
                 team_role = tosurnament.get_role(guild.roles, None, team_name)
                 if team_role:
                     return team_role.mention
-            if team_info.discord_ids:
-                user = tosurnament.UserAbstraction.get_from_osu_name(
-                    self.bot, team_info.players[0].get(), int(team_info.discord_ids[0].get())
-                )
-            elif team_info.discord:
-                user = tosurnament.UserAbstraction.get_from_osu_name(
-                    self.bot, team_info.players[0].get(), team_info.discord[0].get()
-                )
-            else:
-                user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, team_info.players[0].get())
+            user = tosurnament.UserAbstraction.get_from_player_info(self.bot, team_info.get_team_captain(), guild)
             member = user.get_member(guild)
             if member:
                 return member.mention
@@ -470,7 +456,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def qualifier_match_notification(self, guild, tournament, bracket, channel, lobby_info, delta):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
-        players_spreadsheet = bracket.players_spreadsheet
+        players_spreadsheet = await bracket.get_players_spreadsheet()
         teams = []
         for team_cell in lobby_info.teams:
             team = await self.get_team_mention(guild, players_spreadsheet, team_cell.get())
@@ -530,7 +516,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def player_match_notification(self, guild, tournament, bracket, channel, match_info, delta):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
-        players_spreadsheet = bracket.players_spreadsheet
+        players_spreadsheet = await bracket.get_players_spreadsheet()
         team1 = await self.get_team_mention(guild, players_spreadsheet, match_info.team1.get())
         team2 = await self.get_team_mention(guild, players_spreadsheet, match_info.team2.get())
         referee_name = match_info.referees[0].get()
@@ -640,9 +626,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         matches_to_ignore = [match_id.casefold() for match_id in tournament.matches_to_ignore.split("\n")]
         for bracket in tournament.brackets:
             now = datetime.datetime.now(datetime.timezone.utc)
-            schedules_spreadsheet = bracket.schedules_spreadsheet
+            schedules_spreadsheet = await bracket.get_schedules_spreadsheet(retry=True)
             if schedules_spreadsheet:
-                await schedules_spreadsheet.get_spreadsheet(retry=True)
                 match_ids = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     schedules_spreadsheet.range_match_id
                 )
@@ -667,9 +652,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                             await self.referee_match_notification(
                                 guild, tournament, bracket, staff_channel, match_info, delta, match_date
                             )
-            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
-            if qualifiers_spreadsheet:
-                await qualifiers_spreadsheet.get_spreadsheet(retry=True)
+            if qualifiers_spreadsheet := await bracket.get_qualifiers_spreadsheet(retry=True):
                 lobby_ids = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     qualifiers_spreadsheet.range_lobby_id
                 )
@@ -815,8 +798,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 tosurnament.UserDetails.get_as_referee(self.bot, ctx.author),
                 True,
                 set(),
-                bracket.schedules_spreadsheet,
-                bracket.qualifiers_spreadsheet,
+                await bracket.get_schedules_spreadsheet(),
+                await bracket.get_qualifiers_spreadsheet(),
             )
             # TODO if not write_cells send error
         except Exception as e:
@@ -900,7 +883,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if not bracket:
             self.bot.session.delete(staff_reschedule_message)
             return
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             return
         try:

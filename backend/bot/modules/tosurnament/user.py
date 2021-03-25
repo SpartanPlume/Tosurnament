@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import osu
-from common.databases.players_spreadsheet import TeamInfo
 
 
 class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
@@ -15,10 +14,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         self.bot = bot
 
     async def change_name_in_player_spreadsheet(self, ctx, bracket, previous_name, new_name):
-        players_spreadsheet = bracket.players_spreadsheet
-        if not bracket.players_spreadsheet:
+        players_spreadsheet = await bracket.get_players_spreadsheet()
+        if not players_spreadsheet:
             return
-        await players_spreadsheet.get_spreadsheet()
         changed_name = players_spreadsheet.spreadsheet.change_value_in_range(
             players_spreadsheet.range_team, previous_name, new_name
         )
@@ -26,10 +24,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             self.add_update_spreadsheet_background_task(players_spreadsheet)
 
     async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_details):
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             return
-        await schedules_spreadsheet.get_spreadsheet()
         changed_name = False
         spreadsheet = schedules_spreadsheet.spreadsheet
         if user_details.player:
@@ -97,7 +94,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         await self.send_reply(ctx, "success")
 
     async def find_team_name_of_member(self, ctx, bracket):
-        players_spreadsheet = bracket.players_spreadsheet
+        players_spreadsheet = await bracket.get_players_spreadsheet()
         if not players_spreadsheet:
             return ctx.author.display_name
         if not players_spreadsheet.range_team_name:
@@ -105,11 +102,9 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             if user.verified:
                 return user.name
             return ctx.author.display_name
-        await players_spreadsheet.get_spreadsheet()
         team_infos, _ = self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
         for team_info in team_infos:
-            player_index = self.get_index_of_player_in_team(ctx.author, team_info)
-            if player_index >= 0:
+            if self.get_player_in_team(ctx.author, team_info):
                 return team_info.team_name.get()
         return None
 

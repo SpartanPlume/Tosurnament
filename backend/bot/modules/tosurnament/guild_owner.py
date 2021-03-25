@@ -79,8 +79,8 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             return
         if emoji.name == "✅":
             for bracket in tournament.brackets:
-                self.bot.session.delete(bracket.players_spreadsheet)
-                self.bot.session.delete(bracket.schedules_spreadsheet)
+                for spreadsheet_type in bracket.get_spreadsheet_types().keys():
+                    self.bot.session.delete(bracket.get_spreadsheet_from_type(spreadsheet_type))
                 self.bot.session.delete(bracket)
             self.bot.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
             self.bot.session.query(StaffRescheduleMessage).where(

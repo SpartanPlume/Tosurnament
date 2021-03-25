@@ -141,8 +141,8 @@ class PostResultBuilder:
 
 def get_players_id(team_info):
     players = []
-    for player_cell in team_info.players:
-        players.append(player_cell.get())
+    for player in team_info.players:
+        players.append(player.name.get())
     return osu.usernames_to_ids(players)
 
 
@@ -315,10 +315,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         """Allows referees to post the result of a match"""
         tournament = self.get_tournament(ctx.guild.id)
         for bracket in tournament.brackets:
-            schedules_spreadsheet = bracket.schedules_spreadsheet
+            schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
             if not schedules_spreadsheet:
                 continue
-            await schedules_spreadsheet.get_spreadsheet()
             try:
                 MatchInfo.from_id(schedules_spreadsheet, match_id)
             except MatchIdNotFound:
@@ -420,10 +419,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not bracket:
             self.bot.session.delete(post_result_message)
             raise tosurnament.NoBracket()
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
-        await schedules_spreadsheet.get_spreadsheet()
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, ctx)
         if tournament.post_result_message:
@@ -453,7 +451,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             else:
                 match_info.mp_links[i].set(mp_links[i])
             i += 1
-        self.add_update_spreadsheet_background_task(bracket.schedules_spreadsheet)
+        self.add_update_spreadsheet_background_task(await bracket.get_schedules_spreadsheet())
 
     async def step8_remove_player_role(self, ctx, error_channel, tournament, challonge_tournament, loser_participant):
         if challonge_tournament.state == "group_stages_underway":
@@ -467,25 +465,24 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 if not match.state == "complete":
                     return
             bracket = tournament.current_bracket
+            players_spreadsheet = await bracket.get_players_spreadsheet()
+            if not players_spreadsheet:
+                return
             try:
-                team_info = TeamInfo.from_team_name(bracket.players_spreadsheet, loser_participant.name)
+                team_info = TeamInfo.from_team_name(players_spreadsheet, loser_participant.name)
                 player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
                 roles_to_remove = [player_role]
                 bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name)
                 if bracket_role:
                     roles_to_remove.append(bracket_role)
-                team_role = tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.get())
+                team_role = tosurnament.get_role(ctx.guild.roles, None, team_info.team_name)
                 if team_role:
                     roles_to_remove.append(team_role)
-                if team_info.discord[0]:
-                    member = ctx.guild.get_member_named(team_info.discord[0].get())
+                for player in team_info.players:
+                    user = tosurnament.UserAbstraction.get_from_player_info(self.bot, player, ctx.guild)
+                    member = user.get_member(ctx.guild)
                     if member:
                         await member.remove_roles(*roles_to_remove)
-                else:
-                    for player_cell in team_info.players:
-                        member = ctx.guild.get_member_named(player_cell.get())
-                        if member:
-                            await member.remove_roles(*roles_to_remove)
             except Exception:
                 return
 
@@ -538,10 +535,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             return
 
     async def get_teams_infos(self, bracket, team_name1, team_name2):
-        players_spreadsheet = bracket.players_spreadsheet
+        players_spreadsheet = await bracket.get_players_spreadsheet()
         if not players_spreadsheet:
             return None, None
-        await players_spreadsheet.get_spreadsheet()
         team1_info = TeamInfo.from_team_name(players_spreadsheet, team_name1)
         team2_info = TeamInfo.from_team_name(players_spreadsheet, team_name2)
         return team1_info, team2_info
@@ -612,10 +608,9 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     async def step8_per_bracket(self, ctx, post_result_message, tournament):
         bracket = tournament.current_bracket
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
-        await schedules_spreadsheet.get_spreadsheet()
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         if tournament.staff_channel_id:
             error_channel = self.bot.get_channel(tournament.staff_channel_id)

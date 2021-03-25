@@ -50,63 +50,62 @@ class DuplicateTeam(commands.CommandError):
 class TeamInfo:
     """Contains all info about a team."""
 
+    class PlayerInfo:
+        def __init__(
+            self,
+            name,
+            discord=None,
+            discord_id=None,
+            rank=None,
+            bws_rank=None,
+            osu_id=None,
+            pp=None,
+            country=None,
+            is_captain=False,
+        ):
+            self.name = name
+            self.discord = discord if discord else Cell(-1, -1, "")
+            self.discord.value_type = str
+            self.discord_id = discord_id if discord_id else Cell(-1, -1, 0)
+            self.discord_id.value_type = int
+            self.rank = rank if rank else Cell(-1, -1, "")
+            self.rank.value_type = str
+            self.bws_rank = bws_rank if bws_rank else Cell(-1, -1, "")
+            self.bws_rank.value_type = str
+            self.osu_id = osu_id if osu_id else Cell(-1, -1, "")
+            self.osu_id.value_type = str
+            self.pp = pp if pp else Cell(-1, -1, "")
+            self.pp.value_type = str
+            self.country = country if country else Cell(-1, -1, "")
+            self.country.value_type = str
+            self.is_captain = is_captain
+
     def __init__(self, team_name_cell):
         self.team_name = team_name_cell
-        self.players = [team_name_cell]
-        self.discord = [""]
-        self.discord_ids = [""]
-        self.ranks = [""]
-        self.bws_ranks = [""]
-        self.osu_ids = [""]
-        self.pps = [""]
-        self.countries = [""]
-        self.timezones = [""]
+        self.team_name.value_type = str
+        self.players = []
+        self.timezone = Cell(-1, -1, "")
 
-    def set_players(self, players_cells):
-        if players_cells:
-            self.players = players_cells
-        else:
-            self.players = [self.team_name]
+    def add_player(self, player_info):
+        if not self.players:
+            player_info.is_captain = True
+        self.players.append(player_info)
 
-    def set_discord(self, discords):
-        while len(discords) < len(self.players):
-            discords.append(Cell(-1, -1, None))
-        self.discord = discords
+    def find_player(self, name, discord, discord_id):
+        for player in self.players:
+            if discord_id and discord_id == player.discord_id:
+                return player
+            elif discord and discord == player.discord:
+                return player
+            elif name and name.casefold() == player.name.casefold():
+                return player
+        return None
 
-    def set_discord_ids(self, discord_ids):
-        while len(discord_ids) < len(self.players):
-            discord_ids.append(Cell(-1, -1, None))
-        self.discord_ids = discord_ids
-
-    def set_ranks(self, ranks):
-        while len(ranks) < len(self.players):
-            ranks.append(Cell(-1, -1, None))
-        self.ranks = ranks
-
-    def set_bws_ranks(self, bws_ranks):
-        while len(bws_ranks) < len(self.players):
-            bws_ranks.append(Cell(-1, -1, None))
-        self.bws_ranks = bws_ranks
-
-    def set_osu_ids(self, osu_ids):
-        while len(osu_ids) < len(self.players):
-            osu_ids.append(Cell(-1, -1, None))
-        self.osu_ids = osu_ids
-
-    def set_pps(self, pps):
-        while len(pps) < len(self.players):
-            pps.append(Cell(-1, -1, None))
-        self.pps = pps
-
-    def set_countries(self, countries):
-        while len(countries) < len(self.players):
-            countries.append(Cell(-1, -1, None))
-        self.countries = countries
-
-    def set_timezones(self, timezones):
-        while len(timezones) < len(self.players):
-            timezones.append(Cell(-1, -1, None))
-        self.timezones = timezones
+    def get_team_captain(self):
+        for player in self.players:
+            if player.is_captain:
+                return player
+        return self.players[0]
 
     @staticmethod
     def from_player_name(players_spreadsheet, player_name):
@@ -122,88 +121,56 @@ class TeamInfo:
 
     @staticmethod
     def from_player_cell(players_spreadsheet, player_cell):
-        player_cell.change_value_to_string()
         team_info = TeamInfo(player_cell)
-        team_info.set_discord(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_discord,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        discord = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_discord,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_discord_ids(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_discord_id,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        discord_id = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_discord_id,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_ranks(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_rank,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        rank = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_rank,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_bws_ranks(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_bws_rank,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        bws_rank = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_bws_rank,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_osu_ids(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_osu_id,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        osu_id = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_osu_id,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_pps(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_pp,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        pp = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_pp,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_countries(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_country,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        country = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_country,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.set_timezones(
-            [
-                find_corresponding_cell_best_effort_from_range(
-                    players_spreadsheet.spreadsheet,
-                    players_spreadsheet.range_timezone,
-                    player_cell,
-                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                )
-            ]
+        team_info.timezone = find_corresponding_cell_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_timezone,
+            player_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
+        team_info.add_player(TeamInfo.PlayerInfo(player_cell, discord, discord_id, rank, bws_rank, osu_id, pp, country))
         return team_info
 
     @staticmethod
@@ -252,9 +219,9 @@ class TeamInfo:
 
     @staticmethod
     def from_team_name_cell(players_spreadsheet, team_name_cell):
-        team_name_cell.change_value_to_string()
         team_info = TeamInfo(team_name_cell)
-        team_info.set_players(
+        players_data = []
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_team,
@@ -263,7 +230,7 @@ class TeamInfo:
                 to_string=True,
             )
         )
-        team_info.set_discord(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_discord,
@@ -271,7 +238,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_discord_ids(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_discord_id,
@@ -279,7 +246,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_ranks(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_rank,
@@ -287,7 +254,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_bws_ranks(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_bws_rank,
@@ -295,7 +262,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_osu_ids(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_osu_id,
@@ -303,7 +270,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_pps(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_pp,
@@ -311,7 +278,7 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_countries(
+        players_data.append(
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_country,
@@ -319,14 +286,15 @@ class TeamInfo:
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )
         )
-        team_info.set_timezones(
-            find_corresponding_cells_best_effort_from_range(
-                players_spreadsheet.spreadsheet,
-                players_spreadsheet.range_timezone,
-                team_name_cell,
-                max_difference_with_base=players_spreadsheet.max_range_for_teams,
-            )
-        )
+        # TODO: only one cell needed / maybe a new function needed ?
+        team_info.timezone = find_corresponding_cells_best_effort_from_range(
+            players_spreadsheet.spreadsheet,
+            players_spreadsheet.range_timezone,
+            team_name_cell,
+            max_difference_with_base=players_spreadsheet.max_range_for_teams,
+        )[0]
+        for name, discord, discord_id, rank, bws_rank, osu_id, pp, country in zip(players_data):
+            team_info.add_player(TeamInfo.PlayerInfo(name, discord, discord_id, rank, bws_rank, osu_id, pp, country))
         return team_info
 
     @staticmethod

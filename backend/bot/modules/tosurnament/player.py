@@ -54,7 +54,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             )
             if datetime.datetime.now() > registration_end_date:
                 raise tosurnament.RegistrationEnded()
-        players_spreadsheet = bracket.players_spreadsheet
+
+        players_spreadsheet = await bracket.get_players_spreadsheet()
+        if not players_spreadsheet:
+            raise tosurnament.NoSpreadsheet("players")
         if players_spreadsheet.range_timezone:
             if not timezone:
                 raise commands.MissingRequiredArgument(timezone)
@@ -64,21 +67,24 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if players_spreadsheet.range_team_name:
             await self.send_reply(ctx, "not_supported_yet")
             return
-        await players_spreadsheet.get_spreadsheet()
         team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
         osu_name = osu.get_from_string(osu_link)
         osu_user = osu.get_user(osu_name, m=tournament.game_mode)
         if not osu_user:
             raise tosurnament.UserNotFound(osu_name)
-        team_info.players[0].value = osu_user.name
-        team_info.discord[0].value = str(ctx.author)
-        team_info.discord_ids[0].value = str(ctx.author.id)
-        team_info.ranks[0].value = str(osu_user.rank)
-        team_info.bws_ranks[0].value = str(osu_user.rank)  # TODO
-        team_info.osu_ids[0].value = str(osu_user.id)
-        team_info.pps[0].value = str(int(float(osu_user.pp)))
-        team_info.countries[0].value = str(osu_user.country)
-        team_info.timezones[0].value = timezone
+        team_info.players.append(
+            TeamInfo.PlayerInfo(
+                osu_user.name,
+                str(ctx.author),
+                ctx.author.id,
+                str(osu_user.rank),
+                str(osu_user.rank),
+                str(osu_user.id),
+                str(int(float(osu_user.pp))),
+                str(osu_user.country),
+            )
+        )
+        team_info.timezone.set(timezone)
         self.add_update_spreadsheet_background_task(players_spreadsheet)
         roles_to_give = [tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")]
         roles_to_give.append(tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name))
@@ -103,16 +109,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         tournament = self.get_tournament(ctx.guild.id)
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
         for bracket in tournament.brackets:
-            qualifiers_spreadsheet = bracket.qualifiers_spreadsheet
+            qualifiers_spreadsheet = await bracket.get_qualifiers_spreadsheet()
             if not qualifiers_spreadsheet:
                 continue
-            await qualifiers_spreadsheet.get_spreadsheet()
             lobby_id_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                 qualifiers_spreadsheet.range_lobby_id
             )
-            players_spreadsheet = bracket.players_spreadsheet
-            if players_spreadsheet:
-                await players_spreadsheet.get_spreadsheet()
+            if players_spreadsheet := await bracket.get_players_spreadsheet():
                 team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
                 team_name = team_info.team_name.get()
             else:
@@ -166,28 +169,27 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def get_player_role_for_bracket(self, guild, tournament, member, player_role):
         """Gives the player role of the bracket to the user, if he is a player of this bracket."""
         bracket = tournament.current_bracket
-        team_infos, _ = self.get_all_teams_infos_and_roles(guild, bracket.players_spreadsheet)
+        team_infos, _ = self.get_all_teams_infos_and_roles(guild, await bracket.get_players_spreadsheet())
         for team_info in team_infos:
-            player_index = self.get_index_of_player_in_team(member, team_info)
-            if player_index != -1:
-                roles_to_give = [player_role]
-                team_name = team_info.team_name.get()
-                team_role = tosurnament.get_role(guild.roles, None, team_name)
-                if not team_role:
-                    try:
-                        team_role = await guild.create_role(name=team_name, mentionable=False)
-                    except discord.InvalidArgument:
-                        raise tosurnament.InvalidRoleName(team_name)
-                if team_role:
-                    roles_to_give.append(team_role)
-                if player_index == 0:
-                    team_captain_role = tosurnament.get_role(
-                        guild.roles, tournament.team_captain_role_id, "Team Captain"
-                    )
-                    if team_captain_role:
-                        roles_to_give.append(team_captain_role)
-                await member.add_roles(*roles_to_give)
-                return True
+            player = self.get_player_in_team(member, team_info)
+            if not player:
+                continue
+            roles_to_give = [player_role]
+            team_name = team_info.team_name.get()
+            team_role = tosurnament.get_role(guild.roles, None, team_name)
+            if not team_role:
+                try:
+                    team_role = await guild.create_role(name=team_name, mentionable=False)
+                except discord.InvalidArgument:
+                    raise tosurnament.InvalidRoleName(team_name)
+            if team_role:
+                roles_to_give.append(team_role)
+            if player.is_captain:
+                team_captain_role = tosurnament.get_role(guild.roles, tournament.team_captain_role_id, "Team Captain")
+                if team_captain_role:
+                    roles_to_give.append(team_captain_role)
+            await member.add_roles(*roles_to_give)
+            return True
         return False
 
     async def get_player_role_for_user(self, ctx, guild, member):
@@ -302,21 +304,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return None, None
         if players_spreadsheet.range_team_name:
             team_captain_role = tosurnament.get_role(ctx.guild.roles, tournament.team_captain_role_id, "Team Captain")
-            if team_captain_role:
-                if not tosurnament.get_role(ctx.author.roles, tournament.team_captain_role_id, "Team Captain"):
-                    raise tosurnament.NotRequiredRole(team_captain_role.name)
-                player_index = self.get_index_of_player_in_team(ctx.author, team1_info)
-                if player_index != -1:
-                    return team1_info, team2_info
-                player_index = self.get_index_of_player_in_team(ctx.author, team2_info)
-                if player_index != -1:
-                    return team2_info, team1_info
-                raise tosurnament.InvalidMatch()
-        player_index = self.get_index_of_player_in_team(ctx.author, team1_info)
-        if player_index == 0:
+            if team_captain_role and not tosurnament.get_role(
+                ctx.author.roles, tournament.team_captain_role_id, "Team Captain"
+            ):
+                raise tosurnament.NotRequiredRole(team_captain_role.name)
+        if self.get_player_in_team(ctx.author, team1_info):
             return team1_info, team2_info
-        player_index = self.get_index_of_player_in_team(ctx.author, team2_info)
-        if player_index == 0:
+        if self.get_player_in_team(ctx.author, team2_info):
             return team2_info, team1_info
         raise tosurnament.InvalidMatch()
 
@@ -347,9 +341,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return False
         match_id = match_info.match_id.get()
 
-        players_spreadsheet = bracket.players_spreadsheet
+        players_spreadsheet = await bracket.get_players_spreadsheet()
         if players_spreadsheet:
-            await players_spreadsheet.get_spreadsheet()
             ally_team_info, opponent_team_info = await self.get_teams_info(
                 ctx, tournament, players_spreadsheet, match_info
             )
@@ -357,18 +350,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 return False
             team_name = ally_team_info.team_name.get()
             opponent_team_name = opponent_team_info.team_name.get()
-            if players_spreadsheet.range_discord_id:
-                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].get(), int(opponent_team_info.discord_ids[0].get())
-                )
-            elif players_spreadsheet.range_discord:
-                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].get(), opponent_team_info.discord[0].get()
-                )
-            else:
-                opponent_user = tosurnament.UserAbstraction.get_from_osu_name(
-                    ctx.bot, opponent_team_info.players[0].get()
-                )
+            opponent_user = tosurnament.UserAbstraction.get_from_player_info(
+                ctx.bot, opponent_team_info.get_team_captain(), ctx.guild
+            )
         else:
             team_name = user.name
             if team_name == match_info.team1:
@@ -466,10 +450,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if bracket_role and not tosurnament.get_role(ctx.author.roles, bracket.role_id):
                 bracket_role_present = True
                 continue
-            schedules_spreadsheet = bracket.schedules_spreadsheet
+            schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
             if not schedules_spreadsheet:
                 continue
-            await schedules_spreadsheet.get_spreadsheet()
 
             if await self.reschedule_for_bracket(
                 ctx,
@@ -560,10 +543,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     async def agree_to_reschedule(self, ctx, reschedule_message, tournament):
         """Updates the schedules spreadsheet with reschedule time."""
-        schedules_spreadsheet = tournament.current_bracket.schedules_spreadsheet
+        schedules_spreadsheet = await tournament.current_bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet(tournament.current_bracket.name, "schedules")
-        await schedules_spreadsheet.get_spreadsheet()
         match_id = reschedule_message.match_id
         match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
 
@@ -668,11 +650,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not player_role:
             return
         for bracket in tournament.brackets:
-            players_spreadsheet = bracket.players_spreadsheet
+            players_spreadsheet = await bracket.get_players_spreadsheet()
             if not players_spreadsheet:
                 continue
             bracket_role = tosurnament.get_role(guild.roles, bracket.role_id, bracket.name)
-            await players_spreadsheet.get_spreadsheet()
             team_infos, team_roles = self.get_all_teams_infos_and_roles(guild, players_spreadsheet)
             for team_info_index, team_info in enumerate(team_infos):
                 team_role = None
@@ -680,16 +661,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     team_role = team_roles[team_info_index]
                     if not team_role:
                         team_role = await guild.create_role(name=team_info.team_name.get(), mentionable=False)
-                for i, player_cell in enumerate(team_info.players):
-                    if not player_cell:
-                        continue
-                    discord_tag = None
-                    if len(team_info.discord) > i and team_info.discord[i]:
-                        discord_tag = team_info.discord[i].get()
-                    user = tosurnament.UserAbstraction.get_from_osu_name(self.bot, player_cell.get(), discord_tag)
+                for player in team_info.players:
+                    user = tosurnament.UserAbstraction.get_from_player_info(self.bot, player, guild)
                     member = user.get_member(guild)
-                    if not member:
-                        member = guild.get_member_named(user.name)
                     if member:
                         try:
                             await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))

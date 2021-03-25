@@ -66,10 +66,9 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         user = tosurnament.UserAbstraction.get_from_user(self.bot, member)
         if teams_info:
             for team_info in teams_info:
-                if player_index := self.get_index_of_player_in_team(member, team_info):
-                    player_name = team_info.players[player_index].get()
-                    if player_name.casefold() in participants_casefold:
-                        return team_info, player_name
+                if player := self.get_player_in_team(member, team_info):
+                    if player.name.casefold() in participants_casefold:
+                        return team_info, player.name.get()
                     else:
                         return None, None
         elif user.verified and user.name.casefold() in participants_casefold:
@@ -101,7 +100,9 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         else:
             roles_to_remove = list(filter(None, [bracket_role, team_captain_role]))
 
-        teams_info, teams_roles = await self.get_all_teams_infos_and_roles(ctx.guild, bracket.players_spreadsheet)
+        teams_info, teams_roles = await self.get_all_teams_infos_and_roles(
+            ctx.guild, await bracket.get_players_spreadsheet()
+        )
         roles_to_remove = [*roles_to_remove, *teams_roles]
 
         challonge_tournament = challonge.get_tournament(bracket.challonge)
@@ -157,7 +158,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         challonge_tournament = challonge.get_tournament(bracket.challonge)
         running_participants = challonge_tournament.get_running_participants()
 
-        teams_info, _ = await self.get_all_teams_infos_and_roles(ctx.guild, bracket.players_spreadsheet)
+        teams_info, _ = await self.get_all_teams_infos_and_roles(ctx.guild, await bracket.get_players_spreadsheet())
 
         n_user_roles_added = 0
         users_role_not_added = []
@@ -171,7 +172,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                     team_role = tosurnament.get_role(ctx.guild.roles, None, team_info.team_name.get())
                     if team_role:
                         roles_to_add_to_player.append(team_role)
-                    if team_captain_role and team_info.players[0] == player_name:
+                    if team_captain_role and team_info.get_team_captain().name.casefold() == player_name.casefold():
                         roles_to_add_to_player.append(team_captain_role)
                 try:
                     await member.add_roles(*roles_to_add_to_player)

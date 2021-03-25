@@ -222,6 +222,7 @@ def _get_spreadsheet_with_values(spreadsheet_id):
                                 cell.set_merge_range(x_merge_range, y_merge_range)
                         cells[y].append(cell)
         sheets.append({"name": sheet["properties"]["title"], "cells": cells})
+        # TODO: store sheet["properties"]["gridProperties"]["rowCount"/"columnCount"] too
     return sheets
 
 

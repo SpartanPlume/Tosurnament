@@ -1,12 +1,8 @@
 """Contains all qualifiers spreadsheet settings commands related to Tosurnament."""
 
-import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import spreadsheet
-from common.api import challonge
-from common.databases.players_spreadsheet import TeamInfo
-from common.databases.bracket import Bracket
 
 
 class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifiers_spreadsheet"):

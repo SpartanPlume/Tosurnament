@@ -135,25 +135,10 @@ class TosurnamentBaseModule(BaseModule):
             raise NoTournament()
         return tournament
 
-    def get_index_of_player_in_team(self, member, team_info):
+    def get_player_in_team(self, member, team_info):
         user = UserAbstraction.get_from_user(self.bot, member)
-        player_index = -1
-        if user.verified:
-            try:
-                player_index = [cell.casefold() for cell in team_info.players].index(user.name.casefold())
-            except ValueError:
-                pass
-        if player_index == -1:
-            try:
-                player_index = team_info.discord_ids.index(str(user.discord_id))
-            except ValueError:
-                pass
-        if player_index == -1:
-            try:
-                player_index = team_info.discord.index(str(member))
-            except ValueError:
-                pass
-        return player_index
+        user_name = user.name if user.verified else ""
+        return team_info.find_player(user_name, member.id, str(member))
 
     def find_staff_to_ping(self, guild, staff_cells):
         staff_names_to_ping = set()
@@ -174,10 +159,9 @@ class TosurnamentBaseModule(BaseModule):
         return staffs, staffs_not_found
 
     async def get_match_infos_from_id(self, bracket, match_ids):
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             return []
-        await schedules_spreadsheet.get_spreadsheet()
         match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
@@ -189,10 +173,9 @@ class TosurnamentBaseModule(BaseModule):
 
     async def get_next_matches_info_for_bracket(self, tournament, bracket):
         matches_data = []
-        schedules_spreadsheet = bracket.schedules_spreadsheet
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
         if not schedules_spreadsheet:
             return matches_data
-        await schedules_spreadsheet.get_spreadsheet()
         match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
             schedules_spreadsheet.range_match_id
         )
@@ -217,7 +200,6 @@ class TosurnamentBaseModule(BaseModule):
         teams_info = []
         teams_roles = []
         if players_spreadsheet:
-            await players_spreadsheet.get_spreadsheet()
             if players_spreadsheet.range_team_name:
                 team_cells = players_spreadsheet.spreadsheet.get_cells_with_value_in_range(
                     players_spreadsheet.range_team_name
