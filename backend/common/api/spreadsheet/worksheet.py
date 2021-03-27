@@ -13,7 +13,6 @@ class Worksheet:
         self.index = index
         self.name = sheet_name
         self.cells = cells
-        # print(cells)
 
     def get_cell(self, x, y):
         """Returns the corresponding Cell. If it does not exist, it creates it."""

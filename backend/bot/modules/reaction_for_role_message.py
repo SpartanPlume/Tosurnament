@@ -3,7 +3,8 @@
 import discord
 from discord.ext import commands
 from bot.modules import module as base
-from common.databases.reaction_for_role_message import ReactionForRoleMessage
+from common.databases.messages.reaction_for_role_message import ReactionForRoleMessage
+from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 
 
 class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message"):
@@ -160,23 +161,18 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         self.bot.session.delete(reaction_for_role_message)
         await self.send_reply(ctx, "success")
 
-    async def on_raw_reaction_add(self, ctx, emoji):
-        """on_raw_reaction_add of the reaction_for_role_message module"""
-        await self.reaction_on_message(ctx, emoji, True)
+    @on_raw_reaction_with_context("add")
+    @with_corresponding_message(ReactionForRoleMessage)
+    async def on_reaction_add_to_message(self, ctx, emoji, reaction_for_role_message):
+        await self.reaction_on_message(ctx, emoji, reaction_for_role_message, True)
 
-    async def on_raw_reaction_remove(self, ctx, emoji):
-        """on_raw_reaction_remove of the reaction_for_role_message module"""
-        await self.reaction_on_message(ctx, emoji, False)
+    @on_raw_reaction_with_context("remove")
+    @with_corresponding_message(ReactionForRoleMessage)
+    async def on_reaction_remove_to_message(self, ctx, emoji, reaction_for_role_message):
+        await self.reaction_on_message(ctx, emoji, reaction_for_role_message, False)
 
-    async def reaction_on_message(self, ctx, emoji, add):
+    async def reaction_on_message(self, ctx, emoji, reaction_for_role_message, add):
         """Gives or removes the appropriate role."""
-        reaction_for_role_message = (
-            self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.message_id == ctx.message.id)
-            .first()
-        )
-        if not reaction_for_role_message:
-            return
         emojis = list(filter(None, reaction_for_role_message.emojis.split("\n")))
         emoji_name = str(emoji)
         if emoji_name not in emojis:

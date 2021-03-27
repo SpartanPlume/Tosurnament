@@ -13,9 +13,9 @@ from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
 from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
 from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.databases.reschedule_message import RescheduleMessage
-from common.databases.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.end_tournament_message import EndTournamentMessage
+from common.databases.messages.reschedule_message import RescheduleMessage
+from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.messages.end_tournament_message import EndTournamentMessage
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.guild_owner"
@@ -93,61 +93,19 @@ async def test_end_tournament(mocker):
 
 
 @pytest.mark.asyncio
-async def test_reaction_on_end_tournament_message_not_owner():
-    """Sends a message to react on in order to end the tournament."""
-    mock_bot = tosurnament_mock.BotMock()
-    cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
-
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(mock_bot, cog=cog),
-        tosurnament_mock.EmojiMock("=)"),
-    )
-    assert mock_bot.session.query.call_count == 0
-
-
-@pytest.mark.asyncio
-async def test_reaction_on_end_tournament_message_invalid_emoji():
-    """Sends a message to react on in order to end the tournament."""
-    mock_bot = tosurnament_mock.BotMock()
-    cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
-
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(
-            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
-        ),
-        tosurnament_mock.EmojiMock("=)"),
-    )
-    assert mock_bot.session.query.call_count == 0
-
-
-@pytest.mark.asyncio
-async def test_reaction_on_end_tournament_message_already_used():
-    """Sends a message to react on in order to end the tournament."""
-    mock_bot = tosurnament_mock.BotMock()
-    cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
-
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(
-            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
-        ),
-        tosurnament_mock.EmojiMock("✅"),
-    )
-    assert mock_bot.session.query.call_count == 1
-    assert mock_bot.session.delete.call_count == 0
-
-
-@pytest.mark.asyncio
 async def test_reaction_on_end_tournament_message_no_tournament():
     """Sends a message to react on in order to end the tournament."""
     mock_bot = tosurnament_mock.BotMock()
     cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
 
-    mock_bot.session.add_stub(EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID))
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(
+    message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
+    await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
+        self=cog,
+        ctx=tosurnament_mock.CtxMock(
             mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
         ),
-        tosurnament_mock.EmojiMock("✅"),
+        emoji=tosurnament_mock.EmojiMock("✅"),
+        end_tournament_message=message_obj,
     )
     assert mock_bot.session.delete.call_count == 1
 
@@ -160,12 +118,14 @@ async def test_reaction_on_end_tournament_message_refuse(mocker):
 
     mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.GUILD_ID))
     mock_bot.session.add_stub(Bracket())
-    mock_bot.session.add_stub(EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID))
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(
+    message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
+    await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
+        self=cog,
+        ctx=tosurnament_mock.CtxMock(
             mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
         ),
-        tosurnament_mock.EmojiMock("❎"),
+        emoji=tosurnament_mock.EmojiMock("❎"),
+        end_tournament_message=message_obj,
     )
     cog.send_reply.assert_called_with(mocker.ANY, "refused")
 
@@ -189,7 +149,6 @@ async def test_reaction_on_end_tournament_message(mocker):
     mock_bot.session.add_stub(RescheduleMessage(tournament_id=1))
     mock_bot.session.add_stub(StaffRescheduleMessage(tournament_id=1))
     mock_bot.session.add_stub(StaffRescheduleMessage(tournament_id=1))
-    mock_bot.session.add_stub(EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID))
 
     mock_bot.session.add_stub(Tournament(id=2))
     mock_bot.session.add_stub(Bracket(tournament_id=2, schedules_spreadsheet_id=2, players_spreadsheet_id=2))
@@ -197,11 +156,15 @@ async def test_reaction_on_end_tournament_message(mocker):
     mock_bot.session.add_stub(PlayersSpreadsheet(id=2))
     mock_bot.session.add_stub(RescheduleMessage(tournament_id=2))
 
-    await cog.reaction_on_end_tournament_message(
-        tosurnament_mock.CtxMock(
+    message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
+    mock_bot.session.add_stub(message_obj)
+    await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
+        self=cog,
+        ctx=tosurnament_mock.CtxMock(
             mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
         ),
-        tosurnament_mock.EmojiMock("✅"),
+        emoji=tosurnament_mock.EmojiMock("✅"),
+        end_tournament_message=message_obj,
     )
     cog.send_reply.assert_called_with(mocker.ANY, "success")
 

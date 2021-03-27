@@ -8,7 +8,8 @@ from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
 from common.databases.spreadsheets.players_spreadsheet import TeamInfo
 from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound
-from common.databases.post_result_message import PostResultMessage
+from common.databases.messages.post_result_message import PostResultMessage
+from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.api import osu
 from common.api import challonge
 
@@ -288,7 +289,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = PostResultMessage(
             tournament_id=tournament.id,
             bracket_id=bracket.id,
-            referee_id=ctx.author.id,
+            author_id=ctx.author.id,
             step=8,
             match_id=match_id,
             score_team1=score_team1,
@@ -324,17 +325,6 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
                 continue
             return tournament, bracket
         raise tosurnament.InvalidMatchId()
-        post_result_message = (
-            self.bot.session.query(PostResultMessage)
-            .where(PostResultMessage.tournament_id == tournament.id)
-            .where(PostResultMessage.referee_id == ctx.author.id)
-            .first()
-        )
-        if post_result_message:
-            # TODO Raise error
-            ctx.send(
-                "You cannot start multiple post_result at the same time. Please finish your previous one or cancel it."
-            )
 
     async def step0(self, ctx, match_id, score_team1, score_team2, tournament, bracket):
         """Step 0 (initialization) of the post_result_command"""
@@ -342,7 +332,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = PostResultMessage(
             tournament_id=tournament.id,
             bracket_id=bracket.id,
-            referee_id=ctx.author.id,
+            author_id=ctx.author.id,
             setup_message_id=message.id,
             match_id=match_id,
             score_team1=score_team1,
@@ -662,7 +652,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = (
             self.bot.session.query(PostResultMessage)
             .where(PostResultMessage.tournament_id == tournament.id)
-            .where(PostResultMessage.referee_id == ctx.author.id)
+            .where(PostResultMessage.author_id == ctx.author.id)
             .first()
         )
         if not post_result_message:
@@ -681,24 +671,14 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         self.bot.info("answer of step " + str(post_result_message.step))
         await steps[post_result_message.step - 1](ctx, tournament, post_result_message, parameter)
 
-    async def on_raw_reaction_add(self, ctx, emoji):
-        """on_raw_reaction_add of the Tosurnament post_result module"""
-        await self.reaction_on_setup_message(ctx, emoji)
-
-    async def reaction_on_setup_message(self, ctx, emoji):
+    @on_raw_reaction_with_context("add", valid_emojis=["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "❌"])
+    @with_corresponding_message(PostResultMessage)
+    async def reaction_on_setup_message(self, ctx, emoji, post_result_message):
         """Change the setup message step"""
         ctx.command.name = "post_result"
         try:
             tournament = self.get_tournament(ctx.guild.id)
         except tosurnament.NoTournament:
-            return
-        post_result_message = (
-            self.bot.session.query(PostResultMessage)
-            .where(PostResultMessage.tournament_id == tournament.id)
-            .where(PostResultMessage.referee_id == ctx.author.id)
-            .first()
-        )
-        if not post_result_message or post_result_message.setup_message_id <= 0:
             return
         if emoji.name == "❌":
             self.bot.session.delete(post_result_message)
@@ -706,8 +686,6 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             await self.send_reply(ctx, "cancel")
             return
         emoji_steps = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣"]
-        if emoji.name not in emoji_steps:
-            return
         step = emoji_steps.index(emoji.name) + 1
         try:
             if step == 8:

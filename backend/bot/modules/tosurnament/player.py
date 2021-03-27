@@ -1,21 +1,20 @@
 """Player commands"""
 
-import inspect
 import re
 import asyncio
 import datetime
 import discord
-from discord import channel
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
 from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
 from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyInfo
-from common.databases.reschedule_message import RescheduleMessage
-from common.databases.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.messages.reschedule_message import RescheduleMessage
+from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.databases.allowed_reschedule import AllowedReschedule
-from common.api.spreadsheet import HttpError, InvalidWorksheet
+from common.api.spreadsheet import InvalidWorksheet
 from common.api import osu
 
 
@@ -381,7 +380,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if role:
                 opponent_to_ping = role
 
-        reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id, in_use=False)
+        reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id)
         role = tosurnament.get_role(ctx.guild.roles, None, team_name)
         if role:
             reschedule_message.ally_team_role_id = role.id
@@ -499,22 +498,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         elif isinstance(error, tosurnament.TimeInThePast):
             await self.send_reply(ctx, "past_now")
 
-    async def on_raw_reaction_add(self, ctx, emoji):
-        """on_raw_reaction_add of the Tosurnament player module."""
-        await self.reaction_on_reschedule_message(ctx, emoji)
-
-    async def reaction_on_reschedule_message(self, ctx, emoji):
+    @on_raw_reaction_with_context("add", valid_emojis=["👍", "👎"])
+    @with_corresponding_message(RescheduleMessage)
+    async def reaction_on_reschedule_message(self, ctx, emoji, reschedule_message):
         """Reschedules a match or denies the reschedule."""
-        ctx.command.name = inspect.currentframe().f_code.co_name
-        reschedule_message = (
-            self.bot.session.query(RescheduleMessage).where(RescheduleMessage.message_id == ctx.message.id).first()
-        )
-        if not reschedule_message or reschedule_message.in_use:
-            return
         if ctx.author.id != reschedule_message.opponent_user_id:
             return
-        reschedule_message.in_use = True
-        self.bot.session.update(reschedule_message)
         try:
             tournament = self.get_tournament(ctx.guild.id)
             tournament.current_bracket_id = reschedule_message.bracket_id
@@ -522,7 +511,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 raise tosurnament.UnknownError("Bracket not found")
             if emoji.name == "👍":
                 await self.agree_to_reschedule(ctx, reschedule_message, tournament)
-            elif emoji.name == "👎":
+            else:
                 self.bot.session.delete(reschedule_message)
                 ally_to_mention = None
                 if reschedule_message.ally_team_role_id:
@@ -533,12 +522,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     await self.send_reply(ctx, "refused", ally_to_mention.mention, reschedule_message.match_id)
                 else:
                     raise tosurnament.OpponentNotFound(ctx.author.mention)
-            else:
-                reschedule_message.in_use = False
-                self.bot.session.update(reschedule_message)
         except Exception as e:
-            reschedule_message.in_use = False
-            self.bot.session.update(reschedule_message)
             await self.on_cog_command_error(ctx, e)
 
     async def agree_to_reschedule(self, ctx, reschedule_message, tournament):

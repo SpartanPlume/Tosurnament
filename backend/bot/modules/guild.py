@@ -1,11 +1,11 @@
 """Contains all guild settings commands."""
 
-import inspect
 import discord
 from discord.ext import commands
 from bot.modules import module as base
 from common.databases.guild import Guild
-from common.databases.guild_verify_message import GuildVerifyMessage
+from common.databases.messages.guild_verify_message import GuildVerifyMessage
+from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 
 
 class GuildCog(base.BaseModule, name="guild"):
@@ -70,24 +70,17 @@ class GuildCog(base.BaseModule, name="guild"):
             self.bot.session.add(GuildVerifyMessage(message_id=message.id, guild_id=ctx.guild.id))
         await message.add_reaction("🛎️")
 
-    async def on_raw_reaction_add(self, ctx, emoji):
-        """on_raw_reaction_add of the Guild module."""
-        await self.reaction_on_verify_message(ctx, emoji)
-
-    async def reaction_on_verify_message(self, ctx, emoji):
+    @on_raw_reaction_with_context("add", valid_emojis=["🛎️"])
+    @with_corresponding_message(GuildVerifyMessage)
+    async def reaction_on_verify_message(self, ctx, emoji, guild_verify_message):
         """Verifies the user."""
-        ctx.command.name = inspect.currentframe().f_code.co_name
-        guild_verify_message = (
-            self.bot.session.query(GuildVerifyMessage).where(GuildVerifyMessage.guild_id == ctx.guild.id).first()
-        )
-        if guild_verify_message and emoji.name == "🛎️":
-            try:
-                self.get_verified_user(ctx.author.id)
-            except Exception as e:
-                dm_channel = await ctx.author.create_dm()
-                await self.on_cog_command_error(ctx, e, channel=dm_channel)
-                return
-            await self.bot.on_verified_user(ctx.guild, ctx.author)
+        try:
+            self.get_verified_user(ctx.author.id)
+        except Exception as e:
+            dm_channel = await ctx.author.create_dm()
+            await self.on_cog_command_error(ctx, e, channel=dm_channel)
+            return
+        await self.bot.on_verified_user(ctx.guild, ctx.author)
 
     async def on_verified_user(self, guild, user):
         bot_guild = self.get_guild(guild.id)

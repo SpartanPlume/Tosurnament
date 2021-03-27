@@ -1,13 +1,13 @@
 """Contains all guild owner commands related to Tosurnament."""
 
-import inspect
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
-from common.databases.reschedule_message import RescheduleMessage
-from common.databases.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.end_tournament_message import EndTournamentMessage
+from common.databases.messages.reschedule_message import RescheduleMessage
+from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.messages.end_tournament_message import EndTournamentMessage
+from common.databases.messages.base_message import on_raw_reaction_with_context, with_corresponding_message
 
 
 class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_owner"):
@@ -54,23 +54,11 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         end_tournament_message = EndTournamentMessage(message_id=message.id)
         self.bot.session.add(end_tournament_message)
 
-    async def on_raw_reaction_add(self, ctx, emoji):
-        """on_raw_reaction_add of the Tosurnament guild_owner module."""
-        await self.reaction_on_end_tournament_message(ctx, emoji)
-
-    async def reaction_on_end_tournament_message(self, ctx, emoji):
+    @on_raw_reaction_with_context("add", valid_emojis=["✅", "❎"])
+    @with_corresponding_message(EndTournamentMessage)
+    async def reaction_on_end_tournament_message(self, ctx, emoji, end_tournament_message):
         """Ends a tournament."""
-        ctx.command.name = inspect.currentframe().f_code.co_name
         if ctx.author.id != ctx.guild.owner.id:
-            return
-        if emoji.name != "✅" and emoji.name != "❎":
-            return
-        end_tournament_message = (
-            self.bot.session.query(EndTournamentMessage)
-            .where(EndTournamentMessage.message_id == ctx.message.id)
-            .first()
-        )
-        if not end_tournament_message:
             return
         try:
             tournament = self.get_tournament(ctx.guild.id)

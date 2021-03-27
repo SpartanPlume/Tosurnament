@@ -1,18 +1,16 @@
 """Post result message table"""
 
-from mysqldb_wrapper import Base, Id
+from mysqldb_wrapper import Id
+from .base_message import BaseAuthorLockMessage
 
 
-class PostResultMessage(Base):
+class PostResultMessage(BaseAuthorLockMessage):
     """Post result message class"""
 
     __tablename__ = "post_result_message"
 
-    id = Id()
     tournament_id = Id()
     bracket_id = Id()
-    referee_id = bytes()
-    message_id = int()  # TODO maybe use for update ?
     preview_message_id = int()
     setup_message_id = int()
     step = int(1)
@@ -28,4 +26,3 @@ class PostResultMessage(Base):
     bans_team2 = str("")
     tb_bans_team1 = str("")
     tb_bans_team2 = str("")
-    created_at = int()
