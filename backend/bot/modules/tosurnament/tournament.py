@@ -180,6 +180,21 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     async def set_registration_phase(self, ctx, boolean: bool):
         await self.set_tournament_values(ctx, {"registration_phase": boolean})
 
+    @commands.command(aliases=["sgm"])
+    async def set_game_mode(self, ctx, *, game_mode: str = None):
+        if game_mode.lower() in ["0", "std", "standard"]:
+            m = 0
+        elif game_mode.lower() in ["1", "taiko"]:
+            m = 1
+        elif game_mode.lower() in ["2", "ctb", "catch the beat", "catchthebeat"]:
+            m = 2
+        elif game_mode.lower() in ["3", "mania"]:
+            m = 3
+        else:
+            await self.send_reply(ctx, "default")
+            return
+        await self.set_tournament_values(ctx, {"game_mode": m})
+
     async def set_tournament_values(self, ctx, values):
         """Puts the input values into the corresponding tournament."""
         tournament = self.get_tournament(ctx.guild.id)

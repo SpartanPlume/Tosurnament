@@ -49,6 +49,7 @@ class Tournament(Base):
     utc = str()
     template_code = str()
     registration_phase = bool(False)
+    game_mode = int(0)
 
     @property
     def current_bracket(self):

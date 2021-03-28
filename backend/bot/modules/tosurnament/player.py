@@ -67,7 +67,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         await players_spreadsheet.get_spreadsheet()
         team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
         osu_name = osu.get_from_string(osu_link)
-        osu_user = osu.get_user(osu_name)
+        osu_user = osu.get_user(osu_name, m=tournament.game_mode)
         if not osu_user:
             raise tosurnament.UserNotFound(osu_name)
         team_info.players[0].value = osu_user.name

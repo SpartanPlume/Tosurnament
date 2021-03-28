@@ -418,6 +418,21 @@ async def test_set_registration_phase():
 
 
 @pytest.mark.asyncio
+async def test_set_game_mode_default(mocker):
+    cog, mock_bot, _ = init_mocks()
+    await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="something")
+    cog.send_reply.assert_called_once_with(mocker.ANY, "default")
+
+
+@pytest.mark.asyncio
+async def test_set_game_mode():
+    cog, mock_bot, tournament = init_mocks()
+    assert tournament.game_mode == 0
+    await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="taiko")
+    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(game_mode=1)))
+
+
+@pytest.mark.asyncio
 async def test_add_match_to_ignore(mocker):
     """Adds a match to ignore."""
     MATCH_ID_1 = "T1-1"

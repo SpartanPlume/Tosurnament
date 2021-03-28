@@ -175,6 +175,13 @@
     "example_parameter": "True",
     "success": "Registration phase set to `%1`."
   },
+  "set_game_mode": {
+    "help": "Sets the game mode of the tournament, used when pulling information from api.",
+    "parameter": "<game_mode>",
+    "example_parameter": "1",
+    "default": "Possible game modes:\n`0`: std\n`1`: taiko\n`2`: ctb\n`3`: mania",
+    "success": "Game mode set to `%1`."
+  },
   "sync_spreadsheet": {
     "help": "Synchronizes the local copy of the spreadsheets of the tournament with the online spreadsheets",
     "success": "Spreadsheets synchronized successfully."

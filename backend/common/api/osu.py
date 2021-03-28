@@ -21,6 +21,7 @@ URL_GET_MATCH = URL_API_BASE + "get_match"
 
 KEY_API_KEY = "k"
 KEY_USER = "u"
+KEY_MODE = "m"
 KEY_BEATMAP = "b"
 KEY_MATCH = "mp"
 KEY_LIMIT = "limit"
@@ -374,9 +375,9 @@ def get_from_string(string):
     return string
 
 
-def get_user(user):
+def get_user(user, m=0):
     """Returns a User"""
-    payload = {KEY_API_KEY: constants.OSU_API_KEY, KEY_USER: get_from_string(user)}
+    payload = {KEY_API_KEY: constants.OSU_API_KEY, KEY_USER: get_from_string(user), KEY_MODE: str(m)}
     request = requests.get(URL_GET_USER, params=payload)
     if request.status_code != 200:
         return None
