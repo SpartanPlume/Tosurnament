@@ -93,6 +93,8 @@ class Spreadsheet:
         return spreadsheet
 
     def update_pickle(self):
+        if not os.path.exists("pickles"):
+            os.mkdir("pickles")
         with open("pickles/" + hashlib.blake2s(bytes(self.id, "utf-8")).hexdigest(), "w+b") as pfile:
             pickle.dump(self, pfile)
 

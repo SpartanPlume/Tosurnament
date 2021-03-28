@@ -238,6 +238,8 @@ class TosurnamentBaseModule(BaseModule):
             return []
 
     def update_spreadsheet_ids_to_update_pickle(self, spreadsheet_ids):
+        if not os.path.exists("pickles"):
+            os.mkdir("pickles")
         with open("pickles/spreadsheet_ids_to_update", "w+b") as pfile:
             pickle.dump(spreadsheet_ids, pfile)
 
