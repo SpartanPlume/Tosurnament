@@ -59,6 +59,12 @@
     "example_parameter": "D2:D",
     "success": "Players spreadsheet range pp set to `%1`."
   },
+  "set_players_spreadsheet_range_country": {
+    "help": "Sets the players spreadsheet range country.",
+    "parameter": "[<range>]",
+    "example_parameter": "D2:D",
+    "success": "Players spreadsheet range country set to `%1`."
+  },
   "set_players_spreadsheet_range_timezone": {
     "help": "Sets the players spreadsheet range timezone.",
     "parameter": "[<range>]",
