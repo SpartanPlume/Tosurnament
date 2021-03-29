@@ -77,6 +77,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         team_info.bws_ranks[0].value = str(osu_user.rank)  # TODO
         team_info.osu_ids[0].value = str(osu_user.id)
         team_info.pps[0].value = str(int(float(osu_user.pp)))
+        team_info.countries[0].value = str(osu_user.country)
         team_info.timezones[0].value = timezone
         self.add_update_spreadsheet_background_task(players_spreadsheet)
         roles_to_give = [tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")]

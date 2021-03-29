@@ -28,6 +28,7 @@ class PlayersSpreadsheet(BaseSpreadsheet):
     range_bws_rank = str()
     range_osu_id = str()
     range_pp = str()
+    range_country = str()
     range_timezone = str()
     max_range_for_teams = int(0)
 
@@ -58,6 +59,7 @@ class TeamInfo:
         self.bws_ranks = [""]
         self.osu_ids = [""]
         self.pps = [""]
+        self.countries = [""]
         self.timezones = [""]
 
     def set_players(self, players_cells):
@@ -95,6 +97,11 @@ class TeamInfo:
         while len(pps) < len(self.players):
             pps.append(Cell(-1, -1, None))
         self.pps = pps
+
+    def set_countries(self, countries):
+        while len(countries) < len(self.players):
+            countries.append(Cell(-1, -1, None))
+        self.countries = countries
 
     def set_timezones(self, timezones):
         while len(timezones) < len(self.players):
@@ -172,6 +179,16 @@ class TeamInfo:
                 find_corresponding_cell_best_effort_from_range(
                     players_spreadsheet.spreadsheet,
                     players_spreadsheet.range_pp,
+                    player_cell,
+                    max_difference_with_base=players_spreadsheet.max_range_for_teams,
+                )
+            ]
+        )
+        team_info.set_countries(
+            [
+                find_corresponding_cell_best_effort_from_range(
+                    players_spreadsheet.spreadsheet,
+                    players_spreadsheet.range_country,
                     player_cell,
                     max_difference_with_base=players_spreadsheet.max_range_for_teams,
                 )
@@ -290,6 +307,14 @@ class TeamInfo:
             find_corresponding_cells_best_effort_from_range(
                 players_spreadsheet.spreadsheet,
                 players_spreadsheet.range_pp,
+                team_name_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams,
+            )
+        )
+        team_info.set_countries(
+            find_corresponding_cells_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_country,
                 team_name_cell,
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
             )

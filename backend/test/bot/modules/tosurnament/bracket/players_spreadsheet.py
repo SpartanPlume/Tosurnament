@@ -197,6 +197,18 @@ async def test_set_players_spreadsheet_range_pp(mocker):
 
 
 @pytest.mark.asyncio
+async def test_set_players_spreadsheet_range_country(mocker):
+    """Sets the players spreasheet's range country."""
+    cog, mock_bot, players_spreadsheet = init_mocks()
+    range_country = "A"
+    assert players_spreadsheet.range_country != range_country
+    await cog.set_players_spreadsheet_range_country(cog, tosurnament_mock.CtxMock(mock_bot), cell_range=range_country)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(PlayersSpreadsheet(range_country=range_country))
+    )
+
+
+@pytest.mark.asyncio
 async def test_set_players_spreadsheet_range_timezone(mocker):
     """Sets the players spreasheet's range timezone."""
     cog, mock_bot, players_spreadsheet = init_mocks()

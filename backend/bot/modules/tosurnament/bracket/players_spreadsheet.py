@@ -83,6 +83,11 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         """Sets the players spreadsheet range pp."""
         await self.set_players_spreadsheet_range_value(ctx, "range_pp", cell_range)
 
+    @commands.command(aliases=["spsrc"])
+    async def set_players_spreadsheet_range_country(self, ctx, *, cell_range: str = ""):
+        """Sets the players spreadsheet range country."""
+        await self.set_players_spreadsheet_range_value(ctx, "range_country", cell_range)
+
     @commands.command(aliases=["spsrtz"])
     async def set_players_spreadsheet_range_timezone(self, ctx, *, cell_range: str = ""):
         """Sets the players spreadsheet range timezone."""
