@@ -240,11 +240,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         write_cells = False
         staff_name = user_details.name.casefold()
-        for role_name, role_store in user_details.get_staff_roles_as_dict().items():
-            if not role_store:
-                continue
+        for role_store in user_details.get_staff_roles():
             take_match = False
-            role_cells = getattr(match_info, role_name.lower() + "s")
+            role_cells = getattr(match_info, role_store.name.lower() + "s")
             if schedules_spreadsheet.use_range:
                 if not (take and staff_name in [cell.casefold() for cell in role_cells]):
                     for role_cell in role_cells:
@@ -258,7 +256,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                             break
             elif len(role_cells) > 0:
                 role_cell = role_cells[0]
-                max_take = getattr(schedules_spreadsheet, "max_" + role_name.lower())
+                max_take = getattr(schedules_spreadsheet, "max_" + role_store.name.lower())
                 staffs = list(filter(None, [staff.strip() for staff in role_cell.split("/")]))
                 casefold_staffs = [staff.casefold() for staff in staffs]
                 if take and len(staffs) < max_take and staff_name not in casefold_staffs:
@@ -304,37 +302,41 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         user_details.referee.not_taken_matches.append(lobby_info.lobby_id.get())
         return False
 
-    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
-        exceptions=[DuplicateMatchId, DateIsNotString]
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(
+        exceptions=[DuplicateMatchId, DateIsNotString, MatchIdNotFound]
     )
-    async def take_or_drop_match_in_spreadsheets(
-        self, match_ids, user_details, take, left_match_ids, *spreadsheets, retry=False
-    ):
+    async def take_or_drop_match_in_spreadsheets(self, match_ids, user_details, take, *spreadsheets, retry=False):
         """Takes or drops matches of a bracket, if possible."""
         spreadsheets = list(filter(None, spreadsheets))
         user_details.clear_matches()
-        left_match_ids.clear()
-        left_match_ids.update(match_ids)
-        for spreadsheet in spreadsheets:
-            for match_id in left_match_ids.copy():
+        invalid_match_ids = set()
+        for match_id in match_ids:
+            match_taken = False
+            for spreadsheet in spreadsheets:
                 if isinstance(spreadsheet, SchedulesSpreadsheet):
                     try:
                         match_info = MatchInfo.from_id(spreadsheet, match_id, False)
                     except MatchIdNotFound:
                         continue
                     self.take_match_for_roles(spreadsheet, match_info, user_details, take)
-                elif user_details.referee:
+                    match_taken = True
+                    break
+                elif user_details.referee:  # TODO better error for other roles
                     try:
                         lobby_info = LobbyInfo.from_id(spreadsheet, match_id, False)
                     except LobbyIdNotFound:
                         continue
                     self.take_lobby_for_roles(spreadsheet, lobby_info, user_details, take)
-                left_match_ids.remove(match_id)
-        if left_match_ids and not retry:
-            return False
+                    match_taken = True
+                    break
+            if not match_taken:
+                if not retry:
+                    raise MatchIdNotFound(match_id)
+                else:
+                    invalid_match_ids.add(match_id)
         for spreadsheet in spreadsheets:
             self.add_update_spreadsheet_background_task(spreadsheet)
-        return True
+        return invalid_match_ids
 
     def format_take_match_string(self, string, match_ids):
         """Appends the match ids separated by a comma to the string."""
@@ -346,22 +348,21 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         """Builds the reply depending on matches taken or not and invalid matches."""
         staff_name = escape_markdown(user_details.name)
         reply = ""
-        for staff_title, staff in user_details.get_staff_roles_as_dict().items():
-            if staff:
-                for match_id in invalid_match_ids.copy():
-                    if match_id.lower() in [match.lower() for match in staff.taken_matches] or match_id.lower() in [
-                        match.lower() for match in staff.not_taken_matches
-                    ]:
-                        invalid_match_ids.remove(match_id)
-                        continue
-                reply += self.format_take_match_string(
-                    self.get_string(ctx, "taken_match_ids", staff_title, staff_name),
-                    staff.taken_matches,
-                )
-                reply += self.format_take_match_string(
-                    self.get_string(ctx, "not_taken_match_ids", staff_title, staff_name),
-                    staff.not_taken_matches,
-                )
+        for staff in user_details.get_staff_roles():
+            for match_id in invalid_match_ids.copy():
+                if match_id.lower() in [match.lower() for match in staff.taken_matches] or match_id.lower() in [
+                    match.lower() for match in staff.not_taken_matches
+                ]:
+                    invalid_match_ids.remove(match_id)
+                    continue
+            reply += self.format_take_match_string(
+                self.get_string(ctx, "taken_match_ids", staff.name, staff_name),
+                staff.taken_matches,
+            )
+            reply += self.format_take_match_string(
+                self.get_string(ctx, "not_taken_match_ids", staff.name, staff_name),
+                staff.not_taken_matches,
+            )
         reply += self.format_take_match_string(self.get_string(ctx, "invalid_match_ids"), invalid_match_ids)
         return reply
 
@@ -378,8 +379,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 schedules_spreadsheets.append(schedules_spreadsheet)
             if qualifiers_spreadsheet := await bracket.get_qualifiers_spreadsheet():
                 qualifiers_spreadsheets.append(qualifiers_spreadsheet)
-        await self.take_or_drop_match_in_spreadsheets(
-            match_ids, user_details, take, invalid_match_ids, *schedules_spreadsheets, *qualifiers_spreadsheets
+        invalid_match_ids = await self.take_or_drop_match_in_spreadsheets(
+            match_ids, user_details, take, *schedules_spreadsheets, *qualifiers_spreadsheets
         )
         await ctx.send(self.build_take_match_reply(ctx, user_details, invalid_match_ids))
 
@@ -784,11 +785,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 [match_notification.match_id],
                 tosurnament.UserDetails.get_as_referee(self.bot, ctx.author),
                 True,
-                set(),
                 await bracket.get_schedules_spreadsheet(),
                 await bracket.get_qualifiers_spreadsheet(),
             )
-            # TODO if not write_cells send error
+            # TODO if return of function not empty send error
         except Exception as e:
             await self.on_cog_command_error(ctx, e)
             return
@@ -864,9 +864,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         try:
             user_details = tosurnament.UserDetails.get_from_user(self.bot, ctx.author, tournament)
             await self.take_or_drop_match_in_spreadsheets(
-                [staff_reschedule_message.match_id], user_details, False, set(), schedules_spreadsheet
+                [staff_reschedule_message.match_id], user_details, False, schedules_spreadsheet
             )
-            # TODO if not write_cells send error + update message instead of reply
+            # TODO if return of function not empty send error + update message instead of reply
             if staff_reschedule_message.staff_id:
                 await ctx.channel.send(self.build_take_match_reply(ctx, user_details, set()))
             else:

@@ -313,8 +313,14 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return team2_info, team1_info
         raise tosurnament.InvalidMatch()
 
-    @tosurnament.retry_and_update_spreadsheet_pickle_on_false_or_exceptions(
-        exceptions=[tosurnament.InvalidMatch, TeamNotFound, tosurnament.OpponentNotFound, DateIsNotString]
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(
+        exceptions=[
+            tosurnament.InvalidMatch,
+            TeamNotFound,
+            tosurnament.OpponentNotFound,
+            DateIsNotString,
+            MatchIdNotFound,
+        ]
     )
     async def reschedule_for_bracket(
         self,
@@ -330,13 +336,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     ):
         try:
             match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-        except (tosurnament.SpreadsheetHttpError, InvalidWorksheet) as e:
-            if retry:
-                await self.on_cog_command_error(ctx, e)
-            return False
         except MatchIdNotFound as e:
-            if retry:
-                self.bot.info_exception(e)
+            if not retry:
+                raise e
+            self.bot.info_exception(e)
             return False
         match_id = match_info.match_id.get()
 

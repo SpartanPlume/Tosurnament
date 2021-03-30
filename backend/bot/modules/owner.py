@@ -37,6 +37,11 @@ class AdminCog(base.BaseModule, name="admin"):
         await ctx.send("pong")
 
     @commands.command(hidden=True)
+    async def say(self, ctx, *args):
+        """Bot says the input."""
+        await ctx.send(" ".join(args))
+
+    @commands.command(hidden=True)
     async def announce(self, ctx, *, message: str):
         """Sends an annoucement to all servers that have a tournament running."""
         users_already_sent_to = []

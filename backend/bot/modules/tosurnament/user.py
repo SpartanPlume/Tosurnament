@@ -36,13 +36,12 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             changed_name |= spreadsheet.change_value_in_range(
                 schedules_spreadsheet.range_team2, previous_name, new_name
             )
-        for role_name, role_store in user_details.get_staff_roles_as_dict().items():
-            if role_store:
-                changed_name |= spreadsheet.change_value_in_range(
-                    getattr(schedules_spreadsheet, "range_" + role_name.lower()),
-                    previous_name,
-                    new_name,
-                )
+        for role_store in user_details.get_staff_roles():
+            changed_name |= spreadsheet.change_value_in_range(
+                getattr(schedules_spreadsheet, "range_" + role_store.name.lower()),
+                previous_name,
+                new_name,
+            )
         if changed_name:
             self.add_update_spreadsheet_background_task(schedules_spreadsheet)
 
@@ -95,9 +94,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
 
     async def find_team_name_of_member(self, ctx, bracket):
         players_spreadsheet = await bracket.get_players_spreadsheet()
-        if not players_spreadsheet:
-            return ctx.author.display_name
-        if not players_spreadsheet.range_team_name:
+        if not players_spreadsheet or not players_spreadsheet.range_team_name:
             user = tosurnament.UserAbstraction.get_from_user(self.bot, ctx.author)
             if user.verified:
                 return user.name
@@ -147,10 +144,10 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             except Exception as e:
                 await self.on_cog_command_error(ctx, e)
         reply_string = self.get_string(ctx, "success", tournament.acronym, tournament.name) + "\n"
-        for role_name, role_store in user_details.get_as_dict().items():
-            if role_store and role_store.taken_matches:
+        for role_store in user_details.get_all_roles():
+            if role_store.taken_matches:
                 tmp_reply_string = "\n"
-                tmp_reply_string += self.get_string(ctx, "role_match", role_name)
+                tmp_reply_string += self.get_string(ctx, "role_match", role_store.name)
                 for bracket_name, match_info, match_date in sorted(role_store.taken_matches, key=lambda x: x[2]):
                     tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date)
                     if len(tournament.brackets) > 1:

@@ -91,6 +91,10 @@ class TeamInfo:
             player_info.is_captain = True
         self.players.append(player_info)
 
+    def set_timezone(self, timezone_cell):
+        self.timezone = timezone_cell
+        self.timezone.value_type = str
+
     def find_player(self, name, discord, discord_id):
         for player in self.players:
             if discord_id and discord_id == player.discord_id:
@@ -164,11 +168,13 @@ class TeamInfo:
             player_cell,
             max_difference_with_base=players_spreadsheet.max_range_for_teams,
         )
-        team_info.timezone = find_corresponding_cell_best_effort_from_range(
-            players_spreadsheet.spreadsheet,
-            players_spreadsheet.range_timezone,
-            player_cell,
-            max_difference_with_base=players_spreadsheet.max_range_for_teams,
+        team_info.set_timezone(
+            find_corresponding_cell_best_effort_from_range(
+                players_spreadsheet.spreadsheet,
+                players_spreadsheet.range_timezone,
+                player_cell,
+                max_difference_with_base=players_spreadsheet.max_range_for_teams,
+            )
         )
         team_info.add_player(TeamInfo.PlayerInfo(player_cell, discord, discord_id, rank, bws_rank, osu_id, pp, country))
         return team_info

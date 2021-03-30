@@ -29,7 +29,8 @@ DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
 
 class UserDetails:
     class Role:
-        def __init__(self):
+        def __init__(self, name):
+            self.name = name
             self.taken_matches = []
             self.not_taken_matches = []
 
@@ -56,46 +57,46 @@ class UserDetails:
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
         roles = user.roles
         if get_role(roles, tournament.referee_role_id, "Referee"):
-            user_details.referee = UserDetails.Role()
+            user_details.referee = UserDetails.Role("Referee")
         if get_role(roles, tournament.streamer_role_id, "Streamer"):
-            user_details.streamer = UserDetails.Role()
+            user_details.streamer = UserDetails.Role("Streamer")
         if get_role(roles, tournament.commentator_role_id, "Commentator"):
-            user_details.commentator = UserDetails.Role()
+            user_details.commentator = UserDetails.Role("Commentator")
         if get_role(roles, tournament.player_role_id, "Player"):
-            user_details.player = UserDetails.Role()
+            user_details.player = UserDetails.Role("Player")
         return user_details
 
     @staticmethod
     def get_as_referee(bot, user):
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
-        user_details.referee = UserDetails.Role()
+        user_details.referee = UserDetails.Role("Referee")
         return user_details
 
     @staticmethod
     def get_as_streamer(bot, user):
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
-        user_details.streamer = UserDetails.Role()
+        user_details.streamer = UserDetails.Role("Streamer")
         return user_details
 
     @staticmethod
     def get_as_commentator(bot, user):
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
-        user_details.commentator = UserDetails.Role()
+        user_details.commentator = UserDetails.Role("Commentator")
         return user_details
 
     @staticmethod
     def get_as_player(bot, user):
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
-        user_details.player = UserDetails.Role()
+        user_details.player = UserDetails.Role("Player")
         return user_details
 
     @staticmethod
     def get_as_all(bot, user):
         user_details = UserDetails(UserAbstraction.get_from_user(bot, user))
-        user_details.referee = UserDetails.Role()
-        user_details.streamer = UserDetails.Role()
-        user_details.commentator = UserDetails.Role()
-        user_details.player = UserDetails.Role()
+        user_details.referee = UserDetails.Role("Referee")
+        user_details.streamer = UserDetails.Role("Streamer")
+        user_details.commentator = UserDetails.Role("Commentator")
+        user_details.player = UserDetails.Role("Player")
         return user_details
 
     def is_staff(self):
@@ -104,23 +105,29 @@ class UserDetails:
     def is_user(self):
         return self.is_staff() | bool(self.player)
 
-    def get_staff_roles_as_dict(self):
-        return {
-            "Referee": self.referee,
-            "Streamer": self.streamer,
-            "Commentator": self.commentator,
-        }
+    def get_staff_roles(self):
+        return list(
+            filter(
+                None,
+                [
+                    self.referee,
+                    self.streamer,
+                    self.commentator,
+                ],
+            )
+        )
 
-    def get_as_dict(self):
-        roles = self.get_staff_roles_as_dict()
-        roles["Player"] = self.player
+    def get_all_roles(self):
+        roles = self.get_staff_roles()
+        if self.player:
+            roles.append(self.player)
         return roles
 
     def clear_matches(self):
-        for value in self.get_as_dict().values():
-            if value:
-                value.taken_matches = []
-                value.not_taken_matches = []
+        for role_store in self.get_all_roles():
+            if role_store:
+                role_store.taken_matches = []
+                role_store.not_taken_matches = []
 
 
 class TosurnamentBaseModule(BaseModule):
@@ -408,31 +415,25 @@ def get_pretty_date(tournament, date):
     return "**" + date.strftime(PRETTY_DATE_FORMAT) + utc + "**"
 
 
-def retry_and_update_spreadsheet_pickle_on_false_or_exceptions(_func=None, *, exceptions=[]):
+def retry_and_update_spreadsheet_pickle_on_exceptions(_func=None, *, exceptions=[]):
     exceptions_tuple = tuple(exceptions)
 
     def retry_wrapper(func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-            result = False
             try:
-                result = await func(*args, **kwargs)
+                invalid_match_ids = await func(*args, **kwargs)
             except Exception as e:
                 if not isinstance(e, exceptions_tuple):
                     raise e
-            if not result:
-                spreadsheets = []
+                spreadsheet_ids = set()
                 for arg in args:
                     if isinstance(arg, BaseSpreadsheet):
-                        spreadsheets.append(arg)
-                spreadsheet_ids = []
-                for spreadsheet in spreadsheets:
-                    if spreadsheet.id not in spreadsheet_ids:
-                        if await spreadsheet.get_spreadsheet(force_sync=True):
-                            spreadsheet_ids.append(spreadsheet.id)
+                        if await arg.get_spreadsheet(force_sync=True):
+                            spreadsheet_ids.add(arg.id)
                 if spreadsheet_ids:
                     return await func(*args, **kwargs, retry=True)
-            return result
+            return invalid_match_ids
 
         return wrapper
 

@@ -3,7 +3,7 @@
 from discord.ext import commands
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
-    find_corresponding_qualifier_cell_best_effort,
+    find_corresponding_cell_best_effort,
     find_corresponding_qualifier_cells_best_effort,
     Cell,
 )
@@ -57,6 +57,25 @@ class LobbyInfo:
         self.date = Cell(-1, -1, "")
         self.time = Cell(-1, -1, "")
 
+    def set_teams(self, team_cells):
+        self.teams = team_cells
+        for team in self.teams:
+            team.value_type = str
+
+    def set_referee(self, referee_cell):
+        self.referee = referee_cell
+        self.referee.value_type = str
+
+    def set_date(self, date_cell):
+        self.date = date_cell
+        if self.date.value_type != str:
+            raise DateIsNotString("date")
+
+    def set_time(self, time_cell):
+        self.time = time_cell
+        if self.time.value_type != str:
+            raise DateIsNotString("time")
+
     def get_datetime(self):
         return " ".join(filter(None, [self.date.get(), self.time.get()]))
 
@@ -75,31 +94,34 @@ class LobbyInfo:
     def from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell, filled_only=True):
         lobby_info = LobbyInfo(lobby_id_cell)
         spreadsheet = qualifiers_spreadsheet.spreadsheet
-        lobby_info.teams = find_corresponding_qualifier_cells_best_effort(
-            spreadsheet,
-            spreadsheet.get_range(qualifiers_spreadsheet.range_teams),
-            lobby_id_cell,
-            qualifiers_spreadsheet.max_range_for_lobby,
-            filled_only,
+        lobby_info.set_teams(
+            find_corresponding_qualifier_cells_best_effort(
+                spreadsheet,
+                spreadsheet.get_range(qualifiers_spreadsheet.range_teams),
+                lobby_id_cell,
+                qualifiers_spreadsheet.max_range_for_lobby,
+                filled_only,
+            )
         )
-        lobby_info.referee = find_corresponding_qualifier_cell_best_effort(
-            spreadsheet.get_range(qualifiers_spreadsheet.range_referee),
-            lobby_id_cell,
-            qualifiers_spreadsheet.max_range_for_lobby,
-            to_string=True,
+        lobby_info.set_referee(
+            find_corresponding_cell_best_effort(
+                spreadsheet.get_range(qualifiers_spreadsheet.range_referee),
+                lobby_id_cell,
+                qualifiers_spreadsheet.max_range_for_lobby,
+            )
         )
-        lobby_info.date = find_corresponding_qualifier_cell_best_effort(
-            spreadsheet.get_range(qualifiers_spreadsheet.range_date),
-            lobby_id_cell,
-            qualifiers_spreadsheet.max_range_for_lobby,
+        lobby_info.set_date(
+            find_corresponding_cell_best_effort(
+                spreadsheet.get_range(qualifiers_spreadsheet.range_date),
+                lobby_id_cell,
+                qualifiers_spreadsheet.max_range_for_lobby,
+            )
         )
-        lobby_info.time = find_corresponding_qualifier_cell_best_effort(
-            spreadsheet.get_range(qualifiers_spreadsheet.range_time),
-            lobby_id_cell,
-            qualifiers_spreadsheet.max_range_for_lobby,
+        lobby_info.set_time(
+            find_corresponding_cell_best_effort(
+                spreadsheet.get_range(qualifiers_spreadsheet.range_time),
+                lobby_id_cell,
+                qualifiers_spreadsheet.max_range_for_lobby,
+            )
         )
-        if lobby_info.date.value_type != str:
-            raise DateIsNotString("date")
-        if lobby_info.time.value_type != str:
-            raise DateIsNotString("time")
         return lobby_info

@@ -11,23 +11,7 @@ def from_letter_base(letters):
     return n - 1
 
 
-def find_corresponding_cell_best_effort(cells, ys, base_cell, max_difference_with_base=0):
-    default_cell = Cell(-1, -1, "")
-    for y in ys:
-        for row in cells:
-            for cell in row:
-                if cell.x <= base_cell.x:
-                    continue
-                if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
-                    continue
-                if cell.y == y and cell:
-                    return cell
-                elif cell.y == base_cell.y and default_cell.x == -1:
-                    default_cell = cell
-    return default_cell
-
-
-def find_corresponding_qualifier_cell_best_effort(cells, base_cell, max_difference_with_base=0):
+def find_corresponding_cell_best_effort(cells, base_cell, max_difference_with_base=0):
     default_cell = Cell(-1, -1, "")
     for y in base_cell.y_merge_range:
         for row in cells:
@@ -45,9 +29,7 @@ def find_corresponding_qualifier_cell_best_effort(cells, base_cell, max_differen
 
 def find_corresponding_cell_best_effort_from_range(spreadsheet, range_name, base_cell, max_difference_with_base=0):
     range_cells = spreadsheet.get_range(range_name)
-    corresponding_cell = find_corresponding_cell_best_effort(
-        range_cells, base_cell.y_merge_range, base_cell, max_difference_with_base
-    )
+    corresponding_cell = find_corresponding_cell_best_effort(range_cells, base_cell, max_difference_with_base)
     if corresponding_cell.x == -1 and range_name:
         worksheet, range_name = spreadsheet.get_worksheet_and_range(range_name)
         cells = worksheet.cells
