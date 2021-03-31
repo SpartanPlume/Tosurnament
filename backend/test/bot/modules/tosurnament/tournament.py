@@ -434,11 +434,35 @@ async def test_set_game_mode_default(mocker):
 
 
 @pytest.mark.asyncio
-async def test_set_game_mode():
+async def test_set_game_mode_std():
+    cog, mock_bot, tournament = init_mocks()
+    assert tournament.game_mode == 0
+    await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="0")
+    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(game_mode=0)))
+
+
+@pytest.mark.asyncio
+async def test_set_game_mode_taiko():
     cog, mock_bot, tournament = init_mocks()
     assert tournament.game_mode == 0
     await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="taiko")
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(game_mode=1)))
+
+
+@pytest.mark.asyncio
+async def test_set_game_mode_ctb():
+    cog, mock_bot, tournament = init_mocks()
+    assert tournament.game_mode == 0
+    await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="ctb")
+    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(game_mode=2)))
+
+
+@pytest.mark.asyncio
+async def test_set_game_mode_mania():
+    cog, mock_bot, tournament = init_mocks()
+    assert tournament.game_mode == 0
+    await cog.set_game_mode(cog, tosurnament_mock.CtxMock(mock_bot), game_mode="mania")
+    mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(game_mode=3)))
 
 
 @pytest.mark.asyncio
