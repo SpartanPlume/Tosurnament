@@ -121,6 +121,12 @@
     "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
     "success": "Post result message `_tb_bans_` set to\n```\n%1\n```"
   },
+  "set_registration_background_update": {
+    "help": "Sets whether the registration update background task should be run",
+    "parameter": "<boolean>",
+    "example_parameter": "True",
+    "success": "Registration update background task set to `%1`."
+  },
   "set_reschedule_deadline_hours_before_current_time": {
     "help": "Sets the deadline before current match time for reschedule (in hours before the match)",
     "parameter": "<hours>",

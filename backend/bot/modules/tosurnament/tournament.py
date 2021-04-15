@@ -140,6 +140,11 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Sets the post result message."""
         await self.set_tournament_values(ctx, {"post_result_message_tb_bans": message})
 
+    @commands.command(aliases=["srbu"])
+    async def set_registration_background_update(self, ctx, *, boolean: bool):
+        """Sets whether the registration update background task should be run."""
+        await self.set_tournament_values(ctx, {"registration_background_update": boolean})
+
     @commands.command(aliases=["srdhbct"])
     async def set_reschedule_deadline_hours_before_current_time(self, ctx, hours: int):
         """Allows to change the deadline (in hours) before the current match time to reschedule a match."""

@@ -309,6 +309,16 @@ async def test_set_post_result_message_tb_bans():
 
 
 @pytest.mark.asyncio
+async def test_set_registration_background_update():
+    cog, mock_bot, tournament = init_mocks()
+    assert not tournament.registration_background_update
+    await cog.set_registration_background_update(cog, tosurnament_mock.CtxMock(mock_bot), boolean=True)
+    mock_bot.session.update.assert_called_once_with(
+        tosurnament_mock.Matcher(Tournament(registration_background_update=True))
+    )
+
+
+@pytest.mark.asyncio
 async def test_set_reschedule_deadline_hours_before_current_time():
     """Allows to change the deadline (in hours) before the current match time to reschedule a match."""
     cog, mock_bot, tournament = init_mocks()

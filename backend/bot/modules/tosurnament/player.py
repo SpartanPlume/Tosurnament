@@ -732,7 +732,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     def background_task(self):
         self.bot.tasks.append(self.bot.loop.create_task(self.background_task_give_player_role()))
-        pass
 
 
 def get_class(bot):

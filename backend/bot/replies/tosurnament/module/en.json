@@ -2,7 +2,7 @@
   "connection_reset_by_peer": "The connection has been reset by Google Sheets API. Please retry.",
   "request_timeout": "The request has timeout on Google Sheets API side. Please retry.",
   "spreadsheet_error": "Uh-oh, seems like I encountered an issue with the %1 access to the %2 spreadsheet. Please contact an admin.",
-  "no_tournament": "This server does not have any tournament running. Consider using the `%0create_tournament $tosurnament/guild_owner/create_tournament/parameter`.",
+  "no_tournament": "This server does not have any tournament running. Consider using the `%0create_tournament` command.",
   "no_bracket": "This bracket does not exists. Check existing brackets using the `%0get_bracket` command.",
   "no_spreadsheet": "This tournament does not have any %1 spreadsheet set. Please contact an admin.",
   "invalid_worksheet": "The worksheet %1 does not exist. Please contact an admin.",

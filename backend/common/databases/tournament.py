@@ -50,6 +50,7 @@ class Tournament(Base):
     template_code = str()
     registration_phase = bool(False)
     game_mode = int(0)
+    registration_background_update = bool(False)
 
     @property
     def current_bracket(self):

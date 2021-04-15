@@ -1,10 +1,14 @@
 """Contains all bracket settings commands related to Tosurnament."""
 
+import asyncio
+import datetime
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import challonge
 from common.databases.bracket import Bracket
+from common.databases.players_spreadsheet import TeamInfo
+from common.api import osu
 
 
 class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
@@ -215,10 +219,63 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             return
         raise commands.UserInputError()
 
+    async def update_players_spreadsheet_registration(self, guild, tournament):
+        now = datetime.datetime.now()
+        for bracket in tournament.brackets:
+            if not bracket.registration_end_date:
+                continue
+            registration_end_date = datetime.datetime.strptime(
+                bracket.registration_end_date, tosurnament.DATABASE_DATE_FORMAT
+            )
+            if now > registration_end_date:
+                continue
+            team_infos, _ = await self.get_all_teams_infos_and_roles(guild, bracket.players_spreadsheet)
+            update_spreadsheet = False
+            for team_info in team_infos:
+                for i, player_cell in enumerate(team_info.players):
+                    osu_id = str(player_cell.value)
+                    if team_info.osu_ids[i].value:
+                        osu_id = str(team_info.osu_ids[i].value)
+                    osu_user = osu.get_user(osu_id)
+                    if not osu_user:
+                        continue
+                    if player_cell.value != osu_user.name:
+                        user = guild.get_member_named(str(player_cell.value))
+                        if user:
+                            try:
+                                await user.edit(nick=osu_user.name)
+                            except (discord.Forbidden, discord.HTTPException):
+                                pass
+                        player_cell.value = osu_user.name
+                    team_info.ranks[i].value = str(osu_user.rank)
+                    team_info.bws_ranks[i].value = str(osu_user.rank)
+                    team_info.pps[i].value = str(int(float(osu_user.pp)))
+                    update_spreadsheet = True
+            if update_spreadsheet:
+                self.add_update_spreadsheet_background_task(bracket.players_spreadsheet)
+
+    async def background_task_update_players_spreadsheet_registration(self):
+        try:
+            await self.bot.wait_until_ready()
+            while not self.bot.is_closed():
+                for guild in self.bot.guilds:
+                    try:
+                        tournament = self.get_tournament(guild.id)
+                        if tournament.registration_background_update:
+                            await self.update_players_spreadsheet_registration(guild, tournament)
+                    except asyncio.CancelledError:
+                        return
+                    except Exception:
+                        continue
+                await asyncio.sleep(86000)
+        except asyncio.CancelledError:
+            return
+
     def background_task(self):
         spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
         for spreadsheet_id in spreadsheet_ids:
             self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
+        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_update_players_spreadsheet_registration()))
 
 
 def get_class(bot):
