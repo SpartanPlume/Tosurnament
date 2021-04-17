@@ -57,7 +57,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = bracket.players_spreadsheet
         if players_spreadsheet.range_timezone:
             if not timezone:
-                raise commands.MissingRequiredArgument("timezone")
+                raise commands.MissingRequiredArgument(timezone)
             if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])(:[0-5][0-9])?$", timezone, re.IGNORECASE):
                 raise InvalidTimezone(timezone)
             timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
