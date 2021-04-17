@@ -55,6 +55,8 @@ class Client(commands.Bot):
 
     def init_logger(self):
         """Initializes the logger"""
+        if not os.path.exists("log"):
+            os.mkdir("log")
         self.handler = TimedRotatingFileHandler(
             filename="log/bot.log",
             when="W1",
