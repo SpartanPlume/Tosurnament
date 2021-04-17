@@ -236,7 +236,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                     osu_id = str(player_cell.value)
                     if team_info.osu_ids[i].value:
                         osu_id = str(team_info.osu_ids[i].value)
-                    osu_user = osu.get_user(osu_id)
+                    osu_user = osu.get_user(osu_id, m=tournament.game_mode)
                     if not osu_user:
                         continue
                     if player_cell.value != osu_user.name:
