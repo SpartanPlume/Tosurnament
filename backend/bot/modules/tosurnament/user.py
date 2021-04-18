@@ -99,7 +99,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             if user.verified:
                 return user.name
             return ctx.author.display_name
-        team_infos, _ = self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
+        team_infos, _ = await self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
         for team_info in team_infos:
             if self.get_player_in_team(ctx.author, team_info):
                 return team_info.team_name.get()

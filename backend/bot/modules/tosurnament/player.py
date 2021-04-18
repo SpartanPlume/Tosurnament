@@ -167,7 +167,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def get_player_role_for_bracket(self, guild, tournament, member, player_role):
         """Gives the player role of the bracket to the user, if he is a player of this bracket."""
         bracket = tournament.current_bracket
-        team_infos, _ = self.get_all_teams_infos_and_roles(guild, await bracket.get_players_spreadsheet())
+        team_infos, _ = await self.get_all_teams_infos_and_roles(guild, await bracket.get_players_spreadsheet())
         for team_info in team_infos:
             player = self.get_player_in_team(member, team_info)
             if not player:
@@ -606,7 +606,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if not players_spreadsheet:
                 continue
             bracket_role = tosurnament.get_role(guild.roles, bracket.role_id, bracket.name)
-            team_infos, team_roles = self.get_all_teams_infos_and_roles(guild, players_spreadsheet)
+            team_infos, team_roles = await self.get_all_teams_infos_and_roles(guild, players_spreadsheet)
             for team_info_index, team_info in enumerate(team_infos):
                 team_role = None
                 if players_spreadsheet.range_team_name:

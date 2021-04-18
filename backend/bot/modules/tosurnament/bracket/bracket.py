@@ -7,7 +7,6 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import challonge
 from common.databases.bracket import Bracket
-from common.databases.players_spreadsheet import TeamInfo
 from common.api import osu
 
 
@@ -233,30 +232,34 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             )
             if now > registration_end_date:
                 continue
-            team_infos, _ = await self.get_all_teams_infos_and_roles(guild, bracket.players_spreadsheet)
+            players_spreadsheet = await bracket.get_players_spreadsheet()
+            if not players_spreadsheet:
+                continue
+            team_infos, _ = await self.get_all_teams_infos_and_roles(guild, players_spreadsheet)
             update_spreadsheet = False
             for team_info in team_infos:
-                for i, player_cell in enumerate(team_info.players):
-                    osu_id = str(player_cell.value)
-                    if team_info.osu_ids[i].value:
-                        osu_id = str(team_info.osu_ids[i].value)
+                for player_info in team_info.players:
+                    osu_id = player_info.name.get()
+                    if player_info.osu_id:
+                        osu_id = player_info.osu_id.get()
                     osu_user = osu.get_user(osu_id, m=tournament.game_mode)
                     if not osu_user:
                         continue
-                    if player_cell.value != osu_user.name:
-                        user = guild.get_member_named(str(player_cell.value))
-                        if user:
+                    if player_info.name != osu_user.name:
+                        user = tosurnament.UserAbstraction.get_from_player_info(self.bot, player_info, guild)
+                        member = user.get_member(guild)
+                        if member:
                             try:
-                                await user.edit(nick=osu_user.name)
+                                await member.edit(nick=osu_user.name)
                             except (discord.Forbidden, discord.HTTPException):
                                 pass
-                        player_cell.value = osu_user.name
-                    team_info.ranks[i].value = str(osu_user.rank)
-                    team_info.bws_ranks[i].value = str(osu_user.rank)
-                    team_info.pps[i].value = str(int(float(osu_user.pp)))
+                        player_info.name.set(osu_user.name)
+                    player_info.rank.set(str(osu_user.rank))
+                    player_info.bws_rank.set(str(osu_user.rank))
+                    player_info.pp.set(str(int(float(osu_user.pp))))
                     update_spreadsheet = True
             if update_spreadsheet:
-                self.add_update_spreadsheet_background_task(bracket.players_spreadsheet)
+                self.add_update_spreadsheet_background_task(players_spreadsheet)
 
     async def background_task_update_players_spreadsheet_registration(self):
         try:
