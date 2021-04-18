@@ -37,11 +37,12 @@ class UserAbstraction:
     @staticmethod
     def get_from_player_info(bot, player_info, guild=None):
         tosurnament_user = None
-        if player_info.discord_id:
-            tosurnament_user = bot.session.query(User).where(User.discord_id == player_info.discord_id).first()
+        discord_id = player_info.discord_id.get()
+        if discord_id:
+            tosurnament_user = bot.session.query(User).where(User.discord_id == discord_id).first()
         osu_name = player_info.name.get()
         if not tosurnament_user and osu_name:
-            bot.session.query(User).where(User.osu_name_hash == osu_name.lower()).first()
+            tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name.lower()).first()
         discord_tag = player_info.discord.get()
         if not tosurnament_user and guild and discord_tag:
             member = guild.get_member_named(discord_tag)
@@ -49,7 +50,9 @@ class UserAbstraction:
                 tosurnament_user = bot.session.query(User).where(User.discord_id == member.id).first()
         if tosurnament_user and tosurnament_user.verified:
             return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
-        return UserAbstraction(osu_name, discord_tag, True)
+        elif discord_id:
+            return UserAbstraction(osu_name, discord_id, False)
+        return UserAbstraction(osu_name, discord_tag, False)
 
     def get_member(self, guild):
         if self.discord_id:

@@ -95,7 +95,7 @@ class TeamInfo:
         self.timezone = timezone_cell
         self.timezone.value_type = str
 
-    def find_player(self, name, discord, discord_id):
+    def find_player(self, name, discord_id, discord):
         for player in self.players:
             if discord_id and discord_id == player.discord_id:
                 return player

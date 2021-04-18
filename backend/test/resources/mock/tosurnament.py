@@ -164,18 +164,22 @@ class RoleMock(BaseMock):
 USER_ID = 20934809
 NOT_USER_ID = 18349804
 USER_NAME = "User name"
-USER_TAG = "User name#" + str(USER_ID)
+USER_TAG = "User name#1234"
 
 
 class UserMock(BaseMock):
     DM_CHANNEL_ID = 324987
 
-    def __init__(self, user_id=USER_ID, user_name=USER_NAME):
+    def __init__(self, user_id=USER_ID, user_name=USER_NAME, user_tag=USER_TAG):
         self.id = user_id
         self.roles = []
         self.display_name = user_name
         self.mention = user_name
+        self.user_tag = user_tag
         self.dm_channel = None
+
+    def __str__(self):
+        return self.user_tag
 
     async def create_dm(self):
         self.dm_channel = ChannelMock(self.DM_CHANNEL_ID)
@@ -192,6 +196,9 @@ class GuildMock(BaseMock):
     def __init__(self, guild_id=GUILD_ID):
         self.id = guild_id
         self.owner = UserMock(user_id=GuildMock.OWNER_ID)
+
+    def get_member(self, user_id):
+        return UserMock(user_id=user_id)
 
     def get_member_named(self, user_name):
         return UserMock(user_name=user_name)
@@ -250,6 +257,7 @@ class OsuMock:
 async def send_reply_side_effect(*args, **kwargs):
     return_mock = mock.Mock()
     return_mock.id = 0
+    return_mock.add_reaction = mock.AsyncMock()
     return return_mock
 
 

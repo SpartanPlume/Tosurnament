@@ -1,0 +1,59 @@
+{
+  "spreadsheet_id": "single",
+  "worksheets": [
+    {
+      "name": "Players",
+      "cells": [
+        [],
+        [
+          "Team1",
+          "Team1#0001"
+        ],
+        [
+          "Team2",
+          "Team2#0001"
+        ],
+        [
+          "Team3",
+          "Team3#0001"
+        ],
+        [
+          "Team4",
+          "Team4#0001"
+        ],
+        [
+          "PlayerReferee",
+          "PlayerReferee#0001"
+        ],
+        [
+          "PlayerStreamer",
+          "PlayerStreamer#0001"
+        ],
+        [
+          "PlayerCommentator",
+          "PlayerCommentator#0001"
+        ],
+        [
+          "All",
+          "All#0001"
+        ],
+        [
+          "TeamA",
+          "TeamA#0001"
+        ],
+        [
+          "TeamB",
+          "TeamB#0001"
+        ],
+        [
+          "TeamC",
+          "TeamC#0001"
+        ],
+        [
+          "TeamD",
+          "TeamD#0001"
+        ]
+      ]
+    }
+  ]
+}

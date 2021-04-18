@@ -85,7 +85,6 @@ class Tournament(Base):
         date_formats=[],
         prefer_dates_from="current_period",
         relative_base=datetime.datetime.now(),
-        to_timezone="+00:00",
     ):
         if self.utc:
             return dateparser.parse(

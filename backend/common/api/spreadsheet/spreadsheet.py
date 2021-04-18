@@ -100,7 +100,9 @@ class Spreadsheet:
 
     def get_worksheet(self, option=None):
         """Returns a Worksheet by index or name."""
-        if not option and self.worksheets:
+        if not self.worksheets:
+            raise InvalidWorksheet("No worksheet in spreadsheet")  # FIXME: better error
+        if not option:
             return self.worksheets[self.main_worksheet_index]
         elif isinstance(option, str):
             option = option.strip("'")

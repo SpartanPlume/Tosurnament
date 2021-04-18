@@ -14,7 +14,6 @@ from common.databases.messages.reschedule_message import RescheduleMessage
 from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.databases.allowed_reschedule import AllowedReschedule
-from common.api.spreadsheet import InvalidWorksheet
 from common.api import osu
 
 
@@ -221,7 +220,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.NotAPlayer()
 
     def validate_reschedule_feasibility(
-        self, ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
+        self, ctx, tournament, schedules_spreadsheet, match_info, new_date, skip_deadline_validation
     ):
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
@@ -237,6 +236,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if not skip_deadline_validation:
             reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_current_time
             deadline = previous_date - datetime.timedelta(hours=reschedule_deadline_hours)
+            now = datetime.datetime.now(datetime.timezone.utc)
             if now > deadline:
                 referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
                 raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.get())
@@ -254,25 +254,17 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.SameDate()
         return previous_date
 
-    def validate_new_date(
-        self, ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
-    ):
+    def validate_new_date(self, ctx, tournament, match_info, new_date, skip_deadline_validation):
         reschedule_deadline_hours = tournament.reschedule_deadline_hours_before_new_time
         if skip_deadline_validation:
             reschedule_deadline_hours = 0
+        now = datetime.datetime.now(datetime.timezone.utc)
         if now > new_date:
             raise tosurnament.TimeInThePast()
         if new_date.minute % 15 != 0:
             raise tosurnament.InvalidMinute()
         if new_date.hour == 0 and new_date.minute == 0:
-            new_date = new_date + datetime.timedelta(minutes=1)
-        if now.month == 12 and new_date.month == 1 and new_date < now:
-            try:
-                new_date = new_date.replace(year=new_date.year + 1)
-            except ValueError:
-                new_date = new_date + (
-                    datetime.new_date(new_date.year + 1, 1, 1) - datetime.new_date(new_date.year, 1, 1)
-                )
+            new_date = new_date - datetime.timedelta(minutes=1)
         deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
             referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
@@ -293,7 +285,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 referees_mentions = "Admins (please contact them)"
         return referees_mentions
 
-    async def get_teams_info(self, ctx, tournament, players_spreadsheet, match_info):
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(exceptions=[TeamNotFound, tosurnament.InvalidMatch])
+    async def get_teams_info(self, ctx, tournament, players_spreadsheet, match_info, retry=False):
         """Returns ally and enemy team info"""
         try:
             team1_info = TeamInfo.from_team_name(players_spreadsheet, match_info.team1.get())
@@ -313,80 +306,76 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             return team2_info, team1_info
         raise tosurnament.InvalidMatch()
 
-    @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(
-        exceptions=[
-            tosurnament.InvalidMatch,
-            TeamNotFound,
-            tosurnament.OpponentNotFound,
-            DateIsNotString,
-            MatchIdNotFound,
+    def is_skip_deadline_validation(self, tournament, match_id):
+        allowed_reschedule_match_ids = [
+            allowed_reschedule.match_id.casefold()
+            for allowed_reschedule in self.bot.session.query(AllowedReschedule)
+            .where(AllowedReschedule.tournament_id == tournament.id)
+            .all()
         ]
-    )
+        if match_id.casefold() in allowed_reschedule_match_ids:
+            return True
+        return False
+
+    @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(exceptions=[DateIsNotString, MatchIdNotFound])
+    async def get_match_from_id(self, schedules_spreadsheet, match_id, retry=False):
+        try:
+            return MatchInfo.from_id(schedules_spreadsheet, match_id)
+        except MatchIdNotFound as e:
+            if not retry:
+                raise e
+            return None
+
     async def reschedule_for_bracket(
         self,
         ctx,
         tournament,
         bracket,
-        schedules_spreadsheet,
         match_id,
         new_date,
-        user,
-        skip_deadline_validation,
-        retry=False,
     ):
-        try:
-            match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
-        except MatchIdNotFound as e:
-            if not retry:
-                raise e
-            self.bot.info_exception(e)
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
+        if not schedules_spreadsheet:
+            return False
+        match_info = await self.get_match_from_id(schedules_spreadsheet, match_id)
+        if not match_info:
             return False
         match_id = match_info.match_id.get()
 
         players_spreadsheet = await bracket.get_players_spreadsheet()
-        if players_spreadsheet:
-            ally_team_info, opponent_team_info = await self.get_teams_info(
-                ctx, tournament, players_spreadsheet, match_info
-            )
-            if not ally_team_info:
-                return False
-            team_name = ally_team_info.team_name.get()
-            opponent_team_name = opponent_team_info.team_name.get()
-            opponent_user = tosurnament.UserAbstraction.get_from_player_info(
-                ctx.bot, opponent_team_info.get_team_captain(), ctx.guild
-            )
-        else:
-            team_name = user.name
-            if team_name == match_info.team1:
-                opponent_team_name = match_info.team2.get()
-            elif team_name == match_info.team2:
-                opponent_team_name = match_info.team1.get()
-            else:
-                raise tosurnament.InvalidMatch()
-            opponent_user = tosurnament.UserAbstraction.get_from_osu_name(ctx.bot, opponent_team_name)
+        if not players_spreadsheet:
+            raise tosurnament.NoSpreadsheet("players")
+        ally_team_info, opponent_team_info = await self.get_teams_info(ctx, tournament, players_spreadsheet, match_info)
+        if not ally_team_info:
+            raise tosurnament.InvalidMatch()
 
-        now = datetime.datetime.now(datetime.timezone.utc)
-        new_date = self.validate_new_date(
-            ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
-        )
+        skip_deadline_validation = self.is_skip_deadline_validation(tournament, match_id)
+        new_date = self.validate_new_date(ctx, tournament, match_info, new_date, skip_deadline_validation)
         previous_date = self.validate_reschedule_feasibility(
-            ctx, tournament, schedules_spreadsheet, match_info, now, new_date, skip_deadline_validation
+            ctx, tournament, schedules_spreadsheet, match_info, new_date, skip_deadline_validation
+        )
+
+        team_name = ally_team_info.team_name.get()
+        opponent_team_name = opponent_team_info.team_name.get()
+        opponent_user = tosurnament.UserAbstraction.get_from_player_info(
+            ctx.bot, opponent_team_info.get_team_captain(), ctx.guild
         )
 
         opponent_team_captain = opponent_user.get_member(ctx.guild)
         if not opponent_team_captain:
             raise tosurnament.OpponentNotFound(ctx.author.mention)
 
+        reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id)
+
         opponent_to_ping = opponent_team_captain
         if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
-            role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
-            if role:
-                opponent_to_ping = role
+            opponent_team_role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
+            if opponent_team_role:
+                opponent_to_ping = opponent_team_role
+            ally_team_role = tosurnament.get_role(ctx.guild.roles, None, team_name)
+            if ally_team_role:
+                reschedule_message.ally_team_role_id = ally_team_role.id
 
-        reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id)
-        role = tosurnament.get_role(ctx.guild.roles, None, team_name)
-        if role:
-            reschedule_message.ally_team_role_id = role.id
         reschedule_message.match_id = match_id
         reschedule_message.match_id_hash = match_id
         reschedule_message.ally_user_id = ctx.author.id
@@ -435,40 +424,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise commands.UserInputError()
         if not new_date:
             raise commands.UserInputError()
-        skip_deadline_validation = False
-        allowed_reschedule_match_ids = [
-            allowed_reschedule.match_id.upper()
-            for allowed_reschedule in self.bot.session.query(AllowedReschedule)
-            .where(AllowedReschedule.tournament_id == tournament.id)
-            .all()
-        ]
-        if match_id.upper() in allowed_reschedule_match_ids:
-            skip_deadline_validation = True
 
-        user = tosurnament.UserAbstraction.get_from_ctx(ctx)
-        bracket_role_present = False
         for bracket in tournament.brackets:
-            bracket_role = tosurnament.get_role(ctx.guild.roles, bracket.role_id)
-            if bracket_role and not tosurnament.get_role(ctx.author.roles, bracket.role_id):
-                bracket_role_present = True
-                continue
-            schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
-            if not schedules_spreadsheet:
-                continue
-
             if await self.reschedule_for_bracket(
                 ctx,
                 tournament,
                 bracket,
-                schedules_spreadsheet,
                 match_id,
                 new_date,
-                user,
-                skip_deadline_validation,
             ):
                 return
-        if bracket_role_present:
-            raise tosurnament.InvalidMatchIdOrNoBracketRole()
         raise tosurnament.InvalidMatchId()
 
     @reschedule.error
