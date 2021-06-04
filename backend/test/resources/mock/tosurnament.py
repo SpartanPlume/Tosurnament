@@ -6,6 +6,7 @@ from unittest import mock
 
 from mysqldb_wrapper import crypt
 
+from common.utils import load_json
 from common.api.osu import User as OsuUser
 from common.api.spreadsheet import Spreadsheet, Worksheet, Cell
 
@@ -150,9 +151,24 @@ class BaseMock:
 class BotMock(BaseMock):
     def __init__(self):
         self.session = SessionMock()
+        self.command_prefix = ";"
+        self.tasks = []
+        self._strings = []
+
+    @property
+    def strings(self):
+        if not self._strings:
+            self._strings = load_json.load_directory("bot/replies")
+            self._strings = load_json.replace_placeholders(self.strings)
+        return self._strings
 
     def get_channel(self, channel_id):
         return ChannelMock(channel_id)
+
+
+REFEREE_ROLE_ID = 234789
+STREAMER_ROLE_ID = 890234
+COMMENTATOR_ROLE_ID = 345789
 
 
 class RoleMock(BaseMock):
@@ -170,9 +186,9 @@ USER_TAG = "User name#1234"
 class UserMock(BaseMock):
     DM_CHANNEL_ID = 324987
 
-    def __init__(self, user_id=USER_ID, user_name=USER_NAME, user_tag=USER_TAG):
+    def __init__(self, user_id=USER_ID, user_name=USER_NAME, user_tag=USER_TAG, roles=[]):
         self.id = user_id
-        self.roles = []
+        self.roles = roles
         self.display_name = user_name
         self.mention = user_name
         self.user_tag = user_tag
@@ -226,16 +242,15 @@ class MessageMock(BaseMock):
 
 
 class CtxMock(BaseMock):
-    def __init__(self, bot=BotMock(), author=UserMock(), guild=GuildMock(), cog=None):
+    def __init__(self, bot=BotMock(), author=UserMock(), guild=GuildMock(), command=CommandMock()):
         self.bot = bot
         self.author = author
         self.guild = guild
+        self.command = command
         self.message = MessageMock()
+        self.channel = ChannelMock()
 
-        cog_name = ""
-        if cog:
-            cog_name = cog.qualified_name
-        self.command = CommandMock(cog_name)
+        self.send = mock.AsyncMock()
 
 
 class EmojiMock(BaseMock):

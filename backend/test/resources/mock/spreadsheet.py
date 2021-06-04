@@ -30,6 +30,14 @@ class SpreadsheetMock(Spreadsheet):
     def get_from_id(spreadsheet_id):
         return SpreadsheetMock.retrieve_spreadsheet(spreadsheet_id)
 
+    def get_updated_values_with_ranges(self):
+        ranges_name, ranges_values = [], []
+        for worksheet in self.worksheets:
+            ranges, values = worksheet.get_updated_values_with_ranges()
+            ranges_name = [*ranges_name, *ranges]
+            ranges_values = [*ranges_values, *values]
+        return ranges_name, ranges_values
+
 
 class PlayersSpreadsheetSingleMock(PlayersSpreadsheet):
     def __init__(self, session=None, *args, **kwargs):

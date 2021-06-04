@@ -2,11 +2,12 @@
 All tests concerning the Tosurnament player module.
 """
 
+import datetime
+import dateparser
 import pytest
 
 from discord.ext import commands
 
-from bot.modules import module as base
 from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament import player as player_module
 from common.databases.tournament import Tournament
@@ -23,7 +24,7 @@ from common import exceptions
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.player"
-MATCH_ID = "A1"
+MATCH_ID = "T1-1"
 MATCH_IDS = ["sdf", "gre", "ewr", "egfr", "fdew"]
 
 
@@ -38,13 +39,13 @@ def init_mocks():
 
 
 def init_reschedule_single_mocks(mocker):
-    cog, mock_bot, _, bracket = init_mocks()
+    cog, mock_bot, tournament, bracket = init_mocks()
     mock_bot.session.add_stub(PlayersSpreadsheetSingleMock(id=1))
     bracket.players_spreadsheet_id = 1
     mock_bot.session.add_stub(SchedulesSpreadsheetSingleMock(id=1))
     bracket.schedules_spreadsheet_id = 1
     mocker.patch("common.databases.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
-    return cog, mock_bot
+    return cog, mock_bot, tournament, bracket
 
 
 @pytest.mark.asyncio
@@ -53,7 +54,7 @@ async def test_register_registration_ended():
     cog, mock_bot, tournament, bracket = init_mocks()
     date = tournament.parse_date("1 week ago")
     bracket.registration_end_date = date.strftime(tosurnament.DATABASE_DATE_FORMAT)
-    with pytest.raises(base.RegistrationEnded):
+    with pytest.raises(exceptions.RegistrationEnded):
         await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
 
 
@@ -93,7 +94,7 @@ def test_reschedule_is_skip_deadline_validation_false():
 @pytest.mark.asyncio
 async def test_reschedule_invalid_match_id(mocker):
     """Reschedules a match, but the match id is invalid."""
-    cog, mock_bot = init_reschedule_single_mocks(mocker)
+    cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     with pytest.raises(exceptions.InvalidMatchId):
         await cog.reschedule(cog, tosurnament_mock.CtxMock(mock_bot), "A1", date="3 days")
 
@@ -101,7 +102,7 @@ async def test_reschedule_invalid_match_id(mocker):
 @pytest.mark.asyncio
 async def test_reschedule_invalid_match(mocker):
     """Reschedules a match, but the author is not a participant in the match."""
-    cog, mock_bot = init_reschedule_single_mocks(mocker)
+    cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     with pytest.raises(exceptions.InvalidMatch):
         await cog.reschedule(cog, tosurnament_mock.CtxMock(mock_bot), "T1-1", date="3 days")
 
@@ -109,7 +110,7 @@ async def test_reschedule_invalid_match(mocker):
 @pytest.mark.asyncio
 async def test_reschedule(mocker):
     """Reschedules a match, but the author is not a participant in the match."""
-    cog, mock_bot = init_reschedule_single_mocks(mocker)
+    cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     opponent_discord_id = 3249805
     mock_bot.session.add_stub(User(verified=True, osu_name_hash="team2", discord_id_snowflake=opponent_discord_id))
     match_id = "T1-1"
@@ -128,3 +129,230 @@ async def test_reschedule(mocker):
             )
         )
     )
+
+
+def test_validate_new_date_time_is_in_the_past():
+    """Date is in the past."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=1)
+    with pytest.raises(exceptions.TimeInThePast):
+        cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, None, new_date, False)
+
+
+def test_validate_new_date_invalid_minute():
+    """Date has invalid minutes (not % 15 == 0)."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = dateparser.parse(
+        "1 day 22:13", settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True}
+    )
+    with pytest.raises(exceptions.InvalidMinute):
+        cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, None, new_date, False)
+
+
+def test_validate_new_date():
+    """Date is valid."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = dateparser.parse(
+        "3 days 22:15", settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True}
+    )
+    result_date = cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, None, new_date, False)
+    assert new_date == result_date
+
+
+def test_validate_new_date_midnight():
+    """Date is valid but at midnight, so one minute is removed."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = dateparser.parse(
+        "3 days 00:00", settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True}
+    )
+    result_date = cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, None, new_date, False)
+    assert (new_date - datetime.timedelta(minutes=1)) == result_date
+
+
+def test_validate_new_date_impossible_reschedule(mocker):
+    """Date is valid, but the current time is passed the deadline to reschedule."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = dateparser.parse(
+        "1 hour",
+        settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    new_date = new_date.replace(minute=0)
+    cog.get_referees_mentions_of_match = mocker.Mock()
+    with pytest.raises(exceptions.ImpossibleReschedule):
+        cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, mocker.Mock(), new_date, False)
+
+
+def test_validate_new_date_skip_deadline_validation():
+    """Date is valid, the current time is passed the deadline to reschedule, but the deadline validation is skipped."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    new_date = dateparser.parse(
+        "1 hour",
+        settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    new_date = new_date.replace(minute=0)
+    result_date = cog.validate_new_date(tosurnament_mock.CtxMock(mock_bot), tournament, None, new_date, True)
+    assert new_date == result_date
+
+
+def test_validate_reschedule_feasibility_same_date(mocker):
+    """The new date is the same than the previous date."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    new_date = dateparser.parse(
+        "1 hour",
+        settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    new_date = new_date.replace(second=0).replace(microsecond=0)
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = new_date.strftime("%d %B %H:%M")
+    with pytest.raises(exceptions.SameDate):
+        cog.validate_reschedule_feasibility(
+            tosurnament_mock.CtxMock(mock_bot), tournament, schedules_spreadsheet, match_info, new_date, True
+        )
+
+
+def test_validate_reschedule_feasibility_no_previous_date(mocker):
+    """There is no previous date."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = ""
+    previous_date = cog.validate_reschedule_feasibility(
+        tosurnament_mock.CtxMock(mock_bot), tournament, schedules_spreadsheet, match_info, None, False
+    )
+    assert not previous_date
+
+
+def test_validate_reschedule_feasibility_past_deadline(mocker):
+    """Previous date of the match to reschedule is past the reschedule deadline."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    previous_date = dateparser.parse(
+        "1 hour",
+        settings={"PREFER_DATES_FROM": "past", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = previous_date.strftime("%d %B %H:%M")
+    cog.get_referees_mentions_of_match = mocker.Mock()
+    with pytest.raises(exceptions.PastDeadline):
+        cog.validate_reschedule_feasibility(
+            tosurnament_mock.CtxMock(mock_bot),
+            tournament,
+            schedules_spreadsheet,
+            match_info,
+            datetime.datetime.utcnow(),
+            False,
+        )
+
+
+def test_validate_reschedule_feasibility_past_deadline_end(mocker):
+    """Previous date of the match to reschedule is past the reschedule deadline."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    tournament.reschedule_deadline_end = "monday 12:00"
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    previous_date = dateparser.parse(
+        "monday 01:00",
+        settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    new_date = dateparser.parse(
+        "monday 13:00",
+        settings={
+            "PREFER_DATES_FROM": "future",
+            "TIMEZONE": "+00:00",
+            "RETURN_AS_TIMEZONE_AWARE": True,
+            "RELATIVE_BASE": previous_date,
+        },
+    )
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = previous_date.strftime("%d %B %H:%M")
+    with pytest.raises(exceptions.PastDeadlineEnd):
+        cog.validate_reschedule_feasibility(
+            tosurnament_mock.CtxMock(mock_bot),
+            tournament,
+            schedules_spreadsheet,
+            match_info,
+            new_date,
+            False,
+        )
+
+
+def test_validate_reschedule_feasibility_invalid_date_or_format(mocker):
+    """The date in the match_info is invalid."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = "abc"
+    with pytest.raises(exceptions.InvalidDateOrFormat):
+        cog.validate_reschedule_feasibility(
+            tosurnament_mock.CtxMock(mock_bot),
+            tournament,
+            schedules_spreadsheet,
+            match_info,
+            datetime.datetime.utcnow(),
+            False,
+        )
+
+
+def test_validate_reschedule_feasibility(mocker):
+    """Validates the reschedule feasibility and returns the previous date."""
+    cog, mock_bot, tournament, _ = init_mocks()
+    tournament.reschedule_deadline_end = "monday 12:00"
+    schedules_spreadsheet = SchedulesSpreadsheetSingleMock(id=1)
+    previous_date = dateparser.parse(
+        "monday 01:00",
+        settings={"PREFER_DATES_FROM": "future", "TIMEZONE": "+00:00", "RETURN_AS_TIMEZONE_AWARE": True},
+    )
+    previous_date = previous_date.replace(second=0).replace(microsecond=0)
+    new_date = dateparser.parse(
+        "monday 11:00",
+        settings={
+            "PREFER_DATES_FROM": "future",
+            "TIMEZONE": "+00:00",
+            "RETURN_AS_TIMEZONE_AWARE": True,
+            "RELATIVE_BASE": previous_date,
+        },
+    )
+    match_info = mocker.MagicMock()
+    match_info.get_datetime.return_value = previous_date.strftime("%d %B %H:%M")
+    result_date = cog.validate_reschedule_feasibility(
+        tosurnament_mock.CtxMock(mock_bot),
+        tournament,
+        schedules_spreadsheet,
+        match_info,
+        new_date,
+        False,
+    )
+    assert previous_date == result_date
+
+
+@pytest.mark.asyncio
+async def test_agree_to_reschedule(mocker):
+    """yolo"""
+    cog, mock_bot, tournament, bracket = init_reschedule_single_mocks(mocker)
+    new_date = datetime.datetime.utcnow()
+    reschedule_message = RescheduleMessage(
+        tournament_id=tournament.id,
+        bracket_id=bracket.id,
+        match_id=MATCH_ID,
+        new_date=new_date.strftime(tosurnament.DATABASE_DATE_FORMAT),
+        ally_user_id=tosurnament_mock.USER_ID,
+        opponent_user_id=tosurnament_mock.NOT_USER_ID,
+    )
+    await cog.agree_to_reschedule(tosurnament_mock.CtxMock(mock_bot), reschedule_message, tournament)
+    expected_replies = [
+        mocker.call(mocker.ANY, "accepted", tosurnament_mock.USER_NAME, MATCH_ID),
+        mocker.call(
+            mocker.ANY,
+            "staff_notification",
+            MATCH_ID,
+            "Team1",
+            "Team2",
+            "**No previous date**",
+            "**" + new_date.strftime(tosurnament.PRETTY_DATE_FORMAT) + "**",
+            "Referee",
+            "Streamer",
+            mocker.ANY,  # TODO: should be "Commentator 1 / Commentator 2", but set is not ordered
+            channel=tosurnament_mock.ChannelMock(),
+        ),
+    ]
+    assert cog.send_reply.call_args_list == expected_replies

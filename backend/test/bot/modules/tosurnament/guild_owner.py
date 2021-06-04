@@ -99,10 +99,11 @@ async def test_reaction_on_end_tournament_message_no_tournament():
     cog = tosurnament_mock.mock_cog(guild_owner.get_class(mock_bot))
 
     message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name)
     await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
         self=cog,
         ctx=tosurnament_mock.CtxMock(
-            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
+            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), command=mock_command
         ),
         emoji=tosurnament_mock.EmojiMock("✅"),
         end_tournament_message=message_obj,
@@ -119,10 +120,11 @@ async def test_reaction_on_end_tournament_message_refuse(mocker):
     mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.GUILD_ID))
     mock_bot.session.add_stub(Bracket())
     message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name)
     await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
         self=cog,
         ctx=tosurnament_mock.CtxMock(
-            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
+            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), command=mock_command
         ),
         emoji=tosurnament_mock.EmojiMock("❎"),
         end_tournament_message=message_obj,
@@ -158,10 +160,11 @@ async def test_reaction_on_end_tournament_message(mocker):
 
     message_obj = EndTournamentMessage(message_id=tosurnament_mock.MESSAGE_ID)
     mock_bot.session.add_stub(message_obj)
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name)
     await cog.reaction_on_end_tournament_message.__wrapped__.__wrapped__(
         self=cog,
         ctx=tosurnament_mock.CtxMock(
-            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), cog=cog
+            mock_bot, author=tosurnament_mock.UserMock(tosurnament_mock.GuildMock.OWNER_ID), command=mock_command
         ),
         emoji=tosurnament_mock.EmojiMock("✅"),
         end_tournament_message=message_obj,

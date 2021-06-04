@@ -225,12 +225,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
+        # TODO take date_format from tournament, not schedules_spreadsheet
         previous_date_string = match_info.get_datetime()
         if not previous_date_string:
             return None
-        previous_date = tournament.parse_date(
-            previous_date_string, date_formats=list(filter(None, [date_format + " %H:%M"]))
-        )
+        previous_date = tournament.parse_date(previous_date_string, date_formats=[date_format + " %H:%M"])
         if not previous_date:
             raise tosurnament.InvalidDateOrFormat()
         if not skip_deadline_validation:
@@ -241,13 +240,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
                 raise tosurnament.PastDeadline(reschedule_deadline_hours, referees_mentions, match_info.match_id.get())
             if tournament.reschedule_deadline_end:
-                try:
-                    deadline_end = tournament.parse_date(
-                        tournament.reschedule_deadline_end, prefer_dates_from="future", relative_base=previous_date
-                    )
-                except ValueError:
-                    # TODO: handle error
-                    return
+                deadline_end = tournament.parse_date(
+                    tournament.reschedule_deadline_end, prefer_dates_from="future", relative_base=previous_date
+                )
                 if new_date >= deadline_end:
                     raise tosurnament.PastDeadlineEnd()
         if previous_date == new_date:
@@ -263,9 +258,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             raise tosurnament.TimeInThePast()
         if new_date.minute % 15 != 0:
             raise tosurnament.InvalidMinute()
+        deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if new_date.hour == 0 and new_date.minute == 0:
             new_date = new_date - datetime.timedelta(minutes=1)
-        deadline = new_date - datetime.timedelta(hours=reschedule_deadline_hours)
         if now > deadline:
             referees_mentions = self.get_referees_mentions_of_match(ctx, match_info)
             raise tosurnament.ImpossibleReschedule(
@@ -368,7 +363,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         reschedule_message = RescheduleMessage(tournament_id=tournament.id, bracket_id=bracket.id)
 
         opponent_to_ping = opponent_team_captain
-        if players_spreadsheet and players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
+        if players_spreadsheet.range_team_name and tournament.reschedule_ping_team:
             opponent_team_role = tosurnament.get_role(ctx.guild.roles, None, opponent_team_name)
             if opponent_team_role:
                 opponent_to_ping = opponent_team_role
@@ -544,7 +539,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)
-        if referees_to_ping + streamers_to_ping + commentators_to_ping:
+        if referees_to_ping or streamers_to_ping or commentators_to_ping:
             if staff_channel:
                 to_channel = staff_channel
             else:
