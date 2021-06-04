@@ -7,6 +7,13 @@ You can check out [the tutorial](https://github.com/SpartanPlume/Tosurnament/wik
 
 You can also check [the commands](https://github.com/SpartanPlume/Tosurnament/wiki/Tosurnament-commands) directly if you are an experienced user.
 
+## How to add a new language / more traductions to Tosurnament ?
+
+First, you need to clone the repository. Then, in the folder `backend/bot/replies`, you will see multiple subfolders with `en.json` file in them. You need to copy this file in the same folder, rename it to the language code in the language you want to translate (`fr.json` for French for example). Now you only need to translate every entries, **but beware** of:
+- entries containing `$`, you must not modify the path name to another language (example: `$./no_staff_notification Some other text`, `$./no_staff_notification` must not be changed, but what is after should be changed)
+- entries containing `%`, you must not modify the number following them
+After you're done translating, just open a Pull Request in this repo and I will check it.
+
 ## How to host your own Tosurnament bot ?
 
 Prerequisite:
