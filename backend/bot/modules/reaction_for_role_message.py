@@ -39,7 +39,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         if reaction_for_role_message and reaction_for_role_message.setup_channel_id:
             await self.delete_setup_messages(reaction_for_role_message)
             self.bot.session.delete(reaction_for_role_message)
-        setup_message = await self.send_reply(ctx, "success", "None\n")
+        setup_message = await self.send_reply(ctx, "success", self.get_string(ctx, "none") + "\n")
         preview_message = await ctx.send(message_text)
         reaction_for_role_message = ReactionForRoleMessage(
             guild_id=ctx.guild.id,
@@ -85,7 +85,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         current_emoji_role_pairs = ""
         for emoji, role_id in zip(emojis, roles):
             role = ctx.guild.get_role(int(role_id))
-            role_name = "Unknown role"
+            role_name = self.get_string(ctx, "unknown_role")
             if role:
                 role_name = role.name
             current_emoji_role_pairs += emoji + " | " + role_name + "\n"

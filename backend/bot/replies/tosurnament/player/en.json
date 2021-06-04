@@ -18,13 +18,16 @@
     "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message.",
     "parameter": "<match_id> <datetime: MM/dd HH:mm>",
     "example_parameter": "12C 3 Apr 12h30",
-    "usage_information": "**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format."
+    "usage_information": "**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format.",
+    "no_admin_role": "Admins (please contact them)",
+    "no_previous_date": "**No previous date**"
   },
   "reaction_on_reschedule_message": {
     "accepted": ":white_check_mark: %1, your reschedule for the match %2 has been accepted.",
     "refused": ":x: %1, your reschedule for the match %2 has been refused.",
     "staff_notification": "$./no_staff_notification\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
-    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5."
+    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
+    "no_previous_date": "$../reschedule/no_previous_date"
   },
   "register": {
     "help": "Registers the player to the tournament",

@@ -407,23 +407,23 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             tmp_reply_string = ""
             if reply_string:
                 tmp_reply_string += "\n-------------------------------\n"
-            tmp_reply_string += "**Match " + match_info.match_id.get() + ":** "
+            tmp_reply_string += "**" + self.get_string(ctx, "match") + " " + match_info.match_id.get() + ":** "
             tmp_reply_string += (
                 escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
             )
             tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
             referees = list(filter(None, [cell for cell in match_info.referees]))
-            tmp_reply_string += "__Referee:__ "
+            tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
             if referees:
                 tmp_reply_string += "/".join(referees)
             else:
-                tmp_reply_string += "**None**"
+                tmp_reply_string += "**" + self.get_string(ctx, "none") + "**"
             streamers = list(filter(None, [cell for cell in match_info.streamers]))
             if streamers:
-                tmp_reply_string += "\n__Streamer:__ " + "/".join(streamers)
+                tmp_reply_string += "\n__" + self.get_string(ctx, "streamer") + ":__ " + "/".join(streamers)
             commentators = list(filter(None, [cell for cell in match_info.commentators]))
             if commentators:
-                tmp_reply_string += "\n__Commentator:__ " + "/".join(commentators)
+                tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
             if len(reply_string) + len(tmp_reply_string) >= 2000:
                 await ctx.send(reply_string)
                 reply_string = tmp_reply_string
@@ -582,7 +582,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if referee_role:
             referee = referee_role.mention
         else:
-            referee = "Referees"
+            referee = self.get_simple_string(guild, "referee")
         match_date_str = tosurnament.get_pretty_date(tournament, match_date)
         team1 = escape_markdown(match_info.team1.get())
         team2 = escape_markdown(match_info.team2.get())
@@ -891,7 +891,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     )
                     previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
                 else:
-                    previous_date_string = "**No previous date**"
+                    previous_date_string = self.get_string(ctx, "no_previous_date")
                 new_date = datetime.datetime.strptime(
                     staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT
                 )

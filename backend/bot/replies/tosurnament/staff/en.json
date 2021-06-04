@@ -113,8 +113,10 @@
     "edited": "$./common\n\n~~$./description~~\n\nThis match has been taken by %6."
   },
   "reaction_on_staff_reschedule_message": {
-    "staff_notification": "$../../player/reaction_on_reschedule_message/staff_notification",
-    "staff_notification_all_staff_removed": "$../../player/reaction_on_reschedule_message/no_staff_notification\n\nAll the staffs that had taken this match dropped it."
+    "staff_notification": "$./no_staff_notification\n\n__Referee:__ %6\n__Streamer:__ %7\n__Commentator:__ %8\n\nIf you cannot referee/stream/commentate at the new time, please add a :x: reaction to this message.",
+    "no_staff_notification": "The match %1 (%2 vs %3) has been rescheduled from %4 to %5.",
+    "staff_notification_all_staff_removed": "$./no_staff_notification\n\nAll the staffs that had taken this match dropped it.",
+    "no_previous_date": "**No previous date**"
   },
   "show_next_matches": {
     "help": "Shows a list of next matches (by default 5 next matches)",

@@ -5,7 +5,6 @@ import os
 import uuid
 import dateparser
 import discord
-from discord import channel
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.bracket import Bracket
@@ -58,7 +57,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             for i, bracket in enumerate(tournament.brackets):
                 brackets_string += str(i + 1) + ": `" + bracket.name + "`"
                 if bracket.id == tournament.current_bracket_id:
-                    brackets_string += " (current bracket)"
+                    brackets_string += " " + self.get_string(ctx, "current_bracket_indicator")
                 brackets_string += "\n"
             await self.send_reply(ctx, "default", brackets_string)
 

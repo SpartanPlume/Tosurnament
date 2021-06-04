@@ -277,7 +277,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if admin_role:
                 referees_mentions = admin_role.mention
             else:
-                referees_mentions = "Admins (please contact them)"
+                referees_mentions = self.get_string(ctx, "no_admin_role")
         return referees_mentions
 
     @tosurnament.retry_and_update_spreadsheet_pickle_on_exceptions(exceptions=[TeamNotFound, tosurnament.InvalidMatch])
@@ -379,7 +379,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
             reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
         else:
-            previous_date_string = "**No previous date**"
+            previous_date_string = self.get_string(ctx, "no_previous_date")
             reschedule_message.previous_date = ""
         new_date_string = tosurnament.get_pretty_date(tournament, new_date)
         reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
@@ -502,7 +502,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             )
             previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
         else:
-            previous_date_string = "**No previous date**"
+            previous_date_string = self.get_string(ctx, "no_previous_date")
         new_date = datetime.datetime.strptime(reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:

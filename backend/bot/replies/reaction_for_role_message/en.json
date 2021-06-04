@@ -13,7 +13,8 @@
     "error": "You need to use the `%0create_reaction_for_role_message` command before being able to use this one.",
     "emoji_duplicate": "This emoji is already used for the message.",
     "invalid_emoji": "`%1` is not a valid emoji.",
-    "emoji_not_found": "I am unable to find the emoji `%1`, is it available in this server ?"
+    "emoji_not_found": "I am unable to find the emoji `%1`, is it available in this server ?",
+    "unknown_role": "Unknown role"
   },
   "post_reaction_for_role_message": {
     "help": "",

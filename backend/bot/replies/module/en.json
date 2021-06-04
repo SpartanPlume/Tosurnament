@@ -16,5 +16,10 @@
   "not_verified": "Your account is not verified. Please run the `%0auth` command.",
   "osu_error": "Oops, an error has occured. Please try again later. If the problem persists, contact me on discord (`Spartan Plume#5172`).",
   "usage": "Usage",
-  "example": "Example"
+  "example": "Example",
+  "none": "None",
+  "match": "Match",
+  "referee": "Referee",
+  "streamer": "Streamer",
+  "Commentator": "Commentator"
 }

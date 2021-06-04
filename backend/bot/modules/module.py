@@ -136,6 +136,16 @@ class BaseModule(commands.Cog):
                 self.bot.error("Reply not found: " + ctx.command.cog_name + ": " + ctx.command.name + ": " + field_name)
         return ""
 
+    def get_simple_string(self, guild, field_name):
+        """Gets a simple string from strings.json file"""
+        reply = self.find_reply(guild, self.bot.strings, field_name, [], None)
+        if reply:
+            return reply
+        else:
+            if field_name not in ["parameter", "example_parameter"]:
+                self.bot.error("Simple string not found: " + field_name)
+        return ""
+
     async def send_message(self, channel, reply, *args):
         """Sends back a message/embed response."""
         content = None
