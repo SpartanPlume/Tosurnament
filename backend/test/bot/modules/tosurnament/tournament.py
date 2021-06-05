@@ -76,7 +76,9 @@ async def test_get_bracket(mocker):
     expected_output = "1: `" + BRACKET_NAME + "` (current bracket)\n"
     expected_output += "2: `" + BRACKET_NAME_2 + "`\n"
 
-    await cog.get_bracket(cog, tosurnament_mock.CtxMock(mock_bot))
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "get_bracket")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.get_bracket(cog, mock_ctx)
     cog.send_reply.assert_called_once_with(mocker.ANY, "default", expected_output)
 
 

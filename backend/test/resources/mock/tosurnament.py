@@ -141,6 +141,8 @@ class Matcher:
 
 class BaseMock:
     def __eq__(self, other):
+        if other == mock.ANY:
+            return True
         for key in vars(self).keys():
             if not key.startswith("_"):
                 if getattr(self, key) != getattr(other, key):
@@ -152,6 +154,7 @@ class BotMock(BaseMock):
     def __init__(self):
         self.session = SessionMock()
         self.command_prefix = ";"
+        self.loop = mock.MagicMock()
         self.tasks = []
         self._strings = []
 

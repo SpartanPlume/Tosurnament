@@ -327,7 +327,7 @@ def test_validate_reschedule_feasibility(mocker):
 
 @pytest.mark.asyncio
 async def test_agree_to_reschedule(mocker):
-    """yolo"""
+    """Agrees to a reschedule by reacting on the reschedule message"""
     cog, mock_bot, tournament, bracket = init_reschedule_single_mocks(mocker)
     new_date = datetime.datetime.utcnow()
     reschedule_message = RescheduleMessage(
@@ -338,7 +338,9 @@ async def test_agree_to_reschedule(mocker):
         ally_user_id=tosurnament_mock.USER_ID,
         opponent_user_id=tosurnament_mock.NOT_USER_ID,
     )
-    await cog.agree_to_reschedule(tosurnament_mock.CtxMock(mock_bot), reschedule_message, tournament)
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "reaction_on_reschedule_message")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.agree_to_reschedule(mock_ctx, reschedule_message, tournament)
     expected_replies = [
         mocker.call(mocker.ANY, "accepted", tosurnament_mock.USER_NAME, MATCH_ID),
         mocker.call(
