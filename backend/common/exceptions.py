@@ -261,10 +261,19 @@ class AlreadyInLobby(commands.CommandError):
 class LobbyNotFound(commands.CommandError):
     """Special exception in case someone tries to register to a lobby that does not exist."""
 
-    pass
+    def __init__(self, lobby_id):
+        super().__init__()
+        self.lobby_id = lobby_id
 
 
 class LobbyIsFull(commands.CommandError):
     """Special exception in case someone tries to register to a lobby that is full."""
 
     pass
+
+
+class InvalidTimezone(commands.CommandError):
+    """Special exception in case the timezone provided is invalid."""
+
+    def __init__(self, timezone):
+        self.timezone = timezone

@@ -64,19 +64,19 @@ class TeamInfo:
             is_captain=False,
         ):
             self.name = name
-            self.discord = discord if discord else Cell(-1, -1, "")
+            self.discord = discord if isinstance(discord, Cell) else Cell(-1, -1, "")
             self.discord.value_type = str
-            self.discord_id = discord_id if discord_id else Cell(-1, -1, 0)
+            self.discord_id = discord_id if isinstance(discord_id, Cell) else Cell(-1, -1, 0)
             self.discord_id.value_type = int
-            self.rank = rank if rank else Cell(-1, -1, "")
+            self.rank = rank if isinstance(rank, Cell) else Cell(-1, -1, "")
             self.rank.value_type = str
-            self.bws_rank = bws_rank if bws_rank else Cell(-1, -1, "")
+            self.bws_rank = bws_rank if isinstance(bws_rank, Cell) else Cell(-1, -1, "")
             self.bws_rank.value_type = str
-            self.osu_id = osu_id if osu_id else Cell(-1, -1, "")
+            self.osu_id = osu_id if isinstance(osu_id, Cell) else Cell(-1, -1, "")
             self.osu_id.value_type = str
-            self.pp = pp if pp else Cell(-1, -1, "")
+            self.pp = pp if isinstance(pp, Cell) else Cell(-1, -1, "")
             self.pp.value_type = str
-            self.country = country if country else Cell(-1, -1, "")
+            self.country = country if isinstance(country, Cell) else Cell(-1, -1, "")
             self.country.value_type = str
             self.is_captain = is_captain
 

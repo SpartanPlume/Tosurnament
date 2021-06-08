@@ -9,19 +9,12 @@ from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
 from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
-from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyInfo
+from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyIdNotFound, LobbyInfo
 from common.databases.messages.reschedule_message import RescheduleMessage
 from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
 from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.databases.allowed_reschedule import AllowedReschedule
 from common.api import osu
-
-
-class InvalidTimezone(commands.CommandError):
-    """Special exception in case the timezone provided is invalid."""
-
-    def __init__(self, timezone):
-        self.timezone = timezone
 
 
 class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
@@ -56,32 +49,29 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         players_spreadsheet = await bracket.get_players_spreadsheet()
         if not players_spreadsheet:
             raise tosurnament.NoSpreadsheet("players")
-        if players_spreadsheet.range_timezone:
-            if not timezone:
-                raise commands.MissingRequiredArgument(timezone)
-            if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])(:[0-5][0-9])?$", timezone, re.IGNORECASE):
-                raise InvalidTimezone(timezone)
-            timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
         if players_spreadsheet.range_team_name:
             await self.send_reply(ctx, "not_supported_yet")
             return
-        team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
+        if players_spreadsheet.range_timezone:
+            if not timezone:
+                raise commands.UserInputError()
+            if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])(:[0-5][0-9])?$", timezone, re.IGNORECASE):
+                raise tosurnament.InvalidTimezone(timezone)
+            timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
         osu_name = osu.get_from_string(osu_link)
         osu_user = osu.get_user(osu_name, m=tournament.game_mode)
         if not osu_user:
             raise tosurnament.UserNotFound(osu_name)
-        team_info.players.append(
-            TeamInfo.PlayerInfo(
-                osu_user.name,
-                str(ctx.author),
-                ctx.author.id,
-                str(osu_user.rank),
-                str(osu_user.rank),
-                str(osu_user.id),
-                str(int(float(osu_user.pp))),
-                str(osu_user.country),
-            )
-        )
+        team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
+        player_info = team_info.players[0]
+        player_info.name.set(osu_user.name)
+        player_info.discord.set(str(ctx.author))
+        player_info.discord_id.set(ctx.author.id)
+        player_info.rank.set(str(osu_user.rank))
+        player_info.bws_rank.set(str(osu_user.rank))
+        player_info.osu_id.set(str(osu_user.id))
+        player_info.pp.set(str(int(float(osu_user.pp))))
+        player_info.country.set(str(osu_user.country))
         team_info.timezone.set(timezone)
         self.add_update_spreadsheet_background_task(players_spreadsheet)
         roles_to_give = [tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")]
@@ -96,13 +86,43 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     @register.error
     async def register_handler(self, ctx, error):
         """Error handler of register function."""
-        if isinstance(error, InvalidTimezone):
+        if isinstance(error, tosurnament.InvalidTimezone):
             await self.send_reply(ctx, "invalid_timezone", error.timezone)
         elif isinstance(error, tosurnament.RegistrationEnded):
             await self.send_reply(ctx, "registration_ended")
 
+    def clear_team_from_other_lobbies(self, qualifiers_spreadsheet, lobby_id, team_name):
+        """Removes the team name from other lobbies if present."""
+        lobby_id_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+            qualifiers_spreadsheet.range_lobby_id
+        )
+        for lobby_id_cell in lobby_id_cells:
+            lobby_info = LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell, filled_only=False)
+            if lobby_info.lobby_id.casefold() != lobby_id.casefold():
+                for team_cell in lobby_info.teams:
+                    if team_name.casefold() == team_cell.casefold():
+                        team_cell.set("")
+                        return
+
+    def add_team_to_lobby(self, qualifiers_spreadsheet, lobby_id, team_name):
+        """Adds the team name to the lobby if found, not already in the lobby and the lobby is not full."""
+        try:
+            lobby_info = LobbyInfo.from_id(qualifiers_spreadsheet, lobby_id, filled_only=False)
+        except LobbyIdNotFound:
+            return False
+        first_empty_cell = None
+        for team_cell in lobby_info.teams:
+            if first_empty_cell is None and not team_cell:
+                first_empty_cell = team_cell
+            if team_name.casefold() == team_cell.casefold():
+                raise tosurnament.AlreadyInLobby()
+        if first_empty_cell is None:
+            raise tosurnament.LobbyIsFull()
+        first_empty_cell.set(team_name)
+        return True
+
     @commands.command(aliases=["rtl"])
-    async def register_to_lobby(self, ctx, *, lobby_id: str):  # TODO: improve, was in a rush =)
+    async def register_to_lobby(self, ctx, *, lobby_id: str):
         """Registers to a qualifier lobby."""
         tournament = self.get_tournament(ctx.guild.id)
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
@@ -110,49 +130,21 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             qualifiers_spreadsheet = await bracket.get_qualifiers_spreadsheet()
             if not qualifiers_spreadsheet:
                 continue
-            lobby_id_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-                qualifiers_spreadsheet.range_lobby_id
-            )
-            if players_spreadsheet := await bracket.get_players_spreadsheet():
+            players_spreadsheet = await bracket.get_players_spreadsheet()
+            if not players_spreadsheet:
+                raise tosurnament.NoSpreadsheet("players")
+            try:
                 team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
-                team_name = team_info.team_name.get()
-            else:
-                if not user.verified:
-                    continue
-                team_name = user.name
-            lobby_infos = []
-            for lobby_id_cell in lobby_id_cells:
-                lobby_infos.append(
-                    LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell, filled_only=False)
-                )
-            lobby_found = False
-            for lobby_info in lobby_infos:
-                if lobby_info.lobby_id.casefold() == lobby_id.casefold():
-                    first_empty_cell = None
-                    for team_cell in lobby_info.teams:
-                        if not first_empty_cell and not team_cell:
-                            first_empty_cell = team_cell
-                        if team_name.casefold() == team_cell.casefold():
-                            raise tosurnament.AlreadyInLobby()
-                    if not first_empty_cell:
-                        raise tosurnament.LobbyIsFull()
-                    first_empty_cell.set(team_name)
-                    lobby_found = True
-                    break
-            if not lobby_found:
+            except TeamNotFound:
                 continue
-            for lobby_info in lobby_infos:
-                for team_cell in lobby_info.teams:
-                    if (
-                        lobby_info.lobby_id.casefold() != lobby_id.casefold()
-                        and team_name.casefold() == team_cell.casefold()
-                    ):
-                        team_cell.set("")
-                        break
+            team_name = team_info.team_name.get()
+            if not self.add_team_to_lobby(qualifiers_spreadsheet, lobby_id, team_name):
+                continue
+            self.clear_team_from_other_lobbies(qualifiers_spreadsheet, lobby_id, team_name)
             self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
             await self.send_reply(ctx, "success", lobby_id)
             return
-        raise tosurnament.LobbyNotFound()
+        raise tosurnament.LobbyNotFound(lobby_id)
 
     @register_to_lobby.error
     async def register_to_lobby_handler(self, ctx, error):

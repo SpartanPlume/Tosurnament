@@ -18,7 +18,7 @@ MODULE_TO_TEST = "bot.modules.tosurnament.bracket.qualifiers_spreadsheet"
 
 def init_mocks():
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, qualifiers_spreadsheet_id=1))
     qualifiers_spreadsheet = QualifiersSpreadsheet(id=1)
     mock_bot.session.add_stub(qualifiers_spreadsheet)
@@ -30,7 +30,7 @@ def init_mocks():
 async def test_set_qualifiers_spreadsheet(mocker):
     """Sets bracket spreadsheets."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1))
     cog = tosurnament_mock.mock_cog(module_to_test.get_class(mock_bot))
     mock_ctx = tosurnament_mock.CtxMock(mock_bot)
@@ -60,7 +60,7 @@ async def test_set_qualifiers_spreadsheet(mocker):
 async def test_set_qualifiers_spreadsheet_values(mocker):
     """Sets qualifiers spreadsheet values."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, qualifiers_spreadsheet_id=1))
     cog = tosurnament_mock.mock_cog(module_to_test.get_class(mock_bot))
     mock_ctx = tosurnament_mock.CtxMock(mock_bot)

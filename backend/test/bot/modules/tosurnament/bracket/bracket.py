@@ -15,17 +15,22 @@ from common.databases.tournament import Tournament
 from common.databases.bracket import Bracket
 from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.user import User
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.bracket.bracket"
 BRACKET1_NAME = "Bracket 1"
-PARTICIPANT_LIST = ["Participant 1", "ParTiCIpanT 2", "participant 3", "PARTICIPANT 4", tosurnament_mock.USER_NAME]
+PARTICIPANT_LIST = [
+    "Participant 1",
+    "ParTiCIpanT 2",
+    "participant 3",
+    "PARTICIPANT 4",
+    tosurnament_mock.DEFAULT_USER_STUB.osu_name,
+]
 
 
 def init_mocks(n_of_brackets=1):
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     for i in range(n_of_brackets):
         bracket = Bracket(id=i + 1, tournament_id=1, name=("Bracket " + str(i + 1)))
         mock_bot.session.add_stub(bracket)
@@ -149,7 +154,7 @@ async def test_set_registration_end_date(mocker):
 
 
 def test_is_player_in_challonge_not_a_participant(mocker):
-    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    """ "Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
     cog = tosurnament_mock.mock_cog(bracket_module.get_class(tosurnament_mock.BotMock()))
     member_name = "abvdsrjgfkh"
     member = tosurnament_mock.UserMock(user_name=member_name)
@@ -159,20 +164,19 @@ def test_is_player_in_challonge_not_a_participant(mocker):
 
 
 def test_is_player_in_challonge_no_teams_info(mocker):
-    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    """ "Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
     mock_bot = tosurnament_mock.BotMock()
     cog = tosurnament_mock.mock_cog(bracket_module.get_class(mock_bot))
-    member_name = tosurnament_mock.USER_NAME
-    mock_bot.session.add_stub(User(discord_id=tosurnament_mock.USER_ID, osu_name=member_name, verified=True))
-    member = tosurnament_mock.UserMock(user_name=member_name)
-    team_info, player_name = cog.is_player_in_challonge(member, [], PARTICIPANT_LIST)
+    mock_bot.session.add_stub(tosurnament_mock.DEFAULT_USER_STUB)
+    team_info, player_name = cog.is_player_in_challonge(tosurnament_mock.DEFAULT_USER_MOCK, [], PARTICIPANT_LIST)
     assert not team_info
-    assert player_name == member_name
+    assert player_name == tosurnament_mock.DEFAULT_USER_STUB.osu_name
 
 
 @pytest.mark.asyncio
 async def test_is_player_in_challonge(mocker):
-    """"Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    """Gets the team_info (if applicable) and the player name of the player if they are a running participant."""
+    # TODO
     cog = tosurnament_mock.mock_cog(bracket_module.get_class(tosurnament_mock.BotMock()))
     member = tosurnament_mock.UserMock()
     teams_info = []
@@ -227,7 +231,7 @@ async def test_copy_bracket_wrong_index(mocker):
 async def test_copy_bracket(mocker):
     """Copies a bracket settings to another one."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, current_bracket_id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
 
     mock_bot.session.add_stub(
         Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1, players_spreadsheet_id=1, post_result_channel_id=1)

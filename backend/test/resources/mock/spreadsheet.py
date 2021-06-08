@@ -2,6 +2,7 @@ import json
 from common.api.spreadsheet import Spreadsheet, Worksheet, Cell
 from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
 
 SPREADSHEET_RESOURCES_DIR = "test/resources/spreadsheets/"
 
@@ -45,6 +46,12 @@ class PlayersSpreadsheetSingleMock(PlayersSpreadsheet):
         self.spreadsheet_id = "players/single"
         self.range_team = "A2:A"
         self.range_discord = "B2:B"
+        self.range_discord_id = "C2:C"
+        self.range_rank = "D2:D"
+        self.range_osu_id = "E2:E"
+        self.range_pp = "F2:F"
+        self.range_country = "G2:G"
+        self.range_timezone = "H2:H"
 
 
 class PlayersSpreadsheetTeamsMock(PlayersSpreadsheet):
@@ -77,3 +84,14 @@ class SchedulesSpreadsheetTeamsMock(SchedulesSpreadsheetSingleMock):
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self.spreadsheet_id = "schedules/teams"
+
+
+class QualifiersSpreadsheetSingleMock(QualifiersSpreadsheet):
+    def __init__(self, session=None, *args, **kwargs):
+        super().__init__(session, *args, **kwargs)
+        self.spreadsheet_id = "qualifiers/single"
+        self.range_lobby_id = "A2:A"
+        self.range_teams = "B2:I"
+        self.range_referee = "J2:J"
+        self.range_date = "K2:K"
+        self.range_time = "L2:L"

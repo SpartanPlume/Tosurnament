@@ -27,13 +27,9 @@ day_name_strategy = strategies.sampled_from(
 day_time_strategy = strategies.times()
 
 
-def setup_module(module):
-    tosurnament_mock.setup_spreadsheets()
-
-
 def init_mocks():
     mock_bot = tosurnament_mock.BotMock()
-    tournament = Tournament(guild_id=tosurnament_mock.GUILD_ID)
+    tournament = Tournament(guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id)
     mock_bot.session.add_stub(tournament)
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
     return cog, mock_bot, tournament
@@ -43,7 +39,7 @@ def init_mocks():
 async def test_set_tournament_values(mocker):
     """Puts the input values into the corresponding tournament."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
 
     await cog.set_tournament_values(tosurnament_mock.CtxMock(mock_bot), {"current_bracket_id": 1})
@@ -55,7 +51,7 @@ async def test_set_tournament_values(mocker):
 async def test_create_bracket(mocker):
     """Creates a bracket."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, current_bracket_id=2))
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, current_bracket_id=2))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
 
     await cog.create_bracket(cog, tosurnament_mock.CtxMock(mock_bot), name=BRACKET_NAME)
@@ -68,7 +64,7 @@ async def test_create_bracket(mocker):
 async def test_get_bracket(mocker):
     """Shows all brackets."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, current_bracket_id=1))
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, current_bracket_id=1))
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, name=BRACKET_NAME))
     mock_bot.session.add_stub(Bracket(id=2, tournament_id=1, name=BRACKET_NAME_2))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
@@ -86,7 +82,7 @@ async def test_get_bracket(mocker):
 async def test_get_a_bracket(mocker):
     """Sets a bracket as current bracket."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, current_bracket_id=1))
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, current_bracket_id=1))
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, name=BRACKET_NAME))
     mock_bot.session.add_stub(Bracket(id=2, tournament_id=1, name=BRACKET_NAME_2))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
@@ -100,7 +96,7 @@ async def test_get_a_bracket(mocker):
 async def test_get_a_bracket_that_does_not_exist():
     """Sets a bracket as current bracket but it does not exist."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID))
+    mock_bot.session.add_stub(Tournament(id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
     mock_bot.session.add_stub(Bracket(tournament_id=1, name=BRACKET_NAME))
     mock_bot.session.add_stub(Bracket(tournament_id=1, name=BRACKET_NAME_2))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
@@ -211,7 +207,7 @@ async def test_set_team_captain_role():
 async def test_set_team_captain_role_remove():
     """Removes the team captain role."""
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.GUILD_ID, team_captain_role_id=1))
+    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, team_captain_role_id=1))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
 
     await cog.set_team_captain_role(cog, tosurnament_mock.CtxMock(mock_bot))
@@ -356,7 +352,7 @@ async def test_set_reschedule_deadline_end_empty():
     """Unsets a reschedule deadline end."""
     mock_bot = tosurnament_mock.BotMock()
     mock_bot.session.add_stub(
-        Tournament(id=1, guild_id=tosurnament_mock.GUILD_ID, reschedule_deadline_end="tuesday 12:00")
+        Tournament(id=1, guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, reschedule_deadline_end="tuesday 12:00")
     )
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
 
@@ -387,7 +383,7 @@ async def test_set_notify_no_staff_reschedule():
 @pytest.mark.asyncio
 async def test_set_utc_empty():
     mock_bot = tosurnament_mock.BotMock()
-    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.GUILD_ID, utc="+02:00"))
+    mock_bot.session.add_stub(Tournament(guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id, utc="+02:00"))
     cog = tosurnament_mock.mock_cog(tournament_module.get_class(mock_bot))
     await cog.set_utc(cog, tosurnament_mock.CtxMock(mock_bot), utc="")
     mock_bot.session.update.assert_called_once_with(tosurnament_mock.Matcher(Tournament(utc="")))
@@ -479,7 +475,7 @@ async def test_add_match_to_ignore(mocker):
     mock_bot.session.add_stub(
         Tournament(
             id=1,
-            guild_id=tosurnament_mock.GUILD_ID,
+            guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id,
             matches_to_ignore=MATCH_ID_3,
             current_bracket_id=1,
         )
@@ -526,10 +522,10 @@ async def test_remove_match_to_ignore(mocker):
     mock_bot.session.add_stub(
         Tournament(
             id=1,
-            guild_id=tosurnament_mock.GUILD_ID,
+            guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id,
             matches_to_ignore=MATCH_ID_1 + "\n" + MATCH_ID_3,
             current_bracket_id=1,
-            staff_channel_id=tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID,
+            staff_channel_id=tosurnament_mock.STAFF_CHANNEL_MOCK.id,
         )
     )
     mock_bot.session.add_stub(Bracket(id=1, tournament_id=1, schedules_spreadsheet_id=1))
@@ -553,7 +549,7 @@ async def test_remove_match_to_ignore(mocker):
             "to_not_ignore",
             mocker.ANY,
             MATCH_ID_3,
-            channel=tosurnament_mock.ChannelMock(tosurnament_mock.ChannelMock.STAFF_CHANNEL_ID),
+            channel=tosurnament_mock.STAFF_CHANNEL_MOCK,
         ),
     ]
     assert cog.send_reply.call_args_list == expected_replies

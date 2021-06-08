@@ -20,6 +20,20 @@ class Cell:
             return super().__setattr__(name, str(value))
         return super().__setattr__(name, value)
 
+    def set(self, new_value):
+        self.value = new_value
+
+    def get(self):
+        if self.value_type == bool:
+            if self.value == "True":
+                return True
+            else:
+                return False
+        try:
+            return self.value_type(self.value)
+        except Exception:
+            return self.value
+
     def set_merge_range(self, x_merge_range, y_merge_range):
         """Sets the x_range and y_range of the merge containing this cell."""
         self.x_merge_range = x_merge_range
@@ -313,17 +327,3 @@ class Cell:
 
     def zfill(self, width):
         return self.value.zfill(width)
-
-    def set(self, new_value):
-        self.value = new_value
-
-    def get(self):
-        if self.value_type == bool:
-            if self.value == "True":
-                return True
-            else:
-                return False
-        try:
-            return self.value_type(self.value)
-        except Exception:
-            return self.value

@@ -76,7 +76,7 @@ class GuildCog(base.BaseModule, name="guild"):
         """Verifies the user."""
         try:
             self.get_verified_user(ctx.author.id)
-        except Exception as e:
+        except (base.UserNotLinked, base.UserNotVerified) as e:
             dm_channel = await ctx.author.create_dm()
             await self.on_cog_command_error(ctx, e, channel=dm_channel)
             return
