@@ -1,0 +1,30 @@
+{
+    "set_admin_role": {
+      "help": "所有擁有 <role> 身分組的使用者都可以使用機器人的管理員指令。",
+      "parameter": "<role>",
+      "example_parameter": "Admin",
+      "success": "管理身分組已被設為 `%1`。"
+    },
+    "set_verified_role": {
+      "help": "所有擁有 <role> 身分組的使用者都將被視為已認證。換言之他們的osu!帳號已與Discord帳號連結。",
+      "parameter": "<role>",
+      "example_parameter": "Verified",
+      "success": "認證身分組已被設為 `%1`。"
+    },
+    "set_language": {
+      "help": "設定機器人需要在此伺服器中使用的語言。",
+      "parameter": "[<language>]",
+      "example_parameter": "en",
+      "invalid_language": "指定的語言不存在，或是它尚不可用。如果你想要此語言被啟用，那麼請造訪 https://github.com/SpartanPlume/Tosurnament。",
+      "default": "支援語言清單: `%1`",
+      "success": "語言已被設為 `%1`。"
+    },
+    "setup_verification_channel": {
+      "help": "設定一個頻道讓使用者可以了解驗證方法並驗證。",
+      "parameter": "<channel>",
+      "example_parameter": "#verify",
+      "success": "",
+      "setup": "你好! 你需要在此機器人 (Tosurnament) 上進行驗證來完整存取此伺服器的功能。 驗證方法非常簡單，只要密語此機器人以下指令:  `%0link <osu_name>`，並將 `<osu_name>` 替換成你的 osu!使用者名稱即可。\n\n舉例: 如果你的使用者名稱是`Spartan Plume`，只需傳送 `%0link Spartan Plume` 至機器人的密語。\n\n當你完成連結，請在此訊息中加上 :bullhop: 反應。"
+    }
+  }
+  

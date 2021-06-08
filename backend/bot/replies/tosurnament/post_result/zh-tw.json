@@ -1,0 +1,50 @@
+{
+    "post_result": {
+      "help": "張貼比賽結果。",
+      "parameter": "<match_id>",
+      "example_parameter": "12C",
+      "step1": "場次ID: **%1**\n第1/8步: **Best Of ?**\n\n使用 `%0answer <number>`。例如: `%0answer 3`",
+      "step2": "場次ID: **%1**\n第2/8步: **Team 1 Roll點?**\n\n使用 `%0answer <number>`。例如: `%0answer 3`",
+      "step3": "場次ID: **%1**\n第3/8步: **Team 2 Roll點?**\n\n使用 `%0answer <number>`。例如: `%0answer 3`",
+      "step4": "場次ID: **%1**\n第4/8步: **熱手數量?**\n\n使用 `%0answer <number>`。例如: `%0answer 3`",
+      "step5": "場次ID: **%1**\n第5/8步: **mp link?**\n\n使用 `%0answer <mp_link(s)>`。例如: `%0answer https://osu.ppy.sh/community/matches/123` (如果超過一個，請使用空白分隔或是換行。)",
+      "step6": "場次ID: **%1**\n第6/8步: **Team 1的Ban圖?**\n\n使用 `%0answer <map>`。例如: `%0answer NM1`",
+      "step7": "場次ID: **%1**\n第7/8步: **Team 2的Ban圖?**\n\n使用 `%0answer <map>`。例如: `%0answer NM1`",
+      "step8": "場次ID: **%1**\n第8/8步: **驗證訊息**\n\n__Best Of:__ %2\n__Roll Team 1:__ %3\n__Roll Team 2:__ %4\n__Warmups:__ %5\n__Mp links:__ %6\n__Bans Team 1:__ %7\n__Bans Team 2:__ %8\n__Bans TB Team 1:__ %9\n__Bans TB Team 2:__ %10\n\n如果資訊皆正確，使用 `%0answer post`。如果有錯誤只需要點擊你需要修改的步驟即可。",
+      "preview": "__預覽:__\n\n%1",
+      "default": "_ _\n**Match ID: %match_id**\n%_team1_with_score_ - %_team2_with_score_%_mp_link_%_bans_%_tb_bans_",
+      "default_team1_with_score": "%team1 | %score_team1",
+      "default_team2_with_score": "%score_team2 | %team2",
+      "default_mp_link": "\n%mp_link",
+      "default_rolls": "\n%team1 roll: %roll_team1\n%team2 roll: %roll_team2\n",
+      "default_bans": "\n\n__**Bans:**__\n**%team1:** %bans_team1\n**%team2:** %bans_team2",
+      "default_tb_bans": "\n\n__**TB Bans:**__\n**%team1:** %tb_bans_team1\n**%team2:** %tb_bans_team2",
+      "cancel": "你已取消張貼比賽結果。",
+      "success": "",
+      "invalid_match_id": "場次ID: %1 未被找到。",
+      "invalid_mp_link": "無效的mp link(s)",
+      "match_not_found": "**Challonge 錯誤:** 場次 %1 (%2 vs %3) 未被找到。或許分數已被記錄?",
+      "group_stage_complete": "小組賽階段已結束。你已經可以結束Challonge中的小組賽階段，並使用 `%0clear_player_role` 指令來移除所有已被淘汰的隊伍(玩家)。"
+    },
+    "post_result_with_scores": {
+      "help": "Post the result of a match",
+      "parameter": "<match_id> <score_team1> <score_team2>",
+      "example_parameter": "12C 5 3"
+    },
+    "post_result_one_liner": {
+      "help": "Post the result of a match",
+      "parameter": "<match_id> <score_team1> <score_team2> <best_of> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
+      "example_parameter": "12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2"
+    },
+    "post_result_one_liner_with_rolls": {
+      "help": "Post the result of a match",
+      "parameter": "<match_id> <score_team1> <score_team2> <best_of> <roll_team1> <roll_team2> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
+      "example_parameter": "12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    },
+    "test_post_result_message": {
+      "help": "Shows the post result message with default values",
+      "parameter": "[<nb_bans>] [<nb_tb_bans>]",
+      "example_parameter": "2 3"
+    }
+  }
+  

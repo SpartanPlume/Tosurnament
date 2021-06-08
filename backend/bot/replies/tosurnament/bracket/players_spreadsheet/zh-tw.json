@@ -1,0 +1,81 @@
+{
+    "set_players_spreadsheet": {
+      "help": "綁定玩家表單以接受玩家報名。",
+      "parameter": "<spreadsheet_id> [<sheet_name>]",
+      "example_parameter": "1234567890ABCDEF",
+      "success": "玩家表單已被綁定為 `%1`。"
+    },
+    "set_players_spreadsheet_sheet_name": {
+      "help": "綁定玩家表單的工作表名稱",
+      "parameter": "<sheet_name>",
+      "example_parameter": "My Sheet Name",
+      "success": "玩家表單工作表已被綁定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_team_name": {
+      "help": "在玩家表單中設定隊伍名稱的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "隊伍名稱的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_team": {
+      "help": "在玩家表單中設定隊伍中玩家列表的儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "各隊伍玩家列表的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_discord": {
+      "help": "在玩家表單中設定玩家Discord名稱的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家Discord名稱的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_discord_id": {
+      "help": "在玩家表單中設定玩家Discord id的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家Discord id的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_rank": {
+      "help": "在玩家表單中設定玩家排名的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家排名的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_bws_rank": {
+      "help": "在玩家表單中設定玩家bws排名的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家bws排名的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_osu_id": {
+      "help": "在玩家表單中設定玩家osu!id的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家osu!id的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_pp": {
+      "help": "在玩家表單中設定玩家pp的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家pp的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_country": {
+      "help": "在玩家表單中設定玩家國籍的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家國籍的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_range_timezone": {
+      "help": "在玩家表單中設定玩家時區的儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "玩家時區的儲存欄已被設定為 `%1`。"
+    },
+    "set_players_spreadsheet_max_range_for_teams": {
+      "help": "在玩家表單中設定隊伍最大人數。",
+      "parameter": "[<range_length>]",
+      "example_parameter": "8",
+      "success": "隊伍最大人數已被設定為 `%1`。"
+    }
+  }
+  

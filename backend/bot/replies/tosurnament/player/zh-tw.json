@@ -1,0 +1,51 @@
+{
+    "get_player_role": {
+      "help": "取得玩家身分組以及相關的身分組。",
+      "success": "已給予身分組。"
+    },
+    "reschedule": {
+      "help": "提出一個更改賽程的請求。",
+      "invalid_minute": "無效的時間(分鐘)。你僅可以提出以下任一 `00, 15, 30, 45`分鐘的更改賽程請求。例: `17:15` 有效， `17:16` 無效。",
+      "invalid_match": "你無法對你未參與的比賽提出更改賽程的請求。\n\n__請確認以下提示:__\n- 場次ID是否正確?\n- 如果你的帳號未被連結，請確認你是否更改了discord tag。如果更改了，你可以聯繫管理員或使用 `;link` 指令。\n- 如果你的帳號已連結，這表示你已更改你的osu!使用者名稱，請使用 `;name_change` 指令。",
+      "not_team_captain": "你不是隊長，因此無法使用此指令。",
+      "contact_referee": "\n\n%2，如果你同意此更改賽程的請求，請使用 `%0anr %3`。",
+      "past_now": "很抱歉，欲更改的時間已過去。",
+      "impossible_reschedule": "很抱歉，由於離**請求的時間**還有不到 %1 小時，因此期限已過。 $./contact_referee",
+      "past_deadline": "很抱歉，由於離**目前的比賽時間**還有不到 %1 小時，因此期限已過。 $./contact_referee",
+      "past_deadline_end": "很抱歉，請求的時間已超過最後期限。你可以試著聯繫管理員。",
+      "removed_from_match": "%1，你已**成功在場次 %2 中被移除**。",
+      "same_date": "你無法將你的比賽更改至已被安排的時間。",
+      "success": "Hi %1! %2 希望將場次 %3 從 %4 更改至 %5。如果你同意，請對此訊息添加 :thumbsup: 反應。如果你拒絕，請對此訊息添加 :thumbsdown: 反應。",
+      "parameter": "<match_id> <datetime: MM/dd HH:mm>",
+      "example_parameter": "12C 3 Apr 12h30",
+      "usage_information": "**Note:** You can put the the date any way you want, but if does not work like wanted, please use the `MM/dd HH:mm` format.",
+      "no_admin_role": "管理員 (請聯繫他們)",
+      "no_previous_date": "**沒有之前的時間。**"
+    },
+    "reaction_on_reschedule_message": {
+      "accepted": ":white_check_mark: %1，你對場次 %2 的更改賽程請求已被同意。",
+      "refused": ":x: %1，你對場次 %2 的更改賽程請求已被拒絕。",
+      "staff_notification": "$./no_staff_notification\n\n__裁判:__ %6\n__直播:__ %7\n__賽評:__ %8\n\n如果你無法在新的時間擔任裁判/直播/賽評，請對此訊息添加 :x: 反應。",
+      "no_staff_notification": "場次 %1 (%2 vs %3) 已從 %4 被更改至 %5。",
+      "no_previous_date": "$../reschedule/no_previous_date"
+    },
+    "register": {
+        "help": "以玩家的身分報名。",
+        "parameter": "<osu profile link/name/id> <timezone>",
+        "example_parameter": "\"Spartan Plume\" UTC+1",
+        "success": "你已成功報名。",
+        "invalid_timezone": "`%1` 為無效的時區。",
+        "not_supported_yet": "此指令目前不支援團體比賽以及有複數組別的比賽。",
+        "registration_ended": "此比賽的報名階段已結束。"
+      },
+      "register_to_lobby": {
+        "help": "報名預選賽場次。",
+        "parameter": "<lobby_id>",
+        "example_parameter": "Q1",
+        "success": "你已成功報名預選賽場次 `%1` 。",
+        "already_in_lobby": "你已經在你指定的場次了。",
+        "lobby_not_found": "此場次不存在。",
+        "lobby_is_full": "此場次已滿。"
+    }
+}
+  

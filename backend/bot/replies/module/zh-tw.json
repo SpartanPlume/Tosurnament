@@ -1,0 +1,26 @@
+{
+    "not_on_a_server": "此指令只可在伺服器中執行。",
+    "disabled_command": "此指令已被禁用。",
+    "change_nickname_forbidden": "無法更改你的暱稱。可能是你擁有比機器人更高權限的身分組或是機器人沒有 `管理暱稱` 權限。請聯繫管理員。",
+    "change_role_forbidden": "無法更新你的身分組。機器人沒有 `管理身分組` 權限。請聯繫管理員。",
+    "restricted_dm": "無法私訊你以進行認證流程，請暫時允許伺服器成員傳送私訊給你。",
+    "lack_permission": "機器人似乎缺少某些權限以執行指令。這極有可能是機器人無法傳送訊息至該頻道。如果你不是管理員則請聯繫管理員。",
+    "unknown_error": "發生未知錯誤。請於Discord聯繫我: (`Spartan Plume#5172`)。",
+    "not_guild_owner": "你需要是此伺服器的擁有者來使用此指令。",
+    "no_rights": "你沒有權限使用此指令。",
+    "invalid_role_name": "很抱歉， `%1` 在Discord上為無效的身分組名稱. 請聯繫管理員。",
+    "role_does_not_exist": "`%1` 身分組不存在。請要求管理員創建此身分組來使用此指令。",
+    "not_required_role": "你需要擁有 `%1` 身分組來使用此指令。",
+    "user_not_found": "使用者 `%1` 不存在。",
+    "not_linked": "你尚未連結你的帳號。請使用 `%0link $auth/link/parameter` 指令。",
+    "not_verified": "你的帳號尚未驗證。請使用 `%0auth` 指令。",
+    "osu_error": "發生錯誤，請稍後再使用一次。如果此問題持續發生，請於Discord連繫我: (`Spartan Plume#5172`)。",
+    "usage": "用法",
+    "example": "例",
+    "none": "None",
+    "match": "場次",
+    "referee": "裁判",
+    "streamer": "直播",
+    "Commentator": "賽評"
+  }
+  

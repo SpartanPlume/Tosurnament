@@ -1,0 +1,202 @@
+{
+    "create_bracket": {
+      "help": "建立一個組別。",
+      "parameter": "<name>",
+      "example_parameter": "10k-20k",
+      "success": "Bracket created with the name `%1`."
+    },
+    "get_bracket": {
+      "default": "所有組別清單:\n%1\n使用 `%0get_bracket $./parameter` 以更改當前組別。",
+      "help": "獲得組別。",
+      "parameter": "<index>",
+      "example_parameter": "2",
+      "success": "目前組別已更改為 `%1`。",
+      "current_bracket_indicator": "(current_bracket)"
+    },
+    "set_tournament_name": {
+      "help": "設定比賽名稱。",
+      "parameter": "<name>",
+      "example_parameter": "Name",
+      "success": "比賽名稱已被設為 `%1`。"
+    },
+    "set_tournament_acronym": {
+      "help": "設定比賽縮寫。",
+      "parameter": "<acronym>",
+      "example_parameter": "ACR",
+      "success": "比賽縮寫已被設為 `%1`。"
+    },
+    "set_staff_channel": {
+      "help": "設定工作人員頻道以標記工作人員。",
+      "parameter": "<channel>",
+      "example_parameter": "#ping_spam",
+      "success": "工作人員頻道已被設為 `%1`。"
+    },
+    "set_match_notification_channel": {
+      "help": "設定比賽通知頻道。",
+      "parameter": "<channel>",
+      "example_parameter": "#ping_spam",
+      "success": "比賽通知頻道已被設為 `%1`。"
+    },
+    "set_player_role": {
+      "help": "設定 <role> 為 `玩家` 身分組。",
+      "parameter": "<role>",
+      "example_parameter": "Player",
+      "success": "玩家身分組已被設為 `%1`。"
+    },
+    "set_team_captain_role": {
+      "help": "設定 <role> 為 `隊長` 身分組。",
+      "parameter": "<role>",
+      "example_parameter": "Team Captain",
+      "success": "隊長身分組已被設為 `%1`。"
+    },
+    "set_referee_role": {
+      "help": "設定 <role> 為 `裁判` 身分組。",
+      "parameter": "<role>",
+      "example_parameter": "Referee",
+      "success": "裁判身分組已被設為 `%1`。"
+    },
+    "set_streamer_role": {
+      "help": "設定 <role> 為 `直播` 身分組。",
+      "parameter": "<role>",
+      "example_parameter": "Streamer",
+      "success": "直播身分組已被設為 `%1`。"
+    },
+    "set_commentator_role": {
+      "help": "設定 <role> 為 `賽評` 身分組。",
+      "parameter": "<role>",
+      "example_parameter": "Commentator",
+      "success": "賽評身分組已被設為 `%1`。"
+    },
+    "set_ping_team": {
+      "help": "設定隊伍/隊長是否會在提出更改賽程時被標記。",
+      "parameter": "<bool>",
+      "example_parameter": "True",
+      "success": "隊伍標記設定已被設為 `%1`。"
+    },
+    "set_post_result_message": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message set to\n```\n%1\n```"
+    },
+    "set_post_result_message_team1_with_score": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_team1_with_score_` set to\n```\n%1\n```"
+    },
+    "set_post_result_message_team2_with_score": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_team2_with_score_` set to\n```\n%1\n```"
+    },
+    "set_post_result_message_mp_link": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_mp_link_` set to\n```\n%1\n```"
+    },
+    "set_post_result_message_rolls": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_rolls_` set to\n```\n%1\n```"
+    },
+    "set_post_result_message_bans": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_bans_` set to\n```\n%1\n```"
+    },
+    "set_post_result_message_tb_bans": {
+      "help": "Sets the post_result message",
+      "parameter": "<message>",
+      "example_parameter": "Anything (see link below)",
+      "usage_info": "For more details, please check here: https://github.com/SpartanPlume/Tosurnament/wiki/set_post_result_message",
+      "success": "Post result message `_tb_bans_` set to\n```\n%1\n```"
+    },
+    "set_registration_background_update": {
+      "help": "設定是否應該在後台更新註冊資訊。",
+      "parameter": "<boolean>",
+      "example_parameter": "True",
+      "success": "註冊資訊後台更新已被設為 `%1`。"
+    },
+    "set_reschedule_deadline_hours_before_current_time": {
+      "help": "設定在當前比賽時間的幾小時內即無法更改賽程。",
+      "parameter": "<hours>",
+      "example_parameter": "24",
+      "success": "已設為在當前比賽的 `%1` 小時內即無法更改賽程。"
+    },
+    "set_reschedule_deadline_hours_before_new_time": {
+      "help": "設定在欲更改時間的幾小時內即無法更改賽程。",
+      "parameter": "<hours>",
+      "example_parameter": "24",
+      "success": "已設為在欲更改時間的 `%1` 小時內即無法更改賽程。"
+    },
+    "set_reschedule_deadline_end": {
+      "help": "設定更改賽程的最後期限。",
+      "parameter": "[<day name + hour>]",
+      "example_parameter": "tuesday 00:00",
+      "success": "最後期限已設為 `%1`。"
+    },
+    "set_notify_no_staff_reschedule": {
+      "help": "設定是否通知工作人員尚未被接取的已更改場次。",
+      "parameter": "<boolean>",
+      "example_parameter": "False",
+      "success": "是否通知工作人員已設為 `%1`。"
+    },
+    "add_match_to_ignore": {
+      "help": "添加場次至列表中以忽略其他指令。",
+      "parameter": "[<match_id(s)>]",
+      "example_parameter": "C2 B3",
+      "success": "__已忽略場次:__ %1",
+      "not_found": "場次未找到: %1",
+      "to_ignore": "%1，場次 **%2** 已被忽略。",
+      "to_not_ignore": "%1，場次 **%2** 已不再被忽略。"
+    },
+    "remove_match_to_ignore": {
+      "help": "移除列表中已被忽略的場次。",
+      "parameter": "$../add_match_to_ignore/parameter",
+      "example_parameter": "C2 B3",
+      "success": "$../add_match_to_ignore/success",
+      "not_found": "$../add_match_to_ignore/not_found",
+      "to_ignore": "$../add_match_to_ignore/to_ignore",
+      "to_not_ignore": "$../add_match_to_ignore/to_not_ignore"
+    },
+    "set_utc": {
+      "help": "設定UTC時區。",
+      "parameter": "<tz_info>",
+      "example_parameter": "+02:00",
+      "success": "UTC時區已被設為 `%1`。"
+    },
+    "set_registration_phase": {
+      "help": "設定比賽是否在報名階段。",
+      "parameter": "<boolean>",
+      "example_parameter": "True",
+      "success": "報名階段已被設為 `%1`。"
+    },
+    "set_game_mode": {
+      "help": "設定比賽的遊戲模式(std, mania...)以從api獲取資訊。",
+      "parameter": "<game_mode>",
+      "example_parameter": "1",
+      "default": "可使用的遊戲模式:\n`0`: std\n`1`: taiko\n`2`: ctb\n`3`: mania",
+      "success": "遊戲模式已被設為 `%1`。"
+    },
+    "sync_spreadsheet": {
+      "help": "將本地的表單副本與線上表單同步。",
+      "success": "表單同步成功。"
+    },
+    "save_tournament_settings": {
+      "help": "保存比賽設定，並給予相應的代碼。",
+      "success": "比賽設定已儲存，載入代碼: `%1`。",
+      "os_error": "此比賽樣本無法被新增或是刪除。"
+    }
+  }
+  

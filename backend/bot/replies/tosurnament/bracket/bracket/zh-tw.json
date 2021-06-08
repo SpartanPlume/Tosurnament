@@ -1,0 +1,63 @@
+{
+    "set_bracket_name": {
+      "help": "修改當前組別的名稱。",
+      "parameter": "<name>",
+      "example_parameter": "10k-20k",
+      "success": "組別名稱已被設為 `%1`。"
+    },
+    "set_bracket_role": {
+      "help": "當玩家已驗證完成並且在組別裡時為其新增此身分組。",
+      "parameter": "<role>",
+      "example_parameter": "1k-10k",
+      "success": "組別身分組已被設為 `%1`。"
+    },
+    "set_current_bracket_round": {
+      "help": "設定當前組別的階段。",
+      "parameter": "<current_round>",
+      "example_parameter": "RO64",
+      "success": "已設定此組別的階段為 `%1`。"
+    },
+    "set_post_result_channel": {
+      "help": "設定發送比賽結果的頻道。",
+      "parameter": "<channel>",
+      "example_parameter": "#match_results",
+      "success": "比賽結果頻道已被設為 `%1`。"
+    },
+    "set_challonge": {
+      "help": "設定challonge",
+      "parameter": "<tournament_url>",
+      "example_parameter": "http://challonge.com/testandroid",
+      "success": "Challonge已被設為 `%1`。"
+    },
+    "set_registration_end": {
+      "help": "設定報名截止日期。",
+      "parameter": "<date>",
+      "example_parameter": "11 Apr 00:00 UTC",
+      "success": "報名截止日期已被設為 `%1`。"
+    },
+    "clear_player_role": {
+      "help": "移除未在challonge中顯示的玩家的身分組。",
+      "success": "__Bracket:__ **%1**\n\n__已被移除身分組的玩家:__ %2\n__保持身分組的玩家:__ %3%4",
+      "players_not_found": "\n\n__未找到玩家列表:__\n%1",
+      "users_role_not_removed": "\n\n__由於系統錯誤而仍保持身分組的玩家:__\n%1",
+      "default": "所有組別列表:\n%1\n使用 `%0clear_player_role $./parameter` 以清除特定組別的玩家身分組。",
+      "parameter": "<index> [<remove_player_role>]",
+      "example_parameter": "1 False"
+    },
+    "give_player_role": {
+      "help": "給予未在challonge中顯示的玩家的身分組。",
+      "success": "__組別:__ **%1**\n\n__已被新增身分組的玩家:__ %2\n__未找到玩家:__ %3%4",
+      "players_not_found": "\n\n__未找到玩家列表:__\n%1",
+      "users_role_not_added": "\n\n__由於系統錯誤而未獲得身分組的玩家:__\n%1",
+      "default": "所有組別列表:\n%1\n使用 `%0give_player_role $./parameter` 以給予特定組別的玩家身分組。",
+      "parameter": "<index>",
+      "example_parameter": "1"
+    },
+    "copy_bracket": {
+      "help": "複製此組別的設定至其他組別。",
+      "parameter": "<index_from> <index_to>",
+      "example_parameter": "1 2",
+      "success": "成功將 `%1` 組別的設定複製至 `%2` 組別。"
+    }
+  }
+  

@@ -1,0 +1,128 @@
+{
+    "create_qualifiers_results_message": {
+      "help": "建立一個預選賽結果訊息。",
+      "parameter": "<channel> [<status>]",
+      "example_parameter": "#qualifiers_results 已結束",
+      "not_supported_yet": "預選賽結果訊息目前並不支援複數組別的比賽。",
+      "embed": {
+        "embed": {
+          "title": "%1 預選賽 %2",
+          "thumbnail": {
+            "url": "%7"
+          },
+          "fields": [
+            {
+              "name": "Top 10 Leaderboard",
+              "value": "%3"
+            },
+            {
+              "name": "預選賽結果",
+              "value": ":first_place: 1st Place: **%4**\n:thumbsup: Average Score: %5\n:scream: Cut Off: %6"
+            }
+          ]
+        }
+      }
+    },
+    "allow_next_reschedule": {
+      "help": "允許特定場次可以在不受任何限制的情況下被更改賽程。",
+      "parameter": "<match_id> [<allowed_hours>]",
+      "example_parameter": "C2",
+      "success": "場次 `%1` 已被允許在限期之外更改一次賽程 (如果該請求成功)。在接下來的 `%2` 小時內。\n\n%3 / %4，你們可以更改此場次的時間。",
+      "not_referee_of_match": "你不是此場次的裁判，因此無法同意此更改請求。"
+    },
+    "take_match": {
+      "help": "在相應場次，其所有的職位欄位中填入工作人員的ID (僅適用於他們擁有的身分組)。",
+      "parameter": "<match_id(s)>",
+      "example_parameter": "1A 2A 2B",
+      "taken_match_ids": "作為 __%1__, %2 **已成功接取** 場次: ",
+      "not_taken_match_ids": "作為 __%1__, %2, 這些場次 **已被他人接取**: ",
+      "invalid_match_ids": "這些場次並不存在: ",
+      "not_staff": "你沒有任何工作人員身分組 (裁判, 直播...)，所以你無法使用此指令。"
+    },
+    "take_match_as_referee": {
+      "help": "在相應場次的裁判欄位中填入該工作人員的ID。",
+      "parameter": "$../take_match/parameter",
+      "example_parameter": "$../take_match/example_parameter",
+      "taken_match_ids": "$../take_match/taken_match_ids",
+      "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
+    },
+    "take_match_as_streamer": {
+      "help": "在相應場次的直播欄位中填入該工作人員的ID。",
+      "usage": "用法: `%0take_match_as_streamer $../take_match/parameter`\n\n例: `%0take_match_as_streamer 1A 2A 2B`",
+      "taken_match_ids": "$../take_match/taken_match_ids",
+      "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
+    },
+    "take_match_as_commentator": {
+      "help": "在相應場次的賽評欄位中填入該工作人員的ID。",
+      "usage": "用法: `%0take_match_as_commentator $../take_match/parameter`\n\n例: `%0take_match_as_commentator 1A 2A 2B`",
+      "taken_match_ids": "$../take_match/taken_match_ids",
+      "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
+    },
+    "drop_match": {
+      "help": "在相應場次移除所有該工作人員的職位 (僅適用於他們擁有的身分組)。",
+      "taken_match_ids": "As a __%1__, %2 **succesfully dropped** the matches: ",
+      "not_taken_match_ids": "As a __%1__, %2 **wasn't on** the matches: ",
+      "invalid_match_ids": "$../take_match/invalid_match_ids",
+      "not_staff": "$../take_match/not_staff",
+      "usage": "用法: `%0drop_match $../take_match/parameter`\n\n例: `%0drop_match 1A 2A 2B`"
+    },
+    "drop_match_as_referee": {
+      "help": "在相應場次的裁判欄位中移除該工作人員的ID。",
+      "usage": "用法: `%0drop_match_as_referee $../take_match/parameter`\n\n例: `%0drop_match_as_referee 1A 2A 2B`",
+      "taken_match_ids": "$../drop_match/taken_match_ids",
+      "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+    },
+    "drop_match_as_streamer": {
+      "help": "在相應場次的直播欄位中移除該工作人員的ID。",
+      "usage": "用法: `%0drop_match_as_streamer $../take_match/parameter`\n\n例: `%0drop_match_as_streamer 1A 2A 2B`",
+      "taken_match_ids": "$../drop_match/taken_match_ids",
+      "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+    },
+    "drop_match_as_commentator": {
+      "help": "在相應場次的賽評欄位中移除該工作人員的ID。",
+      "usage": "用法: `%0drop_match_as_commentator $../take_match/parameter`\n\n例: `%0drop_match_as_commentator 1A 2A 2B`",
+      "taken_match_ids": "$../drop_match/taken_match_ids",
+      "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+    },
+    "qualifier_match_notification": {
+      "common_begin": "_ _\n**__預選賽場次 %1__\n\n%2**\n\n__裁判:__ ",
+      "common_end": "\n\n此房間即將在 %4 分鐘後開始。",
+      "notification": "$./common_begin%3$./common_end",
+      "notification_no_referee": "$./common_begin**無裁判** (%3，如果你想要接取此場次，請使用 :muscle: 反應。)$./common_end",
+      "notification_no_referre_no_role": "$./common_begin**無裁判** (並且沒有任何裁判身分組。)$./common_end",
+      "edited": "$./common_begin%5$./common_end\n\n*註: 已不需要 %3 。*"
+    },
+    "player_match_notification": {
+      "common_begin": "_ _\n**__場次 %1__\n%2 vs %3**\n\n__裁判:__ ",
+      "common_end": "\n\n此比賽即將在 %5 分鐘後開始。",
+      "notification": "$./common_begin%4$./common_end",
+      "notification_no_referee": "$./common_begin**無裁判** (%4，如果你想要接取此場次，請使用 :muscle: 反應。)$./common_end",
+      "notification_no_referre_no_role": "$./common_begin**無裁判** (並且沒有任何裁判身分組。)$./common_end",
+      "edited": "$./common_begin%6$./common_end\n\n*註: 已不需要 %4 。*"
+    },
+    "referee_match_notification": {
+      "common": "_ _\n**__場次 %1__**\n%5\n%2 vs %3",
+      "description": "**%4，此場次即將在 \\6小時內開始且沒有任何裁判。**\n如果你想要接取此場次，請使用 :muscle: 反應。",
+      "notification": "$./common\n\n$./description",
+      "edited": "$./common\n\n~~$./description~~\n\n此場次已被 %6 接取。"
+    },
+    "reaction_on_staff_reschedule_message": {
+      "staff_notification": "$./no_staff_notification\n\n__裁判:__ %6\n__直播:__ %7\n__賽評:__ %8\n\n如果你沒有辦法在新時間擔任裁判/直播/賽評，請對此訊息新增 :x: 反應。",
+      "no_staff_notification": "場次 %1 (%2 vs %3) 已從 %4 被更改至 %5 。",
+      "staff_notification_all_staff_removed": "$./no_staff_notification\n\n所有接取此場次的工作人員都已取消。",
+      "no_previous_date": "**無先前時間。**"
+    },
+    "show_next_matches": {
+      "help": "列出接下來會進行的比賽清單 (默認為5場)",
+      "parameter": "[<n_match_to_show> = 5] [<where_has_no_referee> = False]",
+      "no_match_without_referee": "接下來沒有尚未被裁判接取的場次。",
+      "no_match": "接下來已無任何場次。"
+    }
+  }
+  
