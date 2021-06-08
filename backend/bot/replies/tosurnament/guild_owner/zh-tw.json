@@ -1,0 +1,18 @@
+{
+    "create_tournament": {
+      "help": "建立一個比賽。",
+      "parameter": "<比賽縮寫> <比賽名稱> [<組別名稱>]",
+      "example_parameter": "TN \"Tournament Name\" \"The Bracket Name\"",
+      "success": "比賽已被建立，並且縮寫為: `%1`, 比賽名稱為: `%2`, 組別名稱為: `%3`。",
+      "tournament_already_created": "此伺服器已經有進行中的比賽。如果你想新建一個，請使用指令 `%0end_tournament` 來結束當前的比賽。 你也可以使用 `%0create_bracket <bracket_name>` 對當前進行中的比賽新建一個組別。"
+    },
+    "end_tournament": {
+      "help": "結束一個比賽。",
+      "are_you_sure": "你確定你想要結束這個比賽?如果是，請對 **此訊息** 添加 :white_check_mark: 反應。如果想取消，則添加 :negative_squared_cross_mark: 反應。"
+    },
+    "reaction_on_end_tournament_message": {
+      "success": "比賽已被取消，已可重新建立比賽。",
+      "refused": "結束比賽請求已被拒絕。"
+    }
+  }
+  

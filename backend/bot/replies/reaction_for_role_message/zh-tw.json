@@ -1,0 +1,31 @@
+{
+    "create_reaction_for_role_message": {
+      "help": "創建一個身分組反應訊息以讓使用者透過傳送反應獲得特定身份組。",
+      "parameter": "<channel> <text>",
+      "example_parameter": "#channel 透過添加 :emoji: 反應於此訊息以獲得特定身分組。",
+      "success": "已可使用 `%0add_emoji_role_pair $../add_emoji_role_pair/parameter`。 當對訊息有所反應時會新增反應。它將會新增與該反應相關的身分組。你可以確認以下的預覽。\n\n若要發送訊息，請使用 `%0post_reaction_for_role_message`。\n\n若要取消，請使用 `%0cancel_reaction_for_role_message_creation`。\n\n__Current emoji/role pairs:__\n%1\n__Preview:__"
+    },
+    "add_emoji_role_pair": {
+      "help": "",
+      "parameter": "<emoji> <role>",
+      "example_parameter": ":emoji: Role",
+      "success": "$../create_reaction_for_role_message/success",
+      "error": "你必須在允許使用此指令之前先使用 `%0create_reaction_for_role_message` 指令。",
+      "emoji_duplicate": "此表情符號已被使用在此訊息上。",
+      "invalid_emoji": "`%1` 為無效的表情符號。",
+      "emoji_not_found": "無法找到此表情符號 `%1`，請確認它是否已在此伺服器中啟用。",
+      "unknown_role": "未知的身分組。"
+    },
+    "post_reaction_for_role_message": {
+      "help": "",
+      "error": "$../add_emoji_role_pair/error",
+      "channel_error": "指定的頻道似乎不存在。請創建一個新的身分組反應訊息",
+      "no_emoji": "你必須至少設定一個表情符號與身分組的配對以傳送訊息。"
+    },
+    "cancel_reaction_for_role_message_creation": {
+      "help": "",
+      "success": "新增的身分組反應訊息已被取消。",
+      "error": "$../add_emoji_role_pair/error"
+    }
+  }
+  

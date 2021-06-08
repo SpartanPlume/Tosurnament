@@ -1,0 +1,94 @@
+{
+    "set_schedules_spreadsheet": {
+      "help": "綁定賽程表單以同意玩家更改賽程。",
+      "parameter": "<spreadsheet_id> [<sheet_name>]",
+      "example_parameter": "1234567890ABCDEF",
+      "success": "賽程表單已被綁定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_sheet_name": {
+      "help": "綁定賽程表單的工作表名稱",
+      "parameter": "<sheet_name>",
+      "example_parameter": "My Sheet Name",
+      "success": "賽程表單的工作表已被綁定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_date_format": {
+      "help": "設定將被使用在日期範圍中的日期格式。",
+      "parameter": "<date_format>",
+      "example_parameter": "%d %B",
+      "usage_info": "此格式必須使用對應的字符串，例如 `01 April`。\n\n如果需要知道更多可被使用的字符，請至 https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes 確認。",
+      "success": "賽程表單的日期格式已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_staff_is_range": {
+      "help": "設定賽程表單中的工作人員儲存格是否為範圍。\n\n舉例來說，當你設定為 `True, G2:G` 時。一個儲存格中只會有一位工作人員。 `False, G2:G` 則允許一個儲存格中有複數位工作人員。 `False G2:H` 則允許有兩個工作欄為工作人員的儲存格(G, H)。\n\n如果你仍不清楚如何使用，使用預設設定即可。",
+      "parameter": "<staff_is_range>",
+      "example_parameter": "True",
+      "success": "賽程表單的工作人員儲存格設定已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_match_id": {
+      "help": "設定賽程表單中的場次ID儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "比賽表單中的場次ID儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_team1": {
+      "help": "設定賽程表單中的第一隊(玩家)儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的第一隊(玩家)儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_team2": {
+      "help": "設定賽程表單中的第二隊(玩家)儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的第二隊(玩家)儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_score_team1": {
+      "help": "設定賽程表單中的第一隊(玩家)的分數儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的第一隊(玩家)的分數儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_score_team2": {
+      "help": "設定賽程表單中的第二隊(玩家)的分數儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的第二隊(玩家)的分數儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_date": {
+      "help": "設定賽程表單中的開始日期儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的開始日期儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_time": {
+      "help": "設定賽程表單中的開始時間儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的開始時間儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_referee": {
+      "help": "設定賽程表單中的裁判儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的裁判儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_streamer": {
+      "help": "設定賽程表單中的直播儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的直播儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_commentator": {
+      "help": "設定賽程表單中的賽評儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的賽評儲存欄已被設定為 `%1`。"
+    },
+    "set_schedules_spreadsheet_range_mp_links": {
+      "help": "設定賽程表單中的mp link儲存欄",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "賽程表單中的mp link儲存欄已被設定為 `%1`。"
+    }
+  }
+  

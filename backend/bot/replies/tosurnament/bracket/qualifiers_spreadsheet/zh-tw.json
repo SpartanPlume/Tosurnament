@@ -1,0 +1,45 @@
+{
+    "set_qualifiers_spreadsheet": {
+      "help": "綁定預選賽表單。",
+      "parameter": "<spreadsheet_id> [<sheet_name>]",
+      "example_parameter": "1234567890ABCDEF",
+      "success": "預選賽表單已被綁定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_sheet_name": {
+      "help": "綁定預選賽表單的名稱。",
+      "parameter": "<sheet_name>",
+      "example_parameter": "My Sheet Name",
+      "success": "預選賽表單的工作表已被綁定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_range_lobby_id": {
+      "help": "設定預選賽表單中的場次ID儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "預選賽表單中的場次ID儲存欄已被設定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_range_teams": {
+      "help": "設定預選賽表單中的隊伍儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "預選賽表單中的隊伍儲存欄已被設定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_range_referee": {
+      "help": "設定預選賽表單中的裁判儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "預選賽表單中的裁判儲存欄已被設定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_range_date": {
+      "help": "設定預選賽表單中的開始日期儲存欄。",
+      "parameter": "<range>",
+      "example_parameter": "D2:D",
+      "success": "預選賽表單中的開始日期儲存欄已被設定為 `%1`。"
+    },
+    "set_qualifiers_spreadsheet_range_time": {
+      "help": "設定預選賽表單中的開始時間儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "預選賽表單中的開始時間儲存欄已被設定為 `%1`。"
+    }
+  }
+  

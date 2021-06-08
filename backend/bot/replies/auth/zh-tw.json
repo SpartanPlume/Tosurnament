@@ -1,0 +1,16 @@
+{
+    "link": {
+      "help": "連結你的osu!帳號至你的Discord帳號。",
+      "parameter": "<osu_username>",
+      "example_parameter": "Spartan Plume",
+      "success": "請你設定以下的驗證碼來連接你的osu!帳號\n\n`%1`\n\n修改成你的osu!頁面中的[個人所在地]\n\n一旦完成，傳送 `%0auth` 指令。",
+      "already_verified": "你的帳號已被驗證。"
+    },
+    "auth": {
+      "help": "在你已連結你的osu!帳號並將[個人所在地]設定為認證碼後驗證你的帳號。",
+      "success": "恭喜，你的帳號已認證。",
+      "wrong_code": "你的個人所在地資料與認證碼不符，如果你忘記了你的認證碼或是在設定使用名稱時有錯誤，請重新使用 `%0link` 指令。",
+      "already_verified": "$../link/already_verified"
+    }
+  }
+  

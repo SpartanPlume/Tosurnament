@@ -1,0 +1,18 @@
+{
+    "name_change": {
+      "help": "將你的暱稱更改為osu!使用者名稱。",
+      "osu_get_user_error": "無法在osu!中獲取你的使用者名稱。如果你已在其他伺服器中使用過此指令則可以忽略此訊息。",
+      "success": "暱稱更改成功。",
+      "change_name_unneeded": "並未更改名稱。"
+    },
+    "get_matches": {
+      "help": "獲取已接取比賽的列表。",
+      "success": "**%1: %2** | 比賽列表",
+      "role_match": "作為 **__%1__**:\n"
+    },
+    "show_my_info": {
+      "help": "私訊機器人儲存的使用者資訊。",
+      "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5"
+    }
+  }
+  

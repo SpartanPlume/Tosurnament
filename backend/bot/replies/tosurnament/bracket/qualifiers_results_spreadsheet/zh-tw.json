@@ -1,0 +1,27 @@
+{
+    "set_qualifiers_results_spreadsheet": {
+      "help": "綁定預選賽結果的表單。",
+      "parameter": "<spreadsheet_id> [<sheet_name>]",
+      "example_parameter": "1234567890ABCDEF",
+      "success": "預選賽結果的表單已被綁定為 `%1`。"
+    },
+    "set_qualifiers_results_spreadsheet_sheet_name": {
+      "help": "綁定預選賽結果表單的工作表名稱",
+      "parameter": "<sheet_name>",
+      "example_parameter": "My Sheet Name",
+      "success": "預選賽結果表單的工作表已被綁定為 `%1`。"
+    },
+    "set_qualifiers_results_spreadsheet_range_osu_id": {
+      "help": "設定預選賽結果表單中的osu!id儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "預選賽結果表單中的osu!id儲存欄已被設定為 `%1`。"
+    },
+    "set_qualifiers_results_spreadsheet_range_score": {
+      "help": "設定預選賽結果表單中的分數儲存欄。",
+      "parameter": "[<range>]",
+      "example_parameter": "D2:D",
+      "success": "預選賽結果表單中的分數儲存欄已被設定為 `%1`。"
+    }
+  }
+  
