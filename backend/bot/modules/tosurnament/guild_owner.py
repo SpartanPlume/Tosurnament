@@ -51,15 +51,13 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         """Sends a message to react on, to be sure that the user wants to end the tournament."""
         self.get_tournament(ctx.guild.id)  # Check if there is a running tournament
         message = await self.send_reply(ctx, "are_you_sure")
-        end_tournament_message = EndTournamentMessage(message_id=message.id)
+        end_tournament_message = EndTournamentMessage(message_id=message.id, author_id=ctx.author.id)
         self.bot.session.add(end_tournament_message)
 
     @on_raw_reaction_with_context("add", valid_emojis=["✅", "❎"])
     @with_corresponding_message(EndTournamentMessage)
     async def reaction_on_end_tournament_message(self, ctx, emoji, end_tournament_message):
         """Ends a tournament."""
-        if ctx.author.id != ctx.guild.owner.id:
-            return
         try:
             tournament = self.get_tournament(ctx.guild.id)
         except tosurnament.NoTournament:

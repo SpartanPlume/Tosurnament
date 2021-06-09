@@ -156,9 +156,11 @@ class MessageMock(BaseMock):
     def __init__(self, message_id):
         self.id = message_id
         self.delete = mock.AsyncMock()
+        self.add_reaction = mock.AsyncMock()
 
 
 DEFAULT_MESSAGE_MOCK = MessageMock(3249076)
+ANOTHER_MESSAGE_MOCK = MessageMock(453458)
 SETUP_MESSAGE_MOCK = MessageMock(234098)
 PREVIEW_MESSAGE_MOCK = MessageMock(824598)
 
@@ -217,6 +219,8 @@ class RoleMock(BaseMock):
         self.id = role_id
         self.name = name
 
+
+VERIFIED_ROLE_MOCK = RoleMock("Verified", 2457890)
 
 USER_NAME = "User name"
 USER_TAG = "User name#1234"
@@ -367,14 +371,15 @@ class CtxMock(BaseMock):
         author=DEFAULT_USER_MOCK,
         guild=DEFAULT_GUILD_MOCK,
         channel=DEFAULT_CHANNEL_MOCK,
+        message=DEFAULT_MESSAGE_MOCK,
         command=CommandMock(),
     ):
         self.bot = bot
         self.author = author
         self.guild = guild
-        self.command = command
-        self.message = DEFAULT_MESSAGE_MOCK
         self.channel = channel
+        self.message = message
+        self.command = command
         self.send = mock.AsyncMock()
 
 
@@ -403,15 +408,8 @@ class OsuMock:
         self.get_from_string = mock.Mock(side_effect=(lambda name: name))
 
 
-async def send_reply_side_effect(*args, **kwargs):
-    return_mock = mock.Mock()
-    return_mock.id = 0
-    return_mock.add_reaction = mock.AsyncMock()
-    return return_mock
-
-
 def mock_cog(cog):
-    cog.send_reply = mock.MagicMock(side_effect=send_reply_side_effect)
+    cog.send_reply = mock.AsyncMock(return_value=ANOTHER_MESSAGE_MOCK)
     cog.on_cog_command_error = mock.AsyncMock()
     return cog
 
