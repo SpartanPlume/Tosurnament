@@ -4,6 +4,7 @@ import functools
 from discord.ext import commands
 from mysqldb_wrapper import Base, Id
 from common.api.spreadsheet import spreadsheet
+from mysqldb_wrapper import crypt
 
 
 class BaseMessage(Base):
@@ -45,7 +46,10 @@ def with_corresponding_message(message_cls):
             message_obj = session.query(message_cls).where(message_cls.message_id == ctx.message.id).first()
             if not message_obj:
                 return
-            if isinstance(message_obj, BaseAuthorLockMessage) and ctx.author.id != message_obj.author_id:
+            if (
+                isinstance(message_obj, BaseAuthorLockMessage)
+                and crypt.hash_value(ctx.author.id) != message_obj.author_id
+            ):
                 return
             if isinstance(message_obj, BaseLockMessage):
                 if message_obj.locked:
