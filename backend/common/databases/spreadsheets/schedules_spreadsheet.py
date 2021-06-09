@@ -1,5 +1,6 @@
 """Schedules spreadsheet table"""
 
+import logging
 from discord.ext import commands
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
@@ -91,6 +92,10 @@ class MatchInfo:
 
     def set_date(self, date_cell):
         self.date = date_cell
+        logger = logging.getLogger("schedules_spreadsheet")
+        logger.addHandler(logging.NullHandler())
+        logger.info(repr(self.date))
+        logger.info(vars(self.date))
         if self.date.value_type != str:
             raise DateIsNotString("date")
 
@@ -102,22 +107,22 @@ class MatchInfo:
     def set_referees(self, referee_cells):
         self.referees = referee_cells
         for referee_cell in self.referees:
-            referee_cell.value_type = str()
+            referee_cell.value_type = str
 
     def set_streamers(self, streamer_cells):
         self.streamers = streamer_cells
         for streamer_cell in self.streamers:
-            streamer_cell.value_type = str()
+            streamer_cell.value_type = str
 
     def set_commentators(self, commentator_cells):
         self.commentators = commentator_cells
         for commentator_cell in self.commentators:
-            commentator_cell.value_type = str()
+            commentator_cell.value_type = str
 
     def set_mp_links(self, mp_link_cells):
         self.mp_links = mp_link_cells
         for mp_link_cell in self.mp_links:
-            mp_link_cell.value_type = str()
+            mp_link_cell.value_type = str
 
     def get_datetime(self):
         return " ".join(filter(None, [self.date.get(), self.time.get()]))

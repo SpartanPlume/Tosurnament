@@ -67,6 +67,10 @@ class Client(commands.Bot):
         discord_logger.setLevel(logging.INFO)
         discord_logger.addHandler(self.handler)
 
+        schedules_spreadsheet_logger = logging.getLogger("schedules_spreadsheet")
+        schedules_spreadsheet_logger.setLevel(logging.DEBUG)
+        schedules_spreadsheet_logger.addHandler(self.handler)
+
     def init_ressources(self):
         """Initializes all ressources"""
         self.strings = load_json.load_directory("bot/replies")

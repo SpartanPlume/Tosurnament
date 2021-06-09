@@ -38,7 +38,7 @@ class BaseSpreadsheet(Base):
                 try:
                     await loop.run_in_executor(None, _get_spreadsheet_worksheet, self, force_sync)
                 except SpreadsheetHttpError as e:
-                    if retry and n_retry < 5:
+                    if e.code != 403 and retry and n_retry < 5:
                         n_retry += 1
                         await asyncio.sleep(10)
                         continue
@@ -64,11 +64,14 @@ def _get_spreadsheet_worksheet(self, force_sync):
                 if worksheet.name == self.sheet_name:
                     self._spreadsheet.main_worksheet_index = i
     except HttpError as e:
-        bracket = (
-            self._session.query(common.databases.bracket.Bracket)
-            .where(getattr(common.databases.bracket.Bracket, self._type + "_spreadsheet_id") == self.id)
-            .first()
-        )
+        try:
+            bracket = (
+                self._session.query(common.databases.bracket.Bracket)
+                .where(getattr(common.databases.bracket.Bracket, self._type + "_spreadsheet_id") == self.id)
+                .first()
+            )
+        except Exception:
+            bracket = None
         if bracket:
             raise SpreadsheetHttpError(e.code, e.operation, bracket.name, self._type, e.error)
         else:

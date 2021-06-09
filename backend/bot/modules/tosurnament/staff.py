@@ -703,6 +703,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     tosurnament.DATABASE_DATE_FORMAT
                 )
                 self.bot.session.update(tosurnament_guild)
+        except (tosurnament.SpreadsheetHttpError, tosurnament.DateIsNotString):
+            return
         except Exception as e:
             self.bot.info_exception(e)
         finally:
