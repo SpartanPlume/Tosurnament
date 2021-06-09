@@ -7,7 +7,7 @@ class Cell:
     def __init__(self, x, y, value):
         self.x = x
         self.y = y
-        self.value = str(value)
+        super().__setattr__("value", str(value))
         self.value_type = type(value)
         self.x_merge_range = [x]
         self.y_merge_range = [y]
@@ -144,7 +144,7 @@ class Cell:
         return char in self.value
 
     def __len__(self):
-        return len(self.value)
+        return len(str(self.value))
 
     def __getitem__(self, index):
         return self.value[index]

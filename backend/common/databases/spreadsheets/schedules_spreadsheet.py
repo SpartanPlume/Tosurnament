@@ -1,6 +1,5 @@
 """Schedules spreadsheet table"""
 
-import logging
 from discord.ext import commands
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
@@ -92,10 +91,6 @@ class MatchInfo:
 
     def set_date(self, date_cell):
         self.date = date_cell
-        logger = logging.getLogger("schedules_spreadsheet")
-        logger.addHandler(logging.NullHandler())
-        logger.info(repr(self.date))
-        logger.info(vars(self.date))
         if self.date.value_type != str:
             raise DateIsNotString("date")
 
