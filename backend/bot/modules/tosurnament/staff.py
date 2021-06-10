@@ -412,16 +412,16 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
             )
             tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
-            referees = list(filter(None, [cell for cell in match_info.referees]))
+            referees = list(filter(None, [cell.get() for cell in match_info.referees]))
             tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
             if referees:
                 tmp_reply_string += "/".join(referees)
             else:
                 tmp_reply_string += "**" + self.get_string(ctx, "none") + "**"
-            streamers = list(filter(None, [cell for cell in match_info.streamers]))
+            streamers = list(filter(None, [cell.get() for cell in match_info.streamers]))
             if streamers:
                 tmp_reply_string += "\n__" + self.get_string(ctx, "streamer") + ":__ " + "/".join(streamers)
-            commentators = list(filter(None, [cell for cell in match_info.commentators]))
+            commentators = list(filter(None, [cell.get() for cell in match_info.commentators]))
             if commentators:
                 tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
             if len(reply_string) + len(tmp_reply_string) >= 2000:
