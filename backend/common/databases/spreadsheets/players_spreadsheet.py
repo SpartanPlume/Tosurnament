@@ -97,7 +97,7 @@ class TeamInfo:
 
     def find_player(self, name, discord_id, discord):
         for player in self.players:
-            if discord_id and discord_id == player.discord_id:
+            if discord_id and str(discord_id) == str(player.discord_id):
                 return player
             elif discord and discord == player.discord:
                 return player
