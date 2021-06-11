@@ -144,7 +144,7 @@ class Cell:
         return char in self.value
 
     def __len__(self):
-        return len(str(self.value))
+        return len(self.value)
 
     def __getitem__(self, index):
         return self.value[index]

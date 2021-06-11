@@ -229,6 +229,16 @@ class BaseModule(commands.Cog):
             return await self.send_message(ctx, reply)
         return None
 
+    async def show_object_settings(self, ctx, obj, stack_depth=1):
+        """Shows the object settings."""
+        output = self.get_string(ctx, "title", stack_depth=stack_depth)
+        for key, value in obj.get_table_dict().items():
+            value = str(value)
+            if not value:
+                value = self.get_string(ctx, "undefined")
+            output += "__" + key + "__: `" + value + "`\n"
+        await ctx.send(output)
+
     async def cog_command_error(self, ctx, error):
         await self.on_cog_command_error(ctx, error)
 

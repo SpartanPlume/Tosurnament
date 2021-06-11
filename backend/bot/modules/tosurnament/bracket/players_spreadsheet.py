@@ -98,6 +98,11 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         """Sets the players spreadsheet max range length for teams."""
         await self.set_players_spreadsheet_values(ctx, {"max_range_for_teams": length})
 
+    @commands.command(aliases=["spss"])
+    async def show_players_spreadsheet_settings(self, ctx):
+        """Shows the players spreadsheet settings."""
+        await self.show_spreadsheet_settings(ctx, "players")
+
 
 def get_class(bot):
     """Returns the main class of the module"""

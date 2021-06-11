@@ -222,6 +222,12 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             return
         raise commands.UserInputError()
 
+    @commands.command(aliases=["sbs"])
+    async def show_bracket_settings(self, ctx):
+        """Shows the bracket settings."""
+        tournament = self.get_tournament(ctx.guild.id)
+        await self.show_object_settings(ctx, tournament.current_bracket, stack_depth=2)
+
     async def update_players_spreadsheet_registration(self, guild, tournament):
         now = datetime.datetime.now()
         for bracket in tournament.brackets:

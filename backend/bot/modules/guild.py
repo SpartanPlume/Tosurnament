@@ -70,6 +70,12 @@ class GuildCog(base.BaseModule, name="guild"):
             self.bot.session.add(GuildVerifyMessage(message_id=message.id, guild_id=ctx.guild.id))
         await message.add_reaction("🛎️")
 
+    @commands.command(aliases=["sgs"])
+    async def show_guild_settings(self, ctx):
+        """Shows the guild settings."""
+        guild = self.get_guild(ctx.guild.id)
+        await self.show_object_settings(ctx, guild)
+
     @on_raw_reaction_with_context("add", valid_emojis=["🛎️"])
     @with_corresponding_message(GuildVerifyMessage)
     async def reaction_on_verify_message(self, ctx, emoji, guild_verify_message):

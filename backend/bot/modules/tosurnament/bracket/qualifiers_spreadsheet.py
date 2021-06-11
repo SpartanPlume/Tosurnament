@@ -68,6 +68,11 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
         """Sets the qualifiers spreadsheet range time."""
         await self.set_qualifiers_spreadsheet_range_value(ctx, "range_time", cell_range)
 
+    @commands.command(aliases=["sqss"])
+    async def show_qualifiers_spreadsheet_settings(self, ctx):
+        """Shows the qualifiers spreadsheet settings."""
+        await self.show_spreadsheet_settings(ctx, "qualifiers")
+
 
 def get_class(bot):
     """Returns the main class of the module"""

@@ -321,6 +321,14 @@ class TosurnamentBaseModule(BaseModule):
         else:
             await self.send_reply(ctx, "spreadsheet_error", error_type, spreadsheet_type)
 
+    async def show_spreadsheet_settings(self, ctx, spreadsheet_type):
+        """Shows the spreadsheet settings."""
+        tournament = self.get_tournament(ctx.guild.id)
+        spreadsheet = tournament.current_bracket.get_spreadsheet_from_type(spreadsheet_type)
+        if not spreadsheet:
+            raise NoSpreadsheet(spreadsheet_type)
+        await self.show_object_settings(ctx, spreadsheet, stack_depth=3)
+
     async def on_cog_command_error(self, ctx, error, channel=None):
         if not channel:
             channel = ctx.channel

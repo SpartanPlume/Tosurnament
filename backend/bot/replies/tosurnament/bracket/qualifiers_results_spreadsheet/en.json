@@ -22,5 +22,9 @@
     "parameter": "[<range>]",
     "example_parameter": "D2:D",
     "success": "Qualifiers results spreadsheet range score set to `%1`."
+  },
+  "show_qualifiers_results_spreadsheet_settings": {
+    "help": "Shows the current's bracket qualifiers results spreadsheet settings",
+    "title": "**__Qualifiers results spreadsheet settings:__**\n\n"
   }
 }

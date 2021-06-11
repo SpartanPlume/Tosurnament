@@ -108,6 +108,11 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
         """Sets the schedules spreadsheet range mp links."""
         await self.set_schedules_spreadsheet_range_value(ctx, "range_mp_links", cell_range)
 
+    @commands.command(aliases=["ssss"])
+    async def show_schedules_spreadsheet_settings(self, ctx):
+        """Shows the schedules spreadsheet settings."""
+        await self.show_spreadsheet_settings(ctx, "schedules")
+
 
 def get_class(bot):
     """Returns the main class of the module"""

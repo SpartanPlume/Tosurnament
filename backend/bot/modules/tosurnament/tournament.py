@@ -277,7 +277,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                     spreadsheet_ids.append(spreadsheet_id)
         await self.send_reply(ctx, "success")
 
-    @commands.command(aliases=["sts"])
+    @commands.command(aliases=["svts"])
     async def save_tournament_settings(self, ctx):
         """Saves the tournament settings and gives a code corresponding to it."""
         tournament = self.get_tournament(ctx.guild.id)
@@ -302,6 +302,12 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         if isinstance(error, OSError):
             self.log.error("The tournament template file could not be created or deleted.")
             await self.send_reply(ctx, "OSError")
+
+    @commands.command(aliases=["sts"])
+    async def show_tournament_settings(self, ctx):
+        """Shows the tournament settings."""
+        tournament = self.get_tournament(ctx.guild.id)
+        await self.show_object_settings(ctx, tournament, stack_depth=2)
 
 
 def get_class(bot):

@@ -197,5 +197,9 @@
     "help": "Saves the tournament settings and gives a code corresponding to it",
     "success": "Tournament settings saved. Code to use to load it: `%1`.",
     "os_error": "The tournament template file could not be created or deleted."
+  },
+  "show_tournament_settings": {
+    "help": "Shows the current's tournament settings",
+    "title": "**__Tournament settings:__**\n\n"
   }
 }

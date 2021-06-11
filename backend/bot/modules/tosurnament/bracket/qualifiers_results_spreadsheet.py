@@ -55,6 +55,11 @@ class TosurnamentQualifiersResultsSpreadsheetCog(
         """Sets the qualifiers results spreadsheet range score."""
         await self.set_qualifiers_results_spreadsheet_range_value(ctx, "range_score", cell_range)
 
+    @commands.command(aliases=["sqrss"])
+    async def show_qualifiers_results_spreadsheet_settings(self, ctx):
+        """Shows the qualifiers results spreadsheet settings."""
+        await self.show_spreadsheet_settings(ctx, "qualifiers_results")
+
 
 def get_class(bot):
     """Returns the main class of the module"""

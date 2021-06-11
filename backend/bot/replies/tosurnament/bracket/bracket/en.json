@@ -58,5 +58,9 @@
     "parameter": "<index_from> <index_to>",
     "example_parameter": "1 2",
     "success": "Successfully copied the settings of bracket `%1` to the bracket `%2`."
+  },
+  "show_bracket_settings": {
+    "help": "Shows the current's bracket settings",
+    "title": "**__Bracket settings:__**\n\n"
   }
 }

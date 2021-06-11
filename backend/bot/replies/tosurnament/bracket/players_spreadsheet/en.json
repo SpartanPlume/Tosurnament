@@ -76,5 +76,9 @@
     "parameter": "[<range_length>]",
     "example_parameter": "8",
     "success": "Players spreadsheet max range length for teams set to `%1`."
+  },
+  "show_players_spreadsheet_settings": {
+    "help": "Shows the current's bracket players spreadsheet settings",
+    "title": "**__Players spreadsheet settings:__**\n\n"
   }
 }

@@ -89,5 +89,9 @@
     "parameter": "[<range>]",
     "example_parameter": "D2:D",
     "success": "Schedules spreadsheet range mp links set to `%1`."
+  },
+  "show_schedules_spreadsheet_settings": {
+    "help": "Shows the current's bracket schedules spreadsheet settings",
+    "title": "**__Schedules spreadsheet settings:__**\n\n"
   }
 }

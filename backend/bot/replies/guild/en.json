@@ -25,5 +25,9 @@
     "example_parameter": "#verify",
     "success": "",
     "setup": "Hello! You need to be authentificated with this bot (Tosurnament) before being able to fully join this guild. The authentification process is simple, just send a message to this bot with the command: `%0link <osu_name>` where you replace `<osu_name>` by your osu username.\n\nSo if your osu username is `Spartan Plume` (for example), just send `%0link Spartan Plume`.\n\nOnce you have been authentificated, just react on this message with the :bellhop: emoji."
+  },
+  "show_guild_settings": {
+    "help": "Shows the current's guild settings",
+    "title": "**__Guild settings:__**\n\n"
   }
 }

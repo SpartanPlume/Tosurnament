@@ -21,5 +21,6 @@
   "match": "Match",
   "referee": "Referee",
   "streamer": "Streamer",
-  "Commentator": "Commentator"
+  "commentator": "Commentator",
+  "undefined": "Undefined"
 }
