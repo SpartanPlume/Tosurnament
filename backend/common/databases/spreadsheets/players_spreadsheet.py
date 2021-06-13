@@ -233,7 +233,6 @@ class TeamInfo:
                 players_spreadsheet.range_team,
                 team_name_cell,
                 max_difference_with_base=players_spreadsheet.max_range_for_teams,
-                to_string=True,
             )
         )
         players_data.append(
@@ -293,13 +292,19 @@ class TeamInfo:
             )
         )
         # TODO: only one cell needed / maybe a new function needed ?
-        team_info.timezone = find_corresponding_cells_best_effort_from_range(
+        timezone_cells = find_corresponding_cells_best_effort_from_range(
             players_spreadsheet.spreadsheet,
             players_spreadsheet.range_timezone,
             team_name_cell,
             max_difference_with_base=players_spreadsheet.max_range_for_teams,
-        )[0]
-        for name, discord, discord_id, rank, bws_rank, osu_id, pp, country in zip(players_data):
+        )
+        if timezone_cells:
+            team_info.timezone = timezone_cells[0]
+        max_len = len(players_data[0])
+        for player_data in players_data:
+            while len(player_data) < max_len:
+                player_data.append(Cell(-1, -1, ""))
+        for name, discord, discord_id, rank, bws_rank, osu_id, pp, country in zip(*players_data):
             team_info.add_player(TeamInfo.PlayerInfo(name, discord, discord_id, rank, bws_rank, osu_id, pp, country))
         return team_info
 

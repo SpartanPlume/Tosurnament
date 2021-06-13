@@ -222,7 +222,8 @@ class TosurnamentBaseModule(BaseModule):
             for team_cell in team_cells:
                 try:
                     team_info = TeamInfo.from_team_name(players_spreadsheet, str(team_cell))
-                except Exception:
+                except Exception as e:
+                    print(e)
                     continue
                 if players_spreadsheet.range_team_name and (
                     team_role := get_role(guild.roles, None, team_info.team_name)

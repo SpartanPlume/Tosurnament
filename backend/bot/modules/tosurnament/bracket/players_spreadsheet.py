@@ -3,6 +3,7 @@
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import spreadsheet
+from common.exceptions import NoSpreadsheet
 
 
 class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="players_spreadsheet"):
@@ -102,6 +103,30 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
     async def show_players_spreadsheet_settings(self, ctx):
         """Shows the players spreadsheet settings."""
         await self.show_spreadsheet_settings(ctx, "players")
+
+    @commands.command(aliases=["spst"])
+    async def show_players_spreadsheet_team(self, ctx, index: int):
+        """Shows the players spreadsheet settings."""
+        tournament = self.get_tournament(ctx.guild.id)
+        bracket = tournament.current_bracket
+        players_spreadsheet = await bracket.get_players_spreadsheet()
+        if not players_spreadsheet:
+            raise NoSpreadsheet("players")
+        team_infos, _ = await self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
+        try:
+            selected_team_info = team_infos[index]
+        except Exception:
+            return
+        output = "**__" + selected_team_info.team_name + ":__**\n\n"
+        for player_info in selected_team_info.players:
+            output += "__Player name:__ " + str(player_info.name) + "\n"
+            if player_info.discord:
+                output += "__Discord tag:__ " + str(player_info.discord) + "\n"
+            if player_info.discord_id:
+                output += "__Discord id:__ " + str(player_info.discord_id) + "\n"
+            # TODO other fields
+            output += "\n"
+        await ctx.send(output)
 
 
 def get_class(bot):
