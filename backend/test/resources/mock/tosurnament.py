@@ -143,8 +143,8 @@ class Matcher:
 
 class BaseMock:
     def __eq__(self, other):
-        if other == mock.ANY:
-            return True
+        if type(self) != type(other):
+            return False
         for key in vars(self).keys():
             if not key.startswith("_"):
                 if getattr(self, key) != getattr(other, key):
@@ -156,7 +156,11 @@ class MessageMock(BaseMock):
     def __init__(self, message_id):
         self.id = message_id
         self.delete = mock.AsyncMock()
-        self.add_reaction = mock.AsyncMock()
+        self.reactions = []
+
+    async def add_reaction(self, reaction):
+        if reaction not in self.reactions:
+            self.reactions.append(reaction)
 
 
 DEFAULT_MESSAGE_MOCK = MessageMock(3249076)
@@ -172,6 +176,7 @@ class ChannelMock(BaseMock):
             self.messages = [DEFAULT_MESSAGE_MOCK, SETUP_MESSAGE_MOCK, PREVIEW_MESSAGE_MOCK]
         else:
             self.messages = messages
+        self.send = mock.AsyncMock(return_value=DEFAULT_MESSAGE_MOCK)
 
     async def fetch_message(self, message_id):
         for message in self.messages:
@@ -234,8 +239,20 @@ class UserMock(BaseMock):
         self.mention = user_name
         self.user_tag = user_tag
         self.dm_channel = None
-        self.add_roles = mock.AsyncMock()
-        self.edit = mock.AsyncMock()
+
+    async def add_roles(self, *roles):
+        for role in roles:
+            if role not in self.roles:
+                self.roles.append(role)
+
+    async def remove_roles(self, *roles):
+        for role in roles:
+            if role in self.roles:
+                self.roles.remove(role)
+
+    async def edit(self, nick=None):
+        if nick is not None:
+            self.display_name = nick
 
     def __str__(self):
         return self.user_tag
@@ -328,7 +345,13 @@ class GuildMock(BaseMock):
         self.id = guild_id
         self.owner = GUILD_OWNER_USER_MOCK
         if roles is None:
-            self.roles = [PLAYER_ROLE_MOCK, REFEREE_ROLE_MOCK, STREAMER_ROLE_MOCK, COMMENTATOR_ROLE_MOCK]
+            self.roles = [
+                PLAYER_ROLE_MOCK,
+                REFEREE_ROLE_MOCK,
+                STREAMER_ROLE_MOCK,
+                COMMENTATOR_ROLE_MOCK,
+                VERIFIED_ROLE_MOCK,
+            ]
         else:
             self.roles = roles
         self.members = [
@@ -352,6 +375,12 @@ class GuildMock(BaseMock):
             if member.display_name == user_name:
                 return member
         return UserMock(user_name=user_name)
+
+    def get_role(self, role_id):
+        for role in self.roles:
+            if role.id == role_id:
+                return role
+        return None
 
 
 DEFAULT_GUILD_MOCK = GuildMock(325098354)

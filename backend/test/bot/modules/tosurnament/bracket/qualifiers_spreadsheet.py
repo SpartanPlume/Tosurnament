@@ -172,3 +172,24 @@ async def test_set_qualifiers_spreadsheet_range_time(mocker):
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(QualifiersSpreadsheet(range_time=range_time))
     )
+
+
+@pytest.mark.asyncio
+async def test_show_qualifiers_spreadsheet_settings():
+    """Shows the qualifiers spreadsheet settings of the current bracket."""
+    cog, mock_bot, qualifiers_spreadsheet = init_mocks()
+    qualifiers_spreadsheet.range_teams = "A2:A"
+    expected_output = "**__Qualifiers spreadsheet settings:__**\n\n"
+    expected_output += "__range_lobby_id__: `Undefined`\n"
+    expected_output += "__range_teams__: `A2:A`\n"
+    expected_output += "__range_referee__: `Undefined`\n"
+    expected_output += "__range_date__: `Undefined`\n"
+    expected_output += "__range_time__: `Undefined`\n"
+    expected_output += "__max_range_for_lobby__: `8`\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__spreadsheet_id__: `Undefined`\n"
+    expected_output += "__sheet_name__: `Undefined`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_qualifiers_spreadsheet_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_qualifiers_spreadsheet_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

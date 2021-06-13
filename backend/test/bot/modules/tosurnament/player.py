@@ -2,6 +2,7 @@
 All tests concerning the Tosurnament player module.
 """
 
+import importlib
 import datetime
 import dateparser
 import pytest
@@ -26,12 +27,15 @@ from test.resources.mock.spreadsheet import (
 from common import exceptions
 import test.resources.mock.tosurnament as tosurnament_mock
 
-from test.resources.mock.tosurnament import PLAYER_ROLE_MOCK
-
 MODULE_TO_TEST = "bot.modules.tosurnament.player"
 OSU_MODULE = MODULE_TO_TEST + ".osu"
 MATCH_ID = "T1-1"
 MATCH_IDS = ["sdf", "gre", "ewr", "egfr", "fdew"]
+
+
+@pytest.fixture(autouse=True)
+def reload_tosurnament_mock():
+    importlib.reload(tosurnament_mock)
 
 
 def init_mocks():
@@ -134,10 +138,11 @@ async def test_register(mocker):
     players_spreadsheet = await bracket.get_players_spreadsheet()
     date = tournament.parse_date("1 week", prefer_dates_from="future")
     bracket.registration_end_date = date.strftime(tosurnament.DATABASE_DATE_FORMAT)
-    mock_author = tosurnament_mock.UserMock()
+    mock_author = tosurnament_mock.DEFAULT_USER_MOCK
+    assert mock_author.display_name != tosurnament_mock.OSU_USER_NAME
     await cog.register(cog, tosurnament_mock.CtxMock(mock_bot, mock_author), "Spartan Plume", timezone="uTc+1")
-    mock_author.add_roles.assert_called_once_with(tosurnament_mock.PLAYER_ROLE_MOCK)
-    mock_author.edit.assert_called_once_with(nick=tosurnament_mock.OSU_USER_NAME)
+    assert mock_author.roles == [tosurnament_mock.PLAYER_ROLE_MOCK]
+    assert mock_author.display_name == tosurnament_mock.OSU_USER_NAME
     cog.send_reply.assert_called_once_with(mocker.ANY, "success")
     assert players_spreadsheet.spreadsheet.get_updated_values_with_ranges() == (
         ["Players!A14:H14"],
@@ -145,7 +150,7 @@ async def test_register(mocker):
             [
                 [
                     tosurnament_mock.OSU_USER_NAME,
-                    tosurnament_mock.USER_TAG,
+                    tosurnament_mock.DEFAULT_USER_MOCK.user_tag,
                     tosurnament_mock.DEFAULT_USER_MOCK.id,
                     "12345",
                     tosurnament_mock.OSU_USER_ID,

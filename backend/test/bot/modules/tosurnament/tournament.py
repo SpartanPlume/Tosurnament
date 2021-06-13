@@ -646,3 +646,48 @@ async def test_sync_spreadsheet_two_brackets_different_id(mocker):
     with mock.patch.object(BaseSpreadsheet, "get_spreadsheet", new=get_spreadsheet_mock):
         await cog.sync_spreadsheet(cog, tosurnament_mock.CtxMock(mock_bot))
     assert get_spreadsheet_mock.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_show_tournament_settings():
+    """Shows the tournament settings of the current tournament."""
+    cog, mock_bot, _ = init_mocks()
+    expected_output = "**__Tournament settings:__**\n\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__guild_id__: `" + str(tosurnament_mock.DEFAULT_GUILD_MOCK.id) + "`\n"
+    expected_output += "__acronym__: `Undefined`\n"
+    expected_output += "__name__: `Undefined`\n"
+    expected_output += "__staff_channel_id__: `0`\n"
+    expected_output += "__match_notification_channel_id__: `0`\n"
+    expected_output += "__referee_role_id__: `0`\n"
+    expected_output += "__streamer_role_id__: `0`\n"
+    expected_output += "__commentator_role_id__: `0`\n"
+    expected_output += "__player_role_id__: `0`\n"
+    expected_output += "__team_captain_role_id__: `0`\n"
+    expected_output += "__post_result_message__: `Undefined`\n"
+    expected_output += "__post_result_message_team1_with_score__: `Undefined`\n"
+    expected_output += "__post_result_message_team2_with_score__: `Undefined`\n"
+    expected_output += "__post_result_message_mp_link__: `Undefined`\n"
+    expected_output += "__post_result_message_rolls__: `Undefined`\n"
+    expected_output += "__post_result_message_bans__: `Undefined`\n"
+    expected_output += "__post_result_message_tb_bans__: `Undefined`\n"
+    expected_output += "__reschedule_deadline_hours_before_current_time__: `6`\n"
+    expected_output += "__reschedule_deadline_hours_before_new_time__: `24`\n"
+    expected_output += "__reschedule_deadline_begin__: `Undefined`\n"
+    expected_output += "__reschedule_deadline_end__: `Undefined`\n"
+    expected_output += "__reschedule_allowed_begin__: `Undefined`\n"
+    expected_output += "__reschedule_allowed_end__: `Undefined`\n"
+    expected_output += "__reschedule_ping_team__: `True`\n"
+    expected_output += "__current_bracket_id__: `0`\n"
+    expected_output += "__created_at__: `0`\n"
+    expected_output += "__matches_to_ignore__: `Undefined`\n"
+    expected_output += "__notify_no_staff_reschedule__: `True`\n"
+    expected_output += "__utc__: `Undefined`\n"
+    expected_output += "__template_code__: `Undefined`\n"
+    expected_output += "__registration_phase__: `False`\n"
+    expected_output += "__game_mode__: `0`\n"
+    expected_output += "__registration_background_update__: `False`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_tournament_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_tournament_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

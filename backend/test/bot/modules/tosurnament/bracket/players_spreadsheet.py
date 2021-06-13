@@ -232,3 +232,29 @@ async def test_set_players_spreadsheet_max_range_for_teams(mocker):
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(PlayersSpreadsheet(max_range_for_teams=max_range_for_teams))
     )
+
+
+@pytest.mark.asyncio
+async def test_show_players_spreadsheet_settings():
+    """Shows the players spreadsheet settings of the current bracket."""
+    cog, mock_bot, players_spreadsheet = init_mocks()
+    players_spreadsheet.range_team = "A2:A"
+    expected_output = "**__Players spreadsheet settings:__**\n\n"
+    expected_output += "__range_team_name__: `Undefined`\n"
+    expected_output += "__range_team__: `A2:A`\n"
+    expected_output += "__range_discord__: `Undefined`\n"
+    expected_output += "__range_discord_id__: `Undefined`\n"
+    expected_output += "__range_rank__: `Undefined`\n"
+    expected_output += "__range_bws_rank__: `Undefined`\n"
+    expected_output += "__range_osu_id__: `Undefined`\n"
+    expected_output += "__range_pp__: `Undefined`\n"
+    expected_output += "__range_country__: `Undefined`\n"
+    expected_output += "__range_timezone__: `Undefined`\n"
+    expected_output += "__max_range_for_teams__: `0`\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__spreadsheet_id__: `Undefined`\n"
+    expected_output += "__sheet_name__: `Undefined`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_players_spreadsheet_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_players_spreadsheet_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

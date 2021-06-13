@@ -269,3 +269,26 @@ async def test_copy_bracket(mocker):
     await cog.copy_bracket(cog, mock_ctx, 1, 2)
     assert len(mock_bot.session.tables[PlayersSpreadsheet.__tablename__]) == 2
     assert mock_bot.session.tables[PlayersSpreadsheet.__tablename__][1] == tosurnament_mock.Matcher(players_spreadsheet)
+
+
+@pytest.mark.asyncio
+async def test_show_bracket_settings():
+    """Shows the bracket settings of the current bracket."""
+    cog, mock_bot, _ = init_mocks()
+    expected_output = "**__Bracket settings:__**\n\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__tournament_id__: `1`\n"
+    expected_output += "__name__: `Bracket 1`\n"
+    expected_output += "__role_id__: `0`\n"
+    expected_output += "__challonge__: `Undefined`\n"
+    expected_output += "__players_spreadsheet_id__: `-1`\n"
+    expected_output += "__schedules_spreadsheet_id__: `-1`\n"
+    expected_output += "__qualifiers_spreadsheet_id__: `-1`\n"
+    expected_output += "__qualifiers_results_spreadsheet_id__: `-1`\n"
+    expected_output += "__post_result_channel_id__: `0`\n"
+    expected_output += "__current_round__: `Undefined`\n"
+    expected_output += "__registration_end_date__: `Undefined`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_bracket_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_bracket_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

@@ -115,7 +115,7 @@ async def test_setup_verification_channel_no_verified_role(mocker):
 async def test_setup_verification_channel(mocker):
     """Setups the verification channel."""
     cog, mock_bot, guild = init_mocks()
-    verified_role = tosurnament_mock.RoleMock("Verified", 234578)
+    verified_role = tosurnament_mock.VERIFIED_ROLE_MOCK
     guild.verified_role_id = verified_role.id
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = [verified_role]
@@ -130,7 +130,7 @@ async def test_setup_verification_channel_update_message_id(mocker):
     """Setups the verification channel, a message already exists so only the message_id is updated."""
     cog, mock_bot, guild = init_mocks()
     mock_bot.session.add(GuildVerifyMessage(guild_id=tosurnament_mock.DEFAULT_GUILD_MOCK.id))
-    verified_role = tosurnament_mock.RoleMock("Verified", 234578)
+    verified_role = tosurnament_mock.VERIFIED_ROLE_MOCK
     guild.verified_role_id = verified_role.id
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = [verified_role]
@@ -168,13 +168,14 @@ async def test_reaction_on_verify_message():
 
 
 @pytest.mark.asyncio
-async def test_on_verified_user_no_verified_role():
+async def test_on_verified_user_no_verified_role(mocker):
     """Adds the verified role to the user, but the role does not exist"""
     mock_bot = tosurnament_mock.BotMock()
     cog = tosurnament_mock.mock_cog(guild_module.get_class(mock_bot))
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = []
     mock_user = tosurnament_mock.DEFAULT_USER_MOCK
+    mock_user.add_roles = mocker.AsyncMock()
     await cog.on_verified_user(mock_guild, mock_user)
     assert mock_user.add_roles.call_count == 0
 
@@ -183,10 +184,27 @@ async def test_on_verified_user_no_verified_role():
 async def test_on_verified_user():
     """Adds the verified role to the user"""
     cog, _, guild = init_mocks()
-    verified_role = tosurnament_mock.RoleMock("Verified", 234578)
+    verified_role = tosurnament_mock.VERIFIED_ROLE_MOCK
     guild.verified_role_id = verified_role.id
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = [verified_role]
     mock_user = tosurnament_mock.DEFAULT_USER_MOCK
     await cog.on_verified_user(mock_guild, mock_user)
-    mock_user.add_roles.assert_called_once_with(verified_role)
+    assert mock_user.roles == [verified_role]
+
+
+@pytest.mark.asyncio
+async def test_show_guild_settings():
+    """Shows the guild settings of the current bracket."""
+    cog, mock_bot, _ = init_mocks()
+    expected_output = "**__Guild settings:__**\n\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__guild_id__: `" + str(tosurnament_mock.DEFAULT_GUILD_MOCK.id) + "`\n"
+    expected_output += "__verified_role_id__: `0`\n"
+    expected_output += "__admin_role_id__: `0`\n"
+    expected_output += "__last_notification_date__: `Undefined`\n"
+    expected_output += "__language__: `Undefined`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_guild_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_guild_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

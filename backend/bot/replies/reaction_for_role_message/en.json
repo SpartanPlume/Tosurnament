@@ -20,7 +20,10 @@
     "help": "",
     "error": "$../add_emoji_role_pair/error",
     "channel_error": "Uh-oh, it seems the the targetted channel does not exist anymore. Please create a new reaction for role message.",
-    "no_emoji": "You need to set at least one emoji/role pair to post the message."
+    "no_emoji": "You need to set at least one emoji/role pair to post the message.",
+    "add_reaction_error": "There was an error adding a reaction to the reaction for role message, trying to delete the message.",
+    "message_not_deleted": "There was an error while trying to delete the reaction for role message, please delete it instead.",
+    "message_deleted": "The message has been deleted successfully, please retry this command."
   },
   "cancel_reaction_for_role_message_creation": {
     "help": "",

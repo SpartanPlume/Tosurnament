@@ -274,3 +274,34 @@ async def test_set_schedules_spreadsheet_range_mp_links(mocker):
     mock_bot.session.update.assert_called_once_with(
         tosurnament_mock.Matcher(SchedulesSpreadsheet(range_mp_links=range_mp_links))
     )
+
+
+@pytest.mark.asyncio
+async def test_show_schedules_spreadsheet_settings():
+    """Shows the schedules spreadsheet settings of the current bracket."""
+    cog, mock_bot, schedules_spreadsheet = init_mocks()
+    schedules_spreadsheet.range_match_id = "A2:A"
+    expected_output = "**__Schedules spreadsheet settings:__**\n\n"
+    expected_output += "__range_match_id__: `A2:A`\n"
+    expected_output += "__range_team1__: `Undefined`\n"
+    expected_output += "__range_score_team1__: `Undefined`\n"
+    expected_output += "__range_score_team2__: `Undefined`\n"
+    expected_output += "__range_team2__: `Undefined`\n"
+    expected_output += "__range_date__: `Undefined`\n"
+    expected_output += "__range_time__: `Undefined`\n"
+    expected_output += "__range_referee__: `Undefined`\n"
+    expected_output += "__range_streamer__: `Undefined`\n"
+    expected_output += "__range_commentator__: `Undefined`\n"
+    expected_output += "__range_mp_links__: `Undefined`\n"
+    expected_output += "__date_format__: `Undefined`\n"
+    expected_output += "__use_range__: `False`\n"
+    expected_output += "__max_referee__: `1`\n"
+    expected_output += "__max_streamer__: `1`\n"
+    expected_output += "__max_commentator__: `2`\n"
+    expected_output += "__id__: `1`\n"
+    expected_output += "__spreadsheet_id__: `Undefined`\n"
+    expected_output += "__sheet_name__: `Undefined`\n"
+    mock_command = tosurnament_mock.CommandMock(cog.qualified_name, "show_schedules_spreadsheet_settings")
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, command=mock_command)
+    await cog.show_schedules_spreadsheet_settings(cog, mock_ctx)
+    mock_ctx.send.assert_called_once_with(expected_output)

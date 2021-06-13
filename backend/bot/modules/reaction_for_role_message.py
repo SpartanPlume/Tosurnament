@@ -123,27 +123,32 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
             await self.send_reply(ctx, "no_emoji")
             return
 
-        await self.delete_setup_messages(reaction_for_role_message)
-        reaction_for_role_message.guild_id = ""
-        reaction_for_role_message.author_id = ""
-        reaction_for_role_message.setup_channel_id = 0
-        reaction_for_role_message.setup_message_id = 0
-        reaction_for_role_message.preview_message_id = 0
-
         channel = self.bot.get_channel(reaction_for_role_message.channel_id)
         if not channel:
             await self.send_reply(ctx, "channel_error")
             self.bot.session.delete(reaction_for_role_message)
             return
         message = await channel.send(reaction_for_role_message.text)
-        reaction_for_role_message.message_id = message.id
-        self.bot.session.update(reaction_for_role_message)
-
         for emoji in filter(None, reaction_for_role_message.emojis.split("\n")):
             try:
                 await message.add_reaction(emoji)
             except Exception:
-                continue
+                await self.send_reply(ctx, "add_reaction_error")
+                try:
+                    await message.delete()
+                except Exception:
+                    await self.send_reply(ctx, "message_not_deleted")
+                    return
+                await self.send_reply(ctx, "message_deleted")
+                return
+
+        await self.delete_setup_messages(reaction_for_role_message)
+        reaction_for_role_message.author_id = ""
+        reaction_for_role_message.setup_channel_id = 0
+        reaction_for_role_message.setup_message_id = 0
+        reaction_for_role_message.preview_message_id = 0
+        reaction_for_role_message.message_id = message.id
+        self.bot.session.update(reaction_for_role_message)
 
     @commands.command(aliases=["crfrmc"])
     async def cancel_reaction_for_role_message_creation(self, ctx):
