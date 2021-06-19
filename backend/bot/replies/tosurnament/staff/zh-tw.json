@@ -74,21 +74,21 @@
       "usage": "用法: `%0drop_match_as_referee $../take_match/parameter`\n\n例: `%0drop_match_as_referee 1A 2A 2B`",
       "taken_match_ids": "$../drop_match/taken_match_ids",
       "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
-      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
     },
     "drop_match_as_streamer": {
       "help": "在相應場次的直播欄位中移除該工作人員的ID。",
       "usage": "用法: `%0drop_match_as_streamer $../take_match/parameter`\n\n例: `%0drop_match_as_streamer 1A 2A 2B`",
       "taken_match_ids": "$../drop_match/taken_match_ids",
       "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
-      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
     },
     "drop_match_as_commentator": {
       "help": "在相應場次的賽評欄位中移除該工作人員的ID。",
       "usage": "用法: `%0drop_match_as_commentator $../take_match/parameter`\n\n例: `%0drop_match_as_commentator 1A 2A 2B`",
       "taken_match_ids": "$../drop_match/taken_match_ids",
       "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
-      "invalid_match_ids": "$../drop_match/invalid_match_ids"
+      "invalid_match_ids": "$../take_match/invalid_match_ids"
     },
     "qualifier_match_notification": {
       "common_begin": "_ _\n**__預選賽場次 %1__\n\n%2**\n\n__裁判:__ ",
