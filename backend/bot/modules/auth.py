@@ -72,6 +72,38 @@ class AuthCog(base.BaseModule, name="auth"):
             await self.send_reply(ctx, "already_verified")
 
     @commands.command()
+    async def new_link(self, ctx):
+        """
+        Sends a private message to the command runner to link his account.
+        If the user is already linked but not verified, a new code is generated (in case the previous one is lost).
+        """
+        user = self.get_user(ctx.author.id)
+        if user and user.verified:
+            raise UserAlreadyVerified()
+
+        code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b"=").decode("ascii")
+        if not user:
+            user = User(
+                discord_id=ctx.author.id,
+                discord_id_snowflake=ctx.author.id,
+                verified=False,
+                code=code,
+            )
+            self.bot.session.add(user)
+        else:
+            user.code = code
+            self.bot.session.update(user)
+
+        dm_channel = await ctx.author.create_dm()
+        await self.send_reply(ctx, "success", code, channel=dm_channel)
+
+    @new_link.error
+    async def new_link_handler(self, ctx, error):
+        """Error handler of link function."""
+        if isinstance(error, UserAlreadyVerified):
+            await self.send_reply(ctx, "already_verified")
+
+    @commands.command()
     async def auth(self, ctx):
         """Sends a private message to the command runner to auth his account."""
         user = self.get_user(ctx.author.id)

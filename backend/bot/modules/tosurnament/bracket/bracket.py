@@ -140,7 +140,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
 
     @commands.command(aliases=["gpr"])
     async def give_player_role(self, ctx, bracket_index: int = None):
-        """Gives the player role of users not present in the challonge."""
+        """Gives the player role to users present in the challonge."""
         tournament = self.get_tournament(ctx.guild.id)
         brackets = tournament.brackets
         bracket = self.get_bracket_from_index(brackets, bracket_index)
