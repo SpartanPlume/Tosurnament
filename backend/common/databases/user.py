@@ -13,7 +13,6 @@ class User(Base):
     discord_id_snowflake = int()
     osu_id = str()
     verified = bool()
-    code = str()
     osu_name = str()
     osu_name_hash = bytes()
     osu_previous_name = str()

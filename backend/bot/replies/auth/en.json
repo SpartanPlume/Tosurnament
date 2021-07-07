@@ -1,20 +1,7 @@
 {
   "link": {
     "help": "Links your osu! account to your discord account.",
-    "parameter": "<osu_username>",
-    "example_parameter": "Spartan Plume",
-    "success": "Please authenticate your osu! account by setting the following code\n\n`%1`\n\nas your location on your osu! profile.\n\nOnce done, send the `%0auth` command.",
-    "already_verified": "Your account is already verified."
-  },
-  "new_link": {
-    "help": "Links your osu! account to your discord account.",
     "success": "Go to the site https://auth.tosurnament.com/?code=%1 and follow the instructions.\n\n**IMPORTANT:** Do not share this link with anyone as it is a private link containing a unique code generated for you.",
     "already_verified": "Your account is already verified."
-  },
-  "auth": {
-    "help": "Authenticates yourself after linking you osu! account and setting the code on your profile page.",
-    "success": "Congrats, your account has been verified.",
-    "wrong_code": "Your location is not your given code. If you forgot your code or make a mistake in your username, please reuse the `%0link` command.",
-    "already_verified": "$../link/already_verified"
   }
 }
