@@ -17,9 +17,11 @@
     <p>Linking your discord account with your osu! account...</p>
   </div>
   <div v-else-if="$fetchState.error" id="container">
+    <img src="~assets/images/cancel_black_48dp.svg" />
     <p>Error while linking your account, please retry.</p>
   </div>
   <div v-else id="container">
+    <img src="~assets/images/check_circle_black_48dp.svg" />
     <p>Your discord account has successfully been linked to your osu! account.</p>
   </div>
 </template>
@@ -34,16 +36,12 @@ export default {
   },
   fetchOnServer: true,
   async fetch() {
-    const req = this.$nuxt.context.req;
     const query = this.$nuxt.context.query;
-    const protocol = req.protocol || "http";
-    const host = req.headers.host;
     const code = query.code;
-    const oauth_token_url = "http://localhost:5000/auth";
+    const oauth_token_url = "http://localhost:5001/auth";
     const parameters = {
       tosurnament_code: query.state,
-      osu_code: code,
-      redirect_uri: protocol + "://" + host + "/redirect"
+      osu_code: code
     };
     let result = await fetch(oauth_token_url, {
       method: "POST",
@@ -70,6 +68,12 @@ body {
   display: table;
 }
 
+img {
+  margin: auto;
+  display: block;
+  width: 10%;
+}
+
 #__nuxt {
   height: 100%;
   display: table-row;
@@ -82,15 +86,23 @@ body {
 
 #container {
   margin: auto;
+  width: 50%;
 }
 
 p {
-  font-size: 1.5vw;
+  font-size: 32px;
   color: #eeeeee;
+  text-align: center;
+}
+
+@media only screen and (max-width: 768px) {
+  p {
+    font-size: 16px;
+  }
 }
 
 .sk-circle {
-  margin: 100px auto;
+  margin: auto;
   width: 40px;
   height: 40px;
   position: relative;
@@ -108,7 +120,7 @@ p {
   margin: 0 auto;
   width: 15%;
   height: 15%;
-  background-color: #999;
+  background-color: #aaa;
   border-radius: 100%;
   -webkit-animation: sk-circleBounceDelay 1.2s infinite ease-in-out both;
   animation: sk-circleBounceDelay 1.2s infinite ease-in-out both;

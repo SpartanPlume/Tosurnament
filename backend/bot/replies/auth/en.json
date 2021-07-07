@@ -8,7 +8,7 @@
   },
   "new_link": {
     "help": "Links your osu! account to your discord account.",
-    "success": "Go to the site http://localhost:3000/?code=%1 and follow the instructions.\n\n**IMPORTANT:** Do not share this link with anyone as it is a private link containing a unique code generated for you.",
+    "success": "Go to the site https://auth.tosurnament.com/?code=%1 and follow the instructions.\n\n**IMPORTANT:** Do not share this link with anyone as it is a private link containing a unique code generated for you.",
     "already_verified": "Your account is already verified."
   },
   "auth": {

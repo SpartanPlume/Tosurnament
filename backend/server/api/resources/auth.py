@@ -20,11 +20,6 @@ class AuthResource(Resource):
             required=True,
             type=str,
         )
-        post_parser.add_argument(
-            "redirect_uri",
-            required=True,
-            type=str,
-        )
         args = post_parser.parse_args()
         user = db.query(User).where(User.code == args.tosurnament_code).first()
         if not user:
@@ -36,7 +31,7 @@ class AuthResource(Resource):
             "client_secret": constants.OSU_CLIENT_SECRET,
             "code": args.osu_code,
             "grant_type": "authorization_code",
-            "redirect_uri": args.redirect_uri,
+            "redirect_uri": constants.OSU_REDIRECT_URI,
         }
         token_request = requests.post("https://osu.ppy.sh/oauth/token", data=parameters)
         if not token_request.ok:

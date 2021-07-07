@@ -4,7 +4,7 @@ from server.api.db import db
 from common.databases.user import User
 
 
-class UserResource(Resource):
+class UsersResource(Resource):
     def get(self):
         users = db.query(User).all()
         response = []
