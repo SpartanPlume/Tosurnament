@@ -23,7 +23,7 @@ class QualifiersSpreadsheet(BaseSpreadsheet):
     range_referee = str()
     range_date = str()
     range_time = str()
-    max_range_for_lobby = int(8)
+    max_teams_in_row = int(8)
 
 
 class LobbyIdNotFound(commands.CommandError):
@@ -99,7 +99,7 @@ class LobbyInfo:
                 spreadsheet,
                 spreadsheet.get_range(qualifiers_spreadsheet.range_teams),
                 lobby_id_cell,
-                qualifiers_spreadsheet.max_range_for_lobby,
+                qualifiers_spreadsheet.max_teams_in_row,
                 filled_only,
             )
         )
@@ -107,21 +107,21 @@ class LobbyInfo:
             find_corresponding_cell_best_effort(
                 spreadsheet.get_range(qualifiers_spreadsheet.range_referee),
                 lobby_id_cell,
-                qualifiers_spreadsheet.max_range_for_lobby,
+                qualifiers_spreadsheet.max_teams_in_row,
             )
         )
         lobby_info.set_date(
             find_corresponding_cell_best_effort(
                 spreadsheet.get_range(qualifiers_spreadsheet.range_date),
                 lobby_id_cell,
-                qualifiers_spreadsheet.max_range_for_lobby,
+                qualifiers_spreadsheet.max_teams_in_row,
             )
         )
         lobby_info.set_time(
             find_corresponding_cell_best_effort(
                 spreadsheet.get_range(qualifiers_spreadsheet.range_time),
                 lobby_id_cell,
-                qualifiers_spreadsheet.max_range_for_lobby,
+                qualifiers_spreadsheet.max_teams_in_row,
             )
         )
         return lobby_info

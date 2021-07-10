@@ -49,6 +49,7 @@ def init_mocks():
     mock_bot.session.add_stub(tosurnament_mock.STREAMER_USER_STUB)
     mock_bot.session.add_stub(tosurnament_mock.COMMENTATOR_USER_STUB)
     mock_bot.session.add_stub(tosurnament_mock.COMMENTATOR2_USER_STUB)
+    mock_bot.session.add_stub(tosurnament_mock.DEFAULT_USER_STUB)
     return cog, mock_bot, tournament, bracket
 
 
@@ -70,7 +71,7 @@ async def test_register_not_supported_yet_multiple_brackets(mocker):
     cog, mock_bot, _, _ = init_mocks()
     bracket2 = Bracket(id=2, tournament_id=1)
     mock_bot.session.add_stub(bracket2)
-    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
+    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
     cog.send_reply.assert_called_once_with(mocker.ANY, "not_supported_yet")
 
 
@@ -81,7 +82,7 @@ async def test_register_registration_ended():
     date = tournament.parse_date("1 week ago")
     bracket.registration_end_date = date.strftime(tosurnament.DATABASE_DATE_FORMAT)
     with pytest.raises(exceptions.RegistrationEnded):
-        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
+        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
 
 
 @pytest.mark.asyncio
@@ -89,7 +90,7 @@ async def test_register_no_players_spreadsheet():
     """Registers the player but no players spreadsheet is set."""
     cog, mock_bot, _, _ = init_mocks()
     with pytest.raises(exceptions.NoSpreadsheet):
-        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
+        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
 
 
 @pytest.mark.asyncio
@@ -99,7 +100,7 @@ async def test_register_not_supported_yet_team_bracket(mocker):
     mock_bot.session.add_stub(PlayersSpreadsheetTeamsMock(id=1))
     bracket.players_spreadsheet_id = 1
     mocker.patch("common.databases.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
-    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
+    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
     cog.send_reply.assert_called_once_with(mocker.ANY, "not_supported_yet")
 
 
@@ -108,7 +109,7 @@ async def test_register_no_timezone_parameter_with_range_timezone_set(mocker):
     """Registers the player but they didn't specify a timezone while there's a range timezone set."""
     cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     with pytest.raises(commands.UserInputError):
-        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "")
+        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
 
 
 @pytest.mark.asyncio
@@ -116,7 +117,7 @@ async def test_register_invalid_timezone(mocker):
     """Registers the player but the specified timezone is invalid."""
     cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     with pytest.raises(exceptions.InvalidTimezone):
-        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "", timezone="abc")
+        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), timezone="abc")
 
 
 @pytest.mark.asyncio
@@ -127,7 +128,7 @@ async def test_register_osu_user_not_found(mocker):
     mocker.patch(OSU_MODULE, mock_osu)
     cog, mock_bot, _, _ = init_reschedule_single_mocks(mocker)
     with pytest.raises(exceptions.UserNotFound):
-        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), "", timezone="UTC+1")
+        await cog.register(cog, tosurnament_mock.CtxMock(mock_bot), timezone="UTC+1")
 
 
 @pytest.mark.asyncio
@@ -140,7 +141,7 @@ async def test_register(mocker):
     bracket.registration_end_date = date.strftime(tosurnament.DATABASE_DATE_FORMAT)
     mock_author = tosurnament_mock.DEFAULT_USER_MOCK
     assert mock_author.display_name != tosurnament_mock.OSU_USER_NAME
-    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot, mock_author), "Spartan Plume", timezone="uTc+1")
+    await cog.register(cog, tosurnament_mock.CtxMock(mock_bot, mock_author), timezone="uTc+1")
     assert mock_author.roles == [tosurnament_mock.PLAYER_ROLE_MOCK]
     assert mock_author.display_name == tosurnament_mock.OSU_USER_NAME
     cog.send_reply.assert_called_once_with(mocker.ANY, "success")

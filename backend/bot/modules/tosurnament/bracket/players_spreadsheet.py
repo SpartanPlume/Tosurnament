@@ -116,6 +116,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         try:
             selected_team_info = team_infos[index]
         except Exception:
+            # TODO: send error message
             return
         output = "**__" + selected_team_info.team_name + ":__**\n\n"
         for player_info in selected_team_info.players:
@@ -124,7 +125,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
                 output += "__Discord tag:__ " + str(player_info.discord) + "\n"
             if player_info.discord_id:
                 output += "__Discord id:__ " + str(player_info.discord_id) + "\n"
-            # TODO other fields
+            # TODO: other fields
             output += "\n"
         await ctx.send(output)
 

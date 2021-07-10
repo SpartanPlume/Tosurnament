@@ -54,10 +54,7 @@ class Spreadsheet:
         try:
             sheets = _get_spreadsheet_with_values(spreadsheet_id)
         except googleapiclient.errors.HttpError as error:
-            try:
-                raise HttpError(error.resp["status"], "read", error)
-            except KeyError:
-                raise HttpError(500, "read", error)
+            raise HttpError(error.resp.status, "read", error)
         except (ConnectionResetError, ssl.SSLError, AttributeError) as error:
             raise HttpError(499, "read", error)
         except socket.timeout as error:

@@ -185,7 +185,7 @@ async def test_show_qualifiers_spreadsheet_settings():
     expected_output += "__range_referee__: `Undefined`\n"
     expected_output += "__range_date__: `Undefined`\n"
     expected_output += "__range_time__: `Undefined`\n"
-    expected_output += "__max_range_for_lobby__: `8`\n"
+    expected_output += "__max_teams_in_row__: `8`\n"
     expected_output += "__id__: `1`\n"
     expected_output += "__spreadsheet_id__: `Undefined`\n"
     expected_output += "__sheet_name__: `Undefined`\n"

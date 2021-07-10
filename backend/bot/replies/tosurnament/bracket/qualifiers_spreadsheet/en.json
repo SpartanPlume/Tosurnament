@@ -41,6 +41,12 @@
     "example_parameter": "D2:D",
     "success": "Qualifiers spreadsheet range time set to `%1`."
   },
+  "set_qualifiers_spreadsheet_max_range_for_lobby": {
+    "help": "Sets the maximum number of teams in a row.",
+    "parameter": "[<max_teams_in_row>]",
+    "example_parameter": "8",
+    "success": "Qualifiers spreadsheet max teams in row set to `%1`."
+  },
   "show_qualifiers_spreadsheet_settings": {
     "help": "Shows the current's bracket qualifiers spreadsheet settings",
     "title": "**__Qualifiers spreadsheet settings:__**\n\n"

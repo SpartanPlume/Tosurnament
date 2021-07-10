@@ -7,6 +7,7 @@ from unittest import mock
 import hypothesis
 from hypothesis import strategies, given
 
+import httplib2
 import socket
 import googleapiclient
 from common.api import spreadsheet
@@ -41,16 +42,13 @@ def test_spreadsheet_retrieve_spreadsheet(mock_spreadsheet_get):
     with pytest.raises(spreadsheet.InvalidWorksheet):
         sp.get_worksheet("non-existing sheet")
 
-    mock_spreadsheet_get.side_effect = googleapiclient.errors.HttpError({"status": 404}, bytes())
+    http_error = httplib2.Response({})
+    http_error.status = 404
+    mock_spreadsheet_get.side_effect = googleapiclient.errors.HttpError(http_error, bytes())
     with pytest.raises(spreadsheet.HttpError) as error:
         sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
     assert error.value.code == 404
     assert error.value.operation == "read"
-
-    mock_spreadsheet_get.side_effect = googleapiclient.errors.HttpError({}, bytes())
-    with pytest.raises(spreadsheet.HttpError) as error:
-        sp = spreadsheet.Spreadsheet.retrieve_spreadsheet("spreadsheet_id")
-    assert error.value.code == 500
 
     mock_spreadsheet_get.side_effect = ConnectionResetError()
     with pytest.raises(spreadsheet.HttpError) as error:

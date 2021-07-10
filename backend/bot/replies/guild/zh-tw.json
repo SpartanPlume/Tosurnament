@@ -24,7 +24,7 @@
       "parameter": "<channel>",
       "example_parameter": "#verify",
       "success": "",
-      "setup": "你好! 你需要在此機器人 (Tosurnament) 上進行驗證來完整存取此伺服器的功能。 驗證方法非常簡單，只要密語此機器人以下指令:  `%0link <osu_name>`，並將 `<osu_name>` 替換成你的 osu!使用者名稱即可。\n\n舉例: 如果你的使用者名稱是`Spartan Plume`，只需傳送 `%0link Spartan Plume` 至機器人的密語。\n\n當你完成連結，請在此訊息中加上 :bullhop: 反應。"
+      "setup": "你好! 你需要在此機器人 (Tosurnament) 上進行驗證來完整存取此伺服器的功能。 驗證方法非常簡單，只要密語此機器人以下指令:  `%0link`\n\n當你完成連結，請在此訊息中加上 :bullhop: 反應。"
     }
   }
   

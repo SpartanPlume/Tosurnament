@@ -68,6 +68,11 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
         """Sets the qualifiers spreadsheet range time."""
         await self.set_qualifiers_spreadsheet_range_value(ctx, "range_time", cell_range)
 
+    @commands.command(aliases=["sqsmtir"])
+    async def set_qualifiers_spreadsheet_max_teams_in_row(self, ctx, *, max_teams_in_row: int):
+        """Sets the qualifiers spreadsheet range time."""
+        await self.set_qualifiers_spreadsheet_values(ctx, {"max_teams_in_row": max_teams_in_row})
+
     @commands.command(aliases=["sqss"])
     async def show_qualifiers_spreadsheet_settings(self, ctx):
         """Shows the qualifiers spreadsheet settings."""

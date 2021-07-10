@@ -32,8 +32,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
 
     @commands.command()
     @commands.bot_has_permissions(manage_nicknames=True, manage_roles=True)
-    async def register(self, ctx, osu_link: str, timezone: str = ""):  # TODO handle teams + multiples brackets
+    async def register(self, ctx, timezone: str = ""):  # TODO handle teams + multiples brackets
         """Registers the player to the tournament."""
+        verified_user = self.get_verified_user(ctx.author.id)
         tournament = self.get_tournament(ctx.guild.id)
         if len(tournament.brackets) != 1:
             await self.send_reply(ctx, "not_supported_yet")
@@ -58,10 +59,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if not re.match(r"(UTC)?[-\+]([0-9]|1[0-4])(:[0-5][0-9])?$", timezone, re.IGNORECASE):
                 raise tosurnament.InvalidTimezone(timezone)
             timezone = "UTC" + re.sub(r"^UTC", "", timezone, flags=re.IGNORECASE)
-        osu_name = osu.get_from_string(osu_link)
-        osu_user = osu.get_user(osu_name, m=tournament.game_mode)
+        osu_user = osu.get_user(verified_user.osu_id, m=tournament.game_mode)
         if not osu_user:
-            raise tosurnament.UserNotFound(osu_name)
+            raise tosurnament.UserNotFound(verified_user.osu_id)
         team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
         player_info = team_info.players[0]
         player_info.name.set(osu_user.name)

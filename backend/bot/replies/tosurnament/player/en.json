@@ -31,8 +31,8 @@
   },
   "register": {
     "help": "Registers the player to the tournament",
-    "parameter": "<osu profile link/name/id> <timezone>",
-    "example_parameter": "\"Spartan Plume\" UTC+1",
+    "parameter": "<timezone>",
+    "example_parameter": "UTC+1",
     "success": "You have been registered successfully.",
     "invalid_timezone": "`%1` is an invalid timezone.",
     "not_supported_yet": "This command does not support team tournaments or multiple brackets tournament yet.",
