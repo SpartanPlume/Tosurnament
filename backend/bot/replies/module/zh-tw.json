@@ -12,8 +12,6 @@
     "role_does_not_exist": "`%1` 身分組不存在。請要求管理員創建此身分組來使用此指令。",
     "not_required_role": "你需要擁有 `%1` 身分組來使用此指令。",
     "user_not_found": "使用者 `%1` 不存在。",
-    "not_linked": "你尚未連結你的帳號。請使用 `%0link $auth/link/parameter` 指令。",
-    "not_verified": "你的帳號尚未驗證。請使用 `%0auth` 指令。",
     "osu_error": "發生錯誤，請稍後再使用一次。如果此問題持續發生，請於Discord連繫我: (`Spartan Plume#5172`)。",
     "usage": "用法",
     "example": "例",
