@@ -204,6 +204,9 @@ class BotMock(BaseMock):
             self.channels = [DEFAULT_CHANNEL_MOCK, SETUP_CHANNEL_MOCK, STAFF_CHANNEL_MOCK]
         else:
             self.channels = channels
+        self.info = mock.Mock()
+        self.error = mock.Mock()
+        self.info_exception = mock.Mock()
 
     @property
     def strings(self):

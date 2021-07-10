@@ -44,13 +44,15 @@ async def test_link(mocker):
     mock_bot = tosurnament_mock.BotMock()
     cog = tosurnament_mock.mock_cog(auth.get_class(mock_bot))
 
-    await cog.link(cog, tosurnament_mock.CtxMock(mock_bot, mock_author))
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, mock_author)
+    await cog.link(cog, mock_ctx)
     mock_bot.session.add.assert_called_once_with(
         tosurnament_mock.Matcher(
             User(discord_id_snowflake=tosurnament_mock.DEFAULT_USER_MOCK.id, verified=False, code=CODE_ASCII)
         )
     )
     assert mock_bot.session.update.call_count == 0
+    assert mock_ctx.message.delete.call_count == 1
     cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII, channel=tosurnament_mock.DM_CHANNEL_MOCK)
 
 
@@ -64,7 +66,8 @@ async def test_link_regenerate_code(mocker):
     mock_bot.session.add_stub(User(discord_id=tosurnament_mock.DEFAULT_USER_MOCK.id, verified=False, code="test"))
     cog = tosurnament_mock.mock_cog(auth.get_class(mock_bot))
 
-    await cog.link(cog, tosurnament_mock.CtxMock(mock_bot, mock_author))
+    mock_ctx = tosurnament_mock.CtxMock(mock_bot, mock_author)
+    await cog.link(cog, mock_ctx)
     assert mock_bot.session.add.call_count == 0
     user_matcher = tosurnament_mock.Matcher(
         User(
@@ -73,4 +76,5 @@ async def test_link_regenerate_code(mocker):
         )
     )
     mock_bot.session.update.assert_called_once_with(user_matcher)
+    assert mock_ctx.message.delete.call_count == 1
     cog.send_reply.assert_called_once_with(mocker.ANY, "success", CODE_ASCII, channel=tosurnament_mock.DM_CHANNEL_MOCK)

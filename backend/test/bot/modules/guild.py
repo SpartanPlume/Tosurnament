@@ -171,25 +171,48 @@ async def test_reaction_on_verify_message():
 async def test_on_verified_user_no_verified_role(mocker):
     """Adds the verified role to the user, but the role does not exist"""
     mock_bot = tosurnament_mock.BotMock()
+    mock_bot.session.add_stub(tosurnament_mock.DEFAULT_USER_STUB)
     cog = tosurnament_mock.mock_cog(guild_module.get_class(mock_bot))
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = []
     mock_user = tosurnament_mock.DEFAULT_USER_MOCK
     mock_user.add_roles = mocker.AsyncMock()
     await cog.on_verified_user(mock_guild, mock_user)
+    assert mock_user.display_name == tosurnament_mock.DEFAULT_USER_STUB.osu_name
     assert mock_user.add_roles.call_count == 0
+
+
+@pytest.mark.asyncio
+async def test_on_verified_user_exception_on_role_and_nick(mocker):
+    """Adds the verified role to the user but there is an exception in adding role and changing nick."""
+    cog, mock_bot, guild = init_mocks()
+    mock_bot.session.add_stub(tosurnament_mock.DEFAULT_USER_STUB)
+    verified_role = tosurnament_mock.VERIFIED_ROLE_MOCK
+    guild.verified_role_id = verified_role.id
+    mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
+    mock_guild.roles = [verified_role]
+    mock_user = tosurnament_mock.DEFAULT_USER_MOCK
+    mock_user.add_roles = mocker.AsyncMock(side_effect=Exception())
+    mock_user.edit = mocker.AsyncMock(side_effect=Exception())
+    await cog.on_verified_user(mock_guild, mock_user)
+    assert mock_user.add_roles.call_count == 1
+    assert mock_user.display_name != tosurnament_mock.DEFAULT_USER_STUB.osu_name
+    assert mock_user.edit.call_count == 1
+    assert mock_user.roles != [verified_role]
 
 
 @pytest.mark.asyncio
 async def test_on_verified_user():
     """Adds the verified role to the user"""
-    cog, _, guild = init_mocks()
+    cog, mock_bot, guild = init_mocks()
+    mock_bot.session.add_stub(tosurnament_mock.DEFAULT_USER_STUB)
     verified_role = tosurnament_mock.VERIFIED_ROLE_MOCK
     guild.verified_role_id = verified_role.id
     mock_guild = tosurnament_mock.DEFAULT_GUILD_MOCK
     mock_guild.roles = [verified_role]
     mock_user = tosurnament_mock.DEFAULT_USER_MOCK
     await cog.on_verified_user(mock_guild, mock_user)
+    assert mock_user.display_name == tosurnament_mock.DEFAULT_USER_STUB.osu_name
     assert mock_user.roles == [verified_role]
 
 

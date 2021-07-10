@@ -50,6 +50,10 @@ class AuthCog(base.BaseModule, name="auth"):
             self.bot.session.update(user)
 
         dm_channel = await ctx.author.create_dm()
+        try:
+            await ctx.message.delete()
+        except Exception:
+            pass
         await self.send_reply(ctx, "success", code, channel=dm_channel)
 
     @link.error

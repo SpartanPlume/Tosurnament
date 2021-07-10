@@ -270,7 +270,7 @@ class TosurnamentBaseModule(BaseModule):
                     self.bot.info_exception(e)
                     spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
                     if spreadsheet.id not in spreadsheet_ids:
-                        spreadsheet_ids.append(spreadsheet.id)
+                        spreadsheet_ids.add(spreadsheet.id)
                         self.update_spreadsheet_ids_to_update_pickle(spreadsheet_ids)
                     await asyncio.sleep(10)
                     continue

@@ -89,13 +89,22 @@ class GuildCog(base.BaseModule, name="guild"):
         await self.bot.on_verified_user(ctx.guild, ctx.author)
 
     async def on_verified_user(self, guild, user):
+        verified_user = self.get_verified_user(user.id)
         bot_guild = self.get_guild(guild.id)
         verified_role_id = None
         if bot_guild:
             verified_role_id = bot_guild.verified_role_id
         verified_role = base.get_role(guild.roles, verified_role_id, "Verified")
+        if verified_user.osu_name:
+            try:
+                await user.edit(nick=verified_user.osu_name)
+            except Exception:
+                self.bot.info("Missing manage_nicknames permission or error while changing the nickname of the user")
         if verified_role:
-            await user.add_roles(verified_role)
+            try:
+                await user.add_roles(verified_role)
+            except Exception:
+                self.bot.info("Missing manage_roles permission or error while changing the role of the user")
 
 
 def get_class(bot):
