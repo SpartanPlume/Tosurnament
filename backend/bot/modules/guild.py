@@ -3,9 +3,10 @@
 import discord
 from discord.ext import commands
 from bot.modules import module as base
-from common.databases.guild import Guild
-from common.databases.messages.guild_verify_message import GuildVerifyMessage
-from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
+from common.databases.tosurnament.guild import Guild
+from common.databases.tosurnament_message.guild_verify_message import GuildVerifyMessage
+from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
+from common.api import tosurnament as tosurnament_api
 
 
 class GuildCog(base.BaseModule, name="guild"):
@@ -43,10 +44,10 @@ class GuildCog(base.BaseModule, name="guild"):
         """Puts the input values into the corresponding tournament."""
         guild = self.get_guild(ctx.guild.id)
         if not guild:
-            guild = self.bot.session.add(Guild(guild_id=ctx.guild.id))
+            guild = tosurnament_api.create_guild(Guild(guild_id=ctx.guild.id))
         for key, value in values.items():
             setattr(guild, key, value)
-        self.bot.session.update(guild)
+        tosurnament_api.update_guild(guild)
         await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["svc"])

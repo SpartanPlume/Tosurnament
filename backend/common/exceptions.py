@@ -209,11 +209,10 @@ class InvalidDateOrFormat(commands.CommandError):
 class SpreadsheetHttpError(commands.CommandError):
     """Special exception in case there is an http error when reading or writing on the spreadsheet."""
 
-    def __init__(self, code, operation, bracket_name, spreadsheet, google_error):
+    def __init__(self, code, operation, spreadsheet, google_error):
         super().__init__()
         self.code = code
         self.operation = operation
-        self.bracket_name = bracket_name
         self.spreadsheet = spreadsheet
         self.google_error = google_error
 
@@ -225,9 +224,7 @@ class SpreadsheetHttpError(commands.CommandError):
             + self.operation
             + " in the "
             + self.spreadsheet
-            + " spreadsheet of the bracket "
-            + self.bracket_name
-            + ". Error from google api: "
+            + " spreadsheet of a bracket. Error from google api: "
             + str(self.google_error)
         )
 

@@ -6,8 +6,9 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import challonge
-from common.databases.bracket import Bracket
+from common.databases.tosurnament.bracket import Bracket
 from common.api import osu
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
@@ -195,7 +196,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         tournament = self.get_tournament(ctx.guild.id)
         for key, value in values.items():
             setattr(tournament.current_bracket, key, value)
-        self.bot.session.update(tournament.current_bracket)
+        tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["cp"])
@@ -214,9 +215,14 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                 if spreadsheet_from:
                     spreadsheet_to = bracket_to.get_spreadsheet_from_type(spreadsheet_type)
                     if not spreadsheet_to:
-                        spreadsheet_to = bracket_to.create_spreadsheet_from_type(self.bot, spreadsheet_type)
-                    spreadsheet_from.copy_to(spreadsheet_to)
-                    self.bot.session.update(spreadsheet_to)
+                        spreadsheet_to = getattr(tosurnament_api, "create_" + spreadsheet_type)(
+                            tournament.id, bracket_to.id, spreadsheet_from
+                        )
+                    else:
+                        spreadsheet_from.copy_to(spreadsheet_to)
+                        getattr(tosurnament_api, "update_" + spreadsheet_type)(
+                            tournament.id, bracket_to.id, spreadsheet_to
+                        )
 
             await self.send_reply(ctx, "success", bracket_from.name, bracket_to.name)
             return

@@ -2,7 +2,7 @@
 
 from discord.ext import commands
 from bot.modules import module as base
-from common.databases.tournament import Tournament
+from common.api import tosurnament as tosurnament_api
 
 
 class AdminCog(base.BaseModule, name="admin"):
@@ -46,7 +46,7 @@ class AdminCog(base.BaseModule, name="admin"):
         """Sends an annoucement to all servers that have a tournament running."""
         users_already_sent_to = []
         for guild in self.bot.guilds:
-            tournament = self.bot.session.query(Tournament).where(Tournament.guild_id == guild.id).first()
+            tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild.id)
             if tournament:
                 staff_channel = self.bot.get_channel(tournament.staff_channel_id)
                 tosurnament_guild = self.get_guild(guild.id)

@@ -6,8 +6,7 @@ import discord
 from discord.ext import commands
 from common.exceptions import *
 from common.utils import load_json
-from common.databases.guild import Guild
-from common.databases.user import User
+from common.api import tosurnament as tosurnament_api
 
 
 class UserAbstraction:
@@ -22,14 +21,14 @@ class UserAbstraction:
 
     @staticmethod
     def get_from_user(bot, user):
-        tosurnament_user = bot.session.query(User).where(User.discord_id == user.id).first()
+        tosurnament_user = tosurnament_api.get_user_by_discord_user_id(user.id)
         if tosurnament_user and tosurnament_user.verified:
             return UserAbstraction(tosurnament_user.osu_name, user.id, True)
         return UserAbstraction(user.display_name, user.id, False)
 
     @staticmethod
     def get_from_osu_name(bot, osu_name, default_discord_tag=None):
-        tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name.lower()).first()
+        tosurnament_user = tosurnament_api.get_user_by_osu_name(osu_name.lower())
         if tosurnament_user and tosurnament_user.verified:
             return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
         return UserAbstraction(osu_name, default_discord_tag, False)
@@ -39,15 +38,15 @@ class UserAbstraction:
         tosurnament_user = None
         discord_id = player_info.discord_id.get()
         if discord_id:
-            tosurnament_user = bot.session.query(User).where(User.discord_id == discord_id).first()
+            tosurnament_user = tosurnament_api.get_user_by_discord_user_id(discord_id)
         osu_name = player_info.name.get()
         if not tosurnament_user and osu_name:
-            tosurnament_user = bot.session.query(User).where(User.osu_name_hash == osu_name.lower()).first()
+            tosurnament_user = tosurnament_api.get_user_by_osu_name(osu_name.lower())
         discord_tag = player_info.discord.get()
         if not tosurnament_user and guild and discord_tag:
             member = guild.get_member_named(discord_tag)
             if member:
-                tosurnament_user = bot.session.query(User).where(User.discord_id == member.id).first()
+                tosurnament_user = tosurnament_api.get_user_by_discord_user_id(member.id)
         if tosurnament_user and tosurnament_user.verified:
             return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
         elif discord_id:
@@ -93,18 +92,12 @@ class BaseModule(commands.Cog):
             return False
         return True
 
-    async def update_table(self, ctx, table, values):
-        for key, value in values.items():
-            setattr(table, key, value)
-        self.bot.session.update(table)
-        await self.send_reply(ctx, "success", value, stack_depth=2)
-
     def get_guild(self, guild_id):
-        return self.bot.session.query(Guild).where(Guild.guild_id == guild_id).first()
+        return tosurnament_api.get_guild_by_discord_guild_id(guild_id)
 
     def get_user(self, discord_id):
         """Gets the User from their discord id."""
-        return self.bot.session.query(User).where(User.discord_id == discord_id).first()
+        return tosurnament_api.get_user_by_discord_user_id(discord_id)
 
     def get_verified_user(self, discord_id):
         """Gets the User from their discord id, but only if they are verified."""
@@ -164,7 +157,7 @@ class BaseModule(commands.Cog):
     def find_reply(self, guild, replies, field_name, modules, command_name):
         language = "en"
         if guild:
-            tosurnament_guild = self.bot.session.query(Guild).where(Guild.guild_id == guild.id).first()
+            tosurnament_guild = self.get_guild(guild.id)
             if tosurnament_guild and tosurnament_guild.language:
                 language = tosurnament_guild.language
         return self.find_reply_recursive(language, replies, field_name, modules, command_name)

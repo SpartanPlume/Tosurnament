@@ -1,8 +1,8 @@
 import json
 from common.api.spreadsheet import Spreadsheet, Worksheet, Cell
-from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
 
 SPREADSHEET_RESOURCES_DIR = "test/resources/spreadsheets/"
 

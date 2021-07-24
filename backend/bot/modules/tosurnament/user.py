@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import osu
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
@@ -89,7 +90,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         user.osu_previous_name = previous_name
         user.osu_name = new_name
         user.osu_name_hash = new_name.lower()
-        self.bot.session.update(user)
+        tosurnament_api.update_user(user)
         await self.send_reply(ctx, "success")
 
     async def find_team_name_of_member(self, ctx, bracket):

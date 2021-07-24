@@ -2,8 +2,9 @@
 
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.api import spreadsheet
-from common.exceptions import NoSpreadsheet
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="players_spreadsheet"):
@@ -22,16 +23,30 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         """Sets the players spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        spreadsheet_id = bracket.update_spreadsheet_of_type(self.bot, "players", spreadsheet_id, sheet_name)
+        players_spreadsheet = None
+        if bracket.players_spreadsheet_id:
+            players_spreadsheet = tosurnament_api.get_players_spreadsheet(
+                tournament.id, bracket.id, bracket.players_spreadsheet_id
+            )
+        if not players_spreadsheet:
+            players_spreadsheet = tosurnament_api.create_players_spreadsheet(
+                tournament.id, bracket.id, PlayersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            )
+        else:
+            players_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            tosurnament_api.update_players_spreadsheet(tournament.id, bracket.id, players_spreadsheet)
         await self.send_reply(ctx, "success", spreadsheet_id)
 
     async def set_players_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        any_spreadsheet = tournament.current_bracket.get_spreadsheet_from_type("players")
-        if not any_spreadsheet:
+        players_spreadsheet = tournament.current_bracket.get_spreadsheet_from_type("players")
+        if not players_spreadsheet:
             raise tosurnament.NoSpreadsheet("players")
-        await self.update_table(ctx, any_spreadsheet, values)
+        for key, value in values.items():
+            setattr(players_spreadsheet, key, value)
+        tosurnament_api.update_players_spreadsheet(tournament.id, tournament.current_bracket.id, players_spreadsheet)
+        await self.send_reply(ctx, "success", value)
 
     async def set_players_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""
@@ -111,7 +126,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         bracket = tournament.current_bracket
         players_spreadsheet = await bracket.get_players_spreadsheet()
         if not players_spreadsheet:
-            raise NoSpreadsheet("players")
+            raise tosurnament.NoSpreadsheet("players")
         team_infos, _ = await self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
         try:
             selected_team_info = team_infos[index]

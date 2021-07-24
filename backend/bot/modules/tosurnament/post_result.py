@@ -5,13 +5,13 @@ import re
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.bracket import Bracket
-from common.databases.spreadsheets.players_spreadsheet import TeamInfo
-from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound
-from common.databases.messages.post_result_message import PostResultMessage
-from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import TeamInfo
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound
+from common.databases.tosurnament_message.post_result_message import PostResultMessage
+from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.api import osu
 from common.api import challonge
+from common.api import tosurnament as tosurnament_api
 
 ROUNDS = ["GF", "Finals", "SF", "QF"]
 
@@ -405,7 +405,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await self.update_post_result_setup_message_with_ctx(ctx, post_result_message, 7)
 
     async def step7_send_message(self, ctx, tournament, post_result_message):
-        bracket = self.bot.session.query(Bracket).where(Bracket.id == post_result_message.bracket_id).first()
+        bracket = tosurnament_api.get_bracket(tournament.id, post_result_message.bracket_id)
         if not bracket:
             self.bot.session.delete(post_result_message)
             raise tosurnament.NoBracket()

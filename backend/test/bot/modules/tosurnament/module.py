@@ -3,7 +3,7 @@ All tests concerning the Tosurnament main module.
 """
 
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.tournament import Tournament
+from common.databases.tosurnament.tournament import Tournament
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament"

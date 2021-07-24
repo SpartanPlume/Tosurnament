@@ -1,7 +1,9 @@
 {
-    "show_user_info": {
-      "help": "Shows the information of a user.",
-      "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5"
-    }
+  "show_user_info": {
+    "help": "Shows the information of a user.",
+    "parameter": "<discord_id/mention>",
+    "example_parameter": "100648380174192640",
+    "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5"
+  }
 }
   

@@ -7,7 +7,8 @@ import dateparser
 import discord
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.bracket import Bracket
+from common.databases.tosurnament.bracket import Bracket
+from common.api import tosurnament as tosurnament_api
 
 TIME_REGEX = r"([0-2][0-3]|[0-1][0-9]):[0-5][0-9]"
 
@@ -38,9 +39,9 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         """Creates a bracket and sets it as current bracket (for bracket settings purpose)."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = Bracket(tournament_id=tournament.id, name=name)
-        self.bot.session.add(bracket)
+        bracket = tosurnament_api.create_bracket(tournament.id, bracket)
         tournament.current_bracket_id = bracket.id
-        self.bot.session.update(tournament)
+        tournament = tosurnament_api.update_tournament(tournament)
         await self.send_reply(ctx, "success", name)
 
     @commands.command(aliases=["get_brackets", "gb"])
@@ -50,7 +51,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         bracket = self.get_bracket_from_index(tournament.brackets, number)
         if bracket:
             tournament.current_bracket_id = bracket.id
-            self.bot.session.update(tournament)
+            tosurnament_api.update_tournament(tournament)
             await self.send_reply(ctx, "success", bracket.name)
         else:
             brackets_string = ""
@@ -204,7 +205,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         tournament = self.get_tournament(ctx.guild.id)
         for key, value in values.items():
             setattr(tournament, key, value)
-        self.bot.session.update(tournament)
+        tosurnament_api.update_tournament(tournament)
         await self.send_reply(ctx, "success", value)
 
     @commands.command(aliases=["amti", "add_matches_to_ignore"])
@@ -238,7 +239,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             match_ids.pop(match_id.casefold())
         matches_to_ignore.sort()
         tournament.matches_to_ignore = "\n".join(matches_to_ignore)
-        self.bot.session.update(tournament)
+        tosurnament_api.update_tournament(tournament)
         await self.send_reply(ctx, "success", " ".join(matches_to_ignore))
         matches_not_found = [match_id for match_id in match_ids.values()]
         if matches_not_found:

@@ -3,8 +3,8 @@
 import discord
 from discord.ext import commands
 from bot.modules import module as base
-from common.databases.messages.reaction_for_role_message import ReactionForRoleMessage
-from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
+from common.databases.tosurnament_message.reaction_for_role_message import ReactionForRoleMessage
+from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
 
 
 class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message"):

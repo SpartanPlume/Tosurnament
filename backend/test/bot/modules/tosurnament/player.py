@@ -11,12 +11,12 @@ from discord.ext import commands
 
 from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament import player as player_module
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.allowed_reschedule import AllowedReschedule
-from common.databases.messages.reschedule_message import RescheduleMessage
-from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.user import User
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
+from common.databases.tosurnament.allowed_reschedule import AllowedReschedule
+from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament.user import User
 from test.resources.mock.spreadsheet import (
     PlayersSpreadsheetTeamsMock,
     SpreadsheetMock,
@@ -61,7 +61,7 @@ def init_reschedule_single_mocks(mocker):
     bracket.schedules_spreadsheet_id = 1
     mock_bot.session.add_stub(QualifiersSpreadsheetSingleMock(id=1))
     bracket.qualifiers_spreadsheet_id = 1
-    mocker.patch("common.databases.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
+    mocker.patch("common.databases.tosurnament.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
     return cog, mock_bot, tournament, bracket
 
 
@@ -99,7 +99,7 @@ async def test_register_not_supported_yet_team_bracket(mocker):
     cog, mock_bot, _, bracket = init_mocks()
     mock_bot.session.add_stub(PlayersSpreadsheetTeamsMock(id=1))
     bracket.players_spreadsheet_id = 1
-    mocker.patch("common.databases.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
+    mocker.patch("common.databases.tosurnament.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
     await cog.register(cog, tosurnament_mock.CtxMock(mock_bot))
     cog.send_reply.assert_called_once_with(mocker.ANY, "not_supported_yet")
 
@@ -242,7 +242,7 @@ async def test_reschedule_invalid_new_date():
 async def test_reschedule_dateparser_value_error(mocker):
     """Reschedules a match, but dateparser throws a ValueError exception while trying to parse the new date."""
     cog, mock_bot, _, _ = init_mocks()
-    mocker.patch("common.databases.tournament.dateparser.parse", mocker.Mock(side_effect=ValueError()))
+    mocker.patch("common.databases.tosurnament.tournament.dateparser.parse", mocker.Mock(side_effect=ValueError()))
     with pytest.raises(commands.UserInputError):
         await cog.reschedule(cog, tosurnament_mock.CtxMock(mock_bot), "", date="monday")
 

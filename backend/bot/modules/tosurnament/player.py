@@ -7,14 +7,14 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
-from common.databases.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
-from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyIdNotFound, LobbyInfo
-from common.databases.messages.reschedule_message import RescheduleMessage
-from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
-from common.databases.allowed_reschedule import AllowedReschedule
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import MatchInfo, MatchIdNotFound, DateIsNotString
+from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import LobbyIdNotFound, LobbyInfo
+from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.api import osu
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
@@ -296,9 +296,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     def is_skip_deadline_validation(self, tournament, match_id):
         allowed_reschedule_match_ids = [
             allowed_reschedule.match_id.casefold()
-            for allowed_reschedule in self.bot.session.query(AllowedReschedule)
-            .where(AllowedReschedule.tournament_id == tournament.id)
-            .all()
+            for allowed_reschedule in tosurnament_api.get_allowed_reschedules(tournament.id)
         ]
         if match_id.casefold() in allowed_reschedule_match_ids:
             return True
@@ -574,12 +572,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 new_date_string,
                 channel=staff_channel,
             )
-        allowed_reschedules = (
-            self.bot.session.query(AllowedReschedule).where(AllowedReschedule.tournament_id == tournament.id).all()
-        )
+        allowed_reschedules = tosurnament_api.get_allowed_reschedules(tournament.id)
         for allowed_reschedule in allowed_reschedules:
             if allowed_reschedule.match_id.upper() == match_id.upper():
-                self.bot.session.delete(allowed_reschedule)
+                tosurnament_api.delete_allowed_reschedule(tournament.id, match_id.upper())
 
     async def on_verified_user(self, guild, user):
         await self.get_player_role_for_user(None, guild, user)

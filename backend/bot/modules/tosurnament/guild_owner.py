@@ -2,12 +2,16 @@
 
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.messages.reschedule_message import RescheduleMessage
-from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.messages.end_tournament_message import EndTournamentMessage
-from common.databases.messages.base_message import on_raw_reaction_with_context, with_corresponding_message
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
+from common.databases.tosurnament_message.qualifiers_results_message import QualifiersResultsMessage
+from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament_message.end_tournament_message import EndTournamentMessage
+from common.databases.tosurnament_message.post_result_message import PostResultMessage
+from common.databases.tosurnament_message.match_notification import MatchNotification
+from common.databases.tosurnament_message.base_message import on_raw_reaction_with_context, with_corresponding_message
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_owner"):
@@ -27,17 +31,14 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         If a bracket name is not specified, the bracket takes the tournament's name as its name too.
         """
         guild_id = ctx.guild.id
-        tournament = self.bot.session.query(Tournament).where(Tournament.guild_id == guild_id).first()
+        tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild_id)
         if tournament:
             raise tosurnament.TournamentAlreadyCreated()
         tournament = Tournament(guild_id=guild_id, acronym=acronym, name=name)
-        self.bot.session.add(tournament)
-        if not bracket_name:
-            bracket_name = name
-        bracket = Bracket(tournament_id=tournament.id, name=bracket_name)
-        self.bot.session.add(bracket)
-        tournament.current_bracket_id = bracket.id
-        self.bot.session.update(tournament)
+        tournament = tosurnament_api.create_tournament(tournament)
+        if bracket_name:
+            tournament.current_bracket.name = bracket_name
+            tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", acronym, name, bracket_name)
 
     @create_tournament.error
@@ -49,9 +50,11 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
     @commands.command(aliases=["et"])
     async def end_tournament(self, ctx):
         """Sends a message to react on, to be sure that the user wants to end the tournament."""
-        self.get_tournament(ctx.guild.id)  # Check if there is a running tournament
+        tournament = self.get_tournament(ctx.guild.id)
         message = await self.send_reply(ctx, "are_you_sure")
-        end_tournament_message = EndTournamentMessage(message_id=message.id, author_id=ctx.author.id)
+        end_tournament_message = EndTournamentMessage(
+            message_id=message.id, author_id=ctx.author.id, tournament_id=tournament.id
+        )
         self.bot.session.add(end_tournament_message)
 
     @on_raw_reaction_with_context("add", valid_emojis=["✅", "❎"])
@@ -64,15 +67,16 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             self.bot.session.delete(end_tournament_message)
             return
         if emoji.name == "✅":
-            for bracket in tournament.brackets:
-                for spreadsheet_type in Bracket.get_spreadsheet_types().keys():
-                    self.bot.session.delete(bracket.get_spreadsheet_from_type(spreadsheet_type))
-                self.bot.session.delete(bracket)
+            tosurnament_api.delete_tournament(tournament)
             self.bot.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
             self.bot.session.query(StaffRescheduleMessage).where(
                 StaffRescheduleMessage.tournament_id == tournament.id
             ).delete()
-            self.bot.session.delete(tournament)
+            self.bot.session.query(MatchNotification).where(MatchNotification.tournament_id == tournament.id).delete()
+            self.bot.session.query(PostResultMessage).where(PostResultMessage.tournament_id == tournament.id).delete()
+            self.bot.session.query(QualifiersResultsMessage).where(
+                QualifiersResultsMessage.tournament_id == tournament.id
+            ).delete()
             self.bot.session.delete(end_tournament_message)
             await self.send_reply(ctx, "success")
         else:

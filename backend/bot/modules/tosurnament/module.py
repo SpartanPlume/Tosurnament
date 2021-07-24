@@ -7,21 +7,21 @@ import asyncio
 import functools
 from discord.ext import commands
 from bot.modules.module import *
-from common.databases.tournament import Tournament
-from common.databases.spreadsheets.base_spreadsheet import BaseSpreadsheet, SpreadsheetHttpError
-from common.databases.spreadsheets.schedules_spreadsheet import (
+from common.databases.tosurnament.spreadsheets.base_spreadsheet import BaseSpreadsheet, SpreadsheetHttpError
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import (
     DuplicateMatchId,
     MatchIdNotFound,
     DateIsNotString,
     MatchInfo,
 )
-from common.databases.spreadsheets.players_spreadsheet import (
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import (
     TeamInfo,
     DuplicateTeam,
     TeamNotFound,
 )
 from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
 from common.api import challonge
+from common.api import tosurnament as tosurnament_api
 
 PRETTY_DATE_FORMAT = "%A %d %B at %H:%M UTC"
 DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
@@ -47,7 +47,7 @@ class UserDetails:
 
     @staticmethod
     def get_from_ctx(ctx):
-        tournament = ctx.bot.session.query(Tournament).where(Tournament.guild_id == ctx.guild.id).first()
+        tournament = tosurnament_api.get_tournament_by_discord_guild_id(ctx.guild.id)
         if not tournament:
             raise NoTournament()
         return UserDetails.get_from_user(ctx.bot, ctx.author, tournament)
@@ -141,7 +141,7 @@ class TosurnamentBaseModule(BaseModule):
         Gets the tournament linked to the guild.
         If there is no tournament, throws NoTournament.
         """
-        tournament = self.bot.session.query(Tournament).where(Tournament.guild_id == guild_id).first()
+        tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild_id)
         if not tournament:
             raise NoTournament()
         return tournament
@@ -384,6 +384,8 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(ctx, "challonge_no_rights", channel=channel)
         elif isinstance(error, challonge.NotFound):
             await self.send_reply(ctx, "challonge_not_found", channel=channel)
+        elif isinstance(error, tosurnament_api.TosurnamentException):
+            await self.send_reply(ctx, "tosurnament_api_error", error.code, error.description, channel=channel)
         else:
             return False
         return True
@@ -393,7 +395,7 @@ def has_tournament_role(role_name):
     """Check function to know if the user has a tournament role."""
 
     async def predicate(ctx):
-        tournament = ctx.bot.session.query(Tournament).where(Tournament.guild_id == ctx.guild.id).first()
+        tournament = tosurnament_api.get_tournament_by_discord_guild_id(ctx.guild.id)
         if not tournament:
             raise NoTournament()
         role_id = tournament.get_role_id(role_name)

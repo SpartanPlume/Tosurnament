@@ -4,7 +4,8 @@ import os
 import base64
 from discord.ext import commands
 from bot.modules import module as base
-from common.databases.user import User
+from common.databases.tosurnament.user import User
+from common.api import tosurnament as tosurnament_api
 
 
 class UserAlreadyVerified(commands.CommandError):
@@ -44,10 +45,10 @@ class AuthCog(base.BaseModule, name="auth"):
                 verified=False,
                 code=code,
             )
-            self.bot.session.add(user)
+            user = tosurnament_api.create_user(user)
         else:
             user.code = code
-            self.bot.session.update(user)
+            tosurnament_api.update_user(user)
 
         dm_channel = await ctx.author.create_dm()
         try:

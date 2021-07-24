@@ -2,7 +2,9 @@
 
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
 from common.api import spreadsheet
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="schedules_spreadsheet"):
@@ -21,16 +23,32 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
         """Sets the schedules spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        spreadsheet_id = bracket.update_spreadsheet_of_type(self.bot, "schedules", spreadsheet_id, sheet_name)
+        schedules_spreadsheet = None
+        if bracket.schedules_spreadsheet_id:
+            schedules_spreadsheet = tosurnament_api.get_schedules_spreadsheet(
+                tournament.id, bracket.id, bracket.schedules_spreadsheet_id
+            )
+        if not schedules_spreadsheet:
+            schedules_spreadsheet = tosurnament_api.create_schedules_spreadsheet(
+                tournament.id, bracket.id, SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            )
+        else:
+            schedules_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            tosurnament_api.update_schedules_spreadsheet(tournament.id, bracket.id, schedules_spreadsheet)
         await self.send_reply(ctx, "success", spreadsheet_id)
 
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
         tournament = self.get_tournament(ctx.guild.id)
-        any_spreadsheet = tournament.current_bracket.get_spreadsheet_from_type("schedules")
-        if not any_spreadsheet:
+        schedules_spreadsheet = tournament.current_bracket.get_spreadsheet_from_type("schedules")
+        if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
-        await self.update_table(ctx, any_spreadsheet, values)
+        for key, value in values.items():
+            setattr(schedules_spreadsheet, key, value)
+        tosurnament_api.update_schedules_spreadsheet(
+            tournament.id, tournament.current_bracket.id, schedules_spreadsheet
+        )
+        await self.send_reply(ctx, "success", value)
 
     async def set_schedules_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""

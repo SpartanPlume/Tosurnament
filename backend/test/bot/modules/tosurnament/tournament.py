@@ -9,11 +9,11 @@ import discord
 from hypothesis import strategies, given
 
 from bot.modules.tosurnament import tournament as tournament_module
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.spreadsheets.base_spreadsheet import BaseSpreadsheet
-from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet, MatchInfo
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
+from common.databases.tosurnament.spreadsheets.base_spreadsheet import BaseSpreadsheet
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet, MatchInfo
 from common.api.spreadsheet import Cell
 import test.resources.mock.tosurnament as tosurnament_mock
 

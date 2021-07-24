@@ -9,13 +9,13 @@ import pytest
 
 from bot.modules.tosurnament import guild_owner
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
-from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.databases.messages.reschedule_message import RescheduleMessage
-from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.messages.end_tournament_message import EndTournamentMessage
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament_message.end_tournament_message import EndTournamentMessage
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.guild_owner"

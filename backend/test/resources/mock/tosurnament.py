@@ -9,7 +9,7 @@ from mysqldb_wrapper import crypt
 
 from common.utils import load_json
 from common.api.spreadsheet import Spreadsheet, Worksheet, Cell
-from common.databases.user import User
+from common.databases.tosurnament.user import User
 
 
 def query_side_effect_wrapper(session_mock):

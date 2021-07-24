@@ -6,8 +6,8 @@ import importlib
 import pytest
 
 from bot.modules import guild as guild_module
-from common.databases.guild import Guild
-from common.databases.messages.guild_verify_message import GuildVerifyMessage
+from common.databases.tosurnament.guild import Guild
+from common.databases.tosurnament_message.guild_verify_message import GuildVerifyMessage
 from common import exceptions
 import test.resources.mock.tosurnament as tosurnament_mock
 

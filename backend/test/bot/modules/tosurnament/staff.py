@@ -6,8 +6,8 @@ import pytest
 
 from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament import staff as staff_module
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
 from test.resources.mock.spreadsheet import (
     SpreadsheetMock,
     PlayersSpreadsheetSingleMock,
@@ -34,7 +34,7 @@ def init_reschedule_single_mocks(mocker):
     bracket.players_spreadsheet_id = 1
     mock_bot.session.add_stub(SchedulesSpreadsheetSingleMock(id=1))
     bracket.schedules_spreadsheet_id = 1
-    mocker.patch("common.databases.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
+    mocker.patch("common.databases.tosurnament.spreadsheets.base_spreadsheet.Spreadsheet", SpreadsheetMock)
     return cog, mock_bot, tournament, bracket
 
 

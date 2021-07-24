@@ -8,7 +8,7 @@ import importlib
 import pytest
 
 from bot.modules import auth
-from common.databases.user import User
+from common.databases.tosurnament.user import User
 import test.resources.mock.tosurnament as tosurnament_mock
 
 

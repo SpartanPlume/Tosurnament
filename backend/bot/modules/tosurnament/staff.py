@@ -6,26 +6,25 @@ import discord
 from discord.utils import escape_markdown
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.spreadsheets.schedules_spreadsheet import (
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import (
     MatchInfo,
     MatchIdNotFound,
     DuplicateMatchId,
     DateIsNotString,
     SchedulesSpreadsheet,
 )
-from common.databases.spreadsheets.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
-from common.databases.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultInfo
-from common.databases.spreadsheets.players_spreadsheet import TeamInfo
-from common.databases.guild import Guild
-from common.databases.messages.match_notification import MatchNotification
-from common.databases.messages.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.messages.base_message import with_corresponding_message, on_raw_reaction_with_context
-from common.databases.allowed_reschedule import AllowedReschedule
-from common.databases.messages.qualifiers_results_message import QualifiersResultsMessage
+from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import LobbyInfo, LobbyIdNotFound
+from common.databases.tosurnament.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultInfo
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import TeamInfo
+from common.databases.tosurnament.guild import Guild
+from common.databases.tosurnament_message.match_notification import MatchNotification
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
+from common.databases.tosurnament.allowed_reschedule import AllowedReschedule
+from common.databases.tosurnament_message.qualifiers_results_message import QualifiersResultsMessage
 from common.api.spreadsheet import Spreadsheet, InvalidWorksheet
 from common.api import osu
+from common.api import tosurnament as tosurnament_api
 
 
 class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
@@ -171,7 +170,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         allowed_reschedule = AllowedReschedule(
             tournament_id=tournament.id, match_id=match_id, allowed_hours=allowed_hours
         )
-        self.bot.session.add(allowed_reschedule)
+        allowed_reschedule = tosurnament_api.create_allowed_reschedule(tournament.id, allowed_reschedule)
         await self.send_reply(ctx, "success", match_id, allowed_hours, team1, team2)
 
     @allow_next_reschedule.error
@@ -681,8 +680,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             now = datetime.datetime.utcnow()
             tosurnament_guild = self.get_guild(guild.id)
             if not tosurnament_guild:
-                tosurnament_guild = Guild(guild_id=guild.id)
-                self.bot.session.add(tosurnament_guild)
+                tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild.id))
             elif tosurnament_guild.last_notification_date:
                 previous_notification_date = datetime.datetime.strptime(
                     tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT
@@ -695,14 +693,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 ):
                     return
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
-            self.bot.session.update(tosurnament_guild)
+            tosurnament_api.update_guild(tosurnament_guild)
             await self.match_notification(guild, tournament)
         except asyncio.CancelledError:
             if previous_notification_date:
                 tosurnament_guild.last_notification_date = previous_notification_date.strftime(
                     tosurnament.DATABASE_DATE_FORMAT
                 )
-                self.bot.session.update(tosurnament_guild)
+                tosurnament_api.update_guild(tosurnament_guild)
         except (tosurnament.SpreadsheetHttpError, tosurnament.DateIsNotString):
             return
         except Exception as e:
@@ -739,14 +737,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     async def clean_allowed_reschedule(self, guild):
         tournament = self.get_tournament(guild.id)
-        allowed_reschedules = (
-            self.bot.session.query(AllowedReschedule).where(AllowedReschedule.tournament_id == tournament.id).all()
-        )
-        now = datetime.datetime.utcnow()
-        for allowed_reschedule in allowed_reschedules:
-            created_at = datetime.datetime.fromtimestamp(allowed_reschedule.created_at)
-            if now > created_at + datetime.timedelta(seconds=(allowed_reschedule.allowed_hours * 3600)):
-                self.bot.session.delete(allowed_reschedule)
+        tosurnament_api.get_allowed_reschedules(tournament.id)  # This call cleans up outdate AllowedReschedules
 
     async def background_task_clean_allowed_reschedule(self):
         try:
@@ -771,14 +762,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     @with_corresponding_message(MatchNotification)
     async def reaction_on_match_notification(self, ctx, emoji, match_notification):
         """Allows a referee to take a match from its notification."""
-        tournament = self.bot.session.query(Tournament).where(Tournament.id == match_notification.tournament_id).first()
+        tournament = tosurnament_api.get_tournament(match_notification.tournament_id)
         if not tournament:
             self.bot.session.delete(match_notification)
             return
         referee_role = tosurnament.get_role(ctx.author.roles, tournament.referee_role_id, "Referee")
         if not referee_role:
             return
-        bracket = self.bot.session.query(Bracket).where(Bracket.id == match_notification.bracket_id).first()
+        bracket = tosurnament_api.get_bracket(tournament.id, match_notification.bracket_id)
         if not bracket:
             self.bot.session.delete(match_notification)
             return
@@ -850,13 +841,11 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 and ctx.author.id not in commentators_id
             ):
                 return
-        tournament = (
-            self.bot.session.query(Tournament).where(Tournament.id == staff_reschedule_message.tournament_id).first()
-        )
+        tournament = tosurnament_api.get_tournament(staff_reschedule_message.tournament_id)
         if not tournament:
             self.bot.session.delete(staff_reschedule_message)
             return
-        bracket = self.bot.session.query(Bracket).where(Bracket.id == staff_reschedule_message.bracket_id).first()
+        bracket = tosurnament_api.get_bracket(tournament.id, staff_reschedule_message.bracket_id)
         if not bracket:
             self.bot.session.delete(staff_reschedule_message)
             return

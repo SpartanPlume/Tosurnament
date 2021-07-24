@@ -15,6 +15,7 @@
   "not_linked": "Account is not linked. Please use the `%0link` command.",
   "not_verified": "Account is not verified. Please follow the instructions sent when using the `%0link` command.",
   "osu_error": "Oops, an error has occured. Please try again later. If the problem persists, contact me on discord (`Spartan Plume#5172`).",
+  "tosurnament_api_error": "An error occurred:\nCode: `%1`\nDescription: `%2`",
   "usage": "Usage",
   "example": "Example",
   "none": "None",

@@ -11,10 +11,10 @@ from discord.ext import commands
 from bot.modules import module as base
 from bot.modules.tosurnament import module as tosurnament
 from bot.modules.tosurnament.bracket import bracket as bracket_module
-from common.databases.tournament import Tournament
-from common.databases.bracket import Bracket
-from common.databases.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.databases.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
+from common.databases.tosurnament.tournament import Tournament
+from common.databases.tosurnament.bracket import Bracket
+from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.tosurnament.bracket.bracket"
@@ -125,7 +125,7 @@ async def test_set_registration_end_date_invalid_date(mocker):
 async def test_set_registration_end_date_value_error(mocker):
     """Sets the registration end date."""
     cog, mock_bot, bracket = init_mocks()
-    mocker.patch("common.databases.tournament.dateparser.parse", mocker.Mock(side_effect=ValueError()))
+    mocker.patch("common.databases.tosurnament.tournament.dateparser.parse", mocker.Mock(side_effect=ValueError()))
     date = "1 week"
     with pytest.raises(commands.UserInputError):
         await cog.set_registration_end(cog, tosurnament_mock.CtxMock(mock_bot), date=date)

@@ -8,7 +8,7 @@ import pytest
 import discord
 
 from bot.modules import reaction_for_role_message as reaction_for_role_message_module
-from common.databases.messages.reaction_for_role_message import ReactionForRoleMessage
+from common.databases.tosurnament_message.reaction_for_role_message import ReactionForRoleMessage
 import test.resources.mock.tosurnament as tosurnament_mock
 
 MODULE_TO_TEST = "bot.modules.reaction_for_role_message"

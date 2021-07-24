@@ -13,7 +13,6 @@ from mysqldb_wrapper import Session
 from common.utils import load_json
 from common.config import constants
 from common.api.spreadsheet import spreadsheet
-from common.databases.user import User
 
 MODULES_DIR = "bot/modules"
 
@@ -36,8 +35,8 @@ class Client(commands.Bot):
         self.modules = []
         self.init_logger()
         self.init_ressources()
-        self.init_modules()
         self.init_db()
+        self.init_modules()
         self.init_spreadsheet_service()
         self.init_background_tasks()
         self.init_available_languages()
@@ -67,6 +66,11 @@ class Client(commands.Bot):
         discord_logger.setLevel(logging.INFO)
         discord_logger.addHandler(self.handler)
 
+        requests_logger = logging.getLogger("urllib3.connectionpool")
+        requests_logger.setLevel(logging.DEBUG)
+        requests_logger.addHandler(self.handler)
+        requests_logger.propagate = True
+
     def init_ressources(self):
         """Initializes all ressources"""
         self.strings = load_json.load_directory("bot/replies")
@@ -91,11 +95,15 @@ class Client(commands.Bot):
 
     def init_db(self):
         """Initializes the database"""
+        for root, _, files in os.walk("common/databases/tosurnament_message"):
+            for filename in files:
+                if filename.endswith(".py"):
+                    importlib.import_module(root.replace("/", ".") + "." + filename[:-3])
         try:
             self.session = Session(
                 constants.DB_USERNAME,
                 constants.DB_PASSWORD,
-                constants.DB_NAME,
+                constants.DB_MESSAGE_NAME,
                 constants.ENCRYPTION_KEY,
                 self.handler,
             )
@@ -154,13 +162,6 @@ class Client(commands.Bot):
             command += type(ctx.cog).__name__ + ": "
         command += str(ctx.command)
         self.info(command)
-
-        # ! Temporary
-        user = self.session.query(User).where(User.discord_id == ctx.author.id).first()
-        if user:
-            user.discord_id_snowflake = ctx.author.id
-            user.osu_name_hash = user.osu_name.lower()
-            self.session.update(user)
 
     async def on_command_completion(self, ctx):
         try:
