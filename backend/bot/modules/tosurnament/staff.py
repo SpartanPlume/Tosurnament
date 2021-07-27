@@ -680,7 +680,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             now = datetime.datetime.utcnow()
             tosurnament_guild = self.get_guild(guild.id)
             if not tosurnament_guild:
-                tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild.id))
+                tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild.id, guild_id_snowflake=guild.id))
             elif tosurnament_guild.last_notification_date:
                 previous_notification_date = datetime.datetime.strptime(
                     tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT

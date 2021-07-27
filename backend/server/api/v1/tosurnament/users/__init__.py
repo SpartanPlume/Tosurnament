@@ -3,6 +3,7 @@ from flask import request, current_app
 
 from server.api.globals import db, exceptions
 from common.databases.tosurnament.user import User
+from server.api.utils import is_authorized
 
 
 class UsersResource(MethodView):
@@ -12,6 +13,7 @@ class UsersResource(MethodView):
             raise exceptions.NotFound()
         return user
 
+    @is_authorized(user=False)
     def get(self, user_id):
         if user_id is None:
             return self.get_all()
@@ -27,6 +29,7 @@ class UsersResource(MethodView):
                 raise exceptions.BadRequest()
         return {"users": [user.get_api_dict() for user in db.query(User).where(**request_args).all()]}
 
+    @is_authorized(user=False)
     def put(self, user_id):
         user = self._get_object(user_id)
         user.update(**request.json)
@@ -34,6 +37,7 @@ class UsersResource(MethodView):
         current_app.logger.debug("The user {0} has been updated successfully.".format(user_id))
         return {}, 204
 
+    @is_authorized(user=False)
     def post(self):
         body = request.json
         if not body or not body["discord_id"] or not body["discord_id_snowflake"]:
@@ -47,6 +51,7 @@ class UsersResource(MethodView):
         current_app.logger.debug("The user {0} has been created successfully.".format(user.id))
         return user.get_api_dict(), 201
 
+    @is_authorized(user=False)
     def delete(self, user_id):
         user = self._get_object(user_id)
         db.delete(user)

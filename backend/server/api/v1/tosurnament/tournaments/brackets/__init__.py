@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask import request, current_app
 
 from server.api.globals import db, exceptions
+from server.api.utils import is_authorized
 from common.databases.tosurnament.bracket import Bracket
 
 
@@ -48,6 +49,7 @@ class BracketsResource(MethodView):
             raise exceptions.NotFound()
         return bracket
 
+    @is_authorized(user=True)
     def get(self, tournament_id, bracket_id):
         request_args = request.args.to_dict()
         include_spreadsheets = request_args.pop("include_spreadsheets", "false").casefold() == "true"
@@ -65,6 +67,7 @@ class BracketsResource(MethodView):
             "brackets": [bracket.get_api_dict() for bracket in db.query(Bracket).where(**request.args.to_dict()).all()]
         }
 
+    @is_authorized(user=True)
     def put(self, tournament_id, bracket_id):
         bracket = self._get_object(tournament_id, bracket_id)
         bracket.update(**request.json)
@@ -72,6 +75,7 @@ class BracketsResource(MethodView):
         current_app.logger.debug("The bracket {0} has been updated successfully.".format(bracket_id))
         return {}, 204
 
+    @is_authorized(user=True)
     def post(self, tournament_id):
         body = request.json
         if not body or not body["name"]:
@@ -83,6 +87,7 @@ class BracketsResource(MethodView):
         current_app.logger.debug("The bracket {0} has been created successfully.".format(bracket.id))
         return bracket.get_api_dict(), 201
 
+    @is_authorized(user=True)
     def delete(self, tournament_id, bracket_id):
         brackets = db.query(Bracket).where(Bracket.tournament_id == tournament_id).all()
         if len(brackets) <= 1:

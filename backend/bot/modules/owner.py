@@ -4,6 +4,13 @@ from discord.ext import commands
 from bot.modules import module as base
 from common.api import tosurnament as tosurnament_api
 
+from common.databases.tosurnament_message.qualifiers_results_message import QualifiersResultsMessage
+from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
+from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
+from common.databases.tosurnament_message.end_tournament_message import EndTournamentMessage
+from common.databases.tosurnament_message.post_result_message import PostResultMessage
+from common.databases.tosurnament_message.match_notification import MatchNotification
+
 
 class AdminCog(base.BaseModule, name="admin"):
     """Admin commands."""
@@ -67,6 +74,37 @@ class AdminCog(base.BaseModule, name="admin"):
                     users_already_sent_to.append(guild.owner.id)
                 except Exception:
                     continue
+
+    @commands.command(hidden=True)
+    async def update_guilds_and_tournaments(self, ctx):
+        tournaments = tosurnament_api.get_tournaments()
+        for guild in self.bot.guilds:
+            get_tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild.id)
+            if get_tournament:
+                for i, tournament in enumerate(tournaments.copy()):
+                    if tournament.id == get_tournament.id:
+                        get_tournament.guild_id_snowflake = guild.id
+                        tosurnament_api.update_tournament(get_tournament)
+                        del tournaments[i]
+                        break
+            get_guild = tosurnament_api.get_guild_by_discord_guild_id(guild.id)
+            if get_guild:
+                get_guild.guild_id_snowflake = guild.id
+                tosurnament_api.update_guild(get_guild)
+        for tournament in tournaments:
+            tosurnament_api.delete_tournament(tournament)
+            self.bot.session.query(EndTournamentMessage).where(
+                EndTournamentMessage.tournament_id == tournament.id
+            ).delete()
+            self.bot.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
+            self.bot.session.query(StaffRescheduleMessage).where(
+                StaffRescheduleMessage.tournament_id == tournament.id
+            ).delete()
+            self.bot.session.query(MatchNotification).where(MatchNotification.tournament_id == tournament.id).delete()
+            self.bot.session.query(PostResultMessage).where(PostResultMessage.tournament_id == tournament.id).delete()
+            self.bot.session.query(QualifiersResultsMessage).where(
+                QualifiersResultsMessage.tournament_id == tournament.id
+            ).delete()
 
 
 def get_class(bot):

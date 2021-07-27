@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask import request, current_app
 
 from server.api.globals import db, exceptions
+from server.api.utils import is_authorized
 from server.api.v1.tosurnament.tournaments.brackets import get_bracket_data, delete_bracket_and_associated_spreadsheets
 from common.databases.tosurnament.tournament import Tournament
 from common.databases.tosurnament.bracket import Bracket
@@ -30,6 +31,7 @@ class TournamentsResource(MethodView):
             raise exceptions.NotFound()
         return tournament
 
+    @is_authorized(user=True)
     def get(self, tournament_id):
         request_args = request.args.to_dict()
         include_brackets = request_args.pop("include_brackets", "false").casefold() == "true"
@@ -52,6 +54,7 @@ class TournamentsResource(MethodView):
             tournaments_data.append(get_tournament_data(tournament, include_brackets, include_spreadsheets))
         return {"tournaments": tournaments_data}
 
+    @is_authorized(user=True)
     def put(self, tournament_id):
         tournament = self._get_object(tournament_id)
         tournament.update(**request.json)
@@ -59,9 +62,16 @@ class TournamentsResource(MethodView):
         current_app.logger.debug("The tournament {0} has been updated successfully.".format(tournament_id))
         return {}, 204
 
+    @is_authorized(user=True)
     def post(self):
         body = request.json
-        if not body or not body["guild_id"] or not body["name"] or not body["acronym"]:
+        if (
+            not body
+            or not body["guild_id"]
+            or not body["guild_id_snowflake"]
+            or not body["name"]
+            or not body["acronym"]
+        ):
             raise exceptions.MissingRequiredInformation()
         try:
             body["guild_id"] = int(body["guild_id"])
@@ -76,6 +86,7 @@ class TournamentsResource(MethodView):
         current_app.logger.debug("The tournament {0} has been created successfully.".format(tournament.id))
         return get_tournament_data(tournament, True), 201
 
+    @is_authorized(user=True)
     def delete(self, tournament_id):
         tournament = self._get_object(tournament_id)
         brackets = db.query(Bracket).where(Bracket.tournament_id == tournament_id).all()

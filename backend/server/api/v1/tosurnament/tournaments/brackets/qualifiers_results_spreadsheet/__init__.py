@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask import request, current_app
 
 from server.api.globals import db, exceptions
+from server.api.utils import is_authorized
 from common.databases.tosurnament.bracket import Bracket
 from common.databases.tosurnament.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
 from common.api import spreadsheet as spreadsheet_api
@@ -21,9 +22,11 @@ class QualifiersResultsSpreadsheetResource(MethodView):
             raise exceptions.NotFound()
         return spreadsheet
 
+    @is_authorized(user=True)
     def get(self, tournament_id, bracket_id, spreadsheet_id):
         return self._get_object(tournament_id, bracket_id, spreadsheet_id).get_api_dict()
 
+    @is_authorized(user=True)
     def put(self, tournament_id, bracket_id, spreadsheet_id):
         spreadsheet = self._get_object(tournament_id, bracket_id, spreadsheet_id)
         spreadsheet.update(**request.json)
@@ -33,6 +36,7 @@ class QualifiersResultsSpreadsheetResource(MethodView):
         )
         return {}, 204
 
+    @is_authorized(user=True)
     def post(self, tournament_id, bracket_id):
         bracket = (
             db.query(Bracket).where(Bracket.tournament_id == tournament_id).where(Bracket.id == bracket_id).first()
@@ -54,6 +58,7 @@ class QualifiersResultsSpreadsheetResource(MethodView):
         )
         return spreadsheet.get_api_dict(), 201
 
+    @is_authorized(user=True)
     def delete(self, spreadsheet_id):
         spreadsheet = self._get_object(spreadsheet_id)
         db.delete(spreadsheet)

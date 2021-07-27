@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask import request, current_app
 
 from server.api.globals import db, exceptions
+from server.api.utils import is_authorized
 from common.databases.tosurnament.allowed_reschedule import AllowedReschedule
 
 
@@ -17,6 +18,7 @@ class AllowedReschedulesResource(MethodView):
             raise exceptions.NotFound()
         return allowed_reschedule
 
+    @is_authorized(user=True)
     def get(self, tournament_id, allowed_reschedule_id):
         if allowed_reschedule_id is None:
             return self.get_all(tournament_id)
@@ -33,6 +35,7 @@ class AllowedReschedulesResource(MethodView):
             ]
         }
 
+    @is_authorized(user=True)
     def put(self, tournament_id, allowed_reschedule_id):
         allowed_reschedule = self._get_object(tournament_id, allowed_reschedule_id)
         allowed_reschedule.update(**request.json)
@@ -44,6 +47,7 @@ class AllowedReschedulesResource(MethodView):
         )
         return {}, 204
 
+    @is_authorized(user=True)
     def post(self, tournament_id):
         body = request.json
         if not body or not body["match_id"]:
@@ -59,6 +63,7 @@ class AllowedReschedulesResource(MethodView):
         )
         return allowed_reschedule.get_api_dict(), 201
 
+    @is_authorized(user=True)
     def delete(self, tournament_id, allowed_reschedule_id):
         if allowed_reschedule_id is None:
             return self.delete_all(tournament_id)

@@ -44,7 +44,7 @@ class GuildCog(base.BaseModule, name="guild"):
         """Puts the input values into the corresponding tournament."""
         guild = self.get_guild(ctx.guild.id)
         if not guild:
-            guild = tosurnament_api.create_guild(Guild(guild_id=ctx.guild.id))
+            guild = tosurnament_api.create_guild(Guild(guild_id=ctx.guild.id, guild_id_snowflake=ctx.guild.id))
         for key, value in values.items():
             setattr(guild, key, value)
         tosurnament_api.update_guild(guild)

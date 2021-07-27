@@ -10,6 +10,7 @@ class Guild(Base):
 
     id = Id()
     guild_id = bytes()
+    guild_id_snowflake = int()
     verified_role_id = int()
     admin_role_id = int()
     last_notification_date = str()

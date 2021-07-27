@@ -3,7 +3,6 @@
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.tournament import Tournament
-from common.databases.tosurnament.bracket import Bracket
 from common.databases.tosurnament_message.qualifiers_results_message import QualifiersResultsMessage
 from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
 from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
@@ -34,7 +33,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild_id)
         if tournament:
             raise tosurnament.TournamentAlreadyCreated()
-        tournament = Tournament(guild_id=guild_id, acronym=acronym, name=name)
+        tournament = Tournament(guild_id=guild_id, guild_id_snowflake=guild_id, acronym=acronym, name=name)
         tournament = tosurnament_api.create_tournament(tournament)
         if bracket_name:
             tournament.current_bracket.name = bracket_name

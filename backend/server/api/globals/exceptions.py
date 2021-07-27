@@ -20,9 +20,15 @@ class MissingRequiredInformation(BadRequest):
 
 
 class Unauthorized(HTTPException):
-    code = 403
+    code = 401
     title = "Unauthorized"
-    description = "Unauthorized"
+    description = "You need to be authentificated to access resources"
+
+
+class Forbidden(HTTPException):
+    code = 403
+    title = "Forbidden"
+    description = "You do not have the required permissions to access this resource"
 
 
 class NotFound(HTTPException):
@@ -42,4 +48,16 @@ class OsuTokenError(InternalServerError):
 
 
 class OsuMeError(InternalServerError):
-    description = "Error while getting osu! profile information"
+    description = "Error getting osu! profile information"
+
+
+class DiscordTokenError(InternalServerError):
+    description = "Authentification on discord side failed"
+
+
+class DiscordMeError(InternalServerError):
+    description = "Error getting discord user information"
+
+
+class DiscordGetError(InternalServerError):
+    description = "Couldn't get the data from Discord API"

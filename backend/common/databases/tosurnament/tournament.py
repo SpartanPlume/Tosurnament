@@ -18,6 +18,7 @@ class Tournament(Base):
 
     id = Id()
     guild_id = bytes()
+    guild_id_snowflake = int()
     acronym = str()
     name = str()
     staff_channel_id = int()

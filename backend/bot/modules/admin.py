@@ -6,7 +6,7 @@ from bot.modules import module as base
 
 
 class AdminCog(base.BaseModule, name="admin"):
-    """Auth commands."""
+    """Admin commands."""
 
     def __init__(self, bot):
         super().__init__(bot)

@@ -73,12 +73,29 @@ def get_tournament(tournament_id, include_brackets=True, include_spreadsheets=Tr
         + str(tournament_id)
         + "?include_brackets="
         + str(include_brackets)
-        + "&include_spreadsheet="
+        + "&include_spreadsheets="
         + str(include_spreadsheets),
     )
     if tournament_data is None:
         return None
     return fill_tournament_object_from_data(tournament_data, include_brackets, include_spreadsheets)
+
+
+def get_tournaments(include_brackets=True, include_spreadsheets=True):
+    tournaments_data = requests_wrapper(
+        "get",
+        TOSURNAMENT_URL
+        + "tournaments?include_brackets="
+        + str(include_brackets)
+        + "&include_spreadsheets="
+        + str(include_spreadsheets),
+    )
+    tournaments = []
+    if tournaments_data is None:
+        return tournaments
+    for tournament_data in tournaments_data["tournaments"]:
+        tournaments.append(fill_tournament_object_from_data(tournament_data, include_brackets, include_spreadsheets))
+    return tournaments
 
 
 def get_tournament_by_discord_guild_id(guild_id, include_brackets=True, include_spreadsheets=True):
