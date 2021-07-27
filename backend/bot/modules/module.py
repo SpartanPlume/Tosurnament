@@ -225,11 +225,16 @@ class BaseModule(commands.Cog):
     async def show_object_settings(self, ctx, obj, stack_depth=1):
         """Shows the object settings."""
         output = self.get_string(ctx, "title", stack_depth=stack_depth)
-        for key, value in obj.get_table_dict().items():
+        for key, value in obj.get_api_dict().items():
             value = str(value)
             if not value:
                 value = self.get_string(ctx, "undefined")
-            output += "__" + key + "__: `" + value + "`\n"
+            tmp_output = "__" + key + "__: `" + value + "`\n"
+            if len(output + tmp_output) >= 2000:
+                await ctx.send(output)
+                output = tmp_output
+            else:
+                output += tmp_output
         await ctx.send(output)
 
     async def cog_command_error(self, ctx, error):
