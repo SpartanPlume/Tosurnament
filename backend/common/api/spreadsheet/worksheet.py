@@ -103,7 +103,7 @@ class Worksheet:
         if not range_names:
             return []
         x_ranges, y_ranges = [], []
-        for range_name in range_names.split(","):
+        for range_name in re.split(r",| |, |;|; |\|", range_names):
             range_name = range_name.strip()
             if re.match(r"^[A-Z]+(:[A-Z]+)?$", range_name):
                 x_range, y_range = self._from_column_range(range_name)
