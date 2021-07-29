@@ -234,6 +234,34 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         tournament = self.get_tournament(ctx.guild.id)
         await self.show_object_settings(ctx, tournament.current_bracket, stack_depth=2)
 
+    @commands.command(aliases=["gsrv"])
+    async def get_spreadsheet_range_values(
+        self, ctx, spreadsheet_type: str, range_name: str, only_filled: bool = False
+    ):
+        tournament = self.get_tournament(ctx.guild.id)
+        bracket = tournament.current_bracket
+        spreadsheet = getattr(bracket, "_" + spreadsheet_type + "_spreadsheet", None)
+        if not spreadsheet:
+            return
+        spreadsheet_range = getattr(spreadsheet, range_name, None)
+        if not spreadsheet_range:
+            spreadsheet_range = getattr(spreadsheet, "range_" + range_name, None)
+            if not spreadsheet_range:
+                return
+        await spreadsheet.get_spreadsheet(force_sync=True)
+        cells = spreadsheet.spreadsheet.get_range(spreadsheet_range)
+        to_send = ""
+        for row in cells:
+            for cell in row:
+                if only_filled and not cell:
+                    continue
+                cell_as_str = repr(cell) + " "
+                if len(to_send + cell_as_str) >= 2000:
+                    await ctx.send(to_send)
+                    to_send = ""
+                to_send += cell_as_str
+        await ctx.send(to_send)
+
     async def update_players_spreadsheet_registration(self, guild, tournament):
         now = datetime.datetime.now()
         for bracket in tournament.brackets:
