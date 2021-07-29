@@ -23,13 +23,13 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
         """Sets the qualifiers spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        if not bracket.qualifiers_spreadsheet:
+        if not bracket._qualifiers_spreadsheet:
             tosurnament_api.create_qualifiers_spreadsheet(
                 tournament.id, bracket.id, QualifiersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             )
         else:
-            bracket.qualifiers_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-            tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, bracket.qualifiers_spreadsheet)
+            bracket._qualifiers_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, bracket._qualifiers_spreadsheet)
         await self.send_reply(ctx, "success", spreadsheet_id)
 
     async def set_qualifiers_spreadsheet_values(self, ctx, values):
