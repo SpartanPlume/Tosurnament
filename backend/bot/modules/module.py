@@ -119,6 +119,19 @@ class BaseModule(commands.Cog):
         """Gets string from strings.json file"""
         module_name = self.get_module_name_from_stack(stack_depth)
         modules = module_name.split(".")[:-1]
+        if (
+            modules
+            and modules[-1] == "tosurnament"
+            and ctx.command.cog_name
+            in [
+                "bracket",
+                "players_spreadsheet",
+                "schedules_spreadsheet",
+                "qualifiers_spreadsheet",
+                "qualifiers_results_spreadsheet",
+            ]
+        ):
+            modules.append("bracket")
         reply = self.find_reply(
             ctx.guild, self.bot.strings, field_name, modules + [ctx.command.cog_name], ctx.command.name
         )

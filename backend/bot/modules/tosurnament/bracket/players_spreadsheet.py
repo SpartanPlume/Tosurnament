@@ -115,7 +115,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         await self.show_spreadsheet_settings(ctx, "players")
 
     @commands.command(aliases=["spst"])
-    async def show_players_spreadsheet_team(self, ctx, index: int):
+    async def show_players_spreadsheet_team(self, ctx, index: int = 0):
         """Shows the players spreadsheet settings."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket

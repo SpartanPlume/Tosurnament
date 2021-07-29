@@ -80,5 +80,10 @@
   "show_players_spreadsheet_settings": {
     "help": "Shows the current's bracket players spreadsheet settings",
     "title": "**__Players spreadsheet settings:__**\n\n"
+  },
+  "show_players_spreadsheet_team": {
+    "help": "Shows the team at the specified index",
+    "parameter": "[<index>]",
+    "example_parameter": "-1"
   }
 }
