@@ -38,9 +38,9 @@ def remove_bytes_entries(data):
     return new_data
 
 
-def requests_wrapper(method, url, data=None):
+def requests_wrapper(method, url, data=None, url_parameters=None):
     try:
-        r = requests.request(method, url, json=remove_bytes_entries(data))
+        r = requests.request(method, url, json=remove_bytes_entries(data), params=url_parameters)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
         if method == "get" and r.status_code == 404:
@@ -66,15 +66,9 @@ def fill_tournament_object_from_data(tournament_data, include_brackets, include_
 
 
 def get_tournament(tournament_id, include_brackets=True, include_spreadsheets=True):
+    url_parameters = {"include_brackets": str(include_brackets), "include_spreadsheets": str(include_spreadsheets)}
     tournament_data = requests_wrapper(
-        "get",
-        TOSURNAMENT_URL
-        + "tournaments/"
-        + str(tournament_id)
-        + "?include_brackets="
-        + str(include_brackets)
-        + "&include_spreadsheets="
-        + str(include_spreadsheets),
+        "get", TOSURNAMENT_URL + "tournaments/" + str(tournament_id), url_parameters=url_parameters
     )
     if tournament_data is None:
         return None
@@ -82,14 +76,8 @@ def get_tournament(tournament_id, include_brackets=True, include_spreadsheets=Tr
 
 
 def get_tournaments(include_brackets=True, include_spreadsheets=True):
-    tournaments_data = requests_wrapper(
-        "get",
-        TOSURNAMENT_URL
-        + "tournaments?include_brackets="
-        + str(include_brackets)
-        + "&include_spreadsheets="
-        + str(include_spreadsheets),
-    )
+    url_parameters = {"include_brackets": str(include_brackets), "include_spreadsheets": str(include_spreadsheets)}
+    tournaments_data = requests_wrapper("get", TOSURNAMENT_URL + "tournaments", url_parameters=url_parameters)
     tournaments = []
     if tournaments_data is None:
         return tournaments
@@ -99,16 +87,12 @@ def get_tournaments(include_brackets=True, include_spreadsheets=True):
 
 
 def get_tournament_by_discord_guild_id(guild_id, include_brackets=True, include_spreadsheets=True):
-    tournament_data = requests_wrapper(
-        "get",
-        TOSURNAMENT_URL
-        + "tournaments?guild_id="
-        + str(guild_id)
-        + "&include_brackets="
-        + str(include_brackets)
-        + "&include_spreadsheets="
-        + str(include_spreadsheets),
-    )
+    url_parameters = {
+        "guild_id": str(guild_id),
+        "include_brackets": str(include_brackets),
+        "include_spreadsheets": str(include_spreadsheets),
+    }
+    tournament_data = requests_wrapper("get", TOSURNAMENT_URL + "tournaments", url_parameters=url_parameters)
     if not tournament_data["tournaments"]:
         return None
     return fill_tournament_object_from_data(tournament_data["tournaments"][0], include_brackets, include_spreadsheets)
@@ -147,13 +131,9 @@ def fill_bracket_object_from_data(bracket_data, include_spreadsheets):
 
 
 def get_brackets(tournament_id, include_spreadsheets=True):
+    url_parameters = {"include_spreadsheets": str(include_spreadsheets)}
     brackets_data = requests_wrapper(
-        "get",
-        TOSURNAMENT_URL
-        + "tournaments/"
-        + str(tournament_id)
-        + "/brackets?include_spreadsheets="
-        + str(include_spreadsheets),
+        "get", TOSURNAMENT_URL + "tournaments/" + str(tournament_id) + "/brackets", url_parameters=url_parameters
     )
     brackets = []
     if brackets_data is None:
@@ -164,15 +144,11 @@ def get_brackets(tournament_id, include_spreadsheets=True):
 
 
 def get_bracket(tournament_id, bracket_id, include_spreadsheets=True):
+    url_parameters = {"include_spreadsheets": str(include_spreadsheets)}
     bracket_data = requests_wrapper(
         "get",
-        TOSURNAMENT_URL
-        + "tournaments/"
-        + str(tournament_id)
-        + "/brackets/"
-        + str(bracket_id)
-        + "?include_spreadsheets="
-        + str(include_spreadsheets),
+        TOSURNAMENT_URL + "tournaments/" + str(tournament_id) + "/brackets/" + str(bracket_id),
+        url_parameters=url_parameters,
     )
     if bracket_data is None:
         return None
