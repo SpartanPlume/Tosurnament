@@ -352,7 +352,6 @@ class TosurnamentBaseModule(BaseModule):
                 ctx,
                 self.get_spreadsheet_error(error.code),
                 error.operation,
-                error.bracket_name,
                 error.spreadsheet,
                 channel=channel,
             )

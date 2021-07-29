@@ -121,11 +121,22 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         first_empty_cell.set(team_name)
         return True
 
+    async def get_team_of_author(self, ctx, players_spreadsheet):
+        team_infos, _ = await self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
+        user_name = None
+        user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+        if user:
+            user_name = user.name
+        for team_info in team_infos:
+            player = team_info.find_player(user_name, ctx.author.id, str(ctx.author))
+            if player:
+                return team_info
+        return None
+
     @commands.command(aliases=["rtl"])
     async def register_to_lobby(self, ctx, *, lobby_id: str):
         """Registers to a qualifier lobby."""
         tournament = self.get_tournament(ctx.guild.id)
-        user = tosurnament.UserAbstraction.get_from_ctx(ctx)
         qualifiers_spreadsheet_found = False
         team_found = False
         for bracket in tournament.brackets:
@@ -136,9 +147,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             players_spreadsheet = await bracket.get_players_spreadsheet()
             if not players_spreadsheet:
                 raise tosurnament.NoSpreadsheet("players")
-            try:
-                team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
-            except TeamNotFound:
+            team_info = await self.get_team_of_author(ctx, players_spreadsheet)
+            if not team_info:
                 continue
             team_found = True
             team_name = team_info.team_name.get()
