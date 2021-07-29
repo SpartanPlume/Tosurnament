@@ -25,21 +25,16 @@ class TosurnamentQualifiersResultsSpreadsheetCog(
         """Sets the qualifiers results spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        qualifiers_results_spreadsheet = None
-        if bracket.qualifiers_results_spreadsheet_id:
-            qualifiers_results_spreadsheet = tosurnament_api.get_qualifiers_results_spreadsheet(
-                tournament.id, bracket.id, bracket.qualifiers_results_spreadsheet_id
-            )
-        if not qualifiers_results_spreadsheet:
-            qualifiers_results_spreadsheet = tosurnament_api.create_qualifiers_results_spreadsheet(
+        if not bracket.qualifiers_results_spreadsheet:
+            tosurnament_api.create_qualifiers_results_spreadsheet(
                 tournament.id,
                 bracket.id,
                 QualifiersResultsSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name),
             )
         else:
-            qualifiers_results_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            bracket.qualifiers_results_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             tosurnament_api.update_qualifiers_results_spreadsheet(
-                tournament.id, bracket.id, qualifiers_results_spreadsheet
+                tournament.id, bracket.id, bracket.qualifiers_results_spreadsheet
             )
         await self.send_reply(ctx, "success", spreadsheet_id)
 

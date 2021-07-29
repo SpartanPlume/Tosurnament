@@ -71,12 +71,15 @@ def find_corresponding_qualifier_cells_best_effort(
     corresponding_cells = []
     last_y = -1
     all_x = set()
+    first_x = -1
     for row in cells:
         for cell in row:
             last_y = cell.y
             if cell.x <= base_cell.x:
                 continue
-            if max_difference_with_base > 0 and cell.x > base_cell.x + max_difference_with_base:
+            elif first_x < 0:
+                first_x = cell.x
+            if max_difference_with_base > 0 and cell.x >= first_x + max_difference_with_base:
                 continue
             if cell.y in base_cell.y_merge_range and (not filled_only or cell):
                 corresponding_cells.append(cell)

@@ -75,37 +75,6 @@ class AdminCog(base.BaseModule, name="admin"):
                 except Exception:
                     continue
 
-    @commands.command(hidden=True)
-    async def update_guilds_and_tournaments(self, ctx):
-        tournaments = tosurnament_api.get_tournaments()
-        for guild in self.bot.guilds:
-            get_tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild.id)
-            if get_tournament:
-                for i, tournament in enumerate(tournaments.copy()):
-                    if tournament.id == get_tournament.id:
-                        get_tournament.guild_id_snowflake = guild.id
-                        tosurnament_api.update_tournament(get_tournament)
-                        del tournaments[i]
-                        break
-            get_guild = tosurnament_api.get_guild_by_discord_guild_id(guild.id)
-            if get_guild:
-                get_guild.guild_id_snowflake = guild.id
-                tosurnament_api.update_guild(get_guild)
-        for tournament in tournaments:
-            tosurnament_api.delete_tournament(tournament)
-            self.bot.session.query(EndTournamentMessage).where(
-                EndTournamentMessage.tournament_id == tournament.id
-            ).delete()
-            self.bot.session.query(RescheduleMessage).where(RescheduleMessage.tournament_id == tournament.id).delete()
-            self.bot.session.query(StaffRescheduleMessage).where(
-                StaffRescheduleMessage.tournament_id == tournament.id
-            ).delete()
-            self.bot.session.query(MatchNotification).where(MatchNotification.tournament_id == tournament.id).delete()
-            self.bot.session.query(PostResultMessage).where(PostResultMessage.tournament_id == tournament.id).delete()
-            self.bot.session.query(QualifiersResultsMessage).where(
-                QualifiersResultsMessage.tournament_id == tournament.id
-            ).delete()
-
 
 def get_class(bot):
     """Returns the main class of the module."""

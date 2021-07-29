@@ -23,18 +23,13 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
         """Sets the schedules spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        schedules_spreadsheet = None
-        if bracket.schedules_spreadsheet_id:
-            schedules_spreadsheet = tosurnament_api.get_schedules_spreadsheet(
-                tournament.id, bracket.id, bracket.schedules_spreadsheet_id
-            )
-        if not schedules_spreadsheet:
-            schedules_spreadsheet = tosurnament_api.create_schedules_spreadsheet(
+        if not bracket.schedules_spreadsheet:
+            tosurnament_api.create_schedules_spreadsheet(
                 tournament.id, bracket.id, SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             )
         else:
-            schedules_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-            tosurnament_api.update_schedules_spreadsheet(tournament.id, bracket.id, schedules_spreadsheet)
+            bracket.schedules_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
+            tosurnament_api.update_schedules_spreadsheet(tournament.id, bracket.id, bracket.schedules_spreadsheet)
         await self.send_reply(ctx, "success", spreadsheet_id)
 
     async def set_schedules_spreadsheet_values(self, ctx, values):
