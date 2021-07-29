@@ -126,10 +126,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         """Registers to a qualifier lobby."""
         tournament = self.get_tournament(ctx.guild.id)
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
+        qualifiers_spreadsheet_found = False
+        team_found = False
         for bracket in tournament.brackets:
             qualifiers_spreadsheet = await bracket.get_qualifiers_spreadsheet()
             if not qualifiers_spreadsheet:
                 continue
+            qualifiers_spreadsheet_found = True
             players_spreadsheet = await bracket.get_players_spreadsheet()
             if not players_spreadsheet:
                 raise tosurnament.NoSpreadsheet("players")
@@ -137,6 +140,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 team_info = TeamInfo.from_discord_id(players_spreadsheet, user.discord_id)
             except TeamNotFound:
                 continue
+            team_found = True
             team_name = team_info.team_name.get()
             if not self.add_team_to_lobby(qualifiers_spreadsheet, lobby_id, team_name):
                 continue
@@ -144,6 +148,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
             await self.send_reply(ctx, "success", lobby_id)
             return
+        if not qualifiers_spreadsheet_found:
+            raise tosurnament.NoSpreadsheet("qualifiers")
+        if not team_found:
+            raise tosurnament.NotAPlayer()
         raise tosurnament.LobbyNotFound(lobby_id)
 
     @register_to_lobby.error
