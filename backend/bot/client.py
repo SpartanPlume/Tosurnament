@@ -175,6 +175,10 @@ class Client(commands.Bot):
         """Logs the error"""
         try:
             spreadsheet.Spreadsheet.pickle_from_id.cache_clear()
+            if isinstance(error, commands.CommandNotFound):
+                command_message = ctx.message.content.lstrip(self.command_prefix)
+                if not command_message or not command_message[0].isalpha() or self.command_prefix in command_message:
+                    return
             await ctx.message.add_reaction("❌")
             await ctx.message.remove_reaction("⏲️", self.user)
             if isinstance(error, commands.CommandNotFound):
