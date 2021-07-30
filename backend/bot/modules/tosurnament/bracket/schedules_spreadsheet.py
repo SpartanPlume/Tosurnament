@@ -3,7 +3,7 @@
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
-from common.api import spreadsheet
+from common.api import spreadsheet as spreadsheet_api
 from common.api import tosurnament as tosurnament_api
 
 
@@ -23,14 +23,18 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
         """Sets the schedules spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        if not bracket._schedules_spreadsheet:
-            tosurnament_api.create_schedules_spreadsheet(
+        spreadsheet_id = spreadsheet_api.extract_spreadsheet_id(spreadsheet_id)
+        schedules_spreadsheet = bracket._schedules_spreadsheet
+        if not schedules_spreadsheet:
+            schedules_spreadsheet = tosurnament_api.create_schedules_spreadsheet(
                 tournament.id, bracket.id, SchedulesSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             )
         else:
-            bracket._schedules_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-            tosurnament_api.update_schedules_spreadsheet(tournament.id, bracket.id, bracket._schedules_spreadsheet)
-        await self.send_reply(ctx, "success", spreadsheet_id)
+            schedules_spreadsheet.spreadsheet_id = spreadsheet_id
+            if sheet_name:
+                schedules_spreadsheet.sheet_name = sheet_name
+            tosurnament_api.update_schedules_spreadsheet(tournament.id, bracket.id, schedules_spreadsheet)
+        await self.send_reply(ctx, "success", schedules_spreadsheet.spreadsheet_id)
 
     async def set_schedules_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
@@ -47,7 +51,7 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
 
     async def set_schedules_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""
-        if not spreadsheet.check_range(range_value):
+        if not spreadsheet_api.check_range(range_value):
             raise commands.UserInputError()
         await self.set_schedules_spreadsheet_values(ctx, {range_name: range_value})
 

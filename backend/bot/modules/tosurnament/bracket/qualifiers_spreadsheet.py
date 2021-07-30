@@ -3,7 +3,7 @@
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
-from common.api import spreadsheet
+from common.api import spreadsheet as spreadsheet_api
 from common.api import tosurnament as tosurnament_api
 
 
@@ -23,14 +23,18 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
         """Sets the qualifiers spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        if not bracket._qualifiers_spreadsheet:
-            tosurnament_api.create_qualifiers_spreadsheet(
+        spreadsheet_id = spreadsheet_api.extract_spreadsheet_id(spreadsheet_id)
+        qualifiers_spreadsheet = bracket._qualifiers_spreadsheet
+        if not qualifiers_spreadsheet:
+            qualifiers_spreadsheet = tosurnament_api.create_qualifiers_spreadsheet(
                 tournament.id, bracket.id, QualifiersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             )
         else:
-            bracket._qualifiers_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-            tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, bracket._qualifiers_spreadsheet)
-        await self.send_reply(ctx, "success", spreadsheet_id)
+            qualifiers_spreadsheet.spreadsheet_id = spreadsheet_id
+            if sheet_name:
+                qualifiers_spreadsheet.sheet_name = sheet_name
+            tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, qualifiers_spreadsheet)
+        await self.send_reply(ctx, "success", qualifiers_spreadsheet.spreadsheet_id)
 
     async def set_qualifiers_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
@@ -47,7 +51,7 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
 
     async def set_qualifiers_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""
-        if not spreadsheet.check_range(range_value):
+        if not spreadsheet_api.check_range(range_value):
             raise commands.UserInputError()
         await self.set_qualifiers_spreadsheet_values(ctx, {range_name: range_value})
 

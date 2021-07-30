@@ -27,7 +27,10 @@ class PlayersSpreadsheetResource(MethodView):
     @is_authorized(user=True)
     def put(self, tournament_id, bracket_id, spreadsheet_id):
         spreadsheet = self._get_object(tournament_id, bracket_id, spreadsheet_id)
-        spreadsheet.update(**request.json)
+        body = request.json
+        if "spreadsheet_id" in body:
+            body["spreadsheet_id"] = spreadsheet_api.extract_spreadsheet_id(body["spreadsheet_id"])
+        spreadsheet.update(**body)
         db.update(spreadsheet)
         current_app.logger.debug("The players spreadsheet {0} has been updated successfully.".format(spreadsheet_id))
         return {}, 204

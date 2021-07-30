@@ -3,7 +3,7 @@
 from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
-from common.api import spreadsheet
+from common.api import spreadsheet as spreadsheet_api
 from common.api import tosurnament as tosurnament_api
 
 
@@ -23,14 +23,18 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         """Sets the players spreadsheet."""
         tournament = self.get_tournament(ctx.guild.id)
         bracket = tournament.current_bracket
-        if not bracket._players_spreadsheet:
-            tosurnament_api.create_players_spreadsheet(
+        spreadsheet_id = spreadsheet_api.extract_spreadsheet_id(spreadsheet_id)
+        players_spreadsheet = bracket._players_spreadsheet
+        if not players_spreadsheet:
+            players_spreadsheet = tosurnament_api.create_players_spreadsheet(
                 tournament.id, bracket.id, PlayersSpreadsheet(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
             )
         else:
-            bracket._players_spreadsheet.update(spreadsheet_id=spreadsheet_id, sheet_name=sheet_name)
-            tosurnament_api.update_players_spreadsheet(tournament.id, bracket.id, bracket._players_spreadsheet)
-        await self.send_reply(ctx, "success", spreadsheet_id)
+            players_spreadsheet.spreadsheet_id = spreadsheet_id
+            if sheet_name:
+                players_spreadsheet.sheet_name = sheet_name
+            tosurnament_api.update_players_spreadsheet(tournament.id, bracket.id, players_spreadsheet)
+        await self.send_reply(ctx, "success", players_spreadsheet.spreadsheet_id)
 
     async def set_players_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
@@ -45,7 +49,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
 
     async def set_players_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""
-        if not spreadsheet.check_range(range_value):
+        if not spreadsheet_api.check_range(range_value):
             raise commands.UserInputError()
         await self.set_players_spreadsheet_values(ctx, {range_name: range_value})
 
