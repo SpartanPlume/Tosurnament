@@ -62,6 +62,7 @@ class MatchInfo:
 
     def __init__(self, match_id_cell):
         self.match_id = match_id_cell
+        self.match_id.value_type = str
         self.team1 = Cell(-1, -1, "")
         self.team2 = Cell(-1, -1, "")
         self.score_team1 = Cell(-1, -1, "")

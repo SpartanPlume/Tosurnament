@@ -64,6 +64,7 @@ class TeamInfo:
             is_captain=False,
         ):
             self.name = name
+            self.name.value_type = str
             self.discord = discord if isinstance(discord, Cell) else Cell(-1, -1, "")
             self.discord.value_type = str
             self.discord_id = discord_id if isinstance(discord_id, Cell) else Cell(-1, -1, 0)

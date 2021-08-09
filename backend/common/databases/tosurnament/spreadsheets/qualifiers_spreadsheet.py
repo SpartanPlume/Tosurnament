@@ -52,6 +52,7 @@ class LobbyInfo:
 
     def __init__(self, lobby_id_cell):
         self.lobby_id = lobby_id_cell
+        self.lobby_id.value_type = str
         self.teams = []
         self.referee = Cell(-1, -1, "")
         self.date = Cell(-1, -1, "")
