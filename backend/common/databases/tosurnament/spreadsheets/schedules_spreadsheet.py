@@ -186,7 +186,7 @@ class MatchInfo:
                     spreadsheet,
                     schedules_spreadsheet.range_referee,
                     match_id_cell,
-                    filled_only,
+                    filled_only=filled_only,
                 )
             )
             match_info.set_streamers(
@@ -194,7 +194,7 @@ class MatchInfo:
                     spreadsheet,
                     schedules_spreadsheet.range_streamer,
                     match_id_cell,
-                    filled_only,
+                    filled_only=filled_only,
                 )
             )
             match_info.set_commentators(
@@ -202,7 +202,7 @@ class MatchInfo:
                     spreadsheet,
                     schedules_spreadsheet.range_commentator,
                     match_id_cell,
-                    filled_only,
+                    filled_only=filled_only,
                 )
             )
             match_info.set_mp_links(
@@ -210,7 +210,7 @@ class MatchInfo:
                     spreadsheet,
                     schedules_spreadsheet.range_mp_links,
                     match_id_cell,
-                    filled_only,
+                    filled_only=filled_only,
                 )
             )
         else:
