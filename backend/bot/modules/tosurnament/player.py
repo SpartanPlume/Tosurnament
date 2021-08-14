@@ -125,7 +125,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         team_infos, _ = await self.get_all_teams_infos_and_roles(ctx.guild, players_spreadsheet)
         user_name = None
         user = tosurnament.UserAbstraction.get_from_ctx(ctx)
-        if user:
+        if user and user.verified:
             user_name = user.name
         for team_info in team_infos:
             player = team_info.find_player(user_name, ctx.author.id, str(ctx.author))

@@ -391,7 +391,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
             if where_has_no_referee:
                 for match_info, match_date in matches_data:
-                    if list(filter(None, [cell for cell in match_info.referees])):
+                    if list(filter(None, [cell.get() for cell in match_info.referees])):
                         continue
                     matches.append((match_info, match_date))
             else:
@@ -459,8 +459,11 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         players_spreadsheet = await bracket.get_players_spreadsheet()
         teams = []
         for team_cell in lobby_info.teams:
-            team = await self.get_team_mention(guild, players_spreadsheet, team_cell.get())
-            teams.append(team)
+            if team_cell.get():
+                team = await self.get_team_mention(guild, players_spreadsheet, team_cell.get())
+                teams.append(team)
+        if not teams:
+            return
         referee_name = lobby_info.referee.get()
         referee_role = None
         notification_type = "notification"
