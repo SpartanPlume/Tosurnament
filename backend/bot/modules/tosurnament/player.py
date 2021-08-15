@@ -620,6 +620,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                     if member:
                         try:
                             await member.add_roles(*filter(None, [player_role, bracket_role, team_role]))
+                            await member.edit(nick=player.name.get())
                         except Exception:
                             continue
 

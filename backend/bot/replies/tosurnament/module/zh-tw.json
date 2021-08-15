@@ -15,7 +15,6 @@
     "duplicate_player": "Uh-oh, **%1** 的名稱似乎在玩家表單中重複出現，請聯繫管理員。",
     "invalid_date_or_format": "賽程表單中的日期為無效或是日期為錯誤的格式。請聯繫管理員。",
     "already_player": "你已是玩家。",
-    "not_a_player": "你不是玩家，可能是你未使用 `%0name_change` 指令或是玩家表單尚未被設定。如果不是以上兩個原因，請聯繫管理員。",
     "invalid_match_id_or_no_bracket_role": "無效的場次ID或是你未擁有該組別的身分組。",
     "invalid_match_id": "無效的場次ID。",
     "no_challonge": "`%1` 組別沒有設定任何challonge。",
