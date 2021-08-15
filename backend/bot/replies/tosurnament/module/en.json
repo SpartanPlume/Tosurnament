@@ -15,7 +15,7 @@
   "duplicate_player": "Uh-oh, it seems like the player **%1** is present multiple times on the players spreadsheet. Please contact an admin.",
   "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin.",
   "already_player": "You are already a player.",
-  "not_a_player": "Either you are not a player, you didn't use the `%0name_change` command or the players spreadsheet is not set. If it is not one the first two, please contact an admin.",
+  "not_a_player": "I couldn't find you as a player, the cause might be:\n- Your osu! account is linked to the bot and you didn't use the `%0name_change` command\n- Your discord tag changed (check the numbers too), in this case you can try linking your account with `%0link`\n",
   "invalid_match_id_or_no_bracket_role": "Invalid match id or missing required bracket role.",
   "invalid_match_id": "Invalid match id.",
   "no_challonge": "No challonge has been set for the bracket `%1`.",
