@@ -598,12 +598,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     async def on_verified_user(self, guild, user):
         await self.get_player_role_for_user(None, guild, user)
 
-    async def give_player_role(self, guild, tournament):  # TODO: better
+    async def give_player_role(self, guild, tournament):
         player_role = tosurnament.get_role(guild.roles, tournament.player_role_id, "Player")
         if not player_role:
             return
         for bracket in tournament.brackets:
-            players_spreadsheet = await bracket.get_players_spreadsheet()
+            players_spreadsheet = await bracket.get_players_spreadsheet(retry=True, force_sync=True)
             if not players_spreadsheet:
                 continue
             bracket_role = tosurnament.get_role(guild.roles, bracket.role_id, bracket.name)
