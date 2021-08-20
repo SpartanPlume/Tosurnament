@@ -35,7 +35,7 @@ class AuthResource(MethodView):
         me_results = me_request.json()
         user.osu_id = str(me_results["id"])
         user.osu_name = me_results["username"]
-        user.osu_name_hash = me_results["username"]
+        user.osu_name_hash = me_results["username"].casefold()
         if me_results["previous_usernames"]:
             user.osu_previous_name = me_results["previous_usernames"][-1]
         user.verified = True

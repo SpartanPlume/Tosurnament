@@ -51,17 +51,16 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
     async def name_change(self, ctx):
         """Allows users to change their nickname to their osu! username or update it."""
         user = self.get_verified_user(ctx.author.id)
-        previous_name = user.osu_previous_name
-        new_name = user.osu_name
+        current_name = user.osu_name
         osu_user = osu.get_user(user.osu_id)
         if not osu_user:
             await self.send_reply(ctx, "osu_get_user_error")
-        if osu_user.name != new_name:
-            previous_name = new_name
-            new_name = osu_user.name
-        if not previous_name:
+            return
+        if osu_user.name == current_name:
             await self.send_reply(ctx, "change_name_unneeded")
             return
+        previous_name = current_name
+        new_name = osu_user.name
 
         # TODO: allow disabling write on spreadsheet
         # user_details = tosurnament.UserDetails.get_from_ctx(ctx)
@@ -89,7 +88,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             await self.send_reply(ctx, "change_nickname_forbidden")
         user.osu_previous_name = previous_name
         user.osu_name = new_name
-        user.osu_name_hash = new_name.lower()
+        user.osu_name_hash = new_name
         tosurnament_api.update_user(user)
         await self.send_reply(ctx, "success")
 

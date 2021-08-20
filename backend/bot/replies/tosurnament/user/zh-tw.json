@@ -1,9 +1,7 @@
 {
     "name_change": {
       "help": "將你的暱稱更改為osu!使用者名稱。",
-      "osu_get_user_error": "無法在osu!中獲取你的使用者名稱。如果你已在其他伺服器中使用過此指令則可以忽略此訊息。",
-      "success": "暱稱更改成功。",
-      "change_name_unneeded": "並未更改名稱。"
+      "osu_get_user_error": "無法在osu!中獲取你的使用者名稱。如果你已在其他伺服器中使用過此指令則可以忽略此訊息。"
     },
     "get_matches": {
       "help": "獲取已接取比賽的列表。",

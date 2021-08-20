@@ -423,9 +423,9 @@ def get_user_by_discord_user_id(user_id):
 
 def get_user_by_osu_name(osu_name):
     user_data = requests_wrapper("get", TOSURNAMENT_URL + "users?osu_name_hash=" + str(osu_name))
-    if not user_data:
+    if not user_data["users"]:
         return None
-    return User(**user_data)
+    return User(**user_data["users"][0])
 
 
 def update_user(user):

@@ -41,7 +41,7 @@ class UserAbstraction:
             tosurnament_user = tosurnament_api.get_user_by_discord_user_id(discord_id)
         osu_name = player_info.name.get()
         if not tosurnament_user and osu_name:
-            tosurnament_user = tosurnament_api.get_user_by_osu_name(osu_name.lower())
+            tosurnament_user = tosurnament_api.get_user_by_osu_name(osu_name)
         discord_tag = player_info.discord.get()
         if not tosurnament_user and guild and discord_tag:
             member = guild.get_member_named(discord_tag)

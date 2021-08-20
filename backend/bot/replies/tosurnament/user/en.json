@@ -2,8 +2,8 @@
   "name_change": {
     "help": "Changes your nickname to your osu username",
     "osu_get_user_error": "Couldn't get your username from osu!. If you already used this command on another server you can ignore this message.",
-    "success": "Nickname successfully changed.",
-    "change_name_unneeded": "You didn't change name."
+    "success": "osu! username successfully updated.",
+    "change_name_unneeded": "You didn't change osu! username."
   },
   "get_matches": {
     "help": "Gets a list of taken matches.",

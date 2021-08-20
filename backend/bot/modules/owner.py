@@ -4,12 +4,7 @@ from discord.ext import commands
 from bot.modules import module as base
 from common.api import tosurnament as tosurnament_api
 
-from common.databases.tosurnament_message.qualifiers_results_message import QualifiersResultsMessage
-from common.databases.tosurnament_message.reschedule_message import RescheduleMessage
-from common.databases.tosurnament_message.staff_reschedule_message import StaffRescheduleMessage
-from common.databases.tosurnament_message.end_tournament_message import EndTournamentMessage
-from common.databases.tosurnament_message.post_result_message import PostResultMessage
-from common.databases.tosurnament_message.match_notification import MatchNotification
+from common.databases.tosurnament.user import User
 
 
 class AdminCog(base.BaseModule, name="admin"):

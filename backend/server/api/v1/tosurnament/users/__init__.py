@@ -27,12 +27,21 @@ class UsersResource(MethodView):
                 request_args["discord_id"] = int(discord_id)
             except ValueError:
                 raise exceptions.BadRequest()
+        if "osu_name_hash" in request_args:
+            request_args["osu_name_hash"] = request_args["osu_name_hash"].casefold()
         return {"users": [user.get_api_dict() for user in db.query(User).where(**request_args).all()]}
 
     @is_authorized(user=False)
     def put(self, user_id):
         user = self._get_object(user_id)
-        user.update(**request.json)
+        body = request.json
+        if "discord_id" in body:
+            del body["discord_id"]
+        if "discord_id_snowflake" in body:
+            del body["discord_id_snowflake"]
+        if "osu_name_hash" in body:
+            body["osu_name_hash"] = body["osu_name_hash"].casefold()
+        user.update(**body)
         db.update(user)
         current_app.logger.debug("The user {0} has been updated successfully.".format(user_id))
         return {}, 204
@@ -46,6 +55,8 @@ class UsersResource(MethodView):
             body["discord_id"] = int(body["discord_id"])
         except ValueError:
             raise exceptions.BadRequest()
+        if "osu_name_hash" in body:
+            body["osu_name_hash"] = body["osu_name_hash"].casefold()
         user = User(**body)
         db.add(user)
         current_app.logger.debug("The user {0} has been created successfully.".format(user.id))
