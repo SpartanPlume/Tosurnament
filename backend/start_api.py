@@ -42,7 +42,7 @@ def register_api_v1_tosurnament(resource, endpoint, url, id_parameter_name, with
     if with_delete_all:
         methods_with_default.append("DELETE")
     url = "/api/v1/tosurnament" + url
-    app.add_url_rule(url, defaults={id_parameter_name: None}, view_func=resource_view, methods=["GET"])
+    app.add_url_rule(url, defaults={id_parameter_name: None}, view_func=resource_view, methods=methods_with_default)
     app.add_url_rule(url, view_func=resource_view, methods=["POST"])
     app.add_url_rule(f"{url}/<int:{id_parameter_name}>", view_func=resource_view, methods=["GET", "PUT", "DELETE"])
 
