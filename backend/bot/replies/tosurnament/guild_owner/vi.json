@@ -1,0 +1,17 @@
+{
+  "create_tournament": {
+    "help": "Tạo một giải đấu.",
+    "parameter": "<tên_viết_tắt> <tên> [<tên_bảng_đấu>]",
+    "example_parameter": "o!NNT \"osu! No Name Tournament\" \"Seed Alpha\"",
+    "success": "Giải đấu được tạo với tên viết tắt `%1`, tên `%2` và bảng đấu `%3`.",
+    "tournament_already_created": "Máy chủ này đang có một giải đấu diễn ra. Nếu bạn muốn tạo giải mới, hãy kết thúc giải hiện tại bằng lệnh `%0end_tournament`. Bạn cũng có thể thêm bảng đấu mới với lệnh `%0create_bracket <tên_bảng_đấu>`."
+  },
+  "end_tournament": {
+    "help": "Kết thúc một giải đấu.",
+    "are_you_sure": "Bạn có chắc là bạn muốn kết thúc giải đấu? Nếu có, thả biểu cảm vào tin nhắn :white_check_mark: **này**, nếu không thì :negative_squared_cross_mark:."
+  },
+  "reaction_on_end_tournament_message": {
+    "success": "Giải đấu kết thúc thành công. Bạn có thể tạo giải mới từ bây giờ.",
+    "refused": "Bạn từ chối kết thúc giải đấu."
+  }
+}
