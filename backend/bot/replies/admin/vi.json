@@ -1,0 +1,9 @@
+{
+  "show_user_info": {
+    "help": "Hiển thị thông tin người dùng.",
+    "parameter": "<id_discord/đề_cập>",
+    "example_parameter": "100648380174192640",
+    "success": "__ID Discord:__ %1\n__ID osu!:__ %2\n__Tên osu!:__ %3\n__Tên osu! trước đây:__ %4\n__Đã xác minh:__ %5"
+  }
+}
+  
