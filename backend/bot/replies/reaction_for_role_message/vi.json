@@ -1,0 +1,33 @@
+{
+  "create_reaction_for_role_message": {
+    "help": "Tạo một tin nhắn cho mọi người có thể thêm biểu cảm để lấy vai trò nào đó.",
+    "parameter": "<kênh> <văn_bản>",
+    "example_parameter": "#kênh Tin nhắn với :biểu_cảm: sẽ cung cấp vai trò được thiết lập.",
+    "success": "Giờ bạn có thể dùng `%0add_emoji_role_pair $../add_emoji_role_pair/parameter`, nó sẽ thêm biểu cảm trên tin nhắn mà nếu ai thêm biểu cảm vào đó, nó sẽ cung cấp vai trò tương ứng. Bạn có thể kiểm tra với phần xem trước bên dưới.\n\nĐể đăng tin nhắn, gõ `%0post_reaction_for_role_message`.\n\nĐể huỷ việc tạo tin nhắn, gõ `%0cancel_reaction_for_role_message_creation`.\n\n__Cặp biểu cảm/vai trò hiện tại:__\n%1\n__Xem trước:__"
+  },
+  "add_emoji_role_pair": {
+    "help": "",
+    "parameter": "<biểu_cảm> <vai trò>",
+    "example_parameter": ":biểu_cảm: Vai_trò",
+    "success": "$../create_reaction_for_role_message/success",
+    "error": "Bạn cần dùng lệnh `%0create_reaction_for_role_message` trước khi có thể dùng lệnh này.",
+    "emoji_duplicate": "Biểu cảm này đã được sử dụng cho tin nhắn.",
+    "invalid_emoji": "`%1` không phải biểu cảm hợp lệ.",
+    "emoji_not_found": "Tôi không tìm thấy biểu cảm `%1`, nó có tồn tại ở server này không?",
+    "unknown_role": "Vai trò không xác định."
+  },
+  "post_reaction_for_role_message": {
+    "help": "",
+    "error": "$../add_emoji_role_pair/error",
+    "channel_error": "Ôi không, có vẻ như kênh bạn muốn gửi tin nhắn tới không tồn tại nữa. Vui lòng tạo biểu cảm mới cho tin nhắn cung cấp vai trò.",
+    "no_emoji": "Bạn cần đặt ít nhất một cặp biểu cảm/vai trò trước khi đăng tin nhắn này.",
+    "add_reaction_error": "Có một lỗi xảy ra khi thêm biểu cảm vào tin nhắn cung cấp vai trò, đang thử xoá tin nhắn.",
+    "message_not_deleted": "Có một lỗi xảy ra khi cố xoá biểu cảm ở tin nhắn cung cấp vai trò, vui lòng xoá nó.",
+    "message_deleted": "Tin nhắn đã được xoá thành công, hãy thử lại lệnh này."
+  },
+  "cancel_reaction_for_role_message_creation": {
+    "help": "",
+    "success": "Đã huỷ việc thêm biểu cảm cho tin nhắn cung cấp vai trò.",
+    "error": "$../add_emoji_role_pair/error"
+  }
+}
