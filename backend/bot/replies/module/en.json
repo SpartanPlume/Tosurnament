@@ -23,5 +23,7 @@
   "referee": "Referee",
   "streamer": "Streamer",
   "commentator": "Commentator",
-  "undefined": "Undefined"
+  "undefined": "Undefined",
+  "qualifier": "Qualifier",
+  "teams": "Teams"
 }

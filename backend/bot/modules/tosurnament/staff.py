@@ -391,7 +391,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
             if where_has_no_referee:
                 for match_info, match_date in matches_data:
-                    if list(filter(None, [cell.get() for cell in match_info.referees])):
+                    if isinstance(match_info, MatchInfo):
+                        if list(filter(None, [cell.get() for cell in match_info.referees])):
+                            continue
+                    elif not match_info.referee.get():
                         continue
                     matches.append((match_info, match_date))
             else:
@@ -406,23 +409,38 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             tmp_reply_string = ""
             if reply_string:
                 tmp_reply_string += "\n-------------------------------\n"
-            tmp_reply_string += "**" + self.get_string(ctx, "match") + " " + match_info.match_id.get() + ":** "
-            tmp_reply_string += (
-                escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
-            )
-            tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
-            referees = list(filter(None, [cell.get() for cell in match_info.referees]))
-            tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
-            if referees:
-                tmp_reply_string += "/".join(referees)
+            if isinstance(match_info, MatchInfo):
+                tmp_reply_string += "**" + self.get_string(ctx, "match") + " " + match_info.match_id.get() + ":** "
+                tmp_reply_string += (
+                    escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
+                )
+                tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
+                referees = list(filter(None, [cell.get() for cell in match_info.referees]))
+                tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
+                if referees:
+                    tmp_reply_string += "/".join(referees)
+                else:
+                    tmp_reply_string += "**" + self.get_string(ctx, "none") + "**"
+                streamers = list(filter(None, [cell.get() for cell in match_info.streamers]))
+                if streamers:
+                    tmp_reply_string += "\n__" + self.get_string(ctx, "streamer") + ":__ " + "/".join(streamers)
+                commentators = list(filter(None, [cell.get() for cell in match_info.commentators]))
+                if commentators:
+                    tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
             else:
-                tmp_reply_string += "**" + self.get_string(ctx, "none") + "**"
-            streamers = list(filter(None, [cell.get() for cell in match_info.streamers]))
-            if streamers:
-                tmp_reply_string += "\n__" + self.get_string(ctx, "streamer") + ":__ " + "/".join(streamers)
-            commentators = list(filter(None, [cell.get() for cell in match_info.commentators]))
-            if commentators:
-                tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
+                tmp_reply_string += "**" + self.get_string(ctx, "qualifier") + " " + match_info.lobby_id.get() + "**"
+                tmp_reply_string += " at " + tosurnament.get_pretty_date(tournament, match_date) + ":\n\n"
+                tmp_reply_string += "__" + self.get_string(ctx, "teams") + ":__ "
+                teams = [escape_markdown(team_cell.get()) for team_cell in match_info.teams if team_cell.get()]
+                if teams:
+                    tmp_reply_string += " | ".join(teams)
+                else:
+                    tmp_reply_string += self.get_string(ctx, "none")
+                tmp_reply_string += "\n__" + self.get_string(ctx, "referee") + ":__ "
+                if match_info.referee.get():
+                    tmp_reply_string += match_info.referee.get()
+                else:
+                    tmp_reply_string += "**" + self.get_string(ctx, "none") + "**"
             if len(reply_string) + len(tmp_reply_string) >= 2000:
                 await ctx.send(reply_string)
                 reply_string = tmp_reply_string
