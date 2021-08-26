@@ -5,6 +5,7 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.api import osu
 from common.api import tosurnament as tosurnament_api
+from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import MatchInfo
 
 
 class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
@@ -114,23 +115,31 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 team_name = await self.find_team_name_of_member(ctx, bracket)
         matches_data = await self.get_next_matches_info_for_bracket(tournament, bracket)
         for match_info, match_date in matches_data:
-            if team_name and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name)):
-                user_details.player.taken_matches.append((bracket.name, match_info, match_date))
-            if user_details.referee:
-                for referee_cell in match_info.referees:
-                    if referee_cell.has_value(user_name):
-                        user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
-                        break
-            if user_details.streamer:
-                for streamer_cell in match_info.streamers:
-                    if streamer_cell.has_value(user_name):
-                        user_details.streamer.taken_matches.append((bracket.name, match_info, match_date))
-                        break
-            if user_details.commentator:
-                for commentator_cell in match_info.commentators:
-                    if commentator_cell.has_value(user_name):
-                        user_details.commentator.taken_matches.append((bracket.name, match_info, match_date))
-                        break
+            if isinstance(match_info, MatchInfo):
+                if team_name and (match_info.team1.has_value(team_name) or match_info.team2.has_value(team_name)):
+                    user_details.player.taken_matches.append((bracket.name, match_info, match_date))
+                if user_details.referee:
+                    for referee_cell in match_info.referees:
+                        if referee_cell.has_value(user_name):
+                            user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
+                            break
+                if user_details.streamer:
+                    for streamer_cell in match_info.streamers:
+                        if streamer_cell.has_value(user_name):
+                            user_details.streamer.taken_matches.append((bracket.name, match_info, match_date))
+                            break
+                if user_details.commentator:
+                    for commentator_cell in match_info.commentators:
+                        if commentator_cell.has_value(user_name):
+                            user_details.commentator.taken_matches.append((bracket.name, match_info, match_date))
+                            break
+            else:
+                if team_name:
+                    for team_cell in match_info.teams:
+                        if team_cell.has_value(team_name):
+                            user_details.player.taken_matches.append((bracket.name, match_info, match_date))
+                if user_details.referee and match_info.referee and match_info.referee.has_value(user_name):
+                    user_details.referee.taken_matches.append((bracket.name, match_info, match_date))
 
     @commands.command(aliases=["get_match", "gm", "list_matches", "list_match", "lm", "see_matches", "see_match", "sm"])
     @commands.guild_only()
@@ -152,8 +161,11 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                     tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date)
                     if len(tournament.brackets) > 1:
                         tmp_reply_string += " | " + bracket_name
-                    tmp_reply_string += " | **" + match_info.match_id.get() + "**:\n"
-                    tmp_reply_string += match_info.team1.get() + " vs " + match_info.team2.get() + "\n"
+                    if isinstance(match_info, MatchInfo):
+                        tmp_reply_string += " | **" + match_info.match_id.get() + "**:\n"
+                        tmp_reply_string += match_info.team1.get() + " vs " + match_info.team2.get() + "\n"
+                    else:
+                        tmp_reply_string += " | Qualifiers **" + match_info.lobby_id.get() + "**\n"
                     if len(reply_string) + len(tmp_reply_string) >= 2000:
                         await ctx.author.send(reply_string)
                         reply_string = tmp_reply_string

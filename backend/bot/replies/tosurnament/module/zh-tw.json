@@ -23,6 +23,6 @@
     "invalid_mp_link": "無效的mp link",
     "participant_not_found": "場次 %1 無法在challonge上被更新。請確認challonge上的參與者名稱為正確的。",
     "match_not_found": "場次未找到，challonge上似乎發生了錯誤。",
-    "spreadsheet_rights": "Uh-oh, 機器人似乎沒有 %2 組別中，對 %3 表單 %1 的權限。"
+    "spreadsheet_rights": "Uh-oh, 機器人似乎沒有 `%2` 組別中，對 %3 表單 %1 的權限。"
   }
   

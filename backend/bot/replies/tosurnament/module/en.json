@@ -24,5 +24,5 @@
   "invalid_mp_link": "Invalid mp link.",
   "participant_not_found": "The match %1 could not be updated in the challonge. Please, make sure that the participant names in the challonge are correct.",
   "match_not_found": "Match not found, there seems to be an error on the challonge.",
-  "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %3 spreadsheet of the bracket %2."
+  "spreadsheet_rights": "Uh-oh, it seems like I don't have the %1 rights on the %2 spreadsheet of a bracket."
 }

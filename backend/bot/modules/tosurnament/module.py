@@ -19,6 +19,7 @@ from common.databases.tosurnament.spreadsheets.players_spreadsheet import (
     DuplicateTeam,
     TeamNotFound,
 )
+from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import LobbyInfo
 from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
 from common.api import challonge
 from common.api import tosurnament as tosurnament_api
@@ -184,27 +185,45 @@ class TosurnamentBaseModule(BaseModule):
 
     async def get_next_matches_info_for_bracket(self, tournament, bracket):
         matches_data = []
-        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
-        if not schedules_spreadsheet:
-            return matches_data
-        match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
-            schedules_spreadsheet.range_match_id
-        )
         now = datetime.datetime.now(datetime.timezone.utc)
-        matches_to_ignore = [match.casefold() for match in tournament.matches_to_ignore.split("\n")]
-        for match_id_cell in match_ids_cells:
-            if match_id_cell.casefold() in matches_to_ignore:
-                continue
-            match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
-            date_format = "%d %B"
-            if schedules_spreadsheet.date_format:
-                date_format = schedules_spreadsheet.date_format
-            match_date = tournament.parse_date(
-                match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"]))
+        schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
+        if schedules_spreadsheet:
+            match_ids_cells = schedules_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                schedules_spreadsheet.range_match_id
             )
-            if not match_date or match_date < now:
-                continue
-            matches_data.append((match_info, match_date))
+            matches_to_ignore = [match.casefold() for match in tournament.matches_to_ignore.split("\n")]
+            for match_id_cell in match_ids_cells:
+                if match_id_cell.casefold() in matches_to_ignore:
+                    continue
+                match_info = MatchInfo.from_match_id_cell(schedules_spreadsheet, match_id_cell)
+                date_format = "%d %B"
+                if schedules_spreadsheet.date_format:
+                    date_format = schedules_spreadsheet.date_format
+                match_date = tournament.parse_date(
+                    match_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"]))
+                )
+                if not match_date or match_date < now:
+                    continue
+                matches_data.append((match_info, match_date))
+        qualifiers_spreadsheet = await bracket.get_qualifiers_spreadsheet()
+        if qualifiers_spreadsheet:
+            lobby_ids_cells = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
+                qualifiers_spreadsheet.range_lobby_id
+            )
+            matches_to_ignore = [lobby.casefold() for lobby in tournament.matches_to_ignore.split("\n")]
+            for lobby_id_cell in lobby_ids_cells:
+                if lobby_id_cell.casefold() in matches_to_ignore:
+                    continue
+                lobby_info = LobbyInfo.from_lobby_id_cell(qualifiers_spreadsheet, lobby_id_cell)
+                date_format = "%d %B"
+                if schedules_spreadsheet and schedules_spreadsheet.date_format:
+                    date_format = schedules_spreadsheet.date_format
+                lobby_date = tournament.parse_date(
+                    lobby_info.get_datetime(), date_formats=list(filter(None, [date_format + " %H:%M"]))
+                )
+                if not lobby_date or lobby_date < now:
+                    continue
+                matches_data.append((lobby_info, lobby_date))
         return matches_data
 
     async def get_all_teams_infos_and_roles(self, guild, players_spreadsheet):
