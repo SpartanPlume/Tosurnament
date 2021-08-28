@@ -278,26 +278,19 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 role_store.not_taken_matches.append(match_info.match_id.get())
         return write_cells
 
-    def take_lobby_for_roles(self, qualifiers_spreadsheet, lobby_info, user_details, take):
+    def take_lobby_for_roles(self, lobby_info, user_details, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
         staff_name = user_details.name.casefold()
         role_cell = lobby_info.referee
-        staffs = list(filter(None, [staff.strip() for staff in role_cell.split("/")]))
-        casefold_staffs = [staff.casefold() for staff in staffs]
-        if take and staff_name not in casefold_staffs:
-            staffs.append(user_details.name)
-            role_cell.set(" / ".join(staffs))
+        casefold_staff = role_cell.get().casefold()
+        if not casefold_staff and take:
+            role_cell.set(staff_name)
             user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
             return True
-        elif not take:
-            try:
-                idx = casefold_staffs.index(staff_name)
-                staffs.pop(idx)
-                role_cell.set(" / ".join(staffs))
-                user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
-                return True
-            except ValueError:
-                pass
+        elif not take and casefold_staff == staff_name:
+            role_cell.set("")
+            user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
+            return True
         user_details.referee.not_taken_matches.append(lobby_info.lobby_id.get())
         return False
 
@@ -325,7 +318,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         lobby_info = LobbyInfo.from_id(spreadsheet, match_id, False)
                     except LobbyIdNotFound:
                         continue
-                    self.take_lobby_for_roles(spreadsheet, lobby_info, user_details, take)
+                    self.take_lobby_for_roles(lobby_info, user_details, take)
                     match_taken = True
                     break
             if not match_taken:
