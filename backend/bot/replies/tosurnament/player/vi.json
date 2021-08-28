@@ -1,0 +1,50 @@
+{
+  "get_player_role": {
+    "help": "Lấy vai trò người chơi và một số vai trò liên quan.",
+    "success": "Vai trò Người chơi đã được cung cấp cho bạn."
+  },
+  "reschedule": {
+    "help": "Yêu cầu thay đổi lịch",
+    "invalid_minute": "Phút không hợp lệ. Bạn có thể dùng 00, 15, 30 hoặc 45. Ví dụ: `17:15` hợp lệ, `17:16` thì không.",
+    "invalid_match": "Bạn không thể thay đổi lịch của trận bạn không tham gia.\n\n__Vui lòng kiểm tra:__\n- Liệu có đúng ID trận không?\n- Nếu bạn chưa liên kết tài khoản, bạn có thay đổi thẻ tên Discord không (kiểm tra cả số định danh)? Nếu nó đã thay đổi, vui lòng liên hệ quản trị viên hoặc dùng lệnh `;link`.\n- Nếu bạn đã liên kết tài khoản, điều này có nghĩa là bạn đã đổi tên tài khoản osu!, hãy dùng lệnh `;name_change`.",
+    "not_team_captain": "Bạn không phải đội trưởng của đội, nên bạn không thể dùng lệnh này.",
+    "contact_referee": "\n\n%2, nếu bạn đồng ý đổi lịch, hãy gõ: `%0anr %3`",
+    "past_now": "Xin lỗi, thời điểm bạn yêu cầu đổi lịch đã qua rồi.",
+    "impossible_reschedule": "Xin lỗi, còn ít hơn %1 tiếng so với **thời điểm mới** được yêu cầu, bạn đã quá hạn thay đổi lịch. $./contact_referee",
+    "past_deadline": "Xin lỗi, còn ít hơn %1 tiếng so với **lịch trình hiện tại** của trận, bạn đã quá hạn thay đổi lịch. $./contact_referee",
+    "past_deadline_end": "Xin lỗi, thời điểm bạn yêu cầu vượt quá hạn cho phép. Bạn có thể thử liên hệ quản trị viên.",
+    "removed_from_match": "%1, bạn đã được **gỡ thành công** khỏi trận %2.",
+    "same_date": "Bạn không thể thay đổi lịch trùng y hệt lịch hiện có.",
+    "success": "Chào %1! %2 muốn thay đổi lịch trận %3 từ %4 sang %5. Nếu bạn đồng ý, hãy thêm biểu cảm :thumbsup: vào tin nhắn này. Nếu bạn từ chối, thêm biểu cảm :thumbsdown: vào tin nhắn này.",
+    "parameter": "<id_trận> <ngày_giờ: MM/dd HH:mm>",
+    "example_parameter": "7 27 Jul 07h27",
+    "usage_information": "**Chú ý:** Bạn có thể nhập thời gian bất cứ cách nào bạn muốn, nhưng nếu nó không được chấp nhận, vui lòng dùng theo chuẩn `MM/dd HH:mm`.",
+    "no_admin_role": "Quản trị viên (hãy liên hệ với họ)",
+    "no_previous_date": "**Không có lịch cũ**"
+  },
+  "reaction_on_reschedule_message": {
+    "accepted": ":white_check_mark: %1, đề nghị thay đổi lịch trận %2 đã được chấp nhận.",
+    "refused": ":x: %1, đề nghị thay đổi lịch trận %2 đã bị từ chối.",
+    "staff_notification": "$./no_staff_notification\n\n__Trọng tài:__ %6\n__Người phát trực tiếp:__ %7\n__Bình luận viên:__ %8\n\nNếu bạn không thể làm trọng tài/phát trực tiếp/bình luận vào thời điểm mới, hãy thêm biểu cảm :x: vào tin nhắn này.",
+    "no_staff_notification": "Trận %1 (%2 vs %3) đã được đổi lịch từ %4 sang %5.",
+    "no_previous_date": "$../reschedule/no_previous_date"
+  },
+  "register": {
+    "help": "Đăng ký làm người chơi trong giải",
+    "parameter": "<múi_giờ>",
+    "example_parameter": "UTC+7",
+    "success": "Bạn đã đăng ký thành công.",
+    "invalid_timezone": "`%1` là múi giờ không hợp lệ.",
+    "not_supported_yet": "Lệnh này chưa hỗ trợ giải đấu đội hoặc giải gồm nhiều bảng đấu.",
+    "registration_ended": "Thời gian đăng ký tham gia giải đã kết thúc."
+  },
+  "register_to_lobby": {
+    "help": "Đăng kí tham gia một phòng thi đấu vòng loại",
+    "parameter": "<ID_phòng>",
+    "example_parameter": "Q1",
+    "success": "Bạn đã đăng ký tham gia phòng `%1` thành công.",
+    "already_in_lobby": "Bạn đã ở trong phòng lựa chọn.",
+    "lobby_not_found": "Phòng này không tồn tại.",
+    "lobby_is_full": "Phòng này đã đầy."
+  }
+}
