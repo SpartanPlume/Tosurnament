@@ -24,5 +24,5 @@
   "invalid_mp_link": "Đường dẫn mp không hợp lệ.",
   "participant_not_found": "Không thể cập nhật trận %1 trên challonge. Hãy đảm bảo tên của những người tham gia trên challonge đã chính xác.",
   "match_not_found": "Không tìm thấy trận, có vẻ như có lỗi gì đó trên challonge.",
-  "spreadsheet_rights": "Ôi không, hình như tôi không có quyền %1 trên Trang tính %3 của bảng đấu %2."
+  "spreadsheet_rights": "Ôi không, hình như tôi không có quyền %1 trên trang tính %2 của một bảng đấu."
 }
