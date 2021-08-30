@@ -1,0 +1,49 @@
+{
+  "post_result": {
+    "help": "Đăng kết quả trận đấu",
+    "parameter": "<id_trận>",
+    "example_parameter": "12",
+    "step1": "ID Trận: **%1**\nStep 1/8: **Best of ?**\n\nGõ `%0answer <số>`. Ví dụ, `%0answer 7`",
+    "step2": "ID Trận: **%1**\nStep 2/8: **Roll của Đội 1 ?**\n\nGõ `%0answer <số>`. Ví dụ, `%0answer 7`",
+    "step3": "ID Trận: **%1**\nStep 3/8: **Roll của Đội 2 ?**\n\nGõ `%0answer <số>`. Ví dụ, `%0answer 7`",
+    "step4": "ID Trận: **%1**\nStep 4/8: **Có mấy warm-up?**\n\nGõ `%0answer <số>`. Ví dụ, `%0answer 7`",
+    "step5": "ID Trận: **%1**\nStep 5/8: **Đưa tôi đường dẫn mp**\n\nGõ `%0answer <đường_dẫn_mp>`. Ví dụ, `%0answer https://osu.ppy.sh/community/matches/123` (Nếu có nhiều hơn 1 đường dẫn, tách đường dẫn mp bằng dấu cách, hoặc xuống dòng).",
+    "step6": "ID Trận: **%1**\nStep 6/8: **Map Đội 1 cấm?**\n\nGõ `%0answer <map>`. Ví dụ, `%0answer NM1`",
+    "step7": "ID Trận: **%1**\nStep 7/8: **Map Đội 2 cấm?**\n\nGõ `%0answer <map>`. Ví dụ, `%0answer NM1`",
+    "step8": "ID Trận: **%1**\nStep 8/8: **Kiểm tra lại thông tin**\n\n__Best of:__ %2\n__Roll Đội 1:__ %3\n__Roll Đội 2:__ %4\n__Warm-up:__ %5\n__Đường dẫn mp:__ %6\n__Map Đội 1 cấm:__ %7\n__Map Đội 2 cấm:__ %8\n__Map TB Đội 1 cấm:__ %9\n__Map TB Đội 2 cấm:__ %10\n\nNếu thông tin đúng, gõ `%0answer post`. Nếu không, bấm vào bước mà bạn muốn chỉnh sửa.",
+    "preview": "__Xem trước:__\n\n%1",
+    "default": "_ _\n**ID trận: %match_id**\n%_team1_with_score_ - %_team2_with_score_%_mp_link_%_bans_%_tb_bans_",
+    "default_team1_with_score": "%team1 | %score_team1",
+    "default_team2_with_score": "%score_team2 | %team2",
+    "default_mp_link": "\n%mp_link",
+    "default_rolls": "\nRoll của %team1: %roll_team1\nRoll của %team2: %roll_team2\n",
+    "default_bans": "\n\n__**Map bị cấm:**__\n**%team1:** %bans_team1\n**%team2:** %bans_team2",
+    "default_tb_bans": "\n\n__**Map TB bị cấm:**__\n**%team1:** %tb_bans_team1\n**%team2:** %tb_bans_team2",
+    "cancel": "Bạn huỷ đăng kết quả.",
+    "success": "",
+    "invalid_match_id": "Không tìm thấy trận có ID: %1",
+    "invalid_mp_link": "Đường dẫn mp không hợp lệ.",
+    "match_not_found": "**Lỗi Challonge:** Không tìm thấy trận %1 (%2 vs %3). Có lẽ điểm đã được điền rồi?",
+    "group_stage_complete": "Vòng bảng đã hoàn thành. Bạn có thể cho kết thúc vòng bảng trên challonge và sau đó gõ lệnh `%0clear_player_role` để gỡ vai trò người chơi của các đội bị loại."
+  },
+  "post_result_with_scores": {
+    "help": "Đăng kết quả một trận đấu",
+    "parameter": "<id_trận> <điểm_đội1> <điểm_đội2>",
+    "example_parameter": "7 2 7"
+  },
+  "post_result_one_liner": {
+    "help": "Đăng kết quả một trận đấu",
+    "parameter": "<id_trận> <điểm_đội1> <điểm_đội2> <best_of> <số_warmup> <(các)_đường_dẫn_mp>[ |'| <Map_bị_cấm>][ |'| <Map_TB_bị_cấm>]",
+    "example_parameter": "7 2 7 13 0 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2"
+  },
+  "post_result_one_liner_with_rolls": {
+    "help": "Đăng kết quả một trận đấu",
+    "parameter": "<id_trận> <điểm_đội1> <điểm_đội2> <best_of> <roll_của_đội1> <roll_của_đội2> <số_warmup> <(các)_đường_dẫn_mp>[ |'| <Map_bị_cấm>][ |'| <Map_TB_bị_cấm>]",
+    "example_parameter": "7 2 7 13 69 96 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+  },
+  "test_post_result_message": {
+    "help": "Hiển thị tin nhắn đăng kết quả với các giá trị mặc định.",
+    "parameter": "[<số_map_bị_cấm>] [<số_map_TB_bị_cấm>]",
+    "example_parameter": "2 2"
+  }
+}

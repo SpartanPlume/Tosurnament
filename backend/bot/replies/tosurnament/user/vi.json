@@ -1,0 +1,17 @@
+{
+  "name_change": {
+    "help": "Thay đổi biệt danh thành tên tài khoản osu!",
+    "osu_get_user_error": "Không thể lấy tên tài khoản từ osu!. Nếu bạn đã từng dùng lệnh này ở máy chủ khác, bạn có thể bỏ qua tin nhắn này.",
+    "success": "Cập nhật thành công tên tài khoản osu!.",
+    "change_name_unneeded": "Bạn không thay đổi tên tài khoản osu!."
+  },
+  "get_matches": {
+    "help": "Lấy danh sách các trận đã nhận.",
+    "success": "**%1: %2** | Danh sách trận",
+    "role_match": "Với vai trò là **__%1__**:\n"
+  },
+  "show_my_info": {
+    "help": "Gửi tin nhắn cho bạn về thông tin cá nhân được lưu trên bot.",
+    "success": "__ID Discord:__ %1\n__ID osu!:__ %2\n__Tên tài khoản osu!:__ %3\n__Tên tài khoản osu! trước đây:__ %4\n__Đã xác minh:__ %5"
+  }
+}

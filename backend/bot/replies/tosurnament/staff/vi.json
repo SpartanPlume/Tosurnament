@@ -1,0 +1,127 @@
+{
+  "create_qualifiers_results_message": {
+    "help": "Tạo tin nhắn hiện kết quả Vòng loại",
+    "parameter": "<kênh> [<trạng_thái>]",
+    "example_parameter": "#kết-quả-vòng-loại KẾT_THÚC",
+    "not_supported_yet": "Tin nhắn hiện kết quả vòng loại chưa được hỗ trợ đối với giải có nhiều bảng đấu.",
+    "embed": {
+      "embed": {
+        "title": "%1 Vòng loại %2",
+        "thumbnail": {
+          "url": "%7"
+        },
+        "fields": [
+          {
+            "name": "Bảng xếp hạng top 10",
+            "value": "%3"
+          },
+          {
+            "name": "Kết quả vòng loại",
+            "value": ":first_place: Đứng đầu: **%4**\n:thumbsup: Điểm trung bình: %5\n:scream: Cut Off: %6"
+          }
+        ]
+      }
+    }
+  },
+  "allow_next_reschedule": {
+    "help": "Cho phép một trận đấu được xếp lịch mà không bị ràng buộc thời gian.",
+    "parameter": "<id_trận> [<số_giờ_cho_phép>]",
+    "example_parameter": "C2",
+    "success": "Trận đấu `%1` được cho phép xếp lịch không bị ràng buộc về thời gian chót **một lần** (nếu thành công) trong `%2` tiếng nữa.\n\n%3 / %4, các bạn có thể tiến hành xếp lịch.",
+    "not_referee_of_match": "Bạn không thể cho phép việc xếp lịch của trận mà bạn không phải là trọng tài."
+  },
+  "take_match": {
+    "help": "Điền tên nhân viên lên mọi cột (chỉ với những vai trò họ có) ở các trận tương ứng trên Trang tính.",
+    "parameter": "<(các)_id_trận>",
+    "example_parameter": "1 2 3",
+    "taken_match_ids": "Với vai trò là __%1__, %2 **nhận thành công** trận đấu: ",
+    "not_taken_match_ids": "Với vai trò là __%1__, %2, các trận sau **đã được nhận**: ",
+    "invalid_match_ids": "Các trận sau không tồn tại: ",
+    "not_staff": "Bạn không có vai trò nhân viên (Trọng tài, Người phát trực tiếp, Bình luận viên), nên bạn không thể dùng lệnh này."
+  },
+  "take_match_as_referee": {
+    "help": "Điền tên nhân viên vào cột Trọng tài ở các trận tương ứng trong Trang tính.",
+    "parameter": "$../take_match/parameter",
+    "example_parameter": "$../take_match/example_parameter",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "take_match_as_streamer": {
+    "help": "Điền tên nhân viên vào cột Người phát trực tiếp ở các trận tương ứng trong Trang tính.",
+    "usage": "Cách dùng: `%0take_match_as_streamer $../take_match/parameter`\n\nVí dụ: `%0take_match_as_streamer 1A 2A 2B`",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "take_match_as_commentator": {
+    "help": "Điền tên nhân viên vào cột Bình luận viên ở các trận tương ứng trong Trang tính.",
+    "usage": "Cách dùng: `%0take_match_as_commentator $../take_match/parameter`\n\nVí dụ: `%0take_match_as_commentator 1A 2A 2B`",
+    "taken_match_ids": "$../take_match/taken_match_ids",
+    "not_taken_match_ids": "$../take_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "drop_match": {
+    "help": "Gỡ tên nhân viên khỏi mọi cột (chỉ với những vai trò họ có) ở các trận tương ứng trong Trang tính.",
+    "taken_match_ids": "Với vai trò là __%1__, %2 **đã bỏ thành công** các trận đấu: ",
+    "not_taken_match_ids": "Với vai trò là __%1__, %2 **không có mặt** ở các trận: ",
+    "invalid_match_ids": "$../take_match/invalid_match_ids",
+    "not_staff": "$../take_match/not_staff",
+    "usage": "Cách dùng: `%0drop_match $../take_match/parameter`\n\nVí dụ: `%0drop_match 1A 2A 2B`"
+  },
+  "drop_match_as_referee": {
+    "help": "Gỡ tên nhân viên khỏi cột Trọng tài ở các trận tương ứng trong Trang tính.",
+    "usage": "Cách dùng: `%0drop_match_as_referee $../take_match/parameter`\n\nVí dụ: `%0drop_match_as_referee 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "drop_match_as_streamer": {
+    "help": "Gỡ tên nhân viên khỏi cột Người phát trực tiếp ở các trận tương ứng trong Trang tính.",
+    "usage": "Cách dùng: `%0drop_match_as_streamer $../take_match/parameter`\n\nVí dụ: `%0drop_match_as_streamer 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "drop_match_as_commentator": {
+    "help": "Gỡ tên nhân viên khỏi cột Bình luận viên ở các trận tương ứng trong Trang tính.",
+    "usage": "Cách dùng: `%0drop_match_as_commentator $../take_match/parameter`\n\nVí dụ: `%0drop_match_as_commentator 1A 2A 2B`",
+    "taken_match_ids": "$../drop_match/taken_match_ids",
+    "not_taken_match_ids": "$../drop_match/not_taken_match_ids",
+    "invalid_match_ids": "$../take_match/invalid_match_ids"
+  },
+  "qualifier_match_notification": {
+    "common_begin": "_ _\n**__Vòng loại - Phòng %1__\n\n%2**\n\n__Trọng tài:__ ",
+    "common_end": "\n\nPhòng này sẽ bắt đầu chơi sau %4 phút.",
+    "notification": "$./common_begin%3$./common_end",
+    "notification_no_referee": "$./common_begin**Không có Trọng tài** (%3, nếu bạn muốn lấy phòng này, thêm biểu cảm :muscle:)$./common_end",
+    "notification_no_referre_no_role": "$./common_begin**Không có Trọng tài** (và không tìm thấy vai trò Trọng tài)$./common_end",
+    "edited": "$./common_begin%5$./common_end\n\n*Tái bút: Không cần %3 nữa.*"
+  },
+  "player_match_notification": {
+    "common_begin": "_ _\n**__Trận %1__\n%2 vs %3**\n\n__Trọng tài:__ ",
+    "common_end": "\n\nTrận đấu này sẽ bắt đầu sau %5 phút.",
+    "notification": "$./common_begin%4$./common_end",
+    "notification_no_referee": "$./common_begin**Không có Trọng tài** (%3, nếu bạn muốn lấy phòng này, thêm biểu cảm :muscle:)$./common_end",
+    "notification_no_referre_no_role": "$./common_begin**Không có Trọng tài** (và không tìm thấy vai trò Trọng tài)$./common_end",
+    "edited": "$./common_begin%6$./common_end\n\n*Tái bút: Không cần %4 nữa.*"
+  },
+  "referee_match_notification": {
+    "common": "_ _\n**__Trận %1__**\n%5\n%2 vs %3",
+    "description": "**%4, trận đấu này sẽ bắt đầu trong \\~6 tiếng nữa mà chưa có trọng tài.**\nNếu bạn muốn điều khiển trận này, thêm biểu cảm :muscle:",
+    "notification": "$./common\n\n$./description",
+    "edited": "$./common\n\n~~$./description~~\n\nTrận này đã được %6 nhận."
+  },
+  "reaction_on_staff_reschedule_message": {
+    "staff_notification": "$./no_staff_notification\n\n__Trọng tài:__ %6\n__Người phát trực tiếp:__ %7\n__Bình luận viên:__ %8\n\nNếu bạn không thể làm trọng tài/phát trực tiếp/bình luận vào thời điểm mới, vui lòng thêm biểu cảm :x: vào tin nhắn này.",
+    "no_staff_notification": "Trận %1 (%2 vs %3) đã được đổi lịch từ %4 sang %5.",
+    "staff_notification_all_staff_removed": "$./no_staff_notification\n\nMọi nhân viên nhận trận này đã từ bỏ.",
+    "no_previous_date": "**Không có ngày trước đó**"
+  },
+  "show_next_matches": {
+    "help": "Hiển thị danh sách các trận tiếp theo (mặc định là 5 trận)",
+    "parameter": "[<số_trận_hiển_thị> = 5] [<mà_không_có_trọng_tài> = False]",
+    "no_match_without_referee": "Không có trận nào không có trọng tài.",
+    "no_match": "Không có trận nào."
+  }
+}

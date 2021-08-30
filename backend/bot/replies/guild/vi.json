@@ -1,0 +1,33 @@
+{
+  "set_admin_role": {
+    "help": "Những ai có vai trò <vai_trò> là những người có thể sử dụng lệnh của quản trị viên tới bot.",
+    "parameter": "<vai_trò>",
+    "example_parameter": "Quản trị viên",
+    "success": "Vai trò của quản trị viên được đặt là `%1`."
+  },
+  "set_verified_role": {
+    "help": "Những ai có vai trò <vai_trò> là những người đã được xác minh, nghĩa là họ đã liên kết tài khoản osu! của họ với tài khoản Discord của họ.",
+    "parameter": "<vai_trò>",
+    "example_parameter": "Đã xác minh",
+    "success": "Vai trò của người đã xác minh được đặt là `%1`."
+  },
+  "set_language": {
+    "help": "Đặt ngôn ngữ mà bot sử dụng trong máy chủ.",
+    "parameter": "[<ngôn ngữ>]",
+    "example_parameter": "vi",
+    "invalid_language": "Ngôn ngữ này không tồn tại hoặc chưa được hỗ trợ. Nếu bạn muốn ngôn ngữ này được hỗ trợ, hãy đóng góp tại: https://github.com/SpartanPlume/Tosurnament",
+    "default": "Danh sách các ngôn ngữ được hỗ trợ: `%1`",
+    "success": "Ngôn ngữ đã được đặt là `%1`."
+  },
+  "setup_verification_channel": {
+    "help": "Thiết lập một kênh mà mọi người có thể hiểu quá trình xác minh và thực hiện việc đó.",
+    "parameter": "<kênh>",
+    "example_parameter": "#xác-minh-danh-tính",
+    "success": "",
+    "setup": "Xin chào! Bạn cần được xác minh với bot này (Tosurnament) trước khi có thể hoàn toàn tham gia máy chủ này. Quá trình xác minh rất đơn giản, chỉ cần gửi một tin nhắn tới bot với lệnh là `%0link` và làm theo hướng dẫn.\n\nSau khi bạn được xác minh, hãy thêm biểu cảm :bellhop: vào tin nhắn này."
+  },
+  "show_guild_settings": {
+    "help": "Hiển thị thiết lập hiện tại của máy chủ.",
+    "title": "**__Thiết lập của máy chủ:__**\n\n"
+  }
+}
