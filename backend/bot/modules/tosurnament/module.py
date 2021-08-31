@@ -1,11 +1,11 @@
 """Base of all tosurnament modules"""
 
-import locale
 import datetime
 import os
 import pickle
 import asyncio
 import functools
+from babel.dates import format_date, format_time
 from discord.ext import commands
 from bot.modules.module import *
 from common.databases.tosurnament.spreadsheets.base_spreadsheet import BaseSpreadsheet, SpreadsheetHttpError
@@ -366,28 +366,20 @@ class TosurnamentBaseModule(BaseModule):
                     if int(minute) > 0:
                         utc += ":" + minute
         guild = self.get_guild(ctx.guild.id)
+        language = "en"
         if guild and guild.language:
             language = guild.language.replace("-", "_")
-            try:
-                locale.setlocale(locale.LC_TIME, language)
-            except Exception:
-                try:
-                    locale.setlocale(locale.LC_TIME, locale.locale_alias[language])
-                except Exception:
-                    try:
-                        split_language = language.split("_")
-                        if len(split_language) > 1:
-                            language = split_language[0] + "_" + split_language[1].upper()
-                            locale.setlocale(locale.LC_TIME, language)
-                    except Exception:
-                        pass
-            pretty_date = "**" + date.strftime(PRETTY_DATE_FORMAT.format(self.get_string(ctx, "at"))) + utc + "**"
-            try:
-                locale.setlocale(locale.LC_TIME, "en_US")
-            except Exception:
-                locale.setlocale(locale.LC_TIME, "")
-        else:
-            pretty_date = "**" + date.strftime(PRETTY_DATE_FORMAT.format(self.get_string(ctx, "at"))) + utc + "**"
+        pretty_date = (
+            "**"
+            + format_date(date.date(), format="full", locale=language)
+            + " "
+            + self.get_string(ctx, "at")
+            + " "
+            + format_time(date.time(), "HH:mm", locale=language)
+            + " UTC"
+            + utc
+            + "**"
+        )
         return pretty_date
 
     async def on_cog_command_error(self, ctx, error, channel=None):

@@ -21,6 +21,7 @@ python_dependencies=(
     blessings
     mysqldb_wrapper
     dateparser
+    Babel
 )
 
 echo "Intalling necessary python dependencies..."
