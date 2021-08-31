@@ -407,7 +407,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 tmp_reply_string += (
                     escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
                 )
-                tmp_reply_string += tosurnament.get_pretty_date(tournament, match_date) + "\n\n"
+                tmp_reply_string += self.get_pretty_date(ctx, tournament, match_date) + "\n\n"
                 referees = list(filter(None, [cell.get() for cell in match_info.referees]))
                 tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
                 if referees:
@@ -422,7 +422,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
             else:
                 tmp_reply_string += "**" + self.get_string(ctx, "qualifier") + " " + match_info.lobby_id.get() + "**"
-                tmp_reply_string += " at " + tosurnament.get_pretty_date(tournament, match_date) + ":\n\n"
+                tmp_reply_string += " at " + self.get_pretty_date(ctx, tournament, match_date) + ":\n\n"
                 tmp_reply_string += "__" + self.get_string(ctx, "teams") + ":__ "
                 teams = [escape_markdown(team_cell.get()) for team_cell in match_info.teams if team_cell.get()]
                 if teams:
@@ -596,7 +596,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             referee = referee_role.mention
         else:
             referee = self.get_simple_string(guild, "referee")
-        match_date_str = tosurnament.get_pretty_date(tournament, match_date)
+        match_date_str = self.get_pretty_date(ctx, tournament, match_date)
         team1 = escape_markdown(match_info.team1.get())
         team2 = escape_markdown(match_info.team2.get())
         message = await self.send_reply_in_bg_task(
@@ -894,13 +894,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     previous_date = datetime.datetime.strptime(
                         staff_reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
                     )
-                    previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
+                    previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
                 else:
                     previous_date_string = self.get_string(ctx, "no_previous_date")
                 new_date = datetime.datetime.strptime(
                     staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT
                 )
-                new_date_string = tosurnament.get_pretty_date(tournament, new_date)
+                new_date_string = self.get_pretty_date(ctx, tournament, new_date)
                 message = await ctx.channel.fetch_message(ctx.message.id)
                 referees = [
                     referee.mention

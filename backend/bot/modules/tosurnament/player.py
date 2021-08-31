@@ -384,12 +384,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         reschedule_message.ally_user_id = ctx.author.id
         reschedule_message.opponent_user_id = opponent_team_captain.id
         if previous_date:
-            previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
+            previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
             reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
         else:
             previous_date_string = self.get_string(ctx, "no_previous_date")
             reschedule_message.previous_date = ""
-        new_date_string = tosurnament.get_pretty_date(tournament, new_date)
+        new_date_string = self.get_pretty_date(ctx, tournament, new_date)
         reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
         sent_message = await self.send_reply(
             ctx,
@@ -508,7 +508,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             previous_date = datetime.datetime.strptime(
                 reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
             )
-            previous_date_string = tosurnament.get_pretty_date(tournament, previous_date)
+            previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
         else:
             previous_date_string = self.get_string(ctx, "no_previous_date")
         new_date = datetime.datetime.strptime(reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
@@ -543,7 +543,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         streamers_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.streamers)
         commentators_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.commentators)
 
-        new_date_string = tosurnament.get_pretty_date(tournament, new_date)
+        new_date_string = self.get_pretty_date(ctx, tournament, new_date)
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(tournament.staff_channel_id)

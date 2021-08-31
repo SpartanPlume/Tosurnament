@@ -1,5 +1,6 @@
 """Base of all tosurnament modules"""
 
+import locale
 import datetime
 import os
 import pickle
@@ -24,7 +25,7 @@ from common.api.spreadsheet import Spreadsheet, InvalidWorksheet, HttpError
 from common.api import challonge
 from common.api import tosurnament as tosurnament_api
 
-PRETTY_DATE_FORMAT = "%A %d %B at %H:%M UTC"
+PRETTY_DATE_FORMAT = "%A %d %B {0} %H:%M UTC"
 DATABASE_DATE_FORMAT = "%d/%m/%y %H:%M"
 
 
@@ -295,8 +296,11 @@ class TosurnamentBaseModule(BaseModule):
                     continue
                 self.bot.info("Updated online spreadsheet successfully")
                 return
-        except asyncio.CancelledError:
-            return
+        except asyncio.CancelledError as e:
+            self.bot.info_exception(e)
+        except Exception as e:
+            self.bot.info_exception(e)
+            self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
 
     def add_update_spreadsheet_background_task(self, spreadsheet):
         spreadsheet.spreadsheet.update_pickle()
@@ -347,6 +351,44 @@ class TosurnamentBaseModule(BaseModule):
         if not spreadsheet:
             raise NoSpreadsheet(spreadsheet_type)
         await self.show_object_settings(ctx, spreadsheet, stack_depth=3)
+
+    def get_pretty_date(self, ctx, tournament, date):
+        utc = ""
+        if tournament:
+            utc = tournament.utc
+            if utc:
+                hour = utc[1:3]
+                minute = utc[4:6]
+                if int(hour) == 0 and int(minute) == 0:
+                    utc = ""
+                else:
+                    utc = utc[0] + hour.lstrip("0")
+                    if int(minute) > 0:
+                        utc += ":" + minute
+        guild = self.get_guild(ctx.guild.id)
+        if guild and guild.language:
+            language = guild.language.replace("-", "_")
+            try:
+                locale.setlocale(locale.LC_TIME, language)
+            except Exception:
+                try:
+                    locale.setlocale(locale.LC_TIME, locale.locale_alias[language])
+                except Exception:
+                    try:
+                        split_language = language.split("_")
+                        if len(split_language) > 1:
+                            language = split_language[0] + "_" + split_language[1].upper()
+                            locale.setlocale(locale.LC_TIME, language)
+                    except Exception:
+                        pass
+            pretty_date = "**" + date.strftime(PRETTY_DATE_FORMAT.format(self.get_string(ctx, "at"))) + utc + "**"
+            try:
+                locale.setlocale(locale.LC_TIME, "en_US")
+            except Exception:
+                locale.setlocale(locale.LC_TIME, "")
+        else:
+            pretty_date = "**" + date.strftime(PRETTY_DATE_FORMAT.format(self.get_string(ctx, "at"))) + utc + "**"
+        return pretty_date
 
     async def on_cog_command_error(self, ctx, error, channel=None):
         if not channel:
@@ -425,22 +467,6 @@ def has_tournament_role(role_name):
         raise NotRequiredRole(role.name)
 
     return commands.check(predicate)
-
-
-def get_pretty_date(tournament, date):
-    utc = ""
-    if tournament:
-        utc = tournament.utc
-        if utc:
-            hour = utc[1:3]
-            minute = utc[4:6]
-            if int(hour) == 0 and int(minute) == 0:
-                utc = ""
-            else:
-                utc = utc[0] + hour.lstrip("0")
-                if int(minute) > 0:
-                    utc += ":" + minute
-    return "**" + date.strftime(PRETTY_DATE_FORMAT) + utc + "**"
 
 
 def retry_and_update_spreadsheet_pickle_on_exceptions(_func=None, *, exceptions=[]):
