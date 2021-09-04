@@ -705,7 +705,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     and delta.seconds < 900
                     and int(now.minute / 15) == int(previous_notification_date.minute / 15)
                 ):
-                    pass
+                    return
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
             tosurnament_api.update_guild(tosurnament_guild)
             await self.match_notification(guild, tournament)
