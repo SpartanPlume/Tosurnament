@@ -280,14 +280,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
 
     def take_lobby_for_roles(self, lobby_info, user_details, take):
         """Takes or drops a match of a bracket for specified roles, if possible."""
-        staff_name = user_details.name.casefold()
+        staff_name = user_details.name
         role_cell = lobby_info.referee
         casefold_staff = role_cell.get().casefold()
         if not casefold_staff and take:
             role_cell.set(staff_name)
             user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
             return True
-        elif not take and casefold_staff == staff_name:
+        elif not take and casefold_staff == staff_name.casefold():
             role_cell.set("")
             user_details.referee.taken_matches.append(lobby_info.lobby_id.get())
             return True
@@ -596,7 +596,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             referee = referee_role.mention
         else:
             referee = self.get_simple_string(guild, "referee")
-        match_date_str = self.get_pretty_date(ctx, tournament, match_date)
+        match_date_str = self.get_pretty_date_for_guild(guild, tournament, match_date)
         team1 = escape_markdown(match_info.team1.get())
         team2 = escape_markdown(match_info.team2.get())
         message = await self.send_reply_in_bg_task(
@@ -705,7 +705,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     and delta.seconds < 900
                     and int(now.minute / 15) == int(previous_notification_date.minute / 15)
                 ):
-                    return
+                    pass
             tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
             tosurnament_api.update_guild(tosurnament_guild)
             await self.match_notification(guild, tournament)

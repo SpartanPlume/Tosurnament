@@ -353,6 +353,9 @@ class TosurnamentBaseModule(BaseModule):
         await self.show_object_settings(ctx, spreadsheet, stack_depth=3)
 
     def get_pretty_date(self, ctx, tournament, date):
+        return self.get_pretty_date_for_guild(ctx.guild, tournament, date)
+
+    def get_pretty_date_for_guild(self, guild, tournament, date):
         utc = ""
         if tournament:
             utc = tournament.utc
@@ -365,7 +368,7 @@ class TosurnamentBaseModule(BaseModule):
                     utc = utc[0] + hour.lstrip("0")
                     if int(minute) > 0:
                         utc += ":" + minute
-        guild = self.get_guild(ctx.guild.id)
+        guild = self.get_guild(guild.id)
         language = "en"
         if guild and guild.language:
             language = guild.language.replace("-", "_")
@@ -373,7 +376,7 @@ class TosurnamentBaseModule(BaseModule):
             "**"
             + format_date(date.date(), format="full", locale=language)
             + " "
-            + self.get_string(ctx, "at")
+            + self.get_simple_string(guild, "at")
             + " "
             + format_time(date.time(), "HH:mm", locale=language)
             + " UTC"
