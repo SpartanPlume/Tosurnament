@@ -1,5 +1,7 @@
 """Qualifiers spreadsheet table"""
 
+import math
+import datetime
 from discord.ext import commands
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
@@ -78,7 +80,17 @@ class LobbyInfo:
             raise DateIsNotString("time")
 
     def get_datetime(self):
-        return " ".join(filter(None, [self.date.get(), self.time.get()]))
+        if self.date.value_type == int:
+            date = (datetime.datetime(1970, 1, 1) + datetime.timedelta(days=self.date.get() - 25569)).strftime("%d %B")
+        else:
+            date = self.date.get()
+        if self.time.value_type == float:
+            time_value = self.time.get()
+            time_hour_floor = math.floor(time_value * 24)
+            time = str(time_hour_floor) + ":" + str(round((time_value * 24 - time_hour_floor) * 60))
+        else:
+            time = self.time.get()
+        return " ".join(filter(None, [date, time]))
 
     @staticmethod
     def from_id(qualifiers_spreadsheet, lobby_id, filled_only=True):

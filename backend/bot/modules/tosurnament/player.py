@@ -522,15 +522,9 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
-        if schedules_spreadsheet.range_date and schedules_spreadsheet.range_time:
-            match_info.date.set(new_date.strftime(date_format))
-            match_info.time.set(new_date.strftime("%H:%M"))
-        elif schedules_spreadsheet.range_date:
-            match_info.date.set(new_date.strftime(date_format + " %H:%M"))
-        elif schedules_spreadsheet.range_time:
-            match_info.time.set(new_date.strftime(date_format + " %H:%M"))
-        else:
-            raise tosurnament.UnknownError("No date range")
+        if tournament.date_format:
+            date_format = tournament.date_format
+        match_info.set_datetime(schedules_spreadsheet, new_date, date_format)
 
         self.add_update_spreadsheet_background_task(schedules_spreadsheet)
         self.bot.session.delete(reschedule_message)

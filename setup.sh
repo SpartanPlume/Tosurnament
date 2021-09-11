@@ -22,6 +22,7 @@ python_dependencies=(
     mysqldb_wrapper
     dateparser
     Babel
+    flask-cors
 )
 
 echo "Intalling necessary python dependencies..."

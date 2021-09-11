@@ -11,7 +11,7 @@
   "team_not_found": "Team `%1` not found. Please contact an admin.",
   "duplicate_match_id": "There are multiple matches with this ID. Please contact an admin.",
   "match_id_not_found": "Match `%1` not found.",
-  "date_is_not_string": "The `%1` range contains data that are not plain text.",
+  "date_is_not_string": "The `%1` range contains data that are not plain text or valid %1 value.",
   "duplicate_player": "Uh-oh, it seems like the player **%1** is present multiple times on the players spreadsheet. Please contact an admin.",
   "invalid_date_or_format": "It seems a date on the schedules spreadsheet is invalid or the date_format set is wrongly formatted. Please contact an admin.",
   "already_player": "You are already a player.",

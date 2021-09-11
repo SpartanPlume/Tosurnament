@@ -1,5 +1,9 @@
 """Schedules spreadsheet table"""
 
+import math
+import datetime
+import dateparser
+from common import exceptions
 from discord.ext import commands
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
@@ -92,11 +96,17 @@ class MatchInfo:
 
     def set_date(self, date_cell):
         self.date = date_cell
+        if self.date.value_type == int or self.date.value_type == float:
+            self.date.value_type = int
+            return
         if self.date.value_type != str:
             raise DateIsNotString("date")
 
     def set_time(self, time_cell):
         self.time = time_cell
+        if self.time.value_type == float or self.time.value_type == int:
+            self.time.value_type = float
+            return
         if self.time.value_type != str:
             raise DateIsNotString("time")
 
@@ -121,7 +131,41 @@ class MatchInfo:
             mp_link_cell.value_type = str
 
     def get_datetime(self):
-        return " ".join(filter(None, [self.date.get(), self.time.get()]))
+        if self.date.value_type == int:
+            date = (datetime.datetime(1970, 1, 1) + datetime.timedelta(days=self.date.get() - 25569)).strftime("%d %B")
+        else:
+            date = self.date.get()
+        if self.time.value_type == float:
+            time_value = self.time.get()
+            time_hour_floor = math.floor(time_value * 24)
+            time = str(time_hour_floor) + ":" + str(round((time_value * 24 - time_hour_floor) * 60))
+        else:
+            time = self.time.get()
+        return " ".join(filter(None, [date, time]))
+
+    def set_datetime(self, schedules_spreadsheet, new_date, date_format):
+        new_date_value = None
+        new_time_value = None
+        if schedules_spreadsheet.range_date and schedules_spreadsheet.range_time:
+            new_date_value = new_date.strftime(date_format)
+            new_time_value = new_date.strftime("%H:%M")
+        elif schedules_spreadsheet.range_date:
+            new_date_value = new_date.strftime(date_format + " %H:%M")
+        elif schedules_spreadsheet.range_time:
+            new_time_value = new_date.strftime(date_format + " %H:%M")
+        else:
+            raise exceptions.UnknownError("No date range")
+        if new_date_value:
+            if self.date.value_type == int:
+                new_date_value = (
+                    dateparser.parse(new_date_value, date_formats=list(filter(None, [date_format])))
+                    - datetime.datetime(1970, 1, 1)
+                ).days + 25569
+            self.date.set(new_date_value)
+        if new_time_value:
+            if self.time.value_type == float:
+                new_time_value = float(new_time_value.split(":")[0]) / 24.0 + float(new_time_value.split(":")[1]) / 60.0
+            self.time.set(new_time_value)
 
     @staticmethod
     def from_id(schedules_spreadsheet, match_id, filled_only=True):
