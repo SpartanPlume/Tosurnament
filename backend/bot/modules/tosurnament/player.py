@@ -235,7 +235,6 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
-        # TODO take date_format from tournament, not schedules_spreadsheet
         previous_date_string = match_info.get_datetime()
         if not previous_date_string:
             return None
@@ -255,6 +254,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 )
                 if new_date >= deadline_end:
                     raise tosurnament.PastDeadlineEnd()
+                if tournament.reschedule_before_date:
+                    before_date = tournament.parse_date(
+                        tournament.reschedule_before_date, prefer_dates_from="past", relative_base=deadline_end
+                    )
+                    if now >= before_date:
+                        raise tosurnament.PastAllowedDate()
         if previous_date == new_date:
             raise tosurnament.SameDate()
         return previous_date
@@ -464,6 +469,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             )
         elif isinstance(error, tosurnament.PastDeadlineEnd):
             await self.send_reply(ctx, "past_deadline_end")
+        elif isinstance(error, tosurnament.PastAllowedDate):
+            await self.send_reply(ctx, "past_allowed_date")
         elif isinstance(error, tosurnament.SameDate):
             await self.send_reply(ctx, "same_date")
         elif isinstance(error, tosurnament.TimeInThePast):

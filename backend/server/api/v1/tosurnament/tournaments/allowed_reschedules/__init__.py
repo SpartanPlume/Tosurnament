@@ -1,3 +1,5 @@
+import datetime
+
 from flask.views import MethodView
 from flask import request, current_app
 
@@ -16,6 +18,13 @@ class AllowedReschedulesResource(MethodView):
         )
         if not allowed_reschedule:
             raise exceptions.NotFound()
+        now = datetime.datetime.utcnow()
+        max_allowed_date = datetime.datetime.fromtimestamp(allowed_reschedule.created_at) + datetime.timedelta(
+            hours=allowed_reschedule.allowed_hours
+        )
+        if now >= max_allowed_date:
+            db.delete(allowed_reschedule)
+            raise exceptions.NotFound()
         return allowed_reschedule
 
     @is_authorized(user=True)
@@ -25,13 +34,25 @@ class AllowedReschedulesResource(MethodView):
         return self._get_object(tournament_id, allowed_reschedule_id).get_api_dict()
 
     def get_all(self, tournament_id):
+        allowed_reschedules = (
+            db.query(AllowedReschedule)
+            .where(AllowedReschedule.tournament_id == tournament_id)
+            .where(**request.args.to_dict())
+            .all()
+        )
+        real_allowed_reschedules = []
+        now = datetime.datetime.utcnow()
+        for allowed_reschedule in allowed_reschedules:
+            max_allowed_date = datetime.datetime.fromtimestamp(allowed_reschedule.created_at) + datetime.timedelta(
+                hours=allowed_reschedule.allowed_hours
+            )
+            if now >= max_allowed_date:
+                db.delete(allowed_reschedule)
+            else:
+                real_allowed_reschedules.append(allowed_reschedule)
         return {
             "allowed_reschedules": [
-                allowed_reschedule.get_api_dict()
-                for allowed_reschedule in db.query(AllowedReschedule)
-                .where(AllowedReschedule.tournament_id == tournament_id)
-                .where(**request.args.to_dict())
-                .all()
+                allowed_reschedule.get_api_dict() for allowed_reschedule in real_allowed_reschedules
             ]
         }
 

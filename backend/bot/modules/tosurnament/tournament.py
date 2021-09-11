@@ -166,6 +166,22 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
                 raise commands.UserInputError()
         await self.set_tournament_values(ctx, {"reschedule_deadline_end": date})
 
+    @commands.command(aliases=["srbd"])
+    async def set_reschedule_before_date(self, ctx, *, date: str = ""):
+        if date:
+            date = date.lower()
+            if not re.match(
+                r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) " + TIME_REGEX + r"$",
+                date,
+            ):
+                raise commands.UserInputError()
+        await self.set_tournament_values(ctx, {"reschedule_before_date": date})
+
+    @commands.command(aliases=["sdf"])
+    async def set_date_format(self, ctx, *, date_format: str = ""):
+        """Sets the date format used in the date range of the schedules/qualifiers spreadsheet."""
+        await self.set_tournament_values(ctx, {"date_format": date_format})
+
     @commands.command(aliases=["snnsr"])
     async def set_notify_no_staff_reschedule(self, ctx, notify: bool):
         await self.set_tournament_values(ctx, {"notify_no_staff_reschedule": notify})

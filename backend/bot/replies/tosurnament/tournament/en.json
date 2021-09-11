@@ -146,6 +146,19 @@
     "example_parameter": "tuesday 00:00",
     "success": "Final deadline set to `%1`."
   },
+  "set_reschedule_before_date": {
+    "help": "Sets the date after which reschedules will not be accepted",
+    "parameter": "[<day name + hour>]",
+    "example_parameter": "tuesday 00:00",
+    "success": "Reschedule before date set to `%1`."
+  },
+  "set_date_format": {
+    "help": "Sets the date format used in the date range of the schedules/qualifiers spreadsheet",
+    "parameter": "<date_format>",
+    "example_parameter": "%d %B",
+    "usage_info": "This flag example corresponds to a string like `01 April`.\n\nFor more information about the possible flags, check https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes.",
+    "success": "Date format set to `%1`."
+  },
   "set_notify_no_staff_reschedule": {
     "help": "Sets the deadline to reschedule a match (in hours before the match)",
     "parameter": "<boolean>",

@@ -57,15 +57,15 @@ class TokenResource(MethodView):
         if "code" not in request.json:
             raise exceptions.BadRequest()
         data = {
-            "client_id": constants.CLIENT_ID,
-            "client_secret": constants.CLIENT_SECRET,
+            "client_id": str(constants.DISCORD_CLIENT_ID),
+            "client_secret": constants.DISCORD_CLIENT_SECRET,
             "grant_type": "authorization_code",
             "code": request.json["code"],
             "redirect_uri": constants.DISCORD_REDIRECT_URI,
         }
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         try:
-            r = requests.post(constants.DISCORD_OAUTH2_ENDPOINT + "/token", data=data, headers=headers)
+            r = requests.post(endpoints.DISCORD_TOKEN, data=data, headers=headers)
             r.raise_for_status()
         except requests.exceptions.HTTPError:
             raise exceptions.DiscordTokenError()

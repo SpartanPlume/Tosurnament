@@ -13,6 +13,7 @@
     "impossible_reschedule": "Sorry, it is less than %1 hours before the **new requested date**, so the deadline is passed. $./contact_referee",
     "past_deadline": "Sorry, it is less than %1 hours before the **current match date**, so the deadline is passed. $./contact_referee",
     "past_deadline_end": "Sorry, the requested time is after the final deadline. You can try contacting an admin.",
+    "past_allowed_date": "Sorry, you are trying to reschedule after the allowed date. You can try contacting an admin.",
     "removed_from_match": "%1, you have **successfully been removed** from the match %2.",
     "same_date": "You can't reschedule your match to the time it is already scheduled to.",
     "success": "Hi %1! %2 would like to reschedule the match %3 from %4 to %5. If you accept, please add a :thumbsup: reaction to this message. If you refuse, add a :thumbsdown: reaction to this message.",

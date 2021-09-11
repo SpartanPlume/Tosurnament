@@ -1,6 +1,9 @@
 import sys
 import logging
+import inspect
 from flask import Flask
+from flask_cors import CORS
+from server.api.v1.tosurnament.token import TokenResource
 from server.api.v1.tosurnament.users import UsersResource
 from server.api.v1.tosurnament.guilds import GuildsResource
 from server.api.v1.tosurnament.tournaments import TournamentsResource
@@ -17,6 +20,7 @@ from server.api.globals import db, logging_handler, exceptions
 
 app = Flask("tosurnament-api")
 app.config["BUNDLE_ERRORS"] = True
+CORS(app)
 
 
 @app.before_first_request
@@ -74,14 +78,20 @@ register_api_v1_for_spreadsheet(
     QualifiersResultsSpreadsheetResource, "qualifiers_results_spreadsheet_api", "/qualifiers_results_spreadsheet"
 )
 
-
-def register_exception(exception):
-    app.register_error_handler(
-        exception, lambda e: ({"status": e.code, "title": e.title, "detail": e.description}, e.code)
-    )
+resource_view = TokenResource.as_view("token_api")
+app.add_url_rule("/api/v1/tosurnament/token", view_func=resource_view, methods=["POST"])
 
 
-register_exception(exceptions.NotFound)
+def log_and_update_exception(e):
+    object_to_return = {"status": e.code, "title": e.title, "detail": e.description}
+    app.logger.info(str(object_to_return))
+    return (object_to_return, e.code)
+
+
+exception_classes = inspect.getmembers(sys.modules[exceptions.__name__], inspect.isclass)
+for exception_class in exception_classes:
+    if exception_class[0] != "HTTPException":
+        app.register_error_handler(exception_class[1], log_and_update_exception)
 
 app.add_url_rule("/api/v1/tosurnament/auth", view_func=AuthResource.as_view("auth_api"), methods=["POST"])
 

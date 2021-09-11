@@ -39,17 +39,20 @@ def refresh_token_if_needed(token):
 def is_authorized(local=True, client=False, user=False):
     def decorator_is_authorized(func):
         def exec_func_if_user_can_access_resource(func, *args, **kwargs):
-            kwargs_keys = kwargs.keys()
-            if "tournament_id" in kwargs_keys and kwargs_keys["tournament_id"]:
-                tournament = db.query(Tournament).where(Tournament.id == kwargs_keys["tournament_id"]).first()
-                if not tournament:
-                    raise exceptions.NotFound()
-                assert_user_can_access_resource(tournament.guild_id_snowflake, tournament.admin_role_id)
-            elif "guild_id" in kwargs_keys and kwargs_keys["guild_id"]:
-                guild = db.query(Guild).where(Guild.id == kwargs_keys["guild_id"]).first()
+            if "guild_id" in kwargs and kwargs["guild_id"]:
+                guild = db.query(Guild).where(Guild.id == kwargs["guild_id"]).first()
                 if not guild:
                     raise exceptions.NotFound()
-                assert_user_can_access_resource(guild.guild_id_snowflake)
+                assert_user_can_access_resource(guild.guild_id_snowflake, guild.admin_role_id)
+            elif "tournament_id" in kwargs and kwargs["tournament_id"]:
+                tournament = db.query(Tournament).where(Tournament.id == kwargs["tournament_id"]).first()
+                if not tournament:
+                    raise exceptions.NotFound()
+                admin_role_id = None
+                guild = db.query(Guild).where(Guild.id == tournament.guild_id_snowflake).first()
+                if guild:
+                    admin_role_id = guild.admin_role_id
+                assert_user_can_access_resource(tournament.guild_id_snowflake, admin_role_id)
             else:
                 request_args = request.args.to_dict()
                 if "guild_id" not in request_args or not request_args["guild_id"]:
@@ -58,13 +61,14 @@ def is_authorized(local=True, client=False, user=False):
                         assert_user_can_access_resource(body["guild_id"])
                         return func(*args, **kwargs)
                     raise exceptions.Forbidden()
-                tournament = db.query(Tournament).where(Tournament.guild_id == request_args["guild_id"]).first()
-                if not tournament:
-                    guild = db.query(Guild).where(Guild.guild_id == request_args["guild_id"]).first()
-                    if not guild:
+                guild = db.query(Guild).where(Guild.guild_id == request_args["guild_id"]).first()
+                if not guild:
+                    tournament = db.query(Tournament).where(Tournament.guild_id == request_args["guild_id"]).first()
+                    if not tournament:
                         raise exceptions.NotFound()
-                    assert_user_can_access_resource(guild.guild_id_snowflake)
-                assert_user_can_access_resource(tournament.guild_id_snowflake, tournament.admin_role_id)
+                    assert_user_can_access_resource(tournament.guild_id_snowflake)
+                    return func(*args, **kwargs)
+                assert_user_can_access_resource(guild.guild_id_snowflake, guild.admin_role_id)
             return func(*args, **kwargs)
 
         @functools.wraps(func)
@@ -85,7 +89,7 @@ def is_authorized(local=True, client=False, user=False):
                 current_app.logger.debug("Token of the user {0} has expired".format(token.discord_user_id))
                 raise exceptions.Unauthorized()
             refresh_token_if_needed(token)
-            g["token"] = token
+            g.token = token
             if user and token.token_type == "user":
                 return exec_func_if_user_can_access_resource(func, *args, **kwargs)
             if client and token.token_type == "client":
@@ -98,7 +102,7 @@ def is_authorized(local=True, client=False, user=False):
 
 
 def assert_user_can_access_resource(discord_guild_id, admin_role_id=None):
-    token = g["token"]
+    token = g.token
     discord_user_id = token.discord_user_id
     headers = {"Authorization": "Bot " + constants.BOT_TOKEN, "Content-type": "application/json"}
     if admin_role_id:

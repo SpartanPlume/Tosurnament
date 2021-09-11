@@ -171,6 +171,12 @@ class PastDeadlineEnd(commands.CommandError):
     pass
 
 
+class PastAllowedDate(commands.CommandError):
+    """Special exception in case the reschedule is asked after the allowed date."""
+
+    pass
+
+
 class SameDate(commands.CommandError):
     """Special exception in case the rescheduled time
     is the same date than the previous one."""

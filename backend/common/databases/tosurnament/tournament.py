@@ -37,10 +37,8 @@ class Tournament(Base):
     post_result_message_tb_bans = str()
     reschedule_deadline_hours_before_current_time = int(6)
     reschedule_deadline_hours_before_new_time = int(24)
-    reschedule_deadline_begin = str()
     reschedule_deadline_end = str()
-    reschedule_allowed_begin = str()
-    reschedule_allowed_end = str()
+    reschedule_before_date = str()
     reschedule_ping_team = bool(True)
     current_bracket_id = Id()
     matches_to_ignore = str()
@@ -52,6 +50,7 @@ class Tournament(Base):
     registration_background_update = bool(False)
     created_at = int()
     updated_at = int()
+    date_format = str()
 
     @property
     def current_bracket(self):
@@ -83,6 +82,10 @@ class Tournament(Base):
         prefer_dates_from="current_period",
         relative_base=datetime.datetime.now(),
     ):
+        if self.date_format:
+            date_formats.append(self.date_format)
+        elif not date_formats:
+            date_formats.append("%d %B")
         if self.utc:
             return dateparser.parse(
                 date,

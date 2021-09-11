@@ -1,6 +1,6 @@
 # discord endpoints
 # # discord oauth2 endpoints
-DISCORD_OAUTH2 = "https://discordapp.com/api/oauth2"
+DISCORD_OAUTH2 = "https://discord.com/api/oauth2"
 DISCORD_TOKEN = DISCORD_OAUTH2 + "/token"
 DISCORD_TOKEN_REVOKE = DISCORD_TOKEN + "/revoke"
 
