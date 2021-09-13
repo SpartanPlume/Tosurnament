@@ -10,11 +10,11 @@ class ReactionForRoleMessage(BaseMessage):
 
     guild_id = bytes()
     author_id = bytes()
-    setup_channel_id = int()
+    setup_channel_id = str()
     setup_channel_id_str = str()
     setup_message_id = int()
     preview_message_id = int()
-    channel_id = int()
+    channel_id = str()
     channel_id_str = str()
     text = str()
     emojis = str()

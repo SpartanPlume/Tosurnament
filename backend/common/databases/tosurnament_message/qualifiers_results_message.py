@@ -12,5 +12,5 @@ class QualifiersResultsMessage(Base):
     tournament_id = Id()
     bracket_id = Id()
     message_id = int()
-    channel_id = int()
+    channel_id = str()
     channel_id_str = str()
