@@ -117,7 +117,7 @@ def assert_user_can_access_resource(discord_guild_id, admin_role_id=None):
         except requests.exceptions.HTTPError:
             raise exceptions.DiscordGetError()
         member = r.json()
-        if admin_role_id in member["roles"]:
+        if str(admin_role_id) in member["roles"]:
             return
     try:
         r = requests.get(endpoints.DISCORD_GUILD.format(discord_guild_id), headers=headers)
@@ -125,6 +125,6 @@ def assert_user_can_access_resource(discord_guild_id, admin_role_id=None):
     except requests.exceptions.HTTPError:
         raise exceptions.DiscordGetError()
     guild = r.json()
-    if discord_user_id == guild["owner_id"]:
+    if str(discord_user_id) == guild["owner_id"]:
         return
     raise exceptions.Forbidden()

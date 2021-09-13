@@ -22,12 +22,12 @@ class GuildCog(base.BaseModule, name="guild"):
     @commands.command(aliases=["sar"])
     async def set_admin_role(self, ctx, *, role: discord.Role):
         """Sets the bot admin role."""
-        await self.set_guild_values(ctx, {"admin_role_id": role.id})
+        await self.set_guild_values(ctx, {"admin_role_id": str(role.id)})
 
     @commands.command(aliases=["svr"])
     async def set_verified_role(self, ctx, *, role: discord.Role):
         """Sets the verified role."""
-        await self.set_guild_values(ctx, {"verified_role_id": role.id})
+        await self.set_guild_values(ctx, {"verified_role_id": str(role.id)})
 
     @commands.command(aliases=["sl"])
     async def set_language(self, ctx, *, language: str = None):
@@ -44,7 +44,9 @@ class GuildCog(base.BaseModule, name="guild"):
         """Puts the input values into the corresponding tournament."""
         guild = self.get_guild(ctx.guild.id)
         if not guild:
-            guild = tosurnament_api.create_guild(Guild(guild_id=ctx.guild.id, guild_id_snowflake=ctx.guild.id))
+            guild = tosurnament_api.create_guild(
+                Guild(guild_id=str(ctx.guild.id), guild_id_snowflake=str(ctx.guild.id))
+            )
         for key, value in values.items():
             setattr(guild, key, value)
         tosurnament_api.update_guild(guild)

@@ -42,12 +42,6 @@ class TournamentsResource(MethodView):
         return get_tournament_data(tournament, include_brackets, include_spreadsheets)
 
     def get_all(self, include_brackets, include_spreadsheets, request_args):
-        guild_id = request_args.pop("guild_id", None)
-        if guild_id:
-            try:
-                request_args["guild_id"] = int(guild_id)
-            except ValueError:
-                raise exceptions.BadRequest()
         tournaments = db.query(Tournament).where(**request_args).all()
         tournaments_data = []
         for tournament in tournaments:
@@ -73,10 +67,7 @@ class TournamentsResource(MethodView):
             or not body["acronym"]
         ):
             raise exceptions.MissingRequiredInformation()
-        try:
-            body["guild_id"] = int(body["guild_id"])
-        except ValueError:
-            raise exceptions.BadRequest()
+        body["guild_id"] = str(body["guild_id"])
         tournament = Tournament(**body)
         db.add(tournament)
         bracket = Bracket(tournament_id=tournament.id, name=tournament.name)

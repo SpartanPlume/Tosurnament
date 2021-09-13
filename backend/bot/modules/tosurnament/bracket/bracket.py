@@ -30,7 +30,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     @commands.command(aliases=["sbr"])
     async def set_bracket_role(self, ctx, *, role: discord.Role):
         """Modifies the current bracket's role."""
-        await self.set_bracket_values(ctx, {"role_id": role.id})
+        await self.set_bracket_values(ctx, {"role_id": str(role.id)})
 
     @commands.command(aliases=["scbr"])
     async def set_current_bracket_round(self, ctx, *, current_round: str = ""):
@@ -40,7 +40,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     @commands.command(aliases=["sprc"])
     async def set_post_result_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the post result's channel."""
-        await self.set_bracket_values(ctx, {"post_result_channel_id": channel.id})
+        await self.set_bracket_values(ctx, {"post_result_channel_id": str(channel.id)})
 
     @commands.command(aliases=["sc"])
     async def set_challonge(self, ctx, challonge_tournament: str):

@@ -19,10 +19,10 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
 
     async def delete_setup_messages(self, reaction_for_role_message):
         try:
-            setup_channel = self.bot.get_channel(reaction_for_role_message.setup_channel_id)
-            message = await setup_channel.fetch_message(reaction_for_role_message.setup_message_id)
+            setup_channel = self.bot.get_channel(int(reaction_for_role_message.setup_channel_id))
+            message = await setup_channel.fetch_message(int(reaction_for_role_message.setup_message_id))
             await message.delete()
-            message = await setup_channel.fetch_message(reaction_for_role_message.preview_message_id)
+            message = await setup_channel.fetch_message(int(reaction_for_role_message.preview_message_id))
             await message.delete()
         except Exception:
             return
@@ -32,8 +32,8 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         """Creates a message to react on to have specific roles."""
         reaction_for_role_message = (
             self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.guild_id == ctx.guild.id)
-            .where(ReactionForRoleMessage.author_id == ctx.author.id)
+            .where(ReactionForRoleMessage.guild_id == str(ctx.guild.id))
+            .where(ReactionForRoleMessage.author_id == str(ctx.author.id))
             .first()
         )
         if reaction_for_role_message and reaction_for_role_message.setup_channel_id:
@@ -42,12 +42,12 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         setup_message = await self.send_reply(ctx, "success", self.get_string(ctx, "none") + "\n")
         preview_message = await ctx.send(message_text)
         reaction_for_role_message = ReactionForRoleMessage(
-            guild_id=ctx.guild.id,
-            author_id=ctx.author.id,
-            setup_channel_id=ctx.channel.id,
+            guild_id=str(ctx.guild.id),
+            author_id=str(ctx.author.id),
+            setup_channel_id=str(ctx.channel.id),
             setup_message_id=setup_message.id,
             preview_message_id=preview_message.id,
-            channel_id=channel.id,
+            channel_id=str(channel.id),
             text=message_text,
         )
         self.bot.session.add(reaction_for_role_message)
@@ -57,8 +57,8 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         """Adds an emoji to react on to give the corresponding role."""
         reaction_for_role_message = (
             self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.guild_id == ctx.guild.id)
-            .where(ReactionForRoleMessage.author_id == ctx.author.id)
+            .where(ReactionForRoleMessage.guild_id == str(ctx.guild.id))
+            .where(ReactionForRoleMessage.author_id == str(ctx.author.id))
             .first()
         )
         if not reaction_for_role_message:
@@ -97,7 +97,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         setup_message = await self.send_reply(ctx, "success", current_emoji_role_pairs)
         preview_message = await ctx.send(reaction_for_role_message.text)
 
-        reaction_for_role_message.setup_channel_id = ctx.channel.id
+        reaction_for_role_message.setup_channel_id = str(ctx.channel.id)
         reaction_for_role_message.setup_message_id = setup_message.id
         reaction_for_role_message.preview_message_id = preview_message.id
         reaction_for_role_message.emojis = "\n".join(emojis)
@@ -112,8 +112,8 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         """Posts the reaction for role message."""
         reaction_for_role_message = (
             self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.guild_id == ctx.guild.id)
-            .where(ReactionForRoleMessage.author_id == ctx.author.id)
+            .where(ReactionForRoleMessage.guild_id == str(ctx.guild.id))
+            .where(ReactionForRoleMessage.author_id == str(ctx.author.id))
             .first()
         )
         if not reaction_for_role_message:
@@ -123,7 +123,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
             await self.send_reply(ctx, "no_emoji")
             return
 
-        channel = self.bot.get_channel(reaction_for_role_message.channel_id)
+        channel = self.bot.get_channel(int(reaction_for_role_message.channel_id))
         if not channel:
             await self.send_reply(ctx, "channel_error")
             self.bot.session.delete(reaction_for_role_message)
@@ -144,7 +144,7 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
 
         await self.delete_setup_messages(reaction_for_role_message)
         reaction_for_role_message.author_id = ""
-        reaction_for_role_message.setup_channel_id = 0
+        reaction_for_role_message.setup_channel_id = ""
         reaction_for_role_message.setup_message_id = 0
         reaction_for_role_message.preview_message_id = 0
         reaction_for_role_message.message_id = message.id
@@ -155,8 +155,8 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
         """Cancels message creation."""
         reaction_for_role_message = (
             self.bot.session.query(ReactionForRoleMessage)
-            .where(ReactionForRoleMessage.guild_id == ctx.guild.id)
-            .where(ReactionForRoleMessage.author_id == ctx.author.id)
+            .where(ReactionForRoleMessage.guild_id == str(ctx.guild.id))
+            .where(ReactionForRoleMessage.author_id == str(ctx.author.id))
             .first()
         )
         if not reaction_for_role_message:

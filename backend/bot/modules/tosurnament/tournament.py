@@ -65,32 +65,32 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
     @commands.command(aliases=["ssc"])
     async def set_staff_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the staff channel."""
-        await self.set_tournament_values(ctx, {"staff_channel_id": channel.id})
+        await self.set_tournament_values(ctx, {"staff_channel_id": str(channel.id)})
 
     @commands.command(aliases=["smnc"])
     async def set_match_notification_channel(self, ctx, *, channel: discord.TextChannel):
         """Sets the match notification channel."""
-        await self.set_tournament_values(ctx, {"match_notification_channel_id": channel.id})
+        await self.set_tournament_values(ctx, {"match_notification_channel_id": str(channel.id)})
 
     @commands.command(aliases=["srr"])
     async def set_referee_role(self, ctx, *, role: discord.Role):
         """Sets the referee role."""
-        await self.set_tournament_values(ctx, {"referee_role_id": role.id})
+        await self.set_tournament_values(ctx, {"referee_role_id": str(role.id)})
 
     @commands.command(aliases=["ssr"])
     async def set_streamer_role(self, ctx, *, role: discord.Role):
         """Sets the streamer role."""
-        await self.set_tournament_values(ctx, {"streamer_role_id": role.id})
+        await self.set_tournament_values(ctx, {"streamer_role_id": str(role.id)})
 
     @commands.command(aliases=["scr"])
     async def set_commentator_role(self, ctx, *, role: discord.Role):
         """Sets the commentator role."""
-        await self.set_tournament_values(ctx, {"commentator_role_id": role.id})
+        await self.set_tournament_values(ctx, {"commentator_role_id": str(role.id)})
 
     @commands.command(aliases=["spr"])
     async def set_player_role(self, ctx, *, role: discord.Role):
         """Sets the player role."""
-        await self.set_tournament_values(ctx, {"player_role_id": role.id})
+        await self.set_tournament_values(ctx, {"player_role_id": str(role.id)})
 
     @commands.command(aliases=["stcr", "set_team_leader_role", "stlr"])
     async def set_team_captain_role(self, ctx, *, role: discord.Role = None):
@@ -98,7 +98,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         if not role:
             await self.set_tournament_values(ctx, {"team_captain_role_id": 0})
         else:
-            await self.set_tournament_values(ctx, {"team_captain_role_id": role.id})
+            await self.set_tournament_values(ctx, {"team_captain_role_id": str(role.id)})
 
     @commands.command(aliases=["spt"])
     async def set_ping_team(self, ctx, ping_team: bool):
@@ -265,7 +265,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             reply_type = "to_not_ignore"
         staff_channel = ctx
         if tournament.staff_channel_id:
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+            staff_channel = self.bot.get_channel(int(tournament.staff_channel_id))
         for match_info in matches_found:
             referees_to_ping, referees_not_found = self.find_staff_to_ping(ctx.guild, match_info.referees)
             streamers_to_ping, streamers_not_found = self.find_staff_to_ping(ctx.guild, match_info.streamers)

@@ -23,10 +23,7 @@ class UsersResource(MethodView):
         request_args = request.args.to_dict()
         discord_id = request_args.pop("discord_id", None)
         if discord_id:
-            try:
-                request_args["discord_id"] = int(discord_id)
-            except ValueError:
-                raise exceptions.BadRequest()
+            request_args["discord_id"] = str(discord_id)
         if "osu_name_hash" in request_args:
             request_args["osu_name_hash"] = request_args["osu_name_hash"].casefold()
         return {"users": [user.get_api_dict() for user in db.query(User).where(**request_args).all()]}
@@ -51,10 +48,7 @@ class UsersResource(MethodView):
         body = request.json
         if not body or not body["discord_id"] or not body["discord_id_snowflake"]:
             raise exceptions.MissingRequiredInformation()
-        try:
-            body["discord_id"] = int(body["discord_id"])
-        except ValueError:
-            raise exceptions.BadRequest()
+        body["discord_id"] = str(body["discord_id"])
         if "osu_name_hash" in body:
             body["osu_name_hash"] = body["osu_name_hash"].casefold()
         user = User(**body)

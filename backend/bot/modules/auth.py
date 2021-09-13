@@ -40,8 +40,8 @@ class AuthCog(base.BaseModule, name="auth"):
         code = base64.urlsafe_b64encode(os.urandom(16)).rstrip(b"=").decode("ascii")
         if not user:
             user = User(
-                discord_id=ctx.author.id,
-                discord_id_snowflake=ctx.author.id,
+                discord_id=str(ctx.author.id),
+                discord_id_snowflake=str(ctx.author.id),
                 verified=False,
                 code=code,
             )

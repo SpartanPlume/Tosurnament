@@ -29,7 +29,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         Creates a tournament.
         If a bracket name is not specified, the bracket takes the tournament's name as its name too.
         """
-        guild_id = ctx.guild.id
+        guild_id = str(ctx.guild.id)
         tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild_id)
         if tournament:
             raise tosurnament.TournamentAlreadyCreated()
@@ -52,7 +52,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
         tournament = self.get_tournament(ctx.guild.id)
         message = await self.send_reply(ctx, "are_you_sure")
         end_tournament_message = EndTournamentMessage(
-            message_id=message.id, author_id=ctx.author.id, tournament_id=tournament.id
+            message_id=message.id, author_id=str(ctx.author.id), tournament_id=tournament.id
         )
         self.bot.session.add(end_tournament_message)
 

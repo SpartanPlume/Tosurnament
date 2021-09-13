@@ -23,14 +23,14 @@ class UserAbstraction:
     def get_from_user(bot, user):
         tosurnament_user = tosurnament_api.get_user_by_discord_user_id(user.id)
         if tosurnament_user and tosurnament_user.verified:
-            return UserAbstraction(tosurnament_user.osu_name, user.id, True)
-        return UserAbstraction(user.display_name, user.id, False)
+            return UserAbstraction(tosurnament_user.osu_name, int(user.id), True)
+        return UserAbstraction(user.display_name, int(user.id), False)
 
     @staticmethod
     def get_from_osu_name(bot, osu_name, default_discord_tag=None):
         tosurnament_user = tosurnament_api.get_user_by_osu_name(osu_name.lower())
         if tosurnament_user and tosurnament_user.verified:
-            return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
+            return UserAbstraction(tosurnament_user.osu_name, int(tosurnament_user.discord_id_snowflake), True)
         return UserAbstraction(osu_name, default_discord_tag, False)
 
     @staticmethod
@@ -48,9 +48,9 @@ class UserAbstraction:
             if member:
                 tosurnament_user = tosurnament_api.get_user_by_discord_user_id(member.id)
         if tosurnament_user and tosurnament_user.verified:
-            return UserAbstraction(tosurnament_user.osu_name, tosurnament_user.discord_id_snowflake, True)
+            return UserAbstraction(tosurnament_user.osu_name, int(tosurnament_user.discord_id_snowflake), True)
         elif discord_id:
-            return UserAbstraction(osu_name, discord_id, False)
+            return UserAbstraction(osu_name, int(discord_id), False)
         return UserAbstraction(osu_name, discord_tag, False)
 
     def get_member(self, guild):
@@ -327,7 +327,7 @@ def is_guild_owner():
 def get_role(roles, role_id=None, role_name=None):
     """Gets a role from its id or name."""
     for role in roles:
-        if role_id and role.id == role_id:
+        if role_id and role.id == int(role_id):
             return role
         if role_name and role.name == role_name:
             return role

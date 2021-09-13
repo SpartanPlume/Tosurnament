@@ -50,7 +50,7 @@ class AdminCog(base.BaseModule, name="admin"):
         for guild in self.bot.guilds:
             tournament = tosurnament_api.get_tournament_by_discord_guild_id(guild.id)
             if tournament:
-                staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+                staff_channel = self.bot.get_channel(int(tournament.staff_channel_id))
                 tosurnament_guild = self.get_guild(guild.id)
                 admin_role = base.get_role(guild.roles, tosurnament_guild.admin_role_id, "Admin")
                 if admin_role:

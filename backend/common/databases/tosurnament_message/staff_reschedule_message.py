@@ -16,7 +16,6 @@ class StaffRescheduleMessage(BaseLockMessage):
     team2 = str()
     previous_date = str()
     new_date = str()
-    staff_id = int()
     referees_id = str()
     streamers_id = str()
     commentators_id = str()

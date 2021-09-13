@@ -81,9 +81,9 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 top10_string += ".`"
             top10_string += flag + " **" + escape_markdown(osu_name) + "** "
             top10_string += "(%.2f%%)\n" % (result_info.score.get() * 100)
-        channel = ctx.guild.get_channel(qualifiers_results_message.channel_id)
-        if qualifiers_results_message.message_id > 0:
-            message = await channel.fetch_message(qualifiers_results_message.message_id)
+        channel = ctx.guild.get_channel(int(qualifiers_results_message.channel_id))
+        if qualifiers_results_message.message_id:
+            message = await channel.fetch_message(int(qualifiers_results_message.message_id))
             await message.delete()
         message = await self.send_reply(
             ctx,
@@ -124,7 +124,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         if qualifiers_results_message:
             self.bot.session.delete(qualifiers_results_message)
         qualifiers_results_message = QualifiersResultsMessage(
-            tournament_id=tournament.id, bracket_id=tournament.current_bracket.id, channel_id=channel.id
+            tournament_id=tournament.id, bracket_id=tournament.current_bracket.id, channel_id=str(channel.id)
         )
         self.bot.session.add(qualifiers_results_message)
         await self.create_or_update_qualifiers_results_message(ctx, qualifiers_results_message, status)
@@ -631,10 +631,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     async def match_notification(self, guild, tournament):
         player_match_notification_channel = None
         if tournament.match_notification_channel_id:
-            player_match_notification_channel = self.bot.get_channel(tournament.match_notification_channel_id)
+            player_match_notification_channel = self.bot.get_channel(int(tournament.match_notification_channel_id))
         staff_channel = None
         if tournament.staff_channel_id:
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+            staff_channel = self.bot.get_channel(int(tournament.staff_channel_id))
         if not player_match_notification_channel and not staff_channel:
             return
         matches_to_ignore = [match_id.casefold() for match_id in tournament.matches_to_ignore.split("\n")]
@@ -692,9 +692,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         previous_notification_date = None
         try:
             now = datetime.datetime.utcnow()
-            tosurnament_guild = self.get_guild(guild.id)
+            guild_id = str(guild.id)
+            tosurnament_guild = self.get_guild(guild_id)
             if not tosurnament_guild:
-                tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild.id, guild_id_snowflake=guild.id))
+                tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild_id, guild_id_snowflake=guild_id))
             elif tosurnament_guild.last_notification_date:
                 previous_notification_date = datetime.datetime.strptime(
                     tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT
@@ -836,25 +837,14 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     @with_corresponding_message(StaffRescheduleMessage)
     async def reaction_on_staff_reschedule_message(self, ctx, emoji, staff_reschedule_message):
         """Removes the referee from the schedule spreadsheet"""
-        referees_id = [int(referee_id) for referee_id in staff_reschedule_message.referees_id.split("\n") if referee_id]
-        streamers_id = [
-            int(streamer_id) for streamer_id in staff_reschedule_message.streamers_id.split("\n") if streamer_id
-        ]
+        referees_id = [referee_id for referee_id in staff_reschedule_message.referees_id.split("\n") if referee_id]
+        streamers_id = [streamer_id for streamer_id in staff_reschedule_message.streamers_id.split("\n") if streamer_id]
         commentators_id = [
-            int(commentator_id)
-            for commentator_id in staff_reschedule_message.commentators_id.split("\n")
-            if commentator_id
+            commentator_id for commentator_id in staff_reschedule_message.commentators_id.split("\n") if commentator_id
         ]
-        if staff_reschedule_message.staff_id:
-            if ctx.author.id != staff_reschedule_message.staff_id:
-                return
-        else:
-            if (
-                ctx.author.id not in referees_id
-                and ctx.author.id not in streamers_id
-                and ctx.author.id not in commentators_id
-            ):
-                return
+        author_id = str(ctx.author.id)
+        if author_id not in referees_id and author_id not in streamers_id and author_id not in commentators_id:
+            return
         tournament = tosurnament_api.get_tournament(staff_reschedule_message.tournament_id)
         if not tournament:
             self.bot.session.delete(staff_reschedule_message)
@@ -872,80 +862,73 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 [staff_reschedule_message.match_id], user_details, False, schedules_spreadsheet
             )
             # TODO if return of function not empty send error + update message instead of reply
-            if staff_reschedule_message.staff_id:
-                await ctx.channel.send(self.build_take_match_reply(ctx, user_details, set()))
-            else:
-                if ctx.author.id in referees_id:
-                    referees_id.remove(ctx.author.id)
-                    staff_reschedule_message.referees_id = "\n".join([str(referee_id) for referee_id in referees_id])
-                if ctx.author.id in streamers_id:
-                    streamers_id.remove(ctx.author.id)
-                    staff_reschedule_message.streamers_id = "\n".join(
-                        [str(streamer_id) for streamer_id in streamers_id]
-                    )
-                if ctx.author.id in commentators_id:
-                    commentators_id.remove(ctx.author.id)
-                    staff_reschedule_message.commentators_id = "\n".join(
-                        [str(commentator_id) for commentator_id in commentators_id]
-                    )
-                self.bot.session.update(staff_reschedule_message)
-
-                if staff_reschedule_message.previous_date:
-                    previous_date = datetime.datetime.strptime(
-                        staff_reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
-                    )
-                    previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
-                else:
-                    previous_date_string = self.get_string(ctx, "no_previous_date")
-                new_date = datetime.datetime.strptime(
-                    staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT
+            if author_id in referees_id:
+                referees_id.remove(author_id)
+                staff_reschedule_message.referees_id = "\n".join([str(referee_id) for referee_id in referees_id])
+            if author_id in streamers_id:
+                streamers_id.remove(author_id)
+                staff_reschedule_message.streamers_id = "\n".join([str(streamer_id) for streamer_id in streamers_id])
+            if author_id in commentators_id:
+                commentators_id.remove(author_id)
+                staff_reschedule_message.commentators_id = "\n".join(
+                    [str(commentator_id) for commentator_id in commentators_id]
                 )
-                new_date_string = self.get_pretty_date(ctx, tournament, new_date)
-                message = await ctx.channel.fetch_message(ctx.message.id)
-                referees = [
-                    referee.mention
-                    for referee in list(filter(None, [ctx.guild.get_member(referee_id) for referee_id in referees_id]))
-                ]
-                streamers = [
-                    streamer.mention
-                    for streamer in list(
-                        filter(None, [ctx.guild.get_member(streamer_id) for streamer_id in streamers_id])
+            self.bot.session.update(staff_reschedule_message)
+
+            if staff_reschedule_message.previous_date:
+                previous_date = datetime.datetime.strptime(
+                    staff_reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
+                )
+                previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
+            else:
+                previous_date_string = self.get_string(ctx, "no_previous_date")
+            new_date = datetime.datetime.strptime(staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
+            new_date_string = self.get_pretty_date(ctx, tournament, new_date)
+            message = await ctx.channel.fetch_message(ctx.message.id)
+            referees = [
+                referee.mention
+                for referee in list(filter(None, [ctx.guild.get_member(int(referee_id)) for referee_id in referees_id]))
+            ]
+            streamers = [
+                streamer.mention
+                for streamer in list(
+                    filter(None, [ctx.guild.get_member(int(streamer_id)) for streamer_id in streamers_id])
+                )
+            ]
+            commentators = [
+                commentator.mention
+                for commentator in list(
+                    filter(None, [ctx.guild.get_member(int(commentator_id)) for commentator_id in commentators_id])
+                )
+            ]
+            if referees + streamers + commentators:
+                await message.edit(
+                    content=self.get_string(
+                        ctx,
+                        "staff_notification",
+                        staff_reschedule_message.match_id,
+                        staff_reschedule_message.team1,
+                        staff_reschedule_message.team2,
+                        previous_date_string,
+                        new_date_string,
+                        " / ".join(referees),
+                        " / ".join(streamers),
+                        " / ".join(commentators),
                     )
-                ]
-                commentators = [
-                    commentator.mention
-                    for commentator in list(
-                        filter(None, [ctx.guild.get_member(commentator_id) for commentator_id in commentators_id])
+                )
+            else:
+                self.bot.session.delete(staff_reschedule_message)
+                await message.edit(
+                    content=self.get_string(
+                        ctx,
+                        "staff_notification_all_staff_removed",
+                        staff_reschedule_message.match_id,
+                        staff_reschedule_message.team1,
+                        staff_reschedule_message.team2,
+                        previous_date_string,
+                        new_date_string,
                     )
-                ]
-                if referees + streamers + commentators:
-                    await message.edit(
-                        content=self.get_string(
-                            ctx,
-                            "staff_notification",
-                            staff_reschedule_message.match_id,
-                            staff_reschedule_message.team1,
-                            staff_reschedule_message.team2,
-                            previous_date_string,
-                            new_date_string,
-                            " / ".join(referees),
-                            " / ".join(streamers),
-                            " / ".join(commentators),
-                        )
-                    )
-                else:
-                    self.bot.session.delete(staff_reschedule_message)
-                    await message.edit(
-                        content=self.get_string(
-                            ctx,
-                            "staff_notification_all_staff_removed",
-                            staff_reschedule_message.match_id,
-                            staff_reschedule_message.team1,
-                            staff_reschedule_message.team2,
-                            previous_date_string,
-                            new_date_string,
-                        )
-                    )
+                )
         except Exception as e:
             await self.on_cog_command_error(ctx, e)
 

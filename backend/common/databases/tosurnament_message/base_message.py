@@ -49,7 +49,7 @@ def with_corresponding_message(message_cls):
                 return
             if (
                 isinstance(message_obj, BaseAuthorLockMessage)
-                and crypt.hash_value(ctx.author.id) != message_obj.author_id
+                and crypt.hash_value(str(ctx.author.id)) != message_obj.author_id
             ):
                 return
             if isinstance(message_obj, BaseLockMessage):
@@ -83,12 +83,12 @@ def on_raw_reaction_with_context(reaction_type, valid_emojis=[]):
                 return
             if valid_emojis and payload.emoji.name not in valid_emojis:
                 return
-            channel = bot.get_channel(payload.channel_id)
+            channel = bot.get_channel(int(payload.channel_id))
             guild = channel.guild
-            user = guild.get_member(payload.user_id)
+            user = guild.get_member(int(payload.user_id))
             if not user or user.bot:
                 return
-            message = await channel.fetch_message(payload.message_id)
+            message = await channel.fetch_message(int(payload.message_id))
             ctx = commands.Context(
                 bot=bot,
                 channel=channel,

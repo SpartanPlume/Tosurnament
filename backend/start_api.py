@@ -15,6 +15,7 @@ from server.api.v1.tosurnament.tournaments.brackets.qualifiers_spreadsheet impor
 from server.api.v1.tosurnament.tournaments.brackets.qualifiers_results_spreadsheet import (
     QualifiersResultsSpreadsheetResource,
 )
+from server.api.v1.discord.guilds.roles import DiscordRolesResource
 from server.api.v1.tosurnament.auth import AuthResource
 from server.api.globals import db, logging_handler, exceptions
 
@@ -80,6 +81,11 @@ register_api_v1_for_spreadsheet(
 
 resource_view = TokenResource.as_view("token_api")
 app.add_url_rule("/api/v1/tosurnament/token", view_func=resource_view, methods=["POST"])
+
+resource_view = DiscordRolesResource.as_view("discord_roles_api")
+app.add_url_rule(
+    "/api/v1/discord/guilds/<guild_id>/roles", defaults={"role_id": None}, view_func=resource_view, methods=["GET"]
+)
 
 
 def log_and_update_exception(e):

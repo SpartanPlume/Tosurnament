@@ -289,7 +289,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = PostResultMessage(
             tournament_id=tournament.id,
             bracket_id=bracket.id,
-            author_id=ctx.author.id,
+            author_id=str(ctx.author.id),
             step=8,
             match_id=match_id,
             score_team1=score_team1,
@@ -332,7 +332,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = PostResultMessage(
             tournament_id=tournament.id,
             bracket_id=bracket.id,
-            author_id=ctx.author.id,
+            author_id=str(ctx.author.id),
             setup_message_id=message.id,
             match_id=match_id,
             score_team1=score_team1,
@@ -603,7 +603,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             raise tosurnament.NoSpreadsheet("schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
         if tournament.staff_channel_id:
-            error_channel = self.bot.get_channel(tournament.staff_channel_id)
+            error_channel = self.bot.get_channel(int(tournament.staff_channel_id))
         else:
             error_channel = ctx
         prbuilder = await self.create_prbuilder(
@@ -619,7 +619,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         await self.step8_write_in_spreadsheet(bracket, match_info, prbuilder)
         post_result_channel = ctx
         if bracket.post_result_channel_id:
-            post_result_channel = self.bot.get_channel(bracket.post_result_channel_id)
+            post_result_channel = self.bot.get_channel(int(bracket.post_result_channel_id))
         await post_result_channel.send(result_string)
 
     async def step8(self, ctx, tournament, post_result_message, parameter):
@@ -638,10 +638,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     async def delete_setup_message(self, channel, post_result_message):
         if post_result_message.setup_message_id:
-            message = await channel.fetch_message(post_result_message.setup_message_id)
+            message = await channel.fetch_message(int(post_result_message.setup_message_id))
             await message.delete()
         if post_result_message.preview_message_id:
-            message = await channel.fetch_message(post_result_message.preview_message_id)
+            message = await channel.fetch_message(int(post_result_message.preview_message_id))
             await message.delete()
             post_result_message.preview_message_id = 0
 
@@ -652,7 +652,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         post_result_message = (
             self.bot.session.query(PostResultMessage)
             .where(PostResultMessage.tournament_id == tournament.id)
-            .where(PostResultMessage.author_id == ctx.author.id)
+            .where(PostResultMessage.author_id == str(ctx.author.id))
             .first()
         )
         if not post_result_message:

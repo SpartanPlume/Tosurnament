@@ -382,12 +382,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 opponent_to_ping = opponent_team_role
             ally_team_role = tosurnament.get_role(ctx.guild.roles, None, team_name)
             if ally_team_role:
-                reschedule_message.ally_team_role_id = ally_team_role.id
+                reschedule_message.ally_team_role_id = str(ally_team_role.id)
 
         reschedule_message.match_id = match_id
         reschedule_message.match_id_hash = match_id
-        reschedule_message.ally_user_id = ctx.author.id
-        reschedule_message.opponent_user_id = opponent_team_captain.id
+        reschedule_message.ally_user_id = str(ctx.author.id)
+        reschedule_message.opponent_user_id = str(opponent_team_captain.id)
         if previous_date:
             previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
             reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
@@ -480,7 +480,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     @with_corresponding_message(RescheduleMessage)
     async def reaction_on_reschedule_message(self, ctx, emoji, reschedule_message):
         """Reschedules a match or denies the reschedule."""
-        if ctx.author.id != reschedule_message.opponent_user_id:
+        if str(ctx.author.id) != reschedule_message.opponent_user_id:
             return
         try:
             tournament = self.get_tournament(ctx.guild.id)
@@ -495,7 +495,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                 if reschedule_message.ally_team_role_id:
                     ally_to_mention = tosurnament.get_role(ctx.guild.roles, reschedule_message.ally_team_role_id)
                 if not ally_to_mention:
-                    ally_to_mention = ctx.guild.get_member(reschedule_message.ally_user_id)
+                    ally_to_mention = ctx.guild.get_member(int(reschedule_message.ally_user_id))
                 if ally_to_mention:
                     await self.send_reply(ctx, "refused", ally_to_mention.mention, reschedule_message.match_id)
                 else:
@@ -533,7 +533,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if reschedule_message.ally_team_role_id:
             ally_to_mention = tosurnament.get_role(ctx.guild.roles, reschedule_message.ally_team_role_id)
         if not ally_to_mention:
-            ally_to_mention = ctx.guild.get_member(reschedule_message.ally_user_id)
+            ally_to_mention = ctx.guild.get_member(int(reschedule_message.ally_user_id))
         if ally_to_mention:
             await self.send_reply(ctx, "accepted", ally_to_mention.mention, match_id)
         else:
@@ -547,7 +547,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         new_date_string = self.get_pretty_date(ctx, tournament, new_date)
         staff_channel = None
         if tournament.staff_channel_id:
-            staff_channel = self.bot.get_channel(tournament.staff_channel_id)
+            staff_channel = self.bot.get_channel(int(tournament.staff_channel_id))
         if referees_to_ping or streamers_to_ping or commentators_to_ping:
             if staff_channel:
                 to_channel = staff_channel

@@ -23,10 +23,7 @@ class GuildsResource(MethodView):
         request_args = request.args.to_dict()
         guild_id = request_args.pop("guild_id", None)
         if guild_id:
-            try:
-                request_args["guild_id"] = int(guild_id)
-            except ValueError:
-                raise exceptions.BadRequest()
+            request_args["guild_id"] = str(guild_id)
         return {"guilds": [guild.get_api_dict() for guild in db.query(Guild).where(**request_args).all()]}
 
     @is_authorized(user=True)
@@ -42,10 +39,7 @@ class GuildsResource(MethodView):
         body = request.json
         if not body or not body["guild_id"] or not body["guild_id_snowflake"]:
             raise exceptions.MissingRequiredInformation()
-        try:
-            body["guild_id"] = int(body["guild_id"])
-        except ValueError:
-            raise exceptions.BadRequest()
+        body["guild_id"] = str(body["guild_id"])
         guild = Guild(**body)
         db.add(guild)
         current_app.logger.debug("The guild {0} has been created successfully.".format(guild.id))
