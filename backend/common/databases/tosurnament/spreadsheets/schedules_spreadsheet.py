@@ -164,7 +164,9 @@ class MatchInfo:
             self.date.set(new_date_value)
         if new_time_value:
             if self.time.value_type == float:
-                new_time_value = float(new_time_value.split(":")[0]) / 24.0 + float(new_time_value.split(":")[1]) / 60.0
+                new_time_value = float(new_time_value.split(":")[0]) / 24.0 + float(new_time_value.split(":")[1]) / (
+                    60.0 * 24.0
+                )
             self.time.set(new_time_value)
 
     @staticmethod
