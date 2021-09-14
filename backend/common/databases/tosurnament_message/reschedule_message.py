@@ -16,8 +16,5 @@ class RescheduleMessage(BaseLockMessage):
     match_id = str()
     match_id_hash = bytes()
     ally_user_id = str()
-    ally_user_id_str = str()
     ally_team_role_id = str()
-    ally_team_role_id_str = str()
     opponent_user_id = str()
-    opponent_user_id_str = str()

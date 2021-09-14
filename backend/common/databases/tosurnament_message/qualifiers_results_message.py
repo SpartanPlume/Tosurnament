@@ -13,4 +13,3 @@ class QualifiersResultsMessage(Base):
     bracket_id = Id()
     message_id = int()
     channel_id = str()
-    channel_id_str = str()

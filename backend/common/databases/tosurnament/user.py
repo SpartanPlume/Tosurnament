@@ -11,7 +11,6 @@ class User(Base):
     id = Id()
     discord_id = bytes()
     discord_id_snowflake = str()
-    discord_id_snowflake_str = str()
     osu_id = str()
     verified = bool()
     code = bytes()
