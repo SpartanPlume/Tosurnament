@@ -3,12 +3,11 @@
 from discord.ext import commands
 from bot.modules import module as base
 from common.api import tosurnament as tosurnament_api
-
 from common.databases.tosurnament.user import User
 
 
-class AdminCog(base.BaseModule, name="admin"):
-    """Admin commands."""
+class OwnerCog(base.BaseModule, name="owner"):
+    """Owner commands."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -44,6 +43,53 @@ class AdminCog(base.BaseModule, name="admin"):
         await ctx.send(" ".join(args))
 
     @commands.command(hidden=True)
+    async def add_verified_user(self, ctx, discord_id: str, osu_id: str, *, osu_name: str):
+        """Add a verified user to the database (to use when someone can't use the website, because of parental controls for example)."""
+        user = self.get_user(discord_id)
+        if user and user.verified:
+            await ctx.send("User is already verified")
+            return
+        if user:
+            user.verified = True
+            user.discord_id = discord_id
+            user.discord_id_snowflake = discord_id
+            user.osu_id = osu_id
+            user.osu_name = osu_name
+            user.osu_name_hash = osu_name
+            tosurnament_api.update_user(user)
+        else:
+            user = User(
+                verified=True,
+                discord_id=discord_id,
+                discord_id_snowflake=discord_id,
+                osu_id=osu_id,
+                osu_name=osu_name,
+                osu_name_hash=osu_name,
+            )
+            tosurnament_api.create_user(user)
+        await ctx.send(osu_name + " has been added as a verified user")
+
+    @commands.command(hidden=True)
+    async def check_user_info(self, ctx, discord_id: str):
+        """Checks the information of a User."""
+        user = self.get_user(discord_id)
+        if user:
+            output = ""
+            for key, value in user.get_api_dict().items():
+                value = str(value)
+                if not value:
+                    value = self.get_string(ctx, "undefined")
+                tmp_output = "__" + key + "__: `" + value + "`\n"
+                if len(output + tmp_output) >= 2000:
+                    await ctx.send(output)
+                    output = tmp_output
+                else:
+                    output += tmp_output
+            await ctx.send(output)
+        else:
+            await ctx.send("User not found")
+
+    @commands.command(hidden=True)
     async def announce(self, ctx, *, message: str):
         """Sends an annoucement to all servers that have a tournament running."""
         users_already_sent_to = []
@@ -73,9 +119,9 @@ class AdminCog(base.BaseModule, name="admin"):
 
 def get_class(bot):
     """Returns the main class of the module."""
-    return AdminCog(bot)
+    return OwnerCog(bot)
 
 
 def setup(bot):
     """Setups the cog."""
-    bot.add_cog(AdminCog(bot))
+    bot.add_cog(OwnerCog(bot))
