@@ -71,11 +71,17 @@ class LobbyInfo:
 
     def set_date(self, date_cell):
         self.date = date_cell
+        if self.date.value_type == int or self.date.value_type == float:
+            self.date.value_type = int
+            return
         if self.date.value_type != str:
             raise DateIsNotString("date")
 
     def set_time(self, time_cell):
         self.time = time_cell
+        if self.time.value_type == float or self.time.value_type == int:
+            self.time.value_type = float
+            return
         if self.time.value_type != str:
             raise DateIsNotString("time")
 
