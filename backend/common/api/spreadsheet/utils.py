@@ -132,7 +132,9 @@ def find_corresponding_cells_best_effort_from_range(
 
 def check_range(cell_range):
     """Checks if the range is valid."""
-    # TODO
+    range_regex = r"([A-Z]+\d*|\d+)(:([A-Z]+\d*|\d+))?"
+    if not re.match(r"^" + range_regex + r"((,| |, |;|; |\|)" + range_regex + r")*$", cell_range):
+        return False
     return True
 
 

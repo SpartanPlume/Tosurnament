@@ -37,6 +37,12 @@ class NotFound(ChallongeException):
     pass
 
 
+class NameAlreadyTaken(ChallongeException):
+    """Special exception when the participant's name is already taken"""
+
+    pass
+
+
 class Base:
     """Base class"""
 
@@ -232,6 +238,24 @@ def get_tournament(tournament_id):
     if "tournament" in t:
         return Tournament(t["tournament"])
     raise NotFound()
+
+
+def add_participant_to_tournament(tournament_id, participant_name):
+    try:
+        r = requests.post(
+            CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants.json",
+            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
+            data={"participant[name]": participant_name},
+            headers={"User-Agent": "My User Agent 1.0"},
+        )
+    except requests.exceptions.RequestException as e:
+        print(e)
+        raise ServerError()
+    p = r.json()
+    if "errors" in p and p["errors"][0] == "Name has already been taken":
+        raise NameAlreadyTaken()
+    if "participant" not in p:
+        raise NoRights()
 
 
 def get_participants(tournament_id):

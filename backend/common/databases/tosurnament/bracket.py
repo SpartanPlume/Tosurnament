@@ -32,6 +32,8 @@ class Bracket(Base):
     qualifiers_results_spreadsheet_id = Id(-1)
     post_result_channel_id = str()
     current_round = str()
+    minimum_rank = int(0)
+    maximum_rank = int(0)
     registration_end_date = str()
     created_at = int()
     updated_at = int()

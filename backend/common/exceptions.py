@@ -280,3 +280,9 @@ class InvalidTimezone(commands.CommandError):
 
     def __init__(self, timezone):
         self.timezone = timezone
+
+
+class NotInRankRange(commands.CommandError):
+    """Special exception in case the rank of the player is not in the rank range of the tournament."""
+
+    pass
