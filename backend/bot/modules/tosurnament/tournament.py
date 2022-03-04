@@ -10,6 +10,7 @@ from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.bracket import Bracket
 from common.api import tosurnament as tosurnament_api
 
+DAY_REGEX = r"(monday|tuesday|wednesday|thursday|friday|saturday|sunday)"
 TIME_REGEX = r"([0-2][0-3]|[0-1][0-9]):[0-5][0-9]"
 
 
@@ -160,7 +161,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         if date:
             date = date.lower()
             if not re.match(
-                r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) " + TIME_REGEX + r"$",
+                r"^" + DAY_REGEX + r" " + TIME_REGEX + r"$",
                 date,
             ):
                 raise commands.UserInputError()
@@ -171,7 +172,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         if date:
             date = date.lower()
             if not re.match(
-                r"^(monday|tuesday|wednesday|thursday|friday|saturday|sunday) " + TIME_REGEX + r"$",
+                r"^" + DAY_REGEX + r" " + TIME_REGEX + r"$",
                 date,
             ):
                 raise commands.UserInputError()

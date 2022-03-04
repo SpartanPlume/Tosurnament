@@ -15,6 +15,7 @@ from common.databases.tosurnament_message.staff_reschedule_message import StaffR
 from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.api import osu
 from common.api import tosurnament as tosurnament_api
+from common.api import challonge as challonge_api
 
 
 class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
@@ -39,6 +40,12 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         if len(tournament.brackets) != 1:
             await self.send_reply(ctx, "not_supported_yet")
             return
+        player_role = tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")
+        if not player_role:
+            raise tosurnament.RoleDoesNotExist("Player")
+        # TODO: should check if name/discord_id/discord already present
+        if tosurnament.get_role(ctx.author.roles, tournament.player_role_id, "Player"):
+            raise tosurnament.UserAlreadyPlayer()
         bracket = tournament.current_bracket
         if bracket.registration_end_date:
             registration_end_date = datetime.datetime.strptime(
@@ -62,13 +69,16 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         osu_user = osu.get_user(verified_user.osu_id, m=tournament.game_mode)
         if not osu_user:
             raise tosurnament.UserNotFound(verified_user.osu_id)
+        osu_rank = int(osu_user.rank)
+        if osu_rank < bracket.minimum_rank or (bracket.maximum_rank > 0 and osu_rank > bracket.maximum_rank):
+            raise tosurnament.NotInRankRange()
         team_info = TeamInfo.get_first_blank_fields(players_spreadsheet)
         player_info = team_info.players[0]
         player_info.name.set(osu_user.name)
         player_info.discord.set(str(ctx.author))
-        player_info.discord_id.set(ctx.author.id)
-        player_info.rank.set(str(osu_user.rank))
-        player_info.bws_rank.set(str(osu_user.rank))
+        player_info.discord_id.set(str(ctx.author.id))
+        player_info.rank.set(str(osu_rank))
+        player_info.bws_rank.set(str(osu_rank))
         player_info.osu_id.set(str(osu_user.id))
         player_info.pp.set(str(int(float(osu_user.pp))))
         player_info.country.set(str(osu_user.country))
@@ -79,8 +89,17 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         await ctx.author.add_roles(*filter(None, roles_to_give))
         try:
             await ctx.author.edit(nick=osu_user.name)
-        except (discord.Forbidden, discord.HTTPException):
+        except Exception:
             pass
+        if bracket.challonge:
+            try:
+                challonge_api.add_participant_to_tournament(bracket.challonge, osu_user.name)
+            except Exception:
+                tosurnament_guild = self.get_guild(ctx.guild.id)
+                admin_role = tosurnament.get_role(ctx.guild.roles, tosurnament_guild.admin_role_id)
+                await self.send_reply(
+                    ctx, "challonge_participant_addition_error", admin_role if admin_role else "Admins", osu_user.name
+                )
         await self.send_reply(ctx, "success")
 
     @register.error
@@ -90,6 +109,8 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             await self.send_reply(ctx, "invalid_timezone", error.timezone)
         elif isinstance(error, tosurnament.RegistrationEnded):
             await self.send_reply(ctx, "registration_ended")
+        elif isinstance(error, tosurnament.NotInRankRange):
+            await self.send_reply(ctx, "not_in_rank_range")
 
     def clear_team_from_other_lobbies(self, qualifiers_spreadsheet, lobby_id, team_name):
         """Removes the team name from other lobbies if present."""

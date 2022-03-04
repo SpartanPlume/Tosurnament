@@ -29,6 +29,12 @@
     "example_parameter": "http://challonge.com/testandroid",
     "success": "Challonge set to `%1`."
   },
+  "set_rank_range_for_registration": {
+    "help": "Sets the rank range to be able to register to a bracket",
+    "parameter": "<minimum_rank> [<maximum_rank>]",
+    "example_parameter": "1000 10000",
+    "success": "Rank range for this bracket has been updated."
+  },
   "set_registration_end": {
     "help": "Sets the registration end date",
     "parameter": "<date>",

@@ -37,7 +37,9 @@
     "success": "You have been registered successfully.",
     "invalid_timezone": "`%1` is an invalid timezone.",
     "not_supported_yet": "This command does not support team tournaments or multiple brackets tournament yet.",
-    "registration_ended": "The registration phase for this tournament is over."
+    "registration_ended": "The registration phase for this tournament is over.",
+    "not_in_rank_range": "Registration failed, your rank is outside of the rank range for this tournament.",
+    "challonge_participant_addition_error": "%1, an issue occurred while trying to add the participant `%2` to the challonge, it needs to be added manually."
   },
   "register_to_lobby": {
     "help": "Registers to a qualifier lobby",

@@ -48,6 +48,11 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
         challonge_tournament = challonge.extract_tournament_id(challonge_tournament)
         await self.set_bracket_values(ctx, {"challonge": challonge_tournament})
 
+    @commands.command(aliases=["srrfr"])
+    async def set_rank_range_for_registration(self, ctx, minimum_rank: int, maximum_rank: int = 0):
+        """Sets the rank range to be able to register to a bracket."""
+        await self.set_bracket_values(ctx, {"minimum_rank": minimum_rank, "maximum_rank": maximum_rank})
+
     @commands.command(aliases=["sre"])
     async def set_registration_end(self, ctx, *, date: str):
         """Sets the registration end date."""
