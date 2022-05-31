@@ -18,7 +18,7 @@ export default function Login() {
         variant="primary"
         onClick={() =>
           (window.location =
-            "https://discord.com/api/v9/oauth2/authorize?client_id=378433574602539019&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&response_type=code&scope=guilds%20identify")
+            "https://discord.com/api/v9/oauth2/authorize?client_id=378433574602539019&redirect_uri=https%3A%2F%2Fdashboard.tosurnament.com%2Fredirect&response_type=code&scope=guilds%20identify")
         }
         style={{ display: "block", margin: "0 auto" }}
       >
