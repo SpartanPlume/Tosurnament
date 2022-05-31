@@ -20,7 +20,8 @@ export default function Redirect() {
         Cookies.set("session_token", data.session_token, {
           path: "/",
           expires: 30, // Expires after 1 month
-          sameSite: "strict"
+          sameSite: "strict",
+          secure: true
         });
         queryClient.invalidateQueries("me");
         const redirectToPath = sessionStorage.getItem("redirect_after_login") || "/";
