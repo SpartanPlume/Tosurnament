@@ -11,7 +11,7 @@ function redirectToLoginIfNeeded(error) {
 }
 
 export default class TosurnamentApi {
-  static baseApiPath = "http://localhost:5001/api/v1";
+  static baseApiPath = "https://api.tosurnament.com/api/v1";
 
   static async doMethod(method, uri, body = null) {
     const sessionToken = Cookies.get("session_token");
