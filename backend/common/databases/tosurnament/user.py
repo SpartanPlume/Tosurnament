@@ -1,19 +1,17 @@
 """User table"""
 
-from mysqldb_wrapper import Base, Id
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import StrField, HashField, BoolField
 
 
-class User(Base):
+class User(Table):
     """User class"""
 
-    __tablename__ = "user"
-
-    id = Id()
-    discord_id = bytes()
-    discord_id_snowflake = str()
-    osu_id = str()
-    verified = bool()
-    code = bytes()
-    osu_name = str()
-    osu_name_hash = bytes()
-    osu_previous_name = str()
+    discord_id = HashField()
+    discord_id_snowflake = StrField()
+    osu_id = StrField()
+    verified = BoolField()
+    code = HashField()
+    osu_name = StrField()
+    osu_name_hash = HashField()
+    osu_previous_name = StrField()

@@ -26,5 +26,6 @@
   "undefined": "Undefined",
   "qualifier": "Qualifier",
   "teams": "Teams",
-  "at": "at"
+  "at": "at",
+  "use_dashboard": "**Deprecated:** You should now use http://localhost:3000/guilds/%1 to edit the settings of the bot on your server. Settings related to result posting and registration are not present on the settings page, as they will be reworked, but you can keep using the commands."
 }

@@ -20,6 +20,9 @@ class DiscordRolesResource(MethodView):
         try:
             r = requests.get(endpoints.DISCORD_GUILD_ROLES.format(guild_id), headers=headers)
             r.raise_for_status()
-        except requests.exceptions.HTTPError:
-            raise exceptions.DiscordGetError()
+        except requests.exceptions.HTTPError as e:
+            error = r.json()
+            raise exceptions.ExternalException(r.status_code, e.response.reason, error["message"])
+        except requests.exceptions.ConnectionError:
+            raise exceptions.DiscordError()
         return {"roles": r.json()}

@@ -2,7 +2,10 @@
 
 import math
 import datetime
+
 from discord.ext import commands
+from encrypted_mysqldb.fields import StrField, IntField
+
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_cell_best_effort,
@@ -18,14 +21,12 @@ class QualifiersSpreadsheet(BaseSpreadsheet):
         super().__init__(session, *args, **kwargs)
         self._type = "qualifiers"
 
-    __tablename__ = "qualifiers_spreadsheet"
-
-    range_lobby_id = str()
-    range_teams = str()
-    range_referee = str()
-    range_date = str()
-    range_time = str()
-    max_teams_in_row = int(8)
+    range_lobby_id = StrField()
+    range_teams = StrField()
+    range_referee = StrField()
+    range_date = StrField()
+    range_time = StrField()
+    max_teams_in_row = IntField(8)
 
 
 class LobbyIdNotFound(commands.CommandError):

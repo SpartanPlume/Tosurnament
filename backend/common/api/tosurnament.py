@@ -1,3 +1,4 @@
+import datetime
 import requests
 from discord.ext import commands
 from common.databases.tosurnament.tournament import Tournament
@@ -28,19 +29,25 @@ class ServerError(TosurnamentException):
         super().__init__(500, "Couldn't reach Tosurnament API")
 
 
-def remove_bytes_entries(data):
+def update_json_body(data):
     if data is None:
         return None
     new_data = {}
     for key, value in data.items():
-        if not isinstance(value, bytes):
+        if isinstance(value, bytes):
+            continue
+        elif isinstance(value, datetime.datetime):
+            new_data[key] = value.isoformat()
+        else:
             new_data[key] = value
     return new_data
 
 
 def requests_wrapper(method, url, data=None, url_parameters=None):
     try:
-        r = requests.request(method, url, json=remove_bytes_entries(data), params=url_parameters)
+        r = requests.request(
+            method, url, json=update_json_body(data), params=url_parameters, headers={"Authorization": "Bot"}
+        )
         r.raise_for_status()
     except requests.exceptions.HTTPError:
         if method == "get" and r.status_code == 404:

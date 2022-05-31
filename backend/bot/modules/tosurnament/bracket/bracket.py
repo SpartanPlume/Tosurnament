@@ -203,6 +203,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             setattr(tournament.current_bracket, key, value)
         tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", value)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     @commands.command(aliases=["cp"])
     async def copy_bracket(self, ctx, index_from: int, index_to: int):

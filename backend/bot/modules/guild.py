@@ -51,6 +51,7 @@ class GuildCog(base.BaseModule, name="guild"):
             setattr(guild, key, value)
         tosurnament_api.update_guild(guild)
         await self.send_reply(ctx, "success", value)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     @commands.command(aliases=["svc"])
     async def setup_verification_channel(self, ctx, channel: discord.TextChannel):

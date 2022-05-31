@@ -1,11 +1,6 @@
 # discord endpoints
-# # discord oauth2 endpoints
-DISCORD_OAUTH2 = "https://discord.com/api/oauth2"
-DISCORD_TOKEN = DISCORD_OAUTH2 + "/token"
-DISCORD_TOKEN_REVOKE = DISCORD_TOKEN + "/revoke"
-
 # # discord api endpoints
-DISCORD_API = "https://discordapp.com/api/v6"
+DISCORD_API = "https://discord.com/api/v9"
 DISCORD_ME = DISCORD_API + "/users/@me"
 DISCORD_ME_GUILDS = DISCORD_ME + "/guilds"
 DISCORD_GUILDS = DISCORD_API + "/guilds"
@@ -15,6 +10,11 @@ DISCORD_GUILD_ROLES = DISCORD_GUILD + "/roles"
 DISCORD_GUILD_ROLE = DISCORD_GUILD_ROLES + "/{1}"
 DISCORD_GUILD_MEMBERS = DISCORD_GUILD + "/members"
 DISCORD_GUILD_MEMBER = DISCORD_GUILD_MEMBERS + "/{1}"
+
+# # discord oauth2 endpoints
+DISCORD_OAUTH2 = DISCORD_API + "/oauth2"
+DISCORD_TOKEN = DISCORD_OAUTH2 + "/token"
+DISCORD_TOKEN_REVOKE = DISCORD_TOKEN + "/revoke"
 
 # osu! endpoints
 # # osu! oauth2 endpoints

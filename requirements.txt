@@ -1,16 +1,15 @@
-mysqlclient
 requests
 httplib2
 oauth2client
 google-api-python-client
 asyncio
-pycrypto
 cryptography
 discord.py
-Pygments
-blessings
-mysqldb_wrapper
 dateparser
+Babel
+flask-cors
+requests-cache
+encrypted-mysqldb
 
 pytest
 pytest-asyncio

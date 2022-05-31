@@ -7,31 +7,6 @@ DB_MESSAGE_NAME=$(jq -r '.DB_MESSAGE_NAME' constants.json)
 DB_USERNAME=$(jq -r '.DB_USERNAME' constants.json)
 DB_PASSWORD=$(jq -r '.DB_PASSWORD' constants.json)
 
-python_dependencies=(
-    mysqlclient
-    requests
-    httplib2
-    oauth2client
-    google-api-python-client
-    asyncio
-    pycrypto
-    cryptography
-    discord.py
-    Pygments
-    blessings
-    mysqldb_wrapper
-    dateparser
-    Babel
-    flask-cors
-)
-
-echo "Intalling necessary python dependencies..."
-for dependency in "${python_dependencies[@]}"
-do
-    sudo python3 -m pip install -U $dependency
-done
-echo "Intalling necessary python dependencies... DONE"
-
 echo "Setting up mysql database... (Your mysql root user's password might be needed)"
 sudo mysql <<EOF
 CREATE USER IF NOT EXISTS '$DB_USERNAME' IDENTIFIED BY '$DB_PASSWORD';

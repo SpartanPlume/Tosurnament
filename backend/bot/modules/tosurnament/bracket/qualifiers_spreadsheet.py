@@ -35,6 +35,7 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
                 qualifiers_spreadsheet.sheet_name = sheet_name
             tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, qualifiers_spreadsheet)
         await self.send_reply(ctx, "success", qualifiers_spreadsheet.spreadsheet_id)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     async def set_qualifiers_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""

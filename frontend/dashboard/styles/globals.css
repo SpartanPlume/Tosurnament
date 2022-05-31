@@ -1,0 +1,50 @@
+html {
+  color-scheme: dark;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+html, body, #__next, .page {
+  display: flex;
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  padding-top: 4em;
+}
+
+._loading_overlay_wrapper {
+  height: 100%;
+  min-height: calc(100vh - 4em);
+}
+
+.header {
+  height: 4em;
+  background-color: #1e2122;
+}
+
+.field-tooltip {
+  border-color: rgb(129, 120, 106);
+  background-color: rgb(24, 26, 27);
+  color: rgb(211, 207, 201);
+}
+
+.field-tooltip:hover {
+  background-color: rgb(34, 36, 38);
+}

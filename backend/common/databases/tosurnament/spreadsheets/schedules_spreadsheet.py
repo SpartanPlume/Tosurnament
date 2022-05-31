@@ -3,8 +3,12 @@
 import math
 import datetime
 import dateparser
-from common import exceptions
+
 from discord.ext import commands
+from encrypted_mysqldb.fields import StrField, IntField, BoolField
+
+
+from common import exceptions
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     Cell,
@@ -16,28 +20,26 @@ from common.api.spreadsheet import (
 class SchedulesSpreadsheet(BaseSpreadsheet):
     """Schedules spreadsheet class"""
 
+    range_match_id = StrField()
+    range_team1 = StrField()
+    range_score_team1 = StrField()
+    range_score_team2 = StrField()
+    range_team2 = StrField()
+    range_date = StrField()
+    range_time = StrField()
+    range_referee = StrField()
+    range_streamer = StrField()
+    range_commentator = StrField()
+    range_mp_links = StrField()
+    date_format = StrField()
+    use_range = BoolField(False)
+    max_referee = IntField(1)
+    max_streamer = IntField(1)
+    max_commentator = IntField(2)
+
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self._type = "schedules"
-
-    __tablename__ = "schedules_spreadsheet"
-
-    range_match_id = str()
-    range_team1 = str()
-    range_score_team1 = str()
-    range_score_team2 = str()
-    range_team2 = str()
-    range_date = str()
-    range_time = str()
-    range_referee = str()
-    range_streamer = str()
-    range_commentator = str()
-    range_mp_links = str()
-    date_format = str()
-    use_range = bool(False)
-    max_referee = int(1)
-    max_streamer = int(1)
-    max_commentator = int(2)
 
 
 class MatchIdNotFound(commands.CommandError):

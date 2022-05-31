@@ -1,19 +1,17 @@
 """Guild table"""
 
-from mysqldb_wrapper import Base, Id
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import StrField, DatetimeField, HashField
 
 
-class Guild(Base):
+class Guild(Table):
     """Guild class"""
 
-    __tablename__ = "guild"
-
-    id = Id()
-    guild_id = bytes()
-    guild_id_snowflake = str()
-    verified_role_id = str()
-    admin_role_id = str()
-    last_notification_date = str()
-    language = str()
-    created_at = int()
-    updated_at = int()
+    guild_id = HashField()
+    guild_id_snowflake = StrField()
+    verified_role_id = StrField()
+    admin_role_id = StrField()
+    last_notification_date = DatetimeField()
+    language = StrField()
+    created_at = DatetimeField()
+    updated_at = DatetimeField()

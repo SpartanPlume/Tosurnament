@@ -2,55 +2,53 @@
 
 import datetime
 import dateparser
-from mysqldb_wrapper import Base, Id
-from common.exceptions import UnknownError
+
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import IdField, StrField, IntField, HashField, BoolField, DatetimeField
 
 
-class Tournament(Base):
+class Tournament(Table):
     """Tournament class"""
 
-    __tablename__ = "tournament"
+    guild_id = HashField()
+    guild_id_snowflake = StrField()
+    acronym = StrField()
+    name = StrField()
+    staff_channel_id = StrField()
+    match_notification_channel_id = StrField()
+    referee_role_id = StrField()
+    streamer_role_id = StrField()
+    commentator_role_id = StrField()
+    player_role_id = StrField()
+    team_captain_role_id = StrField()
+    post_result_message = StrField()
+    post_result_message_team1_with_score = StrField()
+    post_result_message_team2_with_score = StrField()
+    post_result_message_mp_link = StrField()
+    post_result_message_rolls = StrField()
+    post_result_message_bans = StrField()
+    post_result_message_tb_bans = StrField()
+    reschedule_deadline_hours_before_current_time = IntField(6)
+    reschedule_deadline_hours_before_new_time = IntField(24)
+    reschedule_deadline_end = StrField()
+    reschedule_before_date = StrField()
+    reschedule_ping_team = BoolField(True)
+    current_bracket_id = IdField()
+    matches_to_ignore = StrField()
+    notify_no_staff_reschedule = BoolField(True)
+    utc = StrField()
+    template_code = StrField()
+    registration_phase = BoolField(False)
+    game_mode = IntField(0)
+    registration_background_update = BoolField(False)
+    created_at = DatetimeField()
+    updated_at = DatetimeField()
+    date_format = StrField()
 
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self._current_bracket = None
         self._brackets = None
-
-    id = Id()
-    guild_id = bytes()
-    guild_id_snowflake = str()
-    acronym = str()
-    name = str()
-    staff_channel_id = str()
-    match_notification_channel_id = str()
-    referee_role_id = str()
-    streamer_role_id = str()
-    commentator_role_id = str()
-    player_role_id = str()
-    team_captain_role_id = str()
-    post_result_message = str()
-    post_result_message_team1_with_score = str()
-    post_result_message_team2_with_score = str()
-    post_result_message_mp_link = str()
-    post_result_message_rolls = str()
-    post_result_message_bans = str()
-    post_result_message_tb_bans = str()
-    reschedule_deadline_hours_before_current_time = int(6)
-    reschedule_deadline_hours_before_new_time = int(24)
-    reschedule_deadline_end = str()
-    reschedule_before_date = str()
-    reschedule_ping_team = bool(True)
-    current_bracket_id = Id()
-    matches_to_ignore = str()
-    notify_no_staff_reschedule = bool(True)
-    utc = str()
-    template_code = str()
-    registration_phase = bool(False)
-    game_mode = int(0)
-    registration_background_update = bool(False)
-    created_at = int()
-    updated_at = int()
-    date_format = str()
 
     @property
     def current_bracket(self):

@@ -8,8 +8,9 @@ import os
 import datetime
 import discord
 from discord.ext import commands
-import MySQLdb
-from mysqldb_wrapper import Session
+from cryptography.fernet import Fernet
+from encrypted_mysqldb.database import Database
+from encrypted_mysqldb.errors import DatabaseInitializationError
 from common.utils import load_json
 from common.config import constants
 from common.api.spreadsheet import spreadsheet
@@ -100,14 +101,13 @@ class Client(commands.Bot):
                 if filename.endswith(".py"):
                     importlib.import_module(root.replace("/", ".") + "." + filename[:-3])
         try:
-            self.session = Session(
+            self.session = Database(
                 constants.DB_USERNAME,
                 constants.DB_PASSWORD,
                 constants.DB_MESSAGE_NAME,
-                constants.ENCRYPTION_KEY,
-                self.handler,
+                Fernet(constants.ENCRYPTION_KEY),
             )
-        except MySQLdb._exceptions.OperationalError:
+        except DatabaseInitializationError:
             print("ERROR: Couldn't initialize the db session. Is the mysql service started ?")
             self.error_code = 2
 
@@ -135,7 +135,13 @@ class Client(commands.Bot):
             if caller.function not in functions_to_ignore:
                 break
         self.logger.log(
-            level, "%s:%d - %s", os.path.basename(caller.filename), caller.lineno, message, extra={}, exc_info=exc_info
+            level,
+            "<%s:%d> - %s",
+            os.path.basename(caller.filename),
+            caller.lineno,
+            message,
+            extra={},
+            exc_info=exc_info,
         )
 
     def debug(self, message):

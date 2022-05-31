@@ -224,6 +224,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             setattr(tournament, key, value)
         tosurnament_api.update_tournament(tournament)
         await self.send_reply(ctx, "success", value)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     @commands.command(aliases=["amti", "add_matches_to_ignore"])
     async def add_match_to_ignore(self, ctx, *match_ids):

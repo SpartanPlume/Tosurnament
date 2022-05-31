@@ -1,15 +1,13 @@
 """Allowed reschedule table"""
 
-from mysqldb_wrapper import Base, Id
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import IdField, StrField, IntField, DatetimeField
 
 
-class AllowedReschedule(Base):
+class AllowedReschedule(Table):
     """AllowedReschedule class"""
 
-    __tablename__ = "allowed_reschedule"
-
-    id = Id()
-    tournament_id = Id()
-    match_id = str()
-    allowed_hours = int(24)
-    created_at = int()
+    tournament_id = IdField()
+    match_id = StrField()
+    allowed_hours = IntField(24)
+    created_at = DatetimeField()

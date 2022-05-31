@@ -1,0 +1,51 @@
+
+$primary-bg-color: #181a1b; // if changed, should change in document.js too
+$primary-text-color: #d1cdc7;
+$primary-text-color-hover: #e9e1d9;
+$primary-border-color: #3c4144;
+//$primary-border-color2: #8c827333;
+
+$body-bg: $primary-bg-color;
+$body-color: $primary-text-color;
+
+$input-border-color: $primary-border-color;
+$input-disabled-bg: #232627;
+$input-focus-border-color: #013989;
+$input-focus-box-shadow: rgba(2, 80, 196, 0.25) 0px 0px 0px 0.25rem;
+
+$modal-content-bg: $primary-bg-color;
+$modal-content-border-color: $primary-border-color;
+$modal-header-border-color: $primary-border-color;
+$modal-footer-border-color: $primary-border-color;
+
+$popover-bg: $primary-bg-color;
+$popover-body-color: $primary-text-color;
+$popover-border-color: $primary-border-color;
+
+$dropdown-color: $primary-text-color;
+$dropdown-bg: $primary-bg-color;
+$dropdown-border-color: $primary-border-color;
+$dropdown-link-color: $primary-text-color;
+$dropdown-link-hover-color: $primary-text-color-hover;
+$dropdown-link-hover-bg: #232627;
+$dropdown-link-active-color: #b9b6b0;
+$dropdown-link-active-bg: #1c1e1f;
+
+// bg color in global.css
+$navbar-dark-brand-color: $primary-text-color;
+$navbar-dark-brand-hover-color: $primary-text-color-hover;
+$navbar-dark-color: $primary-text-color;
+$navbar-dark-hover-color: $primary-text-color-hover;
+$navbar-dark-active-color: $primary-text-color-hover;
+
+$card-bg: $primary-bg-color;
+$card-border-color: $primary-border-color;
+
+$form-check-input-border: 1px solid $primary-border-color;
+
+$theme-colors: (
+    "primary": #0054d1,
+    "danger": #b42332
+);
+
+@import "../node_modules/bootstrap/scss/bootstrap";

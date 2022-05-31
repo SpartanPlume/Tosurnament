@@ -2,24 +2,24 @@
 
 import asyncio
 import copy
-from mysqldb_wrapper import Base, Id
+
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import StrField
+
 from common.api.spreadsheet import Spreadsheet, HttpError
 from common.exceptions import SpreadsheetHttpError
 
 
-class BaseSpreadsheet(Base):
+class BaseSpreadsheet(Table):
     """Base spreadsheet class"""
+
+    spreadsheet_id = StrField()
+    sheet_name = StrField()
 
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self._spreadsheet = None
         self._type = ""
-
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        cls.id = Id()
-        cls.spreadsheet_id = str()
-        cls.sheet_name = str("")
 
     def copy_to(self, new_obj):
         keys_to_ignore = ["id", "sheet_name"]

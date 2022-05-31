@@ -1,8 +1,9 @@
 import requests
 from flask.views import MethodView
-from flask import request, current_app
+from flask import request
 
 from server.api.globals import db, exceptions, endpoints
+from server.api import logger
 from common.databases.tosurnament.user import User
 from common.config import constants
 
@@ -11,7 +12,7 @@ class AuthResource(MethodView):
     def post(self):
         body = request.json
         if "tosurnament_code" not in body or "osu_code" not in body:
-            raise exceptions.BadRequest()
+            raise exceptions.MissingRequiredInformation(["tournament_code", "osu_code"])
         user = db.query(User).where(User.code == body["tosurnament_code"]).first()
         if not user:
             raise exceptions.InternalServerError()
@@ -24,14 +25,24 @@ class AuthResource(MethodView):
             "grant_type": "authorization_code",
             "redirect_uri": constants.OSU_REDIRECT_URI,
         }
-        token_request = requests.post(endpoints.OSU_TOKEN, data=parameters)
-        if not token_request.ok:
-            raise exceptions.OsuTokenError()
+        try:
+            token_request = requests.post(endpoints.OSU_TOKEN, data=parameters)
+            token_request.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise exceptions.ExternalException(token_request.status_code, e.response.reason, "Could not exchange token")
+        except requests.exceptions.ConnectionError:
+            raise exceptions.OsuError()
         token_results = token_request.json()
         me_headers = {"Authorization": "Bearer " + token_results["access_token"]}
-        me_request = requests.get(endpoints.OSU_ME, headers=me_headers)
-        if not me_request.ok:
-            raise exceptions.OsuMeError()
+        try:
+            me_request = requests.get(endpoints.OSU_ME, headers=me_headers)
+            me_request.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise exceptions.ExternalException(
+                me_request.status_code, e.response.reason, "Could not get profile information"
+            )
+        except requests.exceptions.ConnectionError:
+            raise exceptions.OsuError()
         me_results = me_request.json()
         user.osu_id = str(me_results["id"])
         user.osu_name = me_results["username"]
@@ -40,7 +51,5 @@ class AuthResource(MethodView):
             user.osu_previous_name = me_results["previous_usernames"][-1]
         user.verified = True
         db.update(user)
-        current_app.logger.debug(
-            "The user with the osu id {0} has been authentificated successfully.".format(user.osu_id)
-        )
+        logger.debug("User with the osu id {0} has been authentificated".format(user.osu_id))
         return {}, 204

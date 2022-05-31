@@ -1,7 +1,10 @@
 """Players spreadsheet table"""
 
 import re
+
 from discord.ext import commands
+from encrypted_mysqldb.fields import StrField, IntField
+
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_cell_best_effort_from_range,
@@ -14,23 +17,21 @@ from common.api.spreadsheet import (
 class PlayersSpreadsheet(BaseSpreadsheet):
     """Players spreadsheet class"""
 
+    range_team_name = StrField()
+    range_team = StrField()
+    range_discord = StrField()
+    range_discord_id = StrField()
+    range_rank = StrField()
+    range_bws_rank = StrField()
+    range_osu_id = StrField()
+    range_pp = StrField()
+    range_country = StrField()
+    range_timezone = StrField()
+    max_range_for_teams = IntField()
+
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
         self._type = "players"
-
-    __tablename__ = "players_spreadsheet"
-
-    range_team_name = str()
-    range_team = str()
-    range_discord = str()
-    range_discord_id = str()
-    range_rank = str()
-    range_bws_rank = str()
-    range_osu_id = str()
-    range_pp = str()
-    range_country = str()
-    range_timezone = str()
-    max_range_for_teams = int(0)
 
 
 class TeamNotFound(commands.CommandError):

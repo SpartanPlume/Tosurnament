@@ -697,26 +697,17 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if not tosurnament_guild:
                 tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild_id, guild_id_snowflake=guild_id))
             elif tosurnament_guild.last_notification_date:
-                previous_notification_date = datetime.datetime.strptime(
-                    tosurnament_guild.last_notification_date, tosurnament.DATABASE_DATE_FORMAT
-                )
-                delta = now - previous_notification_date
+                delta = now - tosurnament_guild.last_notification_date
                 if (
                     delta.days == 0
                     and delta.seconds < 900
                     and int(now.minute / 15) == int(previous_notification_date.minute / 15)
                 ):
                     return
-            tosurnament_guild.last_notification_date = now.strftime(tosurnament.DATABASE_DATE_FORMAT)
+            tosurnament_guild.last_notification_date = now
             tosurnament_api.update_guild(tosurnament_guild)
             await self.match_notification(guild, tournament)
-        except asyncio.CancelledError:
-            if previous_notification_date:
-                tosurnament_guild.last_notification_date = previous_notification_date.strftime(
-                    tosurnament.DATABASE_DATE_FORMAT
-                )
-                tosurnament_api.update_guild(tosurnament_guild)
-        except (tosurnament.SpreadsheetHttpError, tosurnament.DateIsNotString):
+        except (asyncio.CancelledError, tosurnament.SpreadsheetHttpError, tosurnament.DateIsNotString):
             return
         except Exception as e:
             self.bot.info_exception(e)

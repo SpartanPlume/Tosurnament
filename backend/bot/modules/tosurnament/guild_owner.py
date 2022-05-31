@@ -39,6 +39,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             tournament.current_bracket.name = bracket_name
             tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", acronym, name, bracket_name)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     @create_tournament.error
     async def create_tournament_handler(self, ctx, error):
@@ -55,6 +56,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             message_id=message.id, author_id=str(ctx.author.id), tournament_id=tournament.id
         )
         self.bot.session.add(end_tournament_message)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     @on_raw_reaction_with_context("add", valid_emojis=["✅", "❎"])
     @with_corresponding_message(EndTournamentMessage)

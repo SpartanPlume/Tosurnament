@@ -46,6 +46,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
             setattr(players_spreadsheet, key, value)
         tosurnament_api.update_players_spreadsheet(tournament.id, tournament.current_bracket.id, players_spreadsheet)
         await self.send_reply(ctx, "success", value)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     async def set_players_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""

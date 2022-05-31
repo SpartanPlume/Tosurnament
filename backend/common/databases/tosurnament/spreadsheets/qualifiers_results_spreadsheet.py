@@ -1,5 +1,7 @@
 """Qualifiers results spreadsheet table"""
 
+from encrypted_mysqldb.fields import StrField
+
 from .base_spreadsheet import BaseSpreadsheet
 from common.api.spreadsheet import (
     find_corresponding_cell_best_effort,
@@ -14,10 +16,8 @@ class QualifiersResultsSpreadsheet(BaseSpreadsheet):
         super().__init__(session, *args, **kwargs)
         self._type = "qualifiers_results"
 
-    __tablename__ = "qualifiers_results_spreadsheet"
-
-    range_osu_id = str()
-    range_score = str()
+    range_osu_id = StrField()
+    range_score = StrField()
 
 
 class QualifiersResultInfo:

@@ -48,6 +48,7 @@ class TosurnamentSchedulesSpreadsheetCog(tosurnament.TosurnamentBaseModule, name
             tournament.id, tournament.current_bracket.id, schedules_spreadsheet
         )
         await self.send_reply(ctx, "success", value)
+        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
 
     async def set_schedules_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""

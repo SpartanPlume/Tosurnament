@@ -1,19 +1,17 @@
 """Token class"""
 
-from mysqldb_wrapper import Base, Id
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import StrField, HashField, DatetimeField
 
 
-class Token(Base):
+class Token(Table):
     """Token class"""
 
-    __tablename__ = "token"
-
-    id = Id()
-    session_token = bytes()
-    discord_user_id = str()
-    access_token = str()
-    token_type = str()
-    access_token_expiry_date = int()
-    refresh_token = str()
-    scope = str()
-    expiry_date = int()
+    session_token = HashField()
+    discord_user_id = StrField()
+    access_token = StrField()
+    token_type = StrField()
+    access_token_expiry_date = DatetimeField()
+    refresh_token = StrField()
+    scope = StrField()
+    expiry_date = DatetimeField()

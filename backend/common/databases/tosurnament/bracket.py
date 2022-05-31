@@ -1,6 +1,7 @@
 """Bracket table"""
 
-from mysqldb_wrapper import Base, Id
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import IdField, StrField, IntField, DatetimeField
 from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import SchedulesSpreadsheet
 from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
@@ -8,10 +9,8 @@ from common.databases.tosurnament.spreadsheets.qualifiers_results_spreadsheet im
 from common.api import challonge
 
 
-class Bracket(Base):
+class Bracket(Table):
     """Bracket class"""
-
-    __tablename__ = "bracket"
 
     def __init__(self, session=None, *args, **kwargs):
         super().__init__(session, *args, **kwargs)
@@ -21,22 +20,21 @@ class Bracket(Base):
         self._qualifiers_results_spreadsheet = None
         self._challonge_tournament = None
 
-    id = Id()
-    tournament_id = Id()
-    name = str()
-    role_id = str()
-    challonge = str()
-    players_spreadsheet_id = Id(-1)
-    schedules_spreadsheet_id = Id(-1)
-    qualifiers_spreadsheet_id = Id(-1)
-    qualifiers_results_spreadsheet_id = Id(-1)
-    post_result_channel_id = str()
-    current_round = str()
-    minimum_rank = int(0)
-    maximum_rank = int(0)
-    registration_end_date = str()
-    created_at = int()
-    updated_at = int()
+    tournament_id = IdField()
+    name = StrField()
+    role_id = StrField()
+    challonge = StrField()
+    players_spreadsheet_id = IdField(-1)
+    schedules_spreadsheet_id = IdField(-1)
+    qualifiers_spreadsheet_id = IdField(-1)
+    qualifiers_results_spreadsheet_id = IdField(-1)
+    post_result_channel_id = StrField()
+    current_round = StrField()
+    minimum_rank = IntField()
+    maximum_rank = IntField()
+    registration_end_date = StrField()
+    created_at = DatetimeField()
+    updated_at = DatetimeField()
     # TODO set_all_post_result_channel
 
     def get_spreadsheet_from_type(self, spreadsheet_type):

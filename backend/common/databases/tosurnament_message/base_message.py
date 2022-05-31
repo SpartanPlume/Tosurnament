@@ -2,40 +2,30 @@
 
 import functools
 from discord.ext import commands
-from mysqldb_wrapper import Base, Id
 from common.api.spreadsheet import spreadsheet
-from mysqldb_wrapper import crypt
+
+from encrypted_mysqldb.table import Table
+from encrypted_mysqldb.fields import HashField, BoolField, DatetimeField
 
 
-class BaseMessage(Base):
+class BaseMessage(Table):
     """Base message class"""
 
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        cls.id = Id()
-        cls.message_id = bytes()
-        cls.created_at = int()
-        cls.updated_at = int()
+    message_id = HashField()
+    created_at = DatetimeField()
+    updated_at = DatetimeField()
 
 
 class BaseLockMessage(BaseMessage):
     """Base lock message class"""
 
-    __tablename__ = ""
-
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        cls.locked = bool()
+    locked = BoolField()
 
 
 class BaseAuthorLockMessage(BaseLockMessage):
     """Base author lock message class"""
 
-    __tablename__ = ""
-
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-        cls.author_id = bytes()
+    author_id = HashField()
 
 
 def with_corresponding_message(message_cls):
@@ -44,13 +34,11 @@ def with_corresponding_message(message_cls):
         async def wrapper(*args, **kwargs):
             session = args[0].bot.session
             ctx = args[1]
-            message_obj = session.query(message_cls).where(message_cls.message_id == ctx.message.id).first()
+            message_query = session.query(message_cls).where(message_cls.message_id == ctx.message.id)
+            if issubclass(message_cls, BaseAuthorLockMessage):
+                message_query.where(message_cls.author_id == ctx.author.id)
+            message_obj = message_query.first()
             if not message_obj:
-                return
-            if (
-                isinstance(message_obj, BaseAuthorLockMessage)
-                and crypt.hash_value(str(ctx.author.id)) != message_obj.author_id
-            ):
                 return
             if isinstance(message_obj, BaseLockMessage):
                 if message_obj.locked:

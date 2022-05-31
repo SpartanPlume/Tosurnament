@@ -1,10 +1,11 @@
 import datetime
 
 from flask.views import MethodView
-from flask import request, current_app
+from flask import request
 
 from server.api.globals import db, exceptions
-from server.api.utils import is_authorized
+from server.api.utils import is_authorized, check_body_fields, assert_str_field_length, assert_int_field
+from server.api import logger
 from common.databases.tosurnament.allowed_reschedule import AllowedReschedule
 
 
@@ -56,29 +57,45 @@ class AllowedReschedulesResource(MethodView):
             ]
         }
 
+    def assert_validate_body(self, body):
+        assert_str_field_length(body, "match_id", 32)
+        assert_int_field(body, "allowed_hours", 1, 72)
+
+    @check_body_fields(AllowedReschedule)
     @is_authorized(user=True)
     def put(self, tournament_id, allowed_reschedule_id):
         allowed_reschedule = self._get_object(tournament_id, allowed_reschedule_id)
-        allowed_reschedule.update(**request.json)
+        body = request.json
+        if "tournament_id" in body:
+            if tournament_id != body["tournament_id"]:
+                raise exceptions.BadRequest("tournament_id cannot be updated")
+            del body["tournament_id"]
+        if "match_id" in body:
+            if allowed_reschedule.match_id != body["match_id"]:
+                raise exceptions.BadRequest("match_id cannot be updated")
+            del body["match_id"]
+        self.assert_validate_body(body)
+        allowed_reschedule.update(**body)
         db.update(allowed_reschedule)
-        current_app.logger.debug(
-            "The allowed reschedule {0} for match id {1} has been updated successfully.".format(
+        logger.debug(
+            "Allowed reschedule {0} for match id {1} has been updated".format(
                 allowed_reschedule_id, allowed_reschedule.match_id
             )
         )
         return {}, 204
 
+    @check_body_fields(AllowedReschedule, mandatory_fields=["match_id"])
     @is_authorized(user=True)
     def post(self, tournament_id):
         body = request.json
-        if not body or not body["match_id"]:
-            raise exceptions.MissingRequiredInformation()
         if "tournament_id" in body:
+            if tournament_id != body["tournament_id"]:
+                raise exceptions.BadRequest("tournament_id in body and request do not match")
             del body["tournament_id"]
         allowed_reschedule = AllowedReschedule(**body, tournament_id=tournament_id)
         db.add(allowed_reschedule)
-        current_app.logger.debug(
-            "The allowed reschedule {0} for match id {1} has been created successfully.".format(
+        logger.debug(
+            "Allowed reschedule {0} for match id {1} has been created".format(
                 allowed_reschedule.id, allowed_reschedule.match_id
             )
         )
@@ -90,8 +107,8 @@ class AllowedReschedulesResource(MethodView):
             return self.delete_all(tournament_id)
         allowed_reschedule = self._get_object(tournament_id, allowed_reschedule_id)
         db.delete(allowed_reschedule)
-        current_app.logger.debug(
-            "The allowed reschedule {0} for match id {1} has been deleted successfully.".format(
+        logger.debug(
+            "Allowed reschedule {0} for match id {1} has been deleted".format(
                 allowed_reschedule_id, allowed_reschedule.match_id
             )
         )
@@ -106,11 +123,11 @@ class AllowedReschedulesResource(MethodView):
                 .all()
             )
         except AttributeError:
-            raise exceptions.BadRequest()
+            raise exceptions.BadRequest("Invalid arguments are present in the request")
         for allowed_reschedule in allowed_reschedules:
             db.delete(allowed_reschedule)
-            current_app.logger.debug(
-                "The allowed reschedule {0} for match id {1} has been deleted successfully.".format(
+            logger.debug(
+                "Allowed reschedule {0} for match id {1} has been deleted".format(
                     allowed_reschedule.id, allowed_reschedule.match_id
                 )
             )

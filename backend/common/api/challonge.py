@@ -248,8 +248,7 @@ def add_participant_to_tournament(tournament_id, participant_name):
             data={"participant[name]": participant_name},
             headers={"User-Agent": "My User Agent 1.0"},
         )
-    except requests.exceptions.RequestException as e:
-        print(e)
+    except requests.exceptions.RequestException:
         raise ServerError()
     p = r.json()
     if "errors" in p and p["errors"][0] == "Name has already been taken":

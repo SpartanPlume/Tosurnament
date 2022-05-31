@@ -1,8 +1,11 @@
+import re
+
 from flask.views import MethodView
-from flask import request, current_app
+from flask import request
 
 from server.api.globals import db, exceptions
-from server.api.utils import is_authorized
+from server.api.utils import is_authorized, check_body_fields, assert_str_field_length, DATABASE_DATE_REGEX
+from server.api import logger
 from common.databases.tosurnament.bracket import Bracket
 
 
@@ -31,13 +34,14 @@ def delete_bracket_and_associated_spreadsheets(bracket):
             spreadsheet = db.query(spreadsheet_class).where(id=spreadsheet_id).first()
             if spreadsheet:
                 db.delete(spreadsheet)
-                current_app.logger.debug(
-                    "The {0} spreadsheet {1} has been deleted successfully.".format(
-                        spreadsheet_type.replace("_", " "), spreadsheet_id
+                logger.debug(
+                    "{0} spreadsheet {1} has been deleted".format(
+                        spreadsheet_type.replace("_", " ").capitalize(), spreadsheet_id
                     )
                 )
+    bracket_id = bracket.id
     db.delete(bracket)
-    current_app.logger.debug("The bracket {0} has been deleted successfully.".format(bracket.id))
+    logger.debug("Bracket {0} has been deleted".format(bracket_id))
 
 
 class BracketsResource(MethodView):
@@ -67,24 +71,49 @@ class BracketsResource(MethodView):
             "brackets": [bracket.get_api_dict() for bracket in db.query(Bracket).where(**request.args.to_dict()).all()]
         }
 
+    def assert_validate_body(self, body):
+        assert_str_field_length(body, "name", 128, min_length=1)
+        assert_str_field_length(body, "role_id", 32)
+        assert_str_field_length(body, "challonge", 64)
+        assert_str_field_length(body, "post_result_channel_id", 32)
+        assert_str_field_length(body, "current_round", 16)
+        if "registration_end_date" in body and body["registration_end_date"]:
+            if not re.match(DATABASE_DATE_REGEX, body["registration_end_date"]):
+                raise exceptions.InvalidFieldValue("registration_end_date")
+        for spreadsheet_type in Bracket.get_spreadsheet_types().keys():
+            spreadsheet_id_field = spreadsheet_type + "_id"
+            if spreadsheet_id_field in body:
+                bracket_with_id = db.query(Bracket).where((spreadsheet_id_field, body[spreadsheet_id_field])).first()
+                if bracket_with_id:
+                    raise exceptions.InvalidFieldValue(spreadsheet_id_field)
+
+    @check_body_fields(Bracket)
     @is_authorized(user=True)
     def put(self, tournament_id, bracket_id):
         bracket = self._get_object(tournament_id, bracket_id)
-        bracket.update(**request.json)
+        body = request.json
+        if "tournament_id" in body:
+            if tournament_id != body["tournament_id"]:
+                raise exceptions.BadRequest("tournament_id cannot be updated")
+            del body["tournament_id"]
+        self.assert_validate_body(body)
+        bracket.update(**body)
         db.update(bracket)
-        current_app.logger.debug("The bracket {0} has been updated successfully.".format(bracket_id))
+        logger.debug("Bracket {0} has been updated".format(bracket_id))
         return {}, 204
 
+    @check_body_fields(Bracket, mandatory_fields=["name"])
     @is_authorized(user=True)
     def post(self, tournament_id):
         body = request.json
-        if not body or not body["name"]:
-            raise exceptions.MissingRequiredInformation()
         if "tournament_id" in body:
+            if tournament_id != body["tournament_id"]:
+                raise exceptions.BadRequest("tournament_id in body and request do not match")
             del body["tournament_id"]
+        self.assert_validate_body(body)
         bracket = Bracket(**body, tournament_id=tournament_id)
         db.add(bracket)
-        current_app.logger.debug("The bracket {0} has been created successfully.".format(bracket.id))
+        logger.debug("Bracket {0} has been created".format(bracket.id))
         return bracket.get_api_dict(), 201
 
     @is_authorized(user=True)
