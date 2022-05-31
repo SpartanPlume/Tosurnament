@@ -3,7 +3,7 @@ from flask import request, current_app, g
 
 def get_string_with_session_id(string):
     session_id = "BOT"
-    if "token" in g:
+    if "token" in g and g.token:
         session_id = str(g.token.discord_user_id)
     # TODO
     # elif request.headers

@@ -519,12 +519,17 @@ qualifiers_spreadsheets_ids_map = {}
 qualifiers_results_spreadsheets_ids_map = {}
 schedules_spreadsheets_ids_map = {}
 bracket_ids_map = {}
+guild_ids = []
 
 for guild in guilds:
+    if guild["guild_id_snowflake"] in guild_ids:
+        continue
+    guild_ids.append(guild["guild_id_snowflake"])
     guild["created_at"] = datetime.datetime.utcnow()
     guild["updated_at"] = datetime.datetime.utcnow()
     guild["last_notification_date"] = datetime.datetime.utcnow()
     guild = db.add(Guild(**guild))
+
 
 for tournament in tournaments:
     previous_id = int(tournament["id"])
