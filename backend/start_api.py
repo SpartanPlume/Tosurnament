@@ -4,7 +4,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import inspect
 import requests_cache
-from flask import Flask
+from flask import Flask, g
 from flask_cors import CORS
 from server.api.v1.tosurnament.token import TokenResource
 from server.api.v1.tosurnament.token.revoke import RevokeTokenResource
@@ -57,6 +57,12 @@ for handler in db_logger.handlers:
     db_logger.removeHandler(handler)
 db_logger.addHandler(logging_handler)
 db_logger.setLevel(logging.DEBUG)
+
+
+@app.before_request
+def clear_g():
+    g.token = None
+
 
 # @app.after_request
 # def apply_caching(response):
