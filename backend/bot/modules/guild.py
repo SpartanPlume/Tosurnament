@@ -17,11 +17,12 @@ class GuildCog(base.BaseModule, name="guild"):
         self.bot = bot
 
     def cog_check(self, ctx):
-        return self.guild_owner_cog_check(ctx)
+        return self.admin_cog_check(ctx)
 
     @commands.command(aliases=["sar"])
     async def set_admin_role(self, ctx, *, role: discord.Role):
         """Sets the bot admin role."""
+        self.guild_owner_cog_check(ctx)
         await self.set_guild_values(ctx, {"admin_role_id": str(role.id)})
 
     @commands.command(aliases=["svr"])
