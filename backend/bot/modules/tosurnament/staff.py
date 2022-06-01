@@ -697,7 +697,8 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             if not tosurnament_guild:
                 tosurnament_guild = tosurnament_api.create_guild(Guild(guild_id=guild_id, guild_id_snowflake=guild_id))
             elif tosurnament_guild.last_notification_date:
-                delta = now - tosurnament_guild.last_notification_date
+                previous_notification_date = tosurnament_guild.last_notification_date
+                delta = now - previous_notification_date
                 if (
                     delta.days == 0
                     and delta.seconds < 900
