@@ -4,6 +4,10 @@
     "parameter": "<discord_id/mention>",
     "example_parameter": "100648380174192640",
     "success": "__Discord ID:__ %1\n__osu! ID:__ %2\n__osu! name:__ %3\n__osu! previous name:__ %4\n__Verified:__ %5"
+  },
+  "dashboard": {
+    "help": "Sends the dashboard link of the guild",
+    "success": "Dashboard link for this guild: https://dashboard.tosurnament.com/guilds/%1"
   }
 }
   

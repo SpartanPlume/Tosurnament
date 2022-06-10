@@ -30,6 +30,10 @@ class AdminCog(base.BaseModule, name="admin"):
             str(user.verified),
         )
 
+    @commands.command(aliases=["setting", "settings"])
+    async def dashboard(self, ctx):
+        await self.send_reply(ctx, "success", ctx.guild.id)
+
 
 def get_class(bot):
     """Returns the main class of the module."""
