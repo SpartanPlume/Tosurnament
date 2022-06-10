@@ -410,13 +410,13 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         reschedule_message.ally_user_id = str(ctx.author.id)
         reschedule_message.opponent_user_id = str(opponent_team_captain.id)
         if previous_date:
-            previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
-            reschedule_message.previous_date = previous_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+            reschedule_message.previous_date = str(int(previous_date.timestamp()))
+            previous_date_string = "<t:{0}:F>".format(reschedule_message.previous_date)
         else:
-            previous_date_string = self.get_string(ctx, "no_previous_date")
             reschedule_message.previous_date = ""
-        new_date_string = self.get_pretty_date(ctx, tournament, new_date)
-        reschedule_message.new_date = new_date.strftime(tosurnament.DATABASE_DATE_FORMAT)
+            previous_date_string = self.get_string(ctx, "no_previous_date")
+        reschedule_message.new_date = str(int(new_date.timestamp()))
+        new_date_string = "<t:{0}:F>".format(reschedule_message.new_date)
         sent_message = await self.send_reply(
             ctx,
             "success",
@@ -533,13 +533,10 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         match_info = MatchInfo.from_id(schedules_spreadsheet, match_id)
 
         if reschedule_message.previous_date:
-            previous_date = datetime.datetime.strptime(
-                reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
-            )
-            previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
+            previous_date_string = "<t:{0}:F>".format(reschedule_message.previous_date)
         else:
             previous_date_string = self.get_string(ctx, "no_previous_date")
-        new_date = datetime.datetime.strptime(reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
+        new_date = datetime.datetime.fromtimestamp(int(reschedule_message.new_date), datetime.timezone.utc)
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format
@@ -565,7 +562,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         streamers_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.streamers)
         commentators_to_ping, _ = self.find_staff_to_ping(ctx.guild, match_info.commentators)
 
-        new_date_string = self.get_pretty_date(ctx, tournament, new_date)
+        new_date_string = "<t:{0}:F>".format(reschedule_message.new_date)
         staff_channel = None
         if tournament.staff_channel_id:
             staff_channel = self.bot.get_channel(int(tournament.staff_channel_id))

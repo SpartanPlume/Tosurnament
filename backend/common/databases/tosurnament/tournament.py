@@ -69,7 +69,7 @@ class Tournament(Table):
     def get_role_id(self, role_name):
         field = role_name.lower().replace(" ", "_") + "_role_id"
         try:
-            return vars(self)[field]
+            return getattr(self, field)
         except KeyError:
             return None
 

@@ -327,7 +327,7 @@ def is_guild_owner():
 def get_role(roles, role_id=None, role_name=None):
     """Gets a role from its id or name."""
     for role in roles:
-        if role_id and role.id == int(role_id):
+        if role_id and str(role.id) == role_id:
             return role
         if role_name and role.name == role_name:
             return role

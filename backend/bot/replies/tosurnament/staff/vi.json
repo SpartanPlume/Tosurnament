@@ -92,7 +92,7 @@
   },
   "qualifier_match_notification": {
     "common_begin": "_ _\n**__Vòng loại - Phòng %1__\n\n%2**\n\n__Trọng tài:__ ",
-    "common_end": "\n\nPhòng này sẽ bắt đầu chơi sau %4 phút.",
+    "common_end": "\n\nPhòng này sẽ bắt đầu chơi <t:%4:R>.",
     "notification": "$./common_begin%3$./common_end",
     "notification_no_referee": "$./common_begin**Không có Trọng tài** (%3, nếu bạn muốn lấy phòng này, thêm biểu cảm :muscle:)$./common_end",
     "notification_no_referre_no_role": "$./common_begin**Không có Trọng tài** (và không tìm thấy vai trò Trọng tài)$./common_end",
@@ -100,15 +100,15 @@
   },
   "player_match_notification": {
     "common_begin": "_ _\n**__Trận %1__\n%2 vs %3**\n\n__Trọng tài:__ ",
-    "common_end": "\n\nTrận đấu này sẽ bắt đầu sau %5 phút.",
+    "common_end": "\n\nTrận đấu này sẽ bắt đầu <t:%5:R>.",
     "notification": "$./common_begin%4$./common_end",
     "notification_no_referee": "$./common_begin**Không có Trọng tài** (%3, nếu bạn muốn lấy phòng này, thêm biểu cảm :muscle:)$./common_end",
     "notification_no_referre_no_role": "$./common_begin**Không có Trọng tài** (và không tìm thấy vai trò Trọng tài)$./common_end",
     "edited": "$./common_begin%6$./common_end\n\n*Tái bút: Không cần %4 nữa.*"
   },
   "referee_match_notification": {
-    "common": "_ _\n**__Trận %1__**\n%5\n%2 vs %3",
-    "description": "**%4, trận đấu này sẽ bắt đầu trong \\~6 tiếng nữa mà chưa có trọng tài.**\nNếu bạn muốn điều khiển trận này, thêm biểu cảm :muscle:",
+    "common": "_ _\n**__Trận %1__**\n<t:%5:F>\n%2 vs %3",
+    "description": "**%4, trận đấu này sẽ bắt đầu trong <t:%5:R> nữa mà chưa có trọng tài.**\nNếu bạn muốn điều khiển trận này, thêm biểu cảm :muscle:",
     "notification": "$./common\n\n$./description",
     "edited": "$./common\n\n~~$./description~~\n\nTrận này đã được %6 nhận."
   },

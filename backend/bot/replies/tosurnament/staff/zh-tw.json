@@ -92,7 +92,7 @@
     },
     "qualifier_match_notification": {
       "common_begin": "_ _\n**__預選賽場次 %1__\n\n%2**\n\n__裁判:__ ",
-      "common_end": "\n\n此房間即將在 %4 分鐘後開始。",
+      "common_end": "\n\n此房間即將在 <t:%4:R> 開始。",
       "notification": "$./common_begin%3$./common_end",
       "notification_no_referee": "$./common_begin**無裁判** (%3，如果你想要接取此場次，請使用 :muscle: 反應。)$./common_end",
       "notification_no_referre_no_role": "$./common_begin**無裁判** (並且沒有任何裁判身分組。)$./common_end",
@@ -100,15 +100,15 @@
     },
     "player_match_notification": {
       "common_begin": "_ _\n**__場次 %1__\n%2 vs %3**\n\n__裁判:__ ",
-      "common_end": "\n\n此比賽即將在 %5 分鐘後開始。",
+      "common_end": "\n\n此比賽即將在 <t:%5:R> 開始。",
       "notification": "$./common_begin%4$./common_end",
       "notification_no_referee": "$./common_begin**無裁判** (%4，如果你想要接取此場次，請使用 :muscle: 反應。)$./common_end",
       "notification_no_referre_no_role": "$./common_begin**無裁判** (並且沒有任何裁判身分組。)$./common_end",
       "edited": "$./common_begin%6$./common_end\n\n*註: 已不需要 %4 。*"
     },
     "referee_match_notification": {
-      "common": "_ _\n**__場次 %1__**\n%5\n%2 vs %3",
-      "description": "**%4，此場次即將在 \\6小時內開始且沒有任何裁判。**\n如果你想要接取此場次，請使用 :muscle: 反應。",
+      "common": "_ _\n**__場次 %1__**\n<t:%5:F>\n%2 vs %3",
+      "description": "**%4，此場次即將在 <t:%5:R>開始且沒有任何裁判。**\n如果你想要接取此場次，請使用 :muscle: 反應。",
       "notification": "$./common\n\n$./description",
       "edited": "$./common\n\n~~$./description~~\n\n此場次已被 %6 接取。"
     },

@@ -407,7 +407,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 tmp_reply_string += (
                     escape_markdown(match_info.team1.get()) + " vs " + escape_markdown(match_info.team2.get()) + "\n"
                 )
-                tmp_reply_string += self.get_pretty_date(ctx, tournament, match_date) + "\n\n"
+                tmp_reply_string += "<t:{0}:F>".format(int(match_date.timestamp())) + "\n\n"
                 referees = list(filter(None, [cell.get() for cell in match_info.referees]))
                 tmp_reply_string += "__" + self.get_string(ctx, "referee") + ":__ "
                 if referees:
@@ -422,7 +422,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                     tmp_reply_string += "\n__" + self.get_string(ctx, "commentator") + ":__ " + "/".join(commentators)
             else:
                 tmp_reply_string += "**" + self.get_string(ctx, "qualifier") + " " + match_info.lobby_id.get() + "**"
-                tmp_reply_string += " at " + self.get_pretty_date(ctx, tournament, match_date) + ":\n\n"
+                tmp_reply_string += " on <t:{0}:F>:\n\n".format(int(match_date.timestamp()))
                 tmp_reply_string += "__" + self.get_string(ctx, "teams") + ":__ "
                 teams = [escape_markdown(team_cell.get()) for team_cell in match_info.teams if team_cell.get()]
                 if teams:
@@ -464,7 +464,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             self.bot.info(str(type(e)) + ": " + str(e))
             return escape_markdown(team_name)
 
-    async def qualifier_match_notification(self, guild, tournament, bracket, channel, lobby_info, delta):
+    async def qualifier_match_notification(self, guild, tournament, bracket, channel, lobby_info, match_date, delta):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
         players_spreadsheet = await bracket.get_players_spreadsheet()
@@ -496,7 +496,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             else:
                 referee = ""
                 notification_type = "notification_no_referre_no_role"
-        minutes_before_match = str(int(delta.seconds / 60) + 1)
+        match_date_timestamp = str(int(match_date.timestamp()))
         teams_mentions = "\n".join(teams)
         message = await self.send_reply_in_bg_task(
             guild,
@@ -506,7 +506,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             lobby_info.lobby_id.get(),
             teams_mentions,
             referee,
-            minutes_before_match,
+            match_date_timestamp,
         )
         if referee_role:
             match_notification = MatchNotification(
@@ -516,7 +516,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 bracket_id=bracket.id,
                 match_id=lobby_info.lobby_id.get(),
                 teams_mentions=teams_mentions,
-                date_info=minutes_before_match,
+                date_info=match_date_timestamp,
                 notification_type=2,
             )
             self.bot.session.add(match_notification)
@@ -527,7 +527,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
 
-    async def player_match_notification(self, guild, tournament, bracket, channel, match_info, delta):
+    async def player_match_notification(self, guild, tournament, bracket, channel, match_info, match_date, delta):
         if not (delta.days == 0 and delta.seconds >= 900 and delta.seconds < 1800):
             return
         players_spreadsheet = await bracket.get_players_spreadsheet()
@@ -554,7 +554,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             else:
                 referee = ""
                 notification_type = "notification_no_referre_no_role"
-        minutes_before_match = str(int(delta.seconds / 60) + 1)
+        match_date_timestamp = str(int(match_date.timestamp()))
         message = await self.send_reply_in_bg_task(
             guild,
             channel,
@@ -564,7 +564,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             team1,
             team2,
             referee,
-            minutes_before_match,
+            match_date_timestamp,
         )
         if referee_role:
             match_notification = MatchNotification(
@@ -575,7 +575,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 match_id=match_info.match_id.get(),
                 team1_mention=team1,
                 team2_mention=team2,
-                date_info=minutes_before_match,
+                date_info=match_date_timestamp,
                 notification_type=0,
             )
             self.bot.session.add(match_notification)
@@ -586,7 +586,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         except Exception as e:
             self.bot.info(str(type(e)) + ": " + str(e))
 
-    async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, delta, match_date):
+    async def referee_match_notification(self, guild, tournament, bracket, channel, match_info, match_date, delta):
         if list(filter(None, [cell for cell in match_info.referees])):
             return
         if not (delta.days == 0 and delta.seconds >= 20700 and delta.seconds < 21600):
@@ -596,7 +596,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             referee = referee_role.mention
         else:
             referee = self.get_simple_string(guild, "referee")
-        match_date_str = self.get_pretty_date_for_guild(guild, tournament, match_date)
+        match_date_timestamp = str(int(match_date.timestamp()))
         team1 = escape_markdown(match_info.team1.get())
         team2 = escape_markdown(match_info.team2.get())
         message = await self.send_reply_in_bg_task(
@@ -608,7 +608,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             team1,
             team2,
             referee,
-            match_date_str,
+            match_date_timestamp,
         )
         match_notification = MatchNotification(
             message_id_int=message.id,
@@ -618,7 +618,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             match_id=match_info.match_id.get(),
             team1_mention=team1,
             team2_mention=team2,
-            date_info=match_date_str,
+            date_info=match_date_timestamp,
             notification_type=1,
         )
         self.bot.session.add(match_notification)
@@ -660,11 +660,17 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         delta = match_date - now
                         if player_match_notification_channel:
                             await self.player_match_notification(
-                                guild, tournament, bracket, player_match_notification_channel, match_info, delta
+                                guild,
+                                tournament,
+                                bracket,
+                                player_match_notification_channel,
+                                match_info,
+                                match_date,
+                                delta,
                             )
                         if staff_channel:
                             await self.referee_match_notification(
-                                guild, tournament, bracket, staff_channel, match_info, delta, match_date
+                                guild, tournament, bracket, staff_channel, match_info, match_date, delta
                             )
             if qualifiers_spreadsheet := await bracket.get_qualifiers_spreadsheet(retry=True):
                 lobby_ids = qualifiers_spreadsheet.spreadsheet.get_cells_with_value_in_range(
@@ -685,7 +691,13 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                         delta = lobby_date - now
                         if player_match_notification_channel:
                             await self.qualifier_match_notification(
-                                guild, tournament, bracket, player_match_notification_channel, lobby_info, delta
+                                guild,
+                                tournament,
+                                bracket,
+                                player_match_notification_channel,
+                                lobby_info,
+                                match_date,
+                                delta,
                             )
 
     async def match_notification_wrapper(self, guild, tournament):
@@ -868,14 +880,10 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             self.bot.session.update(staff_reschedule_message)
 
             if staff_reschedule_message.previous_date:
-                previous_date = datetime.datetime.strptime(
-                    staff_reschedule_message.previous_date, tosurnament.DATABASE_DATE_FORMAT
-                )
-                previous_date_string = self.get_pretty_date(ctx, tournament, previous_date)
+                previous_date_string = "<t:{0}:F>".format(staff_reschedule_message.previous_date)
             else:
                 previous_date_string = self.get_string(ctx, "no_previous_date")
-            new_date = datetime.datetime.strptime(staff_reschedule_message.new_date, tosurnament.DATABASE_DATE_FORMAT)
-            new_date_string = self.get_pretty_date(ctx, tournament, new_date)
+            new_date_string = "<t:{0}:F>".format(staff_reschedule_message.new_date)
             message = await ctx.channel.fetch_message(ctx.message.id)
             referees = [
                 referee.mention

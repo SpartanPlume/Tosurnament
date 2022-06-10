@@ -92,7 +92,7 @@
   },
   "qualifier_match_notification": {
     "common_begin": "_ _\n**__Qualifier lobby %1__\n\n%2**\n\n__Referee:__ ",
-    "common_end": "\n\nThis lobby will start in %4 minutes.",
+    "common_end": "\n\nThis lobby will start <t:%4:R>.",
     "notification": "$./common_begin%3$./common_end",
     "notification_no_referee": "$./common_begin**No Referee** (%3, if you want to take this lobby, react with :muscle:)$./common_end",
     "notification_no_referre_no_role": "$./common_begin**No Referee** (and referee role not found)$./common_end",
@@ -100,15 +100,15 @@
   },
   "player_match_notification": {
     "common_begin": "_ _\n**__Match %1__\n%2 vs %3**\n\n__Referee:__ ",
-    "common_end": "\n\nThis match will start in %5 minutes.",
+    "common_end": "\n\nThis match will start <t:%5:R>.",
     "notification": "$./common_begin%4$./common_end",
     "notification_no_referee": "$./common_begin**No Referee** (%4, if you want to take this match, react with :muscle:)$./common_end",
     "notification_no_referre_no_role": "$./common_begin**No Referee** (and referee role not found)$./common_end",
     "edited": "$./common_begin%6$./common_end\n\n*P.S: No need for a %4 anymore.*"
   },
   "referee_match_notification": {
-    "common": "_ _\n**__Match %1__**\n%5\n%2 vs %3",
-    "description": "**%4, this match will start in \\~6 hours and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
+    "common": "_ _\n**__Match %1__**\n<t:%5:F>\n%2 vs %3",
+    "description": "**%4, this match will start <t:%5:R> and does not have any referee.**\nIf you want to take this match, please react with :muscle:",
     "notification": "$./common\n\n$./description",
     "edited": "$./common\n\n~~$./description~~\n\nThis match has been taken by %6."
   },
