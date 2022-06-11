@@ -64,7 +64,7 @@ class TokenResource(MethodView):
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error = r.json()
-            raise exceptions.ExternalException(r.status_code, e.response.reason, error["message"])
+            raise exceptions.DiscordException(r.status_code, e.response.reason, error)
         except requests.exceptions.ConnectionError:
             raise exceptions.DiscordError()
         session_token = store_token(r.json())

@@ -86,11 +86,13 @@ def refresh_token_if_needed(token):
         }
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         try:
-            r = requests.post(endpoints.DISCORD_TOKEN + "/token", data=data, headers=headers)
+            r = requests.post(endpoints.DISCORD_TOKEN, data=data, headers=headers)
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error = r.json()
-            raise exceptions.ExternalException(r.status_code, e.response.reason, error["message"])
+            if r.status_code == 400:
+                db.delete(token)
+            raise exceptions.DiscordException(r.status_code, e.response.reason, error)
         except requests.exceptions.ConnectionError:
             raise exceptions.DiscordError()
         token.access_token = data["access_token"]
@@ -188,7 +190,7 @@ def assert_user_can_access_resource(discord_guild_id, admin_role_id=None):
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error = r.json()
-            raise exceptions.ExternalException(r.status_code, e.response.reason, error["message"])
+            raise exceptions.DiscordException(r.status_code, e.response.reason, error)
         except requests.exceptions.ConnectionError:
             raise exceptions.DiscordError()
         member = r.json()
@@ -199,7 +201,7 @@ def assert_user_can_access_resource(discord_guild_id, admin_role_id=None):
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
         error = r.json()
-        raise exceptions.ExternalException(r.status_code, e.response.reason, error["message"])
+        raise exceptions.DiscordException(r.status_code, e.response.reason, error)
     except requests.exceptions.ConnectionError:
         raise exceptions.DiscordError()
     guild = r.json()

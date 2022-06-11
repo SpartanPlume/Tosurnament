@@ -14,6 +14,18 @@ class ExternalException(ApiException):
         self.description = description
 
 
+class DiscordException(ExternalException):
+    def __init__(self, code, title, error):
+        self.code = code
+        self.title = title
+        error_message = "Unkown error"
+        if "message" in error:
+            error_message = error["message"]
+        elif "error" in error:
+            error_message = error["error"]
+        self.description = error_message
+
+
 class BadRequest(ApiException):
     code = 400
     title = "Bad Request"

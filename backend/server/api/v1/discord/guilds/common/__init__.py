@@ -18,7 +18,7 @@ class DiscordCommonGuildsResource(MethodView):
             r_bot.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error = r_bot.json()
-            raise exceptions.ExternalException(r_bot.status_code, e.response.reason, error["message"])
+            raise exceptions.DiscordException(r_bot.status_code, e.response.reason, error)
         except requests.exceptions.ConnectionError:
             raise exceptions.DiscordError()
         bot_guilds = r_bot.json()
@@ -28,7 +28,7 @@ class DiscordCommonGuildsResource(MethodView):
             r_user.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error = r_user.json()
-            raise exceptions.ExternalException(r_user.status_code, e.response.reason, error["message"])
+            raise exceptions.DiscordException(r_user.status_code, e.response.reason, error)
         except requests.exceptions.ConnectionError:
             raise exceptions.DiscordError()
         user_guilds = r_user.json()
