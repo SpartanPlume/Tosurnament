@@ -44,6 +44,13 @@
   "test_post_result_message": {
     "help": "Hiển thị tin nhắn đăng kết quả với các giá trị mặc định.",
     "parameter": "[<số_map_bị_cấm>] [<số_map_TB_bị_cấm>]",
-    "example_parameter": "2 2"
+    "example_parameter": "2 2",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   }
 }
