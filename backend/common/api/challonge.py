@@ -1,10 +1,21 @@
 """challonge API wrapper"""
 
-import requests
+import json
+import httplib2
 from discord.ext import commands
 from common.config import constants
 
 CHALLONGE_URL = "https://api.challonge.com/v1/"
+
+
+def request(method, url, headers={}, data={}):
+    headers["Content-Type"] = "application/json"
+    h = httplib2.Http()
+    h.add_credentials(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY)
+    (resp, content) = h.request(url, method, headers=headers, body=json.dumps(data))
+    if resp.status != 200:
+        raise ServerError()
+    return json.loads(content.decode("utf-8"))
 
 
 class ChallongeException(commands.CommandError):
@@ -63,14 +74,10 @@ class Tournament(Base):
         self._participants = None
 
     def start(self):
-        try:
-            r = requests.post(
-                CHALLONGE_URL + "tournaments/" + str(self.id) + "/start.json",
-                auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-            )
-        except requests.exceptions.RequestException:
-            raise ServerError()
-        t = r.json()
+        t = request(
+            "POST",
+            CHALLONGE_URL + "tournaments/" + str(self.id) + "/start.json",
+        )
         if "errors" in t:
             if t["errors"][0] == "Invalid state transition":
                 raise StartTournamentError()
@@ -98,14 +105,7 @@ class Tournament(Base):
     @property
     def matches(self):
         if self._matches is None:
-            try:
-                r = requests.get(
-                    CHALLONGE_URL + "tournaments/" + str(self.id) + "/matches.json",
-                    auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-                )
-            except requests.exceptions.RequestException:
-                raise ServerError()
-            m = r.json()
+            m = request("GET", CHALLONGE_URL + "tournaments/" + str(self.id) + "/matches.json")
             if "errors" in m:
                 raise NotFound()
             else:
@@ -160,15 +160,11 @@ class Match(Base):
         else:
             winner_id = self.player2_id
 
-        try:
-            r = requests.put(
-                CHALLONGE_URL + "tournaments/" + str(self.tournament_id) + "/matches/" + str(self.id) + ".json",
-                auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-                data={"match[scores_csv]": score, "match[winner_id]": winner_id},
-            )
-        except requests.exceptions.RequestException:
-            raise ServerError()
-        m = r.json()
+        m = request(
+            "PUT",
+            CHALLONGE_URL + "tournaments/" + str(self.tournament_id) + "/matches/" + str(self.id) + ".json",
+            data={"match": {"scores_csv": score, "winner_id": winner_id}},
+        )
         if "match" not in m:
             raise NoRights()
         new_object = Match(m["match"])
@@ -198,15 +194,11 @@ class Participant(Base):
         return self._match_score
 
     def update_name(self, new_name):
-        try:
-            r = requests.put(
-                CHALLONGE_URL + "tournaments/" + str(self.tournament_id) + "/participants/" + str(self.id) + ".json",
-                auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-                data={"participant[name]": new_name},
-            )
-        except requests.exceptions.RequestException:
-            raise ServerError()
-        p = r.json()
+        p = request(
+            "POST",
+            CHALLONGE_URL + "tournaments/" + str(self.tournament_id) + "/participants/" + str(self.id) + ".json",
+            data={"participant": {"name": new_name}},
+        )
         if "participant" not in p:
             raise NoRights()
         new_object = Participant(p["participant"])
@@ -227,30 +219,18 @@ def extract_tournament_id(tournament_id_url):
 
 
 def get_tournament(tournament_id):
-    try:
-        r = requests.get(
-            CHALLONGE_URL + "tournaments/" + str(tournament_id) + ".json",
-            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-        )
-    except requests.exceptions.RequestException:
-        raise ServerError()
-    t = r.json()
+    t = request("GET", CHALLONGE_URL + "tournaments/" + str(tournament_id) + ".json")
     if "tournament" in t:
         return Tournament(t["tournament"])
     raise NotFound()
 
 
 def add_participant_to_tournament(tournament_id, participant_name):
-    try:
-        r = requests.post(
-            CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants.json",
-            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-            data={"participant[name]": participant_name},
-            headers={"User-Agent": "My User Agent 1.0"},
-        )
-    except requests.exceptions.RequestException:
-        raise ServerError()
-    p = r.json()
+    p = request(
+        "POST",
+        CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants.json",
+        data={"participant": {"name": participant_name}},
+    )
     if "errors" in p and p["errors"][0] == "Name has already been taken":
         raise NameAlreadyTaken()
     if "participant" not in p:
@@ -258,14 +238,7 @@ def add_participant_to_tournament(tournament_id, participant_name):
 
 
 def get_participants(tournament_id):
-    try:
-        r = requests.get(
-            CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants.json",
-            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-        )
-    except requests.exceptions.RequestException:
-        raise ServerError()
-    p = r.json()
+    p = request("GET", CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants.json")
     if "errors" in p:
         raise NotFound()
     participants = []
@@ -275,15 +248,15 @@ def get_participants(tournament_id):
 
 
 def get_matches_of_participant(tournament_id, participant_id):
-    try:
-        r = requests.get(
-            CHALLONGE_URL + "tournaments/" + str(tournament_id) + "/participants/" + str(participant_id) + ".json",
-            auth=(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY),
-            params={"include_matches": "1"},
-        )
-    except requests.exceptions.RequestException:
-        raise ServerError()
-    p = r.json()
+    p = request(
+        "GET",
+        CHALLONGE_URL
+        + "tournaments/"
+        + str(tournament_id)
+        + "/participants/"
+        + str(participant_id)
+        + ".json?include_matches=1",
+    )
     if "participant" not in p:
         raise NotFound()
     matches = []

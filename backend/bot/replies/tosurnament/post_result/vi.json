@@ -29,22 +29,52 @@
   "post_result_with_scores": {
     "help": "Đăng kết quả một trận đấu",
     "parameter": "<id_trận> <điểm_đội1> <điểm_đội2>",
-    "example_parameter": "7 2 7"
+    "example_parameter": "7 2 7",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "post_result_one_liner": {
     "help": "Đăng kết quả một trận đấu",
     "parameter": "<id_trận> <điểm_đội1> <điểm_đội2> <best_of> <số_warmup> <(các)_đường_dẫn_mp>[ |'| <Map_bị_cấm>][ |'| <Map_TB_bị_cấm>]",
-    "example_parameter": "7 2 7 13 0 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2"
+    "example_parameter": "7 2 7 13 0 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "post_result_one_liner_with_rolls": {
     "help": "Đăng kết quả một trận đấu",
     "parameter": "<id_trận> <điểm_đội1> <điểm_đội2> <best_of> <roll_của_đội1> <roll_của_đội2> <số_warmup> <(các)_đường_dẫn_mp>[ |'| <Map_bị_cấm>][ |'| <Map_TB_bị_cấm>]",
-    "example_parameter": "7 2 7 13 69 96 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "example_parameter": "7 2 7 13 69 96 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "test_post_result_message": {
     "help": "Hiển thị tin nhắn đăng kết quả với các giá trị mặc định.",
     "parameter": "[<số_map_bị_cấm>] [<số_map_TB_bị_cấm>]",
     "example_parameter": "2 2",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
+  },
+  "answer": {
     "default": "$../post_result/default",
     "default_team1_with_score": "$../post_result/default_team1_with_score",
     "default_team2_with_score": "$../post_result/default_team2_with_score",

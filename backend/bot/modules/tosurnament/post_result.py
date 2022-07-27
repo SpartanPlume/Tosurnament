@@ -413,7 +413,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         if not schedules_spreadsheet:
             raise tosurnament.NoSpreadsheet("schedules")
         match_info = MatchInfo.from_id(schedules_spreadsheet, post_result_message.match_id, False)
-        prbuilder = await self.create_prbuilder(None, post_result_message, tournament, bracket, match_info, ctx)
+        prbuilder = await self.create_prbuilder(ctx, post_result_message, tournament, bracket, match_info, ctx)
         if tournament.post_result_message:
             result_string = tournament.post_result_message
         else:
@@ -613,7 +613,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             result_string = tournament.post_result_message
         else:
             result_string = self.get_string(ctx, "default")
-        result_string = prbuilder.build(result_string, self, tournament)
+        result_string = prbuilder.build(ctx, result_string, self, tournament)
         if bracket.challonge:
             await self.step8_challonge(ctx, tournament, error_channel, prbuilder)
         await self.step8_write_in_spreadsheet(bracket, match_info, prbuilder)
@@ -689,13 +689,14 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         step = emoji_steps.index(emoji.name) + 1
         try:
             if step == 8:
-                await self.step7_send_message(ctx.channel, tournament, post_result_message)
+                await self.step7_send_message(ctx, tournament, post_result_message)
             else:
                 await self.update_post_result_setup_message(ctx, post_result_message, step)
         except Exception as e:
             await self.on_cog_command_error(ctx, e)
 
     async def add_reaction_to_setup_message(self, message):
+        return  # Does not work because message id is too big for the database
         try:
             await message.add_reaction("1⃣")
             await message.add_reaction("2⃣")

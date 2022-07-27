@@ -29,22 +29,52 @@
   "post_result_with_scores": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2>",
-    "example_parameter": "12C 5 3"
+    "example_parameter": "12C 5 3",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "post_result_one_liner": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
-    "example_parameter": "12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2"
+    "example_parameter": "12C 5 3 9 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "post_result_one_liner_with_rolls": {
     "help": "Post the result of a match",
     "parameter": "<match_id> <score_team1> <score_team2> <best_of> <roll_team1> <roll_team2> <n_warmup> <mp_link(s)>[ |'| <bans>][ |'| <tb_bans>]",
-    "example_parameter": "12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`"
+    "example_parameter": "12C 5 3 9 1 100 2 https://osu.ppy.sh/community/matches/123 \"'\" https://osu.ppy.sh/community/matches/456 |'| NM1 \"'\" DT3 |'| TB1 \"'\" TB2`",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
   },
   "test_post_result_message": {
     "help": "Shows the post result message with default values",
     "parameter": "[<nb_bans>] [<nb_tb_bans>]",
     "example_parameter": "2 3",
+    "default": "$../post_result/default",
+    "default_team1_with_score": "$../post_result/default_team1_with_score",
+    "default_team2_with_score": "$../post_result/default_team2_with_score",
+    "default_mp_link": "$../post_result/default_mp_link",
+    "default_rolls": "$../post_result/default_rolls",
+    "default_bans": "$../post_result/default_bans",
+    "default_tb_bans": "$../post_result/default_tb_bans"
+  },
+  "answer": {
     "default": "$../post_result/default",
     "default_team1_with_score": "$../post_result/default_team1_with_score",
     "default_team2_with_score": "$../post_result/default_team2_with_score",
