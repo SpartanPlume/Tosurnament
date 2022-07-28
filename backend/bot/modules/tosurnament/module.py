@@ -439,6 +439,8 @@ class TosurnamentBaseModule(BaseModule):
             await self.send_reply(ctx, "challonge_no_rights", channel=channel)
         elif isinstance(error, challonge.NotFound):
             await self.send_reply(ctx, "challonge_not_found", channel=channel)
+        elif isinstance(error, challonge.ServerError):
+            await self.send_reply(ctx, "challonge_server_error", error.status, error.description, channel=channel)
         elif isinstance(error, tosurnament_api.TosurnamentException):
             await self.send_reply(ctx, "tosurnament_api_error", error.code, error.description, channel=channel)
         else:

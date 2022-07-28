@@ -13,8 +13,14 @@ def request(method, url, headers={}, data={}):
     h = httplib2.Http()
     h.add_credentials(constants.CHALLONGE_USERNAME, constants.CHALLONGE_API_KEY)
     (resp, content) = h.request(url, method, headers=headers, body=json.dumps(data))
-    if resp.status != 200:
-        raise ServerError()
+    if resp.status < 200 or resp.status >= 300:
+        try:
+            response_body = json.loads(content.decode("utf-8"))
+            if "errors" in response_body:
+                raise ServerError(resp.status, response_body["errors"][0])
+        except (UnicodeError, json.JSONDecodeError):
+            pass
+        raise ServerError(resp.status)
     return json.loads(content.decode("utf-8"))
 
 
@@ -27,7 +33,9 @@ class ChallongeException(commands.CommandError):
 class ServerError(ChallongeException):
     """Special exception when the challonge servers can't be reached"""
 
-    pass
+    def __init__(self, status, description="Unknown error"):
+        self.status = status
+        self.description = description
 
 
 class StartTournamentError(ChallongeException):
