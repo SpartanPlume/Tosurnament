@@ -1,3 +1,4 @@
+import time
 import requests
 from flask.views import MethodView
 from flask import request
@@ -35,7 +36,7 @@ class AuthResource(MethodView):
         token_results = token_request.json()
         me_headers = {"Authorization": "Bearer " + token_results["access_token"]}
         try:
-            me_request = requests.get(endpoints.OSU_ME, headers=me_headers)
+            me_request = requests.get(endpoints.OSU_ME, params={"timestamp": int(time.time())}, headers=me_headers)
             me_request.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise exceptions.ExternalException(
@@ -51,5 +52,9 @@ class AuthResource(MethodView):
             user.osu_previous_name = me_results["previous_usernames"][-1]
         user.verified = True
         db.update(user)
-        logger.debug("User with the osu id {0} has been authentificated".format(user.osu_id))
+        try:
+            requests.delete(endpoints.OSU_TOKEN_REVOKE, headers=me_headers)
+        except Exception:
+            logger.info("Could not revoke token of user {0}".format(user.id))
+        logger.debug("User {0} with the osu id {1} has been authentificated".format(user.id, user.osu_id))
         return {}, 204
