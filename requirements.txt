@@ -6,6 +6,7 @@ asyncio
 cryptography
 discord.py
 dateparser
+python-dateutil
 Babel
 flask-cors
 requests-cache

@@ -3,6 +3,8 @@
 import re
 import asyncio
 import datetime
+import dateutil
+import dateparser
 import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
@@ -536,7 +538,15 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             previous_date_string = "<t:{0}:F>".format(reschedule_message.previous_date)
         else:
             previous_date_string = self.get_string(ctx, "no_previous_date")
-        new_date = datetime.datetime.fromtimestamp(int(reschedule_message.new_date), datetime.timezone.utc)
+        timezone_offset = 0
+        tournament_utc = "UTC{0}".format(tournament.utc)
+        for timezone in dateparser.timezones.timezone_info_list[0]["timezones"]:
+            if re.match(timezone[0], tournament_utc):
+                timezone_offset = timezone[1]
+                break
+        new_date = datetime.datetime.fromtimestamp(
+            int(reschedule_message.new_date), dateutil.tz.tzoffset(None, timezone_offset)
+        )
         date_format = "%d %B"
         if schedules_spreadsheet.date_format:
             date_format = schedules_spreadsheet.date_format

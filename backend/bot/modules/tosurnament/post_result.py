@@ -806,7 +806,10 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
 
     def get_rounds(self, challonge_tournament):
         participants = [participant for participant in challonge_tournament.participants if participant.active]
-        n_loser_round = math.floor(math.log2(len(participants)))
+        if len(participants) == 0:
+            n_loser_round = 0
+        else:
+            n_loser_round = math.floor(math.log2(len(participants)))
         rounds = list(ROUNDS)
         while n_loser_round + 1 > len(rounds):
             rounds.append("RO" + str(pow(2, len(rounds))))
