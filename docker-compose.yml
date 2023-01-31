@@ -11,8 +11,8 @@ services:
       - ./init_mysql.sh:/docker-entrypoint-initdb.d/init_mysql.sh
     env_file:
       - .env
-      - .env.development
-      - .env.development.secret
+      - .env.production
+      - .env.production.secret
     environment:
       MARIADB_MYSQL_LOCALHOST_USER: "true"
     healthcheck:
@@ -35,12 +35,12 @@ services:
       - ./logs:/app/logs
     env_file:
       - .env
-      - .env.development
-      - .env.development.secret
+      - .env.production
+      - .env.production.secret
     environment:
       MYSQL_HOST: db
     depends_on:
-       db:
+      db:
         condition: service_healthy
     command: gunicorn -b 0.0.0.0:5001 -w 1 start_api:app --access-logfile /app/logs/api.log --access-logformat '"%(r)s" - %(s)s'
   bot:
@@ -55,13 +55,13 @@ services:
       - ./logs:/app/logs
     env_file:
       - .env
-      - .env.development
-      - .env.development.secret
+      - .env.production
+      - .env.production.secret
     environment:
       MYSQL_HOST: db
       TOSURNAMENT_API_HOST: api
     depends_on:
-       - "api"
+      - "api"
     command: python3 start_bot.py
   dashboard:
     restart: always
@@ -75,8 +75,8 @@ services:
       - tosurnament-dashboard-node-modules:/app/dashboard/node_modules/
     env_file:
       - .env
-      - .env.development
-      - .env.development.secret
+      - .env.production
+      - .env.production.secret
     depends_on:
       - "api"
     command: yarn dev
@@ -92,8 +92,8 @@ services:
       - tosurnament-auth-node-modules:/app/node_modules/
     env_file:
       - .env
-      - .env.development
-      - .env.development.secret
+      - .env.production
+      - .env.production.secret
     environment:
       HOST: 0.0.0.0
       PRIVATE_TOSURNAMENT_API_PATH: "http://api:5001/api/v1"
@@ -105,4 +105,5 @@ volumes:
   tosurnament-data:
   tosurnament-dashboard-node-modules:
   tosurnament-auth-node-modules:
-  
+
+
