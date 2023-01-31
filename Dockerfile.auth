@@ -5,3 +5,5 @@ COPY ./frontend/auth/package.json .
 RUN yarn
 
 COPY ./frontend/auth .
+COPY ./.env.production.secret ./.env
+RUN yarn build

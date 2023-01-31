@@ -1,4 +1,3 @@
-
 $primary-bg-color: #181a1b; // if changed, should change in document.js too
 $primary-text-color: #d1cdc7;
 $primary-text-color-hover: #e9e1d9;
@@ -48,4 +47,4 @@ $theme-colors: (
     "danger": #b42332
 );
 
-@import "../node_modules/bootstrap/scss/bootstrap";
+@import "./bootstrap";

@@ -7,8 +7,8 @@ import { Formik, Form } from "formik";
 import Section from "../../../components/forms/Section";
 import Col from "react-bootstrap/Col";
 import LoadingOverlay from "react-loading-overlay-ts";
-//import CheckField from "../../../components/forms/fields/CheckField";
-import { CheckField } from "tosurnament-fields";
+import CheckField from "../../../components/forms/fields/CheckField";
+//import { CheckField } from "tosurnament-fields";
 import { queryTournament } from "../../../api/TosurnamentApi";
 import { useQuery } from "react-query";
 

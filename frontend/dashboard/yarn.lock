@@ -13049,21 +13049,8 @@ __metadata:
     react-toastify: ^9.0.8
     sass: ^1.54.4
     swr: ^1.3.0
-    tosurnament-fields: "file:../fields"
   languageName: unknown
   linkType: soft
-
-"tosurnament-fields@file:../fields::locator=tosurnament-dashboard%40workspace%3A.":
-  version: 1.0.0
-  resolution: "tosurnament-fields@file:../fields#../fields::hash=3d1644&locator=tosurnament-dashboard%40workspace%3A."
-  peerDependencies:
-    formik: ^2.2.9
-    react: ^18.2.0
-    react-bootstrap: ^2.5.0
-    react-dom: ^18.2.0
-  checksum: df6fc5305e21e9f86fc9b8a236035346ce19340b82d6253f0f256264966fc5b4965abc2173c55e752a89ca6cd2ac84b8d4411eac84e5735d12fec051306c74bf
-  languageName: node
-  linkType: hard
 
 "tough-cookie@npm:^4.0.0":
   version: 4.0.0

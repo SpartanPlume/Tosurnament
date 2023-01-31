@@ -11,5 +11,7 @@ RUN corepack enable \
     && corepack prepare yarn@stable --activate \
     && yarn set version 3.3.0 \
     && yarn install
-RUN yarn add --dev @swc/cli @swc/core
 RUN yarn
+
+COPY ./.env.production ./dashboard/.env.production
+RUN yarn build

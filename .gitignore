@@ -144,3 +144,4 @@ pickles
 *.sql
 *.sqlite
 .yarn
+.pnp*

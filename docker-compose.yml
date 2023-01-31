@@ -71,7 +71,6 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend/dashboard:/app/dashboard
       - tosurnament-dashboard-node-modules:/app/dashboard/node_modules/
     env_file:
       - .env
@@ -79,7 +78,7 @@ services:
       - .env.production.secret
     depends_on:
       - "api"
-    command: yarn dev
+    command: yarn start
   auth:
     restart: always
     build:
@@ -88,7 +87,6 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - ./frontend/auth:/app
       - tosurnament-auth-node-modules:/app/node_modules/
     env_file:
       - .env
@@ -99,7 +97,7 @@ services:
       PRIVATE_TOSURNAMENT_API_PATH: "http://api:5001/api/v1"
     depends_on:
       - "api"
-    command: yarn dev
+    command: yarn start
 
 volumes:
   tosurnament-data:
