@@ -38,7 +38,7 @@ export default {
   async fetch() {
     const query = this.$nuxt.context.query;
     const code = query.code;
-    const oauth_token_url = "http://localhost:5001/api/v1/tosurnament/auth";
+    const oauth_token_url = `${process.env.PRIVATE_TOSURNAMENT_API_PATH}/tosurnament/auth`;
     const parameters = {
       tosurnament_code: query.state,
       osu_code: code

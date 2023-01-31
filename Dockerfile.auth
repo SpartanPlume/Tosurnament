@@ -1,0 +1,7 @@
+FROM node:14-bullseye-slim
+WORKDIR /app
+
+COPY ./frontend/auth/package.json .
+RUN yarn
+
+COPY ./frontend/auth .

@@ -3,12 +3,13 @@
 import asyncio
 import datetime
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from bot.modules.tosurnament import module as tosurnament
 from common.api import challonge
 from common.databases.tosurnament.bracket import Bracket
 from common.api import osu
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
@@ -17,6 +18,10 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
     def __init__(self, bot):
         super().__init__(bot)
         self.bot = bot
+        self.background_task_update_spreadsheet.start()
+
+    def cog_unload(self):
+        self.background_task_update_spreadsheet.stop()
 
     def cog_check(self, ctx):
         """Check function called before any command of the cog."""
@@ -203,7 +208,7 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
             setattr(tournament.current_bracket, key, value)
         tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", value)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     @commands.command(aliases=["cp"])
     async def copy_bracket(self, ctx, index_from: int, index_to: int):
@@ -305,37 +310,35 @@ class TosurnamentBracketCog(tosurnament.TosurnamentBaseModule, name="bracket"):
                     player_info.pp.set(str(int(float(osu_user.pp))))
                     update_spreadsheet = True
             if update_spreadsheet:
-                self.add_update_spreadsheet_background_task(players_spreadsheet)
+                await self.add_update_spreadsheet_background_task(players_spreadsheet)
 
+    @tasks.loop(hours=18.0)
     async def background_task_update_players_spreadsheet_registration(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                for guild in self.bot.guilds:
-                    try:
-                        tournament = self.get_tournament(guild.id)
-                        if tournament.registration_background_update:
-                            await self.update_players_spreadsheet_registration(guild, tournament)
-                    except asyncio.CancelledError:
-                        return
-                    except Exception:
-                        continue
-                await asyncio.sleep(86000)
-        except asyncio.CancelledError:
-            return
+        for guild in self.bot.guilds:
+            try:
+                tournament = self.get_tournament(guild.id)
+                if tournament.registration_background_update:
+                    await self.update_players_spreadsheet_registration(guild, tournament)
+            except Exception:
+                continue
 
-    def background_task(self):
+    @background_task_update_players_spreadsheet_registration.before_loop
+    async def before_background_task_update_players_spreadsheet_registration(self):
+        self.bot.info(
+            "Waiting for bot to be ready before starting background_task_update_players_spreadsheet_registration background task..."
+        )
+        await self.bot.wait_until_ready()
+        self.bot.info(
+            "Bot is ready. background_task_update_players_spreadsheet_registration background task will start."
+        )
+
+    @tasks.loop(count=1)
+    async def background_task_update_spreadsheet(self):
         spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()
         for spreadsheet_id in spreadsheet_ids:
             self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_update_players_spreadsheet_registration()))
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentBracketCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentBracketCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentBracketCog(bot))

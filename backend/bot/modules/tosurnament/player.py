@@ -6,7 +6,7 @@ import datetime
 import dateutil
 import dateparser
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import escape_markdown
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.players_spreadsheet import TeamInfo, TeamNotFound
@@ -26,7 +26,11 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
     def __init__(self, bot):
         super().__init__(bot)
         self.bot = bot
+        self.background_task_give_player_role.start()
 
+    def cog_unload(self):
+        self.background_task_give_player_role.cancel()
+        
     def cog_check(self, ctx):
         """Check function called before any command of the cog."""
         if ctx.guild is None:
@@ -85,7 +89,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
         player_info.pp.set(str(int(float(osu_user.pp))))
         player_info.country.set(str(osu_user.country))
         team_info.timezone.set(timezone)
-        self.add_update_spreadsheet_background_task(players_spreadsheet)
+        await self.add_update_spreadsheet_background_task(players_spreadsheet)
         roles_to_give = [tosurnament.get_role(ctx.guild.roles, tournament.player_role_id, "Player")]
         roles_to_give.append(tosurnament.get_role(ctx.guild.roles, bracket.role_id, bracket.name))
         await ctx.author.add_roles(*filter(None, roles_to_give))
@@ -178,7 +182,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             if not self.add_team_to_lobby(qualifiers_spreadsheet, lobby_id, team_name):
                 continue
             self.clear_team_from_other_lobbies(qualifiers_spreadsheet, lobby_id, team_name)
-            self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
+            await self.add_update_spreadsheet_background_task(qualifiers_spreadsheet)
             await self.send_reply(ctx, "success", lobby_id)
             return
         if not qualifiers_spreadsheet_found:
@@ -554,7 +558,7 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
             date_format = tournament.date_format
         match_info.set_datetime(schedules_spreadsheet, new_date, date_format)
 
-        self.add_update_spreadsheet_background_task(schedules_spreadsheet)
+        await self.add_update_spreadsheet_background_task(schedules_spreadsheet)
         self.bot.session.delete(reschedule_message)
 
         ally_to_mention = None
@@ -653,32 +657,23 @@ class TosurnamentPlayerCog(tosurnament.TosurnamentBaseModule, name="player"):
                         except Exception:
                             continue
 
+    @tasks.loop(hours=5.0)
     async def background_task_give_player_role(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                for guild in self.bot.guilds:
-                    try:
-                        tournament = self.get_tournament(guild.id)
-                        if tournament.registration_phase:
-                            await self.give_player_role(guild, tournament)
-                    except asyncio.CancelledError:
-                        return
-                    except Exception:
-                        continue
-                await asyncio.sleep(18000)
-        except asyncio.CancelledError:
-            return
+        for guild in self.bot.guilds:
+            try:
+                tournament = self.get_tournament(guild.id)
+                if tournament.registration_phase:
+                    await self.give_player_role(guild, tournament)
+            except Exception:
+                continue
 
-    def background_task(self):
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_give_player_role()))
+    @background_task_give_player_role.before_loop
+    async def before_background_task_give_player_role(self):
+        self.bot.info("Waiting for bot to be ready before starting give_player_role background task...")
+        await self.bot.wait_until_ready()
+        self.bot.info("Bot is ready. give_player_role background task will start.")
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentPlayerCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentPlayerCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentPlayerCog(bot))

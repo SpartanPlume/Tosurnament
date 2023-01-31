@@ -5,6 +5,7 @@ from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.players_spreadsheet import PlayersSpreadsheet
 from common.api import spreadsheet as spreadsheet_api
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="players_spreadsheet"):
@@ -46,7 +47,7 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
             setattr(players_spreadsheet, key, value)
         tosurnament_api.update_players_spreadsheet(tournament.id, tournament.current_bracket.id, players_spreadsheet)
         await self.send_reply(ctx, "success", value)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     async def set_players_spreadsheet_range_value(self, ctx, range_name, range_value):
         """Puts the input values into the corresponding bracket."""
@@ -145,11 +146,6 @@ class TosurnamentPlayersSpreadsheetCog(tosurnament.TosurnamentBaseModule, name="
         await ctx.send(output)
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentPlayersSpreadsheetCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentPlayersSpreadsheetCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentPlayersSpreadsheetCog(bot))

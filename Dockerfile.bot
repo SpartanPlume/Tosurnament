@@ -1,0 +1,10 @@
+FROM python:3.10-slim-bullseye
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
+COPY ./backend/bot ./bot
+COPY ./backend/common ./common
+COPY ./backend/start_bot.py ./start_bot.py
+COPY ./backend/service_account.json ./service_account.json

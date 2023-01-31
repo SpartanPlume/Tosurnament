@@ -441,7 +441,7 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
             else:
                 match_info.mp_links[i].set(mp_links[i])
             i += 1
-        self.add_update_spreadsheet_background_task(await bracket.get_schedules_spreadsheet())
+        await self.add_update_spreadsheet_background_task(await bracket.get_schedules_spreadsheet())
 
     async def step8_remove_player_role(self, ctx, error_channel, tournament, challonge_tournament, loser_participant):
         if challonge_tournament.state == "group_stages_underway":
@@ -816,11 +816,6 @@ class TosurnamentPostResultCog(tosurnament.TosurnamentBaseModule, name="post_res
         return rounds, n_loser_round
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentPostResultCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentPostResultCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentPostResultCog(bot))

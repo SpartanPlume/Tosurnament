@@ -6,26 +6,26 @@ import inspect
 import requests_cache
 from flask import Flask, g
 from flask_cors import CORS
-from server.api.v1.tosurnament.token import TokenResource
-from server.api.v1.tosurnament.token.revoke import RevokeTokenResource
-from server.api.v1.tosurnament.users import UsersResource
-from server.api.v1.tosurnament.guilds import GuildsResource
-from server.api.v1.tosurnament.tournaments import TournamentsResource
-from server.api.v1.tosurnament.tournaments.allowed_reschedules import AllowedReschedulesResource
-from server.api.v1.tosurnament.tournaments.brackets import BracketsResource
-from server.api.v1.tosurnament.tournaments.brackets.schedules_spreadsheet import SchedulesSpreadsheetResource
-from server.api.v1.tosurnament.tournaments.brackets.players_spreadsheet import PlayersSpreadsheetResource
-from server.api.v1.tosurnament.tournaments.brackets.qualifiers_spreadsheet import QualifiersSpreadsheetResource
-from server.api.v1.tosurnament.tournaments.brackets.qualifiers_results_spreadsheet import (
+from api.v1.tosurnament.token import TokenResource
+from api.v1.tosurnament.token.revoke import RevokeTokenResource
+from api.v1.tosurnament.users import UsersResource
+from api.v1.tosurnament.guilds import GuildsResource
+from api.v1.tosurnament.tournaments import TournamentsResource
+from api.v1.tosurnament.tournaments.allowed_reschedules import AllowedReschedulesResource
+from api.v1.tosurnament.tournaments.brackets import BracketsResource
+from api.v1.tosurnament.tournaments.brackets.schedules_spreadsheet import SchedulesSpreadsheetResource
+from api.v1.tosurnament.tournaments.brackets.players_spreadsheet import PlayersSpreadsheetResource
+from api.v1.tosurnament.tournaments.brackets.qualifiers_spreadsheet import QualifiersSpreadsheetResource
+from api.v1.tosurnament.tournaments.brackets.qualifiers_results_spreadsheet import (
     QualifiersResultsSpreadsheetResource,
 )
-from server.api.v1.discord.guilds.roles import DiscordRolesResource
-from server.api.v1.discord.guilds.channels import DiscordChannelsResource
-from server.api.v1.discord.guilds.common import DiscordCommonGuildsResource
-from server.api.v1.discord.users.me import DiscordUsersMeResource
-from server.api.v1.tosurnament.auth import AuthResource
-from server.api.globals import db, exceptions
-from server.api import logger
+from api.v1.discord.guilds.roles import DiscordRolesResource
+from api.v1.discord.guilds.channels import DiscordChannelsResource
+from api.v1.discord.guilds.common import DiscordCommonGuildsResource
+from api.v1.discord.users.me import DiscordUsersMeResource
+from api.v1.tosurnament.auth import AuthResource
+from api.globals import db, exceptions
+from api import logger
 
 app = Flask("tosurnament-api")
 app.config["BUNDLE_ERRORS"] = True
@@ -34,7 +34,7 @@ CORS(app, max_age=7200)
 requests_cache.install_cache(expire_after=300, allowable_methods=("GET"))
 
 logging_handler = TimedRotatingFileHandler(
-    filename="log/api.log",
+    filename="logs/api.log",
     when="W1",
     utc=True,
     backupCount=4,
@@ -152,4 +152,4 @@ app.add_url_rule("/api/v1/tosurnament/auth", view_func=AuthResource.as_view("aut
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5001, host="0.0.0.0")

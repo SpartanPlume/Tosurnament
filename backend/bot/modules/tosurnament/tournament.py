@@ -9,6 +9,7 @@ from discord.ext import commands
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.bracket import Bracket
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 DAY_REGEX = r"(monday|tuesday|wednesday|thursday|friday|saturday|sunday)"
 TIME_REGEX = r"([0-2][0-3]|[0-1][0-9]):[0-5][0-9]"
@@ -224,7 +225,7 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
             setattr(tournament, key, value)
         tosurnament_api.update_tournament(tournament)
         await self.send_reply(ctx, "success", value)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     @commands.command(aliases=["amti", "add_matches_to_ignore"])
     async def add_match_to_ignore(self, ctx, *match_ids):
@@ -329,11 +330,6 @@ class TosurnamentTournamentCog(tosurnament.TosurnamentBaseModule, name="tourname
         await self.show_object_settings(ctx, tournament, stack_depth=2)
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return TosurnamentTournamentCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(TosurnamentTournamentCog(bot))
+    await bot.add_cog(TosurnamentTournamentCog(bot))

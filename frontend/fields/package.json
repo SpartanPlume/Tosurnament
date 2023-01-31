@@ -1,0 +1,30 @@
+{
+  "name": "tosurnament-fields",
+  "version": "1.0.0",
+  "description": "Fields to be used by Tosurnament web applications",
+  "author": "SpartanPlume",
+  "license": "MIT",
+  "repository": "SpartanPlume/Tosurnament",
+  "main": "dist/index.js",
+  "module": "dist/index.modern.js",
+  "source": "src/index.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "microbundle --format modern,cjs --jsxImportSource react"
+  },
+  "peerDependencies": {
+    "formik": "^2.2.9",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.15.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {}
+}

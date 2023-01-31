@@ -197,11 +197,6 @@ class ReactionForRoleMessageCog(base.BaseModule, name="reaction_for_role_message
             return
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return ReactionForRoleMessageCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(ReactionForRoleMessageCog(bot))
+    await bot.add_cog(ReactionForRoleMessageCog(bot))

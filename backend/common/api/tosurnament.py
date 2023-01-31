@@ -10,8 +10,9 @@ from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import Qua
 from common.databases.tosurnament.spreadsheets.qualifiers_results_spreadsheet import QualifiersResultsSpreadsheet
 from common.databases.tosurnament.allowed_reschedule import AllowedReschedule
 from common.databases.tosurnament.user import User
+from common.config import constants
 
-TOSURNAMENT_URL = "http://localhost:5001/api/v1/tosurnament/"
+TOSURNAMENT_URL = "http://{0}:5001/api/v1/tosurnament/".format(constants.TOSURNAMENT_API_HOST)
 
 
 class TosurnamentException(commands.CommandError):

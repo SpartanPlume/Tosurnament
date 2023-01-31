@@ -1,0 +1,810 @@
+2022-06-09 22:08:17,407 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:08:17,437 - INFO - discord.client: logging in using static token
+2022-06-09 22:08:17,856 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:08:18,055 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-ts95",{"micros":96290,"calls":["discord-sessions-green-prd-2-99",{"micros":93398,"calls":["start_session",{"micros":88657,"calls":["discord-api-6f84c6f8d8-lm4c4",{"micros":81258,"calls":["get_user",{"micros":12405},"add_authorized_ip",{"micros":3349},"get_guilds",{"micros":12743},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":1724,"calls":[]}]}]}] (Session ID: 593d6203389c4a373480b4a9d6149362).
+2022-06-09 22:08:20,086 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,135 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:08:20,139 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,171 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:08:20,175 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,207 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:08:20,211 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,216 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:08:20,218 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,248 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:08:20,251 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,258 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:20,260 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:20,277 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:08:23,500 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayersSpreadsheetCog: show_players_spreadsheet_settings
+2022-06-09 22:08:23,755 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,787 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:08:23,792 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,798 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,800 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,806 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,808 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,815 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,817 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,824 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,826 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,832 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,834 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,840 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,842 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,848 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,854 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,862 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:08:23,864 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:08:23,871 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:09:18,651 - INFO - bot: <client.py:170> - COMMAND: TosurnamentTournamentCog: sync_spreadsheet
+2022-06-09 22:09:18,854 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:09:18,886 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:09:20,343 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:09:20,348 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:09:38,879 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:09:38,910 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:09:39,008 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:09:49,506 - INFO - bot: <client.py:170> - COMMAND: OwnerCog: ping
+2022-06-09 22:10:22,830 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:10:22,830 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:10:22,838 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:10:22,838 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:10:34,392 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:10:34,416 - INFO - discord.client: logging in using static token
+2022-06-09 22:10:34,848 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:10:35,003 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-gt6c",{"micros":44128,"calls":["discord-sessions-blue-prd-2-131",{"micros":42249,"calls":["start_session",{"micros":35451,"calls":["discord-api-6f84c6f8d8-82l7q",{"micros":31692,"calls":["get_user",{"micros":6618},"add_authorized_ip",{"micros":1391},"get_guilds",{"micros":4521},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":0,"calls":[]}]}]}] (Session ID: fd26fcc34ff0889208bfd31823b0432c).
+2022-06-09 22:10:37,028 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,066 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:10:37,071 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,106 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:10:37,111 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,154 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:10:37,160 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,166 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:10:37,169 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,202 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:10:37,207 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,213 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:10:37,215 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:10:37,230 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:10:47,754 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:10:47,755 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:10:47,761 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:10:47,761 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:11:00,217 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:11:00,242 - INFO - discord.client: logging in using static token
+2022-06-09 22:11:00,581 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:11:00,826 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-g8c5",{"micros":139277,"calls":["discord-sessions-green-prd-2-36",{"micros":138152,"calls":["start_session",{"micros":108981,"calls":["discord-api-6f84c6f8d8-tl7x4",{"micros":100070,"calls":["get_user",{"micros":33631},"add_authorized_ip",{"micros":4807},"get_guilds",{"micros":5305},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":28542,"calls":[]}]}]}] (Session ID: 6ed200f2593c7f508d614fa3319c72e3).
+2022-06-09 22:11:02,851 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:02,888 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:02,893 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:02,927 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:02,932 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:02,964 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:02,969 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:02,973 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:11:02,976 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:03,010 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:03,014 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:03,022 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:11:03,025 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:03,041 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:11:05,017 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,045 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:05,080 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:11:05,269 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,302 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:11:05,318 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,332 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:11:05,333 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,339 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:11:05,340 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,348 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:11:05,351 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,359 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:11:05,361 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:11:05,368 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:12:42,437 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:12:42,437 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:12:42,443 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:12:42,444 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:13:16,441 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:13:16,463 - INFO - discord.client: logging in using static token
+2022-06-09 22:13:16,864 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:13:17,031 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-lm6n",{"micros":57807,"calls":["discord-sessions-blue-prd-2-153",{"micros":56626,"calls":["start_session",{"micros":49562,"calls":["discord-api-6f84c6f8d8-gwmp7",{"micros":44761,"calls":["get_user",{"micros":10713},"add_authorized_ip",{"micros":2352},"get_guilds",{"micros":7348},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":4681,"calls":[]}]}]}] (Session ID: 19ee2d09be531f2441105d0e1b25d963).
+2022-06-09 22:13:19,058 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,094 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:19,098 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,137 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:19,143 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,178 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:19,182 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,187 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:13:19,190 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,223 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:19,227 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,234 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:13:19,235 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,250 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:13:19,253 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:19,283 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:19,313 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:13:21,082 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,111 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:13:21,127 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,132 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:13:21,134 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,138 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:13:21,140 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,147 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:13:21,149 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,155 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:13:21,158 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:13:21,164 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:14:02,650 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:14:02,685 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:14:02,752 - INFO - bot: <player.py:525> - <class 'TypeError'>: an integer is required (got type str)
+2022-06-09 22:14:02,796 - INFO - bot: <player.py:525> - an integer is required (got type str)
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/backend/bot/modules/tosurnament/player.py", line 512, in reaction_on_reschedule_message
+    await self.agree_to_reschedule(ctx, reschedule_message, tournament)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/backend/bot/modules/tosurnament/player.py", line 539, in agree_to_reschedule
+    new_date = datetime.datetime.fromtimestamp(reschedule_message.new_date)
+TypeError: an integer is required (got type str)
+2022-06-09 22:14:46,338 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:14:46,339 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:14:46,347 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:14:46,347 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:14:58,222 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:14:58,249 - INFO - discord.client: logging in using static token
+2022-06-09 22:14:58,614 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:14:58,873 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-bkj7",{"micros":153803,"calls":["discord-sessions-blue-prd-2-116",{"micros":152444,"calls":["start_session",{"micros":117743,"calls":["discord-api-6f84c6f8d8-rj5dw",{"micros":105570,"calls":["get_user",{"micros":13832},"add_authorized_ip",{"micros":7042},"get_guilds",{"micros":21973},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":14428,"calls":[]}]}]}] (Session ID: 83bb2fcee55c842be7a125888c8a0252).
+2022-06-09 22:15:00,457 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,493 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:15:00,558 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,564 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:15:00,813 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,820 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=spartan%20plume HTTP/1.1" 200 18
+2022-06-09 22:15:00,821 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,827 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:15:00,896 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,926 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:15:00,930 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,960 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:15:00,963 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:00,993 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:15:00,997 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:01,002 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:15:01,004 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:01,037 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:15:01,041 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:01,049 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:15:01,052 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:01,066 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:15:03,117 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:15:03,122 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:15:03,164 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:15:04,143 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:19:15,476 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:19:15,476 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:19:15,483 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:19:15,483 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:19:27,992 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:19:28,016 - INFO - discord.client: logging in using static token
+2022-06-09 22:19:28,420 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:19:28,647 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-bkfp",{"micros":115604,"calls":["discord-sessions-green-prd-2-5",{"micros":107573,"calls":["start_session",{"micros":93567,"calls":["discord-api-6f84c6f8d8-jgg67",{"micros":83099,"calls":["get_user",{"micros":17568},"add_authorized_ip",{"micros":5172},"get_guilds",{"micros":22638},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":11288,"calls":[]}]}]}] (Session ID: 1ed112fa5c7f949d0f1a6693ad92bd9c).
+2022-06-09 22:19:30,040 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,079 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,112 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:19:30,343 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,374 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,444 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,451 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:19:30,454 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,459 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:19:30,493 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,500 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:19:30,502 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,509 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:19:30,511 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,518 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:19:30,679 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,708 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,711 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,740 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,744 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,774 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,777 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,782 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:19:30,784 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,813 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:30,816 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,822 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:19:30,823 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:30,837 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:19:36,272 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:36,303 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:19:36,341 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:36,348 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:19:36,595 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:36,603 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=spartan%20plume HTTP/1.1" 200 18
+2022-06-09 22:19:36,605 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:36,612 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:19:36,878 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:19:36,884 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:19:38,380 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:19:39,207 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:25:53,408 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:25:53,409 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:25:53,416 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:25:53,416 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:26:05,562 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:26:05,584 - INFO - discord.client: logging in using static token
+2022-06-09 22:26:05,960 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:26:06,205 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-rnpl",{"micros":125229,"calls":["discord-sessions-blue-prd-2-147",{"micros":124134,"calls":["start_session",{"micros":84208,"calls":["discord-api-6f84c6f8d8-dlmg5",{"micros":76659,"calls":["get_user",{"micros":20991},"add_authorized_ip",{"micros":3678},"get_guilds",{"micros":7034},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":13192,"calls":[]}]}]}] (Session ID: 2a74067649f84d06827a15c8f5aa1be5).
+2022-06-09 22:26:08,249 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,354 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:08,363 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,395 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:08,399 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,427 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:08,430 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,435 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:26:08,437 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,466 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:08,470 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,478 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:08,485 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:08,505 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:26:10,814 - INFO - bot: <client.py:170> - COMMAND: TosurnamentUserCog: get_matches
+2022-06-09 22:26:10,972 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:10,998 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:11,003 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:11,010 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:26:11,015 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:11,022 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:26:11,040 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:11,048 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:11,050 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:11,057 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:11,160 - INFO - bot: <core.py:71> - <class 'discord.ext.commands.errors.CommandInvokeError'>: Command raised an exception: AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+2022-06-09 22:26:11,239 - INFO - bot: <core.py:71> - Command raised an exception: AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 85, in wrapped
+    ret = await coro(*args, **kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/backend/bot/modules/tosurnament/user.py", line 161, in get_matches
+    tmp_reply_string += "<t:{0}:F>".format(match_date.totimestamp())
+AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/bot.py", line 939, in invoke
+    await ctx.command.invoke(ctx)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 863, in invoke
+    await injected(*ctx.args, **ctx.kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 94, in wrapped
+    raise CommandInvokeError(exc) from exc
+discord.ext.commands.errors.CommandInvokeError: Command raised an exception: AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+2022-06-09 22:26:11,350 - INFO - bot: <core.py:71> - <class 'AttributeError'>: 'datetime.datetime' object has no attribute 'totimestamp'
+2022-06-09 22:26:11,444 - INFO - bot: <core.py:71> - 'datetime.datetime' object has no attribute 'totimestamp'
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 85, in wrapped
+    ret = await coro(*args, **kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/backend/bot/modules/tosurnament/user.py", line 161, in get_matches
+    tmp_reply_string += "<t:{0}:F>".format(match_date.totimestamp())
+AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/bot.py", line 939, in invoke
+    await ctx.command.invoke(ctx)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 863, in invoke
+    await injected(*ctx.args, **ctx.kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 94, in wrapped
+    raise CommandInvokeError(exc) from exc
+discord.ext.commands.errors.CommandInvokeError: Command raised an exception: AttributeError: 'datetime.datetime' object has no attribute 'totimestamp'
+2022-06-09 22:26:12,124 - INFO - bot: <client.py:199> - COMMAND: TosurnamentUserCog: get_matches: CommandInvokeError
+2022-06-09 22:26:35,574 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:26:35,574 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:26:35,581 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:26:35,581 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:26:47,815 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:26:47,837 - INFO - discord.client: logging in using static token
+2022-06-09 22:26:48,239 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:26:48,496 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-7wb8",{"micros":141993,"calls":["discord-sessions-green-prd-2-77",{"micros":128179,"calls":["start_session",{"micros":113198,"calls":["discord-api-6f84c6f8d8-scbkv",{"micros":105296,"calls":["get_user",{"micros":24626},"add_authorized_ip",{"micros":3141},"get_guilds",{"micros":8596},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":11828,"calls":[]}]}]}] (Session ID: 761d6af4a80e3959c1e4666b42788561).
+2022-06-09 22:26:50,523 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,558 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:50,562 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,592 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:50,596 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,626 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:50,630 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,636 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:26:50,638 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,670 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:50,674 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,680 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:50,682 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:50,697 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:26:52,671 - INFO - bot: <client.py:170> - COMMAND: TosurnamentUserCog: get_matches
+2022-06-09 22:26:52,881 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,915 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:26:52,920 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,927 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:26:52,933 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,941 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:26:52,956 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,963 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:52,965 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,971 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:26:52,973 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:26:52,980 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:27:31,062 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:27:31,062 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:27:31,070 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:27:31,071 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:27:44,668 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:27:44,691 - INFO - discord.client: logging in using static token
+2022-06-09 22:27:45,177 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:27:45,357 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-thmf",{"micros":72943,"calls":["discord-sessions-green-prd-2-95",{"micros":67757,"calls":["start_session",{"micros":62446,"calls":["discord-api-6f84c6f8d8-sdtjq",{"micros":57949,"calls":["get_user",{"micros":9678},"add_authorized_ip",{"micros":6364},"get_guilds",{"micros":9453},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":814,"calls":[]}]}]}] (Session ID: f9f398d5d7ed0840a07b3e36569f2c98).
+2022-06-09 22:27:47,387 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,422 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:27:47,427 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,459 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:27:47,463 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,494 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:27:47,498 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,504 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:27:47,506 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,536 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:27:47,539 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,545 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:27:47,547 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:47,559 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:27:53,473 - INFO - bot: <client.py:170> - COMMAND: TosurnamentUserCog: get_matches
+2022-06-09 22:27:53,711 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,743 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:27:53,747 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,755 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:27:53,761 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,768 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:27:53,782 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,789 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:27:53,790 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,797 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:27:53,800 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:27:53,807 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:30:57,475 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:30:57,513 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:30:57,518 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:30:57,525 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:30:57,528 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:30:57,543 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:31:41,247 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:31:41,248 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:31:41,254 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:31:41,255 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:31:53,616 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:31:53,617 - INFO - discord.client: logging in using static token
+2022-06-09 22:31:54,054 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:31:54,284 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-r3pm",{"micros":125341,"calls":["discord-sessions-green-prd-2-83",{"micros":124116,"calls":["start_session",{"micros":84439,"calls":["discord-api-6f84c6f8d8-656zj",{"micros":78968,"calls":["get_user",{"micros":11099},"add_authorized_ip",{"micros":1398},"get_guilds",{"micros":4477},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":35653,"calls":[]}]}]}] (Session ID: 85e8f39f69ced2224a4466cce3b0e43f).
+2022-06-09 22:31:56,311 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,346 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:31:56,349 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,381 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:31:56,384 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,415 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:31:56,418 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,424 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:31:56,425 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,455 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:31:56,458 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,465 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:56,467 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:56,481 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:31:58,442 - INFO - bot: <client.py:170> - COMMAND: TosurnamentStaffCog: show_next_matches
+2022-06-09 22:31:58,636 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,668 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:31:58,686 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,693 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,695 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,703 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,706 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,712 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,715 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,721 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,723 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,730 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,733 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,740 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,742 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,749 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,752 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,759 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,762 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,769 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,772 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,779 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:31:58,782 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:31:58,789 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:12,100 - INFO - bot: <client.py:170> - COMMAND: TosurnamentTournamentCog: sync_spreadsheet
+2022-06-09 22:32:12,324 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:12,355 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:32:13,769 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:13,775 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:21,063 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,093 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:32:21,122 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:32:21,260 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,287 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:32:21,302 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,309 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:32:21,312 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,317 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:32:21,320 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,328 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:32:21,330 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,338 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:32:21,340 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:21,347 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:23,713 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:23,739 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:32:23,768 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:23,774 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:24,058 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:24,065 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=spartan%20plume HTTP/1.1" 200 18
+2022-06-09 22:32:24,066 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:24,073 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=someone HTTP/1.1" 200 18
+2022-06-09 22:32:24,074 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:24,080 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:24,317 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:24,323 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:32:25,807 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:32:26,240 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:32:58,548 - INFO - bot: <client.py:170> - COMMAND: TosurnamentSchedulesSpreadsheetCog: set_schedules_spreadsheet_range_streamer
+2022-06-09 22:32:58,790 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:58,821 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:32:58,825 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:58,853 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/tournaments/30/brackets/39/schedules_spreadsheet/20 HTTP/1.1" 204 0
+2022-06-09 22:32:58,854 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:58,862 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:32:59,048 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:32:59,055 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:04,565 - INFO - bot: <client.py:170> - COMMAND: TosurnamentTournamentCog: sync_spreadsheet
+2022-06-09 22:33:04,754 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:04,791 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:05,642 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:05,648 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:11,861 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:11,896 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:11,925 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:33:12,107 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,141 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:12,159 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,166 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:33:12,168 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,174 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:33:12,176 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,184 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:33:12,185 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,193 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:33:12,194 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:12,201 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:14,001 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,027 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:14,049 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,055 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:14,307 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,314 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=spartan%20plume HTTP/1.1" 200 18
+2022-06-09 22:33:14,316 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,323 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=someone HTTP/1.1" 200 18
+2022-06-09 22:33:14,324 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,331 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:14,596 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:14,635 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:33:16,085 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:33:16,424 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:33:31,871 - INFO - bot: <client.py:170> - COMMAND: TosurnamentSchedulesSpreadsheetCog: show_schedules_spreadsheet_settings
+2022-06-09 22:33:32,135 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,168 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:32,171 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,178 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:32,180 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,186 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:32,188 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,195 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:32,197 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,204 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:32,206 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:32,213 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,403 - INFO - bot: <client.py:170> - COMMAND: TosurnamentStaffCog: show_next_matches
+2022-06-09 22:33:51,686 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,719 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:33:51,736 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,742 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,745 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,751 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,753 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,760 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,762 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,768 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,770 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,777 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,779 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,785 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,788 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,794 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,797 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,803 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,805 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,812 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,814 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,821 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,823 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,829 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:33:51,831 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:33:51,838 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:12,169 - INFO - bot: <client.py:170> - COMMAND: TosurnamentTournamentCog: sync_spreadsheet
+2022-06-09 22:35:12,446 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:12,473 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:35:13,212 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:13,219 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:20,193 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,225 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:35:20,259 - INFO - bot: <client.py:170> - COMMAND: TosurnamentPlayerCog: reschedule
+2022-06-09 22:35:20,482 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,516 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:35:20,564 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,572 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:35:20,573 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,578 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:35:20,580 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,588 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:35:20,589 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,596 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=Spartan%20Plume HTTP/1.1" 200 18
+2022-06-09 22:35:20,599 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:20,606 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:23,315 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,343 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:35:23,366 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,373 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:23,669 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,676 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=spartan%20plume HTTP/1.1" 200 18
+2022-06-09 22:35:23,678 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,689 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?osu_name_hash=tosurnament HTTP/1.1" 200 18
+2022-06-09 22:35:23,692 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,701 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:23,939 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:23,944 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:35:25,403 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:35:25,777 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:35:30,758 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:30,787 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30?include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 2871
+2022-06-09 22:35:30,790 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:30,810 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/brackets/39?include_spreadsheets=True HTTP/1.1" 200 1495
+2022-06-09 22:35:30,817 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:30,824 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:35:31,026 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:31,033 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:32,867 - INFO - bot: <module.py:277> - Trying to update online spreadsheet...
+2022-06-09 22:35:33,200 - INFO - bot: <module.py:297> - Updated online spreadsheet successfully
+2022-06-09 22:35:41,335 - INFO - bot: <client.py:170> - COMMAND: TosurnamentStaffCog: show_next_matches
+2022-06-09 22:35:41,478 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,509 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:35:41,523 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,529 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,531 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,538 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,540 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,547 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,549 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,557 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,558 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,566 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,567 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,575 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,578 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,585 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,587 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,595 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,598 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,605 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,606 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,613 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,615 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,621 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,623 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,630 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:41,632 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:35:41,639 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:35:51,319 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:35:51,319 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:35:51,326 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:35:51,326 - INFO - discord.client: Closing the event loop.
+2022-06-09 22:53:11,995 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-09 22:53:11,996 - INFO - discord.client: logging in using static token
+2022-06-09 22:53:12,423 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-09 22:53:12,636 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-qjjs",{"micros":108007,"calls":["discord-sessions-green-prd-2-20",{"micros":106740,"calls":["start_session",{"micros":81766,"calls":["discord-api-6f84c6f8d8-j2ksc",{"micros":78006,"calls":["get_user",{"micros":18865},"add_authorized_ip",{"micros":3009},"get_guilds",{"micros":7614},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":21834,"calls":[]}]}]}] (Session ID: b20452b2742ccd6a1090d059ed44070d).
+2022-06-09 22:53:14,667 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,696 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:53:14,700 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,730 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:53:14,733 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,759 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:53:14,763 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,767 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-09 22:53:14,768 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,793 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-09 22:53:14,797 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,802 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-09 22:53:14,804 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:14,818 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-09 22:53:16,724 - INFO - bot: <client.py:170> - COMMAND: TosurnamentUserCog: show_my_info
+2022-06-09 22:53:16,971 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-09 22:53:16,978 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/users?discord_id=100648380174192640 HTTP/1.1" 200 18
+2022-06-09 22:53:17,085 - INFO - bot: <core.py:71> - <class 'common.exceptions.UserNotLinked'>: 
+2022-06-09 22:53:17,176 - INFO - bot: <core.py:71> - 
+Traceback (most recent call last):
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/bot.py", line 939, in invoke
+    await ctx.command.invoke(ctx)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 863, in invoke
+    await injected(*ctx.args, **ctx.kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/env/lib/python3.8/site-packages/discord/ext/commands/core.py", line 85, in wrapped
+    ret = await coro(*args, **kwargs)
+  File "/mnt/c/Users/charp/Documents/Tosurnament/backend/bot/modules/tosurnament/user.py", line 182, in show_my_info
+    raise tosurnament.UserNotLinked()
+common.exceptions.UserNotLinked
+2022-06-09 22:53:18,008 - INFO - bot: <client.py:199> - COMMAND: TosurnamentUserCog: show_my_info: UserNotLinked
+2022-06-09 22:57:19,800 - INFO - discord.client: Cleaning up tasks.
+2022-06-09 22:57:19,800 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-09 22:57:19,810 - INFO - discord.client: All tasks finished cancelling.
+2022-06-09 22:57:19,811 - INFO - discord.client: Closing the event loop.
+2022-06-10 08:52:30,332 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-10 08:52:30,353 - INFO - discord.client: logging in using static token
+2022-06-10 08:52:30,746 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-10 08:52:30,964 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-n2td",{"micros":110560,"calls":["discord-sessions-green-prd-2-95",{"micros":108957,"calls":["start_session",{"micros":98866,"calls":["discord-api-7bfb8b8697-9jmxs",{"micros":92388,"calls":["get_user",{"micros":5508},"add_authorized_ip",{"micros":3676},"get_guilds",{"micros":10906},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":111,"calls":[]}]}]}] (Session ID: ad2c922985d655685a80900cb5a199b0).
+2022-06-10 08:52:32,992 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,031 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:52:33,035 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,064 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:52:33,068 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,095 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:52:33,098 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,102 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-10 08:52:33,104 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,131 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:52:33,134 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,140 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 08:52:33,142 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:52:33,154 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-10 08:52:51,354 - INFO - bot: <client.py:170> - COMMAND: AdminCog: dashboard
+2022-06-10 08:53:00,151 - INFO - discord.client: Cleaning up tasks.
+2022-06-10 08:53:00,152 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-10 08:53:00,159 - INFO - discord.client: All tasks finished cancelling.
+2022-06-10 08:53:00,160 - INFO - discord.client: Closing the event loop.
+2022-06-10 08:53:12,163 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-10 08:53:12,183 - INFO - discord.client: logging in using static token
+2022-06-10 08:53:12,586 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-10 08:53:12,777 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-hgr7",{"micros":87093,"calls":["discord-sessions-green-prd-2-95",{"micros":85739,"calls":["start_session",{"micros":67544,"calls":["discord-api-7bfb8b8697-g86ns",{"micros":59569,"calls":["get_user",{"micros":13885},"add_authorized_ip",{"micros":1811},"get_guilds",{"micros":8585},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 24c83592c3b151e2dec9ca4478101711).
+2022-06-10 08:53:14,803 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,839 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:53:14,843 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,877 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:53:14,881 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,914 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:53:14,917 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,923 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-10 08:53:14,924 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,956 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:53:14,959 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:14,965 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 08:53:17,876 - INFO - bot: <client.py:170> - COMMAND: AdminCog: dashboard
+2022-06-10 08:53:18,060 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:53:18,067 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 08:53:47,186 - INFO - discord.client: Cleaning up tasks.
+2022-06-10 08:53:47,187 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-10 08:53:47,192 - INFO - discord.client: All tasks finished cancelling.
+2022-06-10 08:53:47,193 - INFO - discord.client: Closing the event loop.
+2022-06-10 08:54:00,328 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-10 08:54:00,350 - INFO - discord.client: logging in using static token
+2022-06-10 08:54:00,674 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-10 08:54:00,933 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-95gx",{"micros":155536,"calls":["discord-sessions-green-prd-2-146",{"micros":154628,"calls":["start_session",{"micros":92622,"calls":["discord-api-7bfb8b8697-dtzdm",{"micros":78575,"calls":["get_user",{"micros":19886},"add_authorized_ip",{"micros":3089},"get_guilds",{"micros":14417},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":61439,"calls":[]}]}]}] (Session ID: b6c06bc82d44c838a32a54f60d7c1896).
+2022-06-10 08:54:02,961 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:02,992 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:54:02,996 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:03,026 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:54:03,030 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:03,060 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:54:03,064 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:03,069 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-10 08:54:03,071 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:03,101 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 08:54:03,104 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:03,110 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 08:54:04,375 - INFO - bot: <client.py:170> - COMMAND: AdminCog: dashboard
+2022-06-10 08:54:04,543 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 08:54:04,549 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 09:00:13,039 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 09:00:13,066 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-10 09:00:13,069 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 09:00:13,075 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-10 09:00:13,077 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-10 09:00:13,088 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-10 09:02:34,330 - INFO - discord.client: Cleaning up tasks.
+2022-06-10 09:02:34,331 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-10 09:02:34,338 - INFO - discord.client: All tasks finished cancelling.
+2022-06-10 09:02:34,339 - INFO - discord.client: Closing the event loop.
+2022-06-11 10:09:30,386 - INFO - bot: <client.py:47> - Bot is ready!
+2022-06-11 10:09:30,418 - INFO - discord.client: logging in using static token
+2022-06-11 10:09:30,845 - INFO - discord.gateway: Shard ID None has sent the IDENTIFY payload.
+2022-06-11 10:09:31,017 - INFO - discord.gateway: Shard ID None has connected to Gateway: ["gateway-prd-main-47b0",{"micros":69761,"calls":["discord-sessions-green-prd-2-173",{"micros":68889,"calls":["start_session",{"micros":41070,"calls":["discord-api-768499f95b-f9q47",{"micros":37412,"calls":["get_user",{"micros":10048},"add_authorized_ip",{"micros":2246},"get_guilds",{"micros":5134},"coros_wait",{"micros":0}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":7525,"calls":[]}]}]}] (Session ID: 7dabb670255cf321d1450ef7a515b3ec).
+2022-06-11 10:09:33,042 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,073 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:09:33,076 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,106 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:09:33,109 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,135 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:09:33,138 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,143 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments/30/allowed_reschedules HTTP/1.1" 200 32
+2022-06-11 10:09:33,144 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,171 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:09:33,174 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,180 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:33,182 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:33,195 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-11 10:09:47,134 - INFO - bot: <client.py:170> - COMMAND: TosurnamentTournamentCog: show_tournament_settings
+2022-06-11 10:09:47,349 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,387 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:09:47,394 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,401 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,405 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,411 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,414 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,420 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,423 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,430 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,433 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,441 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,443 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,449 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,451 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,458 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,461 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,469 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,470 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,478 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,481 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,488 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,490 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,496 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,498 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,505 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,507 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,513 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,517 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,523 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,525 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,533 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,535 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,542 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,544 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,552 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,554 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,561 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,563 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,569 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:09:47,572 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:09:47,579 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:15:43,115 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:15:43,147 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/tournaments?guild_id=337616079750692865&include_brackets=True&include_spreadsheets=True HTTP/1.1" 200 3270
+2022-06-11 10:15:43,152 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:15:43,160 - DEBUG - urllib3.connectionpool: http://localhost:5001 "GET /api/v1/tosurnament/guilds?guild_id=337616079750692865 HTTP/1.1" 200 325
+2022-06-11 10:15:43,164 - DEBUG - urllib3.connectionpool: Starting new HTTP connection (1): localhost:5001
+2022-06-11 10:15:43,181 - DEBUG - urllib3.connectionpool: http://localhost:5001 "PUT /api/v1/tosurnament/guilds/2 HTTP/1.1" 204 0
+2022-06-11 10:25:44,091 - INFO - discord.client: Cleaning up tasks.
+2022-06-11 10:25:44,092 - INFO - discord.client: Cleaning up after 5 tasks.
+2022-06-11 10:25:44,098 - INFO - discord.client: All tasks finished cancelling.
+2022-06-11 10:25:44,098 - INFO - discord.client: Closing the event loop.

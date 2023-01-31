@@ -5,6 +5,7 @@ from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.qualifiers_spreadsheet import QualifiersSpreadsheet
 from common.api import spreadsheet as spreadsheet_api
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifiers_spreadsheet"):
@@ -35,7 +36,7 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
                 qualifiers_spreadsheet.sheet_name = sheet_name
             tosurnament_api.update_qualifiers_spreadsheet(tournament.id, bracket.id, qualifiers_spreadsheet)
         await self.send_reply(ctx, "success", qualifiers_spreadsheet.spreadsheet_id)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     async def set_qualifiers_spreadsheet_values(self, ctx, values):
         """Puts the input values into the corresponding bracket."""
@@ -97,11 +98,6 @@ class TosurnamentQualifiersCog(tosurnament.TosurnamentBaseModule, name="qualifie
         await self.show_spreadsheet_settings(ctx, "qualifiers")
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentQualifiersCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentQualifiersCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentQualifiersCog(bot))

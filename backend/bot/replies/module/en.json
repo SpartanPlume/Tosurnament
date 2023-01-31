@@ -27,5 +27,5 @@
   "qualifier": "Qualifier",
   "teams": "Teams",
   "at": "at",
-  "use_dashboard": "**Deprecated:** You should now use https://dashboard.tosurnament.com/guilds/%1 to edit the settings of the bot on your server. Settings related to result posting and registration are not present on the settings page, as they will be reworked, but you can keep using the commands."
+  "use_dashboard": "**Deprecated:** You should now use %1/guilds/%2 to edit the settings of the bot on your server. Settings related to result posting and registration are not present on the settings page, as they will be reworked, but you can keep using the commands."
 }

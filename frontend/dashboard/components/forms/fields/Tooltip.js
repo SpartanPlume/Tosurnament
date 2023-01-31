@@ -4,6 +4,11 @@ import Popover from "react-bootstrap/Popover";
 
 export default function Tooltip({ description }) {
   const [show, setShow] = useState(false);
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      setShow(false);
+    });
+  }, []);
 
   if (!description) {
     return;
@@ -14,12 +19,6 @@ export default function Tooltip({ description }) {
       <Popover.Body>{description}</Popover.Body>
     </Popover>
   );
-
-  useEffect(() => {
-    window.addEventListener("scroll", () => {
-      setShow(false);
-    });
-  }, []);
 
   return (
     <OverlayTrigger

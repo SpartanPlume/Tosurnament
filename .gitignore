@@ -140,3 +140,7 @@ log
 .credentials
 .vscode
 pickles
+*.secret
+*.sql
+*.sqlite
+.yarn

@@ -31,15 +31,15 @@ class Client(commands.Bot):
 
     def __init__(self, intents=discord.Intents.default()):
         super(Client, self).__init__(command_prefix=constants.COMMAND_PREFIX, intents=intents)
-        self.owner_id = constants.BOT_OWNER_ID
+        self.owner_id = int(constants.BOT_OWNER_ID)
         self.error_code = 0
         self.modules = []
+        self.tasks = []
         self.init_logger()
         self.init_ressources()
         self.init_db()
-        self.init_modules()
         self.init_spreadsheet_service()
-        self.init_background_tasks()
+        # self.init_background_tasks()
         self.init_available_languages()
         if self.error_code != 0:
             return
@@ -47,12 +47,15 @@ class Client(commands.Bot):
         self.info("Bot is ready!")
         print("Ready!")
 
+    async def setup_hook(self):
+        await self.init_modules()
+
     def init_logger(self):
         """Initializes the logger"""
-        if not os.path.exists("log"):
-            os.mkdir("log")
+        if not os.path.exists("logs"):
+            os.mkdir("logs")
         self.handler = TimedRotatingFileHandler(
-            filename="log/bot.log",
+            filename="logs/bot.log",
             when="W1",
             utc=True,
             backupCount=4,
@@ -77,17 +80,14 @@ class Client(commands.Bot):
         self.strings = load_json.load_directory("bot/replies")
         self.strings = load_json.replace_placeholders(self.strings)
 
-    def init_modules(self):
+    async def init_modules(self):
         """Initializes all modules"""
         for root, _, files in os.walk(MODULES_DIR):
             for filename in files:
                 if filename != "module.py" and filename.endswith(".py"):
                     module_name = root.replace("/", ".") + "." + filename[:-3]
                     try:
-                        self.load_extension(module_name)
-                        module_file = importlib.import_module(module_name)
-                        module = module_file.get_class(self)
-                        self.modules.append(module)
+                        await self.load_extension(module_name)
                         print("Module " + filename + " loaded")
                     except discord.errors.ClientException:
                         print("The module " + filename + " could not be loaded.")
@@ -102,10 +102,12 @@ class Client(commands.Bot):
                     importlib.import_module(root.replace("/", ".") + "." + filename[:-3])
         try:
             self.session = Database(
-                constants.DB_USERNAME,
-                constants.DB_PASSWORD,
-                constants.DB_MESSAGE_NAME,
+                constants.MYSQL_USER,
+                constants.MYSQL_PASSWORD,
+                constants.MYSQL_MESSAGE_DATABASE,
                 Fernet(constants.ENCRYPTION_KEY),
+                host=constants.MYSQL_HOST,
+                pool_name="tosurnament_message_pool",
             )
         except DatabaseInitializationError:
             print("ERROR: Couldn't initialize the db session. Is the mysql service started ?")
@@ -229,6 +231,8 @@ class Client(commands.Bot):
         await self.on_verified_user(member.guild, member)
 
     async def on_verified_user(self, guild, user):
+        # TODO
+        return
         for module in self.modules:
             if hasattr(module, "on_verified_user"):
                 try:

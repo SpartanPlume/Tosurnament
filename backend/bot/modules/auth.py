@@ -6,6 +6,7 @@ from discord.ext import commands
 from bot.modules import module as base
 from common.databases.tosurnament.user import User
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class UserAlreadyVerified(commands.CommandError):
@@ -55,7 +56,7 @@ class AuthCog(base.BaseModule, name="auth"):
             await ctx.message.delete()
         except Exception:
             pass
-        await self.send_reply(ctx, "success", code, channel=dm_channel)
+        await self.send_reply(ctx, "success", constants.TOSURNAMENT_AUTH_URI, code, channel=dm_channel)
 
     @link.error
     async def link_handler(self, ctx, error):
@@ -64,11 +65,6 @@ class AuthCog(base.BaseModule, name="auth"):
             await self.send_reply(ctx, "already_verified")
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return AuthCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(AuthCog(bot))
+    await bot.add_cog(AuthCog(bot))

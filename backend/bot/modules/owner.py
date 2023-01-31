@@ -117,11 +117,6 @@ class OwnerCog(base.BaseModule, name="owner"):
                     continue
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return OwnerCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(OwnerCog(bot))
+    await bot.add_cog(OwnerCog(bot))

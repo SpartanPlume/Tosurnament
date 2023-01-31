@@ -1,0 +1,108 @@
+services:
+  db:
+    image: mariadb:10.8
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - tosurnament-data:/var/lib/mysql
+      - ./tosurnament.sql:/docker-entrypoint-initdb.d/tosurnament.sql
+      - ./tosurnament_message.sql:/docker-entrypoint-initdb.d/tosurnament_message.sql
+      - ./init_mysql.sh:/docker-entrypoint-initdb.d/init_mysql.sh
+    env_file:
+      - .env
+      - .env.development
+      - .env.development.secret
+    environment:
+      MARIADB_MYSQL_LOCALHOST_USER: "true"
+    healthcheck:
+      test: healthfile=$$(find /tmp/health.txt -not -newermt "-10 seconds"); if [ $$? != 0 ] || [ $$healthfile ]; then /usr/local/bin/healthcheck.sh --su-mysql --connect --innodb_initialized && touch /tmp/health.txt; fi
+      interval: 1s
+      timeout: 1s
+      retries: 3
+      start_period: 10s
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 5001:5001
+    volumes:
+      - ./backend/api:/app/api
+      - ./backend/common:/app/common
+      - ./backend/start_api.py:/app/start_api.py
+      - ./logs:/app/logs
+    env_file:
+      - .env
+      - .env.development
+      - .env.development.secret
+    environment:
+      MYSQL_HOST: db
+    depends_on:
+       db:
+        condition: service_healthy
+    command: gunicorn -b 0.0.0.0:5001 -w 1 start_api:app --access-logfile /app/logs/api.log --access-logformat '"%(r)s" - %(s)s'
+  bot:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    volumes:
+      - ./backend/bot:/app/bot
+      - ./backend/common:/app/common
+      - ./backend/start_bot.py:/app/start_bot.py
+      - ./logs:/app/logs
+    env_file:
+      - .env
+      - .env.development
+      - .env.development.secret
+    environment:
+      MYSQL_HOST: db
+      TOSURNAMENT_API_HOST: api
+    depends_on:
+       - "api"
+    command: python3 start_bot.py
+  dashboard:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/dashboard:/app/dashboard
+      - tosurnament-dashboard-node-modules:/app/dashboard/node_modules/
+    env_file:
+      - .env
+      - .env.development
+      - .env.development.secret
+    depends_on:
+      - "api"
+    command: yarn dev
+  auth:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    ports:
+      - 3001:3001
+    volumes:
+      - ./frontend/auth:/app
+      - tosurnament-auth-node-modules:/app/node_modules/
+    env_file:
+      - .env
+      - .env.development
+      - .env.development.secret
+    environment:
+      HOST: 0.0.0.0
+      PRIVATE_TOSURNAMENT_API_PATH: "http://api:5001/api/v1"
+    depends_on:
+      - "api"
+    command: yarn dev
+
+volumes:
+  tosurnament-data:
+  tosurnament-dashboard-node-modules:
+  tosurnament-auth-node-modules:
+  

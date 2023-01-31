@@ -1,0 +1,15 @@
+FROM node:16-bullseye-slim
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y git
+
+COPY ./frontend/dashboard ./dashboard
+COPY ./frontend/fields ./fields
+
+WORKDIR /app/dashboard
+RUN corepack enable \
+    && corepack prepare yarn@stable --activate \
+    && yarn set version 3.3.0 \
+    && yarn install
+RUN yarn add --dev @swc/cli @swc/core
+RUN yarn

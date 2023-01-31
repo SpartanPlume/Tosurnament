@@ -4,7 +4,7 @@ import asyncio
 import datetime
 import discord
 from discord.utils import escape_markdown
-from discord.ext import commands
+from discord.ext import commands, tasks
 from bot.modules.tosurnament import module as tosurnament
 from common.databases.tosurnament.spreadsheets.schedules_spreadsheet import (
     MatchInfo,
@@ -33,6 +33,12 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
     def __init__(self, bot):
         super().__init__(bot)
         self.bot = bot
+        self.background_task_match_notification.start()
+        self.background_task_clean_allowed_reschedule.start()
+
+    def cog_unload(self):
+        self.background_task_match_notification.cancel()
+        self.background_task_clean_allowed_reschedule.cancel()
 
     def cog_check(self, ctx):
         """Check function called before any command of the cog."""
@@ -327,7 +333,7 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
                 else:
                     invalid_match_ids.add(match_id)
         for spreadsheet in spreadsheets:
-            self.add_update_spreadsheet_background_task(spreadsheet)
+            await self.add_update_spreadsheet_background_task(spreadsheet)
         return invalid_match_ids
 
     def format_take_match_string(self, string, match_ids):
@@ -727,55 +733,51 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
         finally:
             Spreadsheet.pickle_from_id.cache_clear()
 
+    @tasks.loop(minutes=15.0)
     async def background_task_match_notification(self):
+        tasks = []
         try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                tasks = []
+            for guild in self.bot.guilds:
                 try:
-                    for guild in self.bot.guilds:
-                        try:
-                            tournament = self.get_tournament(guild.id)
-                        except tosurnament.NoTournament:
-                            continue
-                        tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild, tournament)))
-                        await asyncio.sleep(10)
-                    now = datetime.datetime.utcnow()
-                    delta_minutes = 15 - now.minute % 15
-                    await asyncio.sleep(delta_minutes * 60)
+                    tournament = self.get_tournament(guild.id)
+                except tosurnament.NoTournament:
+                    continue
+                tasks.append(self.bot.loop.create_task(self.match_notification_wrapper(guild, tournament)))
+                await asyncio.sleep(10)
+        except asyncio.CancelledError:
+            for task in tasks:
+                task.cancel()
+                try:
+                    await task
                 except asyncio.CancelledError:
-                    for task in tasks:
-                        task.cancel()
-                        try:
-                            await task
-                        except asyncio.CancelledError:
-                            continue
-                    return
-        except asyncio.CancelledError:
-            return
+                    continue
+            raise
 
-    async def clean_allowed_reschedule(self, guild):
-        tournament = self.get_tournament(guild.id)
-        tosurnament_api.get_allowed_reschedules(tournament.id)  # This call cleans up outdate AllowedReschedules
+    @background_task_match_notification.before_loop
+    async def before_background_task_match_notification(self):
+        self.bot.info("Waiting for bot to be ready before starting match_notification background task...")
+        await self.bot.wait_until_ready()
+        self.bot.info("Bot is ready. match_notification background task will start.")
+        await self.background_task_match_notification()
+        now = datetime.datetime.utcnow()
+        delta_minutes = 15 - now.minute % 15
+        await asyncio.sleep(delta_minutes * 60)
 
+    @tasks.loop(hours=1.0)
     async def background_task_clean_allowed_reschedule(self):
-        try:
-            await self.bot.wait_until_ready()
-            while not self.bot.is_closed():
-                for guild in self.bot.guilds:
-                    try:
-                        await self.clean_allowed_reschedule(guild)
-                    except asyncio.CancelledError:
-                        return
-                    except Exception:
-                        continue
-                await asyncio.sleep(3600)
-        except asyncio.CancelledError:
-            return
+        for guild in self.bot.guilds:
+            try:
+                tournament = self.get_tournament(guild.id)
+                # This call cleans up outdated AllowedReschedules
+                tosurnament_api.get_allowed_reschedules(tournament.id)
+            except Exception:
+                continue
 
-    def background_task(self):
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_match_notification()))
-        self.bot.tasks.append(self.bot.loop.create_task(self.background_task_clean_allowed_reschedule()))
+    @background_task_clean_allowed_reschedule.before_loop
+    async def before_background_task_clean_allowed_reschedule(self):
+        self.bot.info("Waiting for bot to be ready before starting clean_allowed_reschedule background task...")
+        await self.bot.wait_until_ready()
+        self.bot.info("Bot is ready. clean_allowed_reschedule background task will start.")
 
     @on_raw_reaction_with_context("add", valid_emojis=["💪"])
     @with_corresponding_message(MatchNotification)
@@ -933,11 +935,6 @@ class TosurnamentStaffCog(tosurnament.TosurnamentBaseModule, name="staff"):
             await self.on_cog_command_error(ctx, e)
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentStaffCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentStaffCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentStaffCog(bot))

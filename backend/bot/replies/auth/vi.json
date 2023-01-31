@@ -1,7 +1,7 @@
 {
   "link": {
     "help": "Liên kết tài khoản osu! của bạn với tài khoản Discord của bạn.",
-    "success": "Đi tới trang https://auth.tosurnament.com/?code=%1 và làm theo hướng dẫn.\n\n**QUAN TRỌNG:** Đừng chia sẻ đường dẫn này với bất kỳ ai vì nó là đường dẫn riêng tư chứa mã độc nhất được tạo riêng cho bạn.",
+    "success": "Đi tới trang %1/?code=%2 và làm theo hướng dẫn.\n\n**QUAN TRỌNG:** Đừng chia sẻ đường dẫn này với bất kỳ ai vì nó là đường dẫn riêng tư chứa mã độc nhất được tạo riêng cho bạn.",
     "already_verified": "Tài khoản của bạn đã được xác minh rồi."
   }
 }

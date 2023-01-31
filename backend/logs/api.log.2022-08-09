@@ -1,0 +1,781 @@
+2022-08-09 21:52:28,015 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,021 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 21:52:28,028 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,028 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,029 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,034 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,035 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 21:52:28,036 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,037 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,037 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,041 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,041 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,042 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,043 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,044 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,046 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,047 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,048 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,048 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,049 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,053 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,053 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,054 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,055 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,056 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,056 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,057 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,057 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,058 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,058 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,067 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,067 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 21:52:28,068 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,068 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,069 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,073 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,074 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 21:52:28,074 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,075 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,076 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,077 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,078 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,078 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,079 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,079 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,081 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,082 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,082 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,083 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,083 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,087 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,087 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,087 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,088 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,088 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,089 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,089 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,090 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,090 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,091 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,097 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,098 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 21:52:28,099 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,099 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,100 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,105 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,105 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 21:52:28,106 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,106 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,107 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,109 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,109 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,110 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,110 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,111 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,113 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,113 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,114 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,114 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,115 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,118 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,118 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,119 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,119 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,120 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,120 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,121 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,121 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,121 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,122 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,128 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,129 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM allowed_reschedule WHERE tournament_id = %s
+2022-08-09 21:52:28,129 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,130 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,131 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,136 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,136 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 21:52:28,137 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,137 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,138 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,144 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,144 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 21:52:28,144 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,145 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,145 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,148 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,148 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,148 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,149 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,149 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,151 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,152 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,152 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,153 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,153 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,156 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,157 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,157 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,157 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,158 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,158 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,159 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 21:52:28,159 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,159 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,160 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,167 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,167 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 21:52:28,169 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,169 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,170 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,176 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,176 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE id = %s
+2022-08-09 21:52:28,177 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,177 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,178 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,180 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:28,180 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE guild SET guild_id = %s, guild_id_snowflake = %s, verified_role_id = %s, admin_role_id = %s, last_notification_date = %s, language = %s, created_at = %s, updated_at = %s WHERE id = 2
+2022-08-09 21:52:28,182 - INFO - encrypted_mysqldb <database.py:234>: Object guild with id 2 has been updated
+2022-08-09 21:52:28,182 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:28,185 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:28,186 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:28,186 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] Guild 2 has been updated
+2022-08-09 21:52:46,171 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:46,172 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 21:52:46,183 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:46,183 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:46,184 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:46,194 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:46,194 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: INSERT INTO user (discord_id, discord_id_snowflake, osu_id, verified, code, osu_name, osu_name_hash, osu_previous_name, osu_std_rank, osu_taiko_rank, osu_ctb_rank, osu_mania_rank, country) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2022-08-09 21:52:46,195 - INFO - encrypted_mysqldb <database.py:218>: Object user with id 3683 has been added
+2022-08-09 21:52:46,195 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:46,199 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:46,200 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:52:46,201 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3683 has been created
+2022-08-09 21:52:46,561 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:52:46,562 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 21:52:46,562 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:52:46,563 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:52:46,563 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:59:24,138 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:59:24,138 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 21:59:24,141 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:59:24,141 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:59:24,142 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:59:24,149 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:59:24,150 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE id = %s
+2022-08-09 21:59:24,150 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:59:24,151 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:59:24,152 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:59:24,157 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 21:59:24,157 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3683
+2022-08-09 21:59:24,158 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3683 has been updated
+2022-08-09 21:59:24,158 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 21:59:24,161 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 21:59:24,162 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 21:59:24,162 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3683 has been updated
+2022-08-09 22:00:38,138 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,138 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:00:38,139 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,139 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,140 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,144 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,144 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:00:38,145 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,145 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,146 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,148 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,149 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:00:38,149 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,150 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,151 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,153 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,153 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:00:38,154 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,154 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,155 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,158 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,158 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:00:38,159 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,159 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,160 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,160 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,161 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:00:38,161 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,161 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,162 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,168 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,169 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 22:00:38,170 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,170 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,171 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,177 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,177 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE id = %s
+2022-08-09 22:00:38,178 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,179 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,180 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,182 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:00:38,182 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE guild SET guild_id = %s, guild_id_snowflake = %s, verified_role_id = %s, admin_role_id = %s, last_notification_date = %s, language = %s, created_at = %s, updated_at = %s WHERE id = 2
+2022-08-09 22:00:38,183 - INFO - encrypted_mysqldb <database.py:234>: Object guild with id 2 has been updated
+2022-08-09 22:00:38,183 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:00:38,187 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:00:38,188 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:00:38,188 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] Guild 2 has been updated
+2022-08-09 22:01:29,648 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,648 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:01:29,649 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,649 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,650 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,654 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,654 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:01:29,655 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,655 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,656 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,658 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,658 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,659 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,659 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,660 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,662 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,663 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,663 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,663 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,664 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,667 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,667 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,667 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,668 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,668 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,669 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,669 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,669 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,670 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,670 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,677 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,677 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:01:29,678 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,679 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,680 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,684 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,684 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:01:29,685 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,685 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,686 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,688 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,689 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,689 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,690 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,690 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,692 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,693 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,693 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,694 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,694 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,697 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,697 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,698 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,698 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,699 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,699 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,699 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,700 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,700 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,701 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,707 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,708 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:01:29,709 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,709 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,710 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,714 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,714 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:01:29,715 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,715 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,716 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,719 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,719 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,720 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,720 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,721 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,723 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,723 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,724 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,724 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,725 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,729 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,730 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,730 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,731 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,732 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,732 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,733 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,734 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,734 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,735 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,741 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,742 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM allowed_reschedule WHERE tournament_id = %s
+2022-08-09 22:01:29,742 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,742 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,743 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,747 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,747 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:01:29,748 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,748 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,749 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,754 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,754 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:01:29,755 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,755 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,756 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,758 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,759 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,759 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,759 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,760 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,762 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,762 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,763 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,763 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,764 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,766 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,766 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,767 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,767 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,768 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,768 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,768 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:01:29,769 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,769 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,770 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:29,775 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:29,776 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 22:01:29,776 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:29,777 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:29,777 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:30,581 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:30,581 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:01:30,584 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:30,585 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:30,586 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:30,593 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:30,593 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE id = %s
+2022-08-09 22:01:30,594 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:30,594 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:30,595 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:30,598 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:01:30,598 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3683
+2022-08-09 22:01:30,599 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3683 has been updated
+2022-08-09 22:01:30,599 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:01:30,601 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:01:30,602 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:01:30,603 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3683 has been updated
+2022-08-09 22:04:06,818 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:06,820 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:06,821 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:04:06,821 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:04:06,827 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:06,827 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:06,828 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:06,829 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:06,830 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:06,831 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:07,433 - INFO - tosurnament-api <logger.py:18>: [session: BOT] Error 401: Could not exchange token
+2022-08-09 22:04:07,785 - INFO - tosurnament-api <logger.py:18>: [session: BOT] Error 401: Could not exchange token
+2022-08-09 22:04:28,329 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:28,330 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:04:28,333 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:28,333 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:28,334 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:28,786 - INFO - tosurnament-api <logger.py:18>: [session: BOT] Error 401: Could not exchange token
+2022-08-09 22:04:47,770 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:47,771 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:04:47,773 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:47,774 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:47,774 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:47,781 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:47,781 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE id = %s
+2022-08-09 22:04:47,782 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:47,782 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:47,783 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:47,785 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:04:47,786 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3683
+2022-08-09 22:04:47,787 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3683 has been updated
+2022-08-09 22:04:47,787 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:04:47,789 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:04:47,790 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:04:47,791 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3683 has been updated
+2022-08-09 22:05:02,752 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:05:02,753 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:05:02,755 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:05:02,756 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:05:02,757 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:05:03,220 - INFO - tosurnament-api <logger.py:18>: [session: BOT] Error 401: Could not exchange token
+2022-08-09 22:05:56,782 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:05:56,783 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:05:56,786 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:05:56,787 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:05:56,787 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:05:56,795 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:05:56,795 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE id = %s
+2022-08-09 22:05:56,796 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:05:56,797 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:05:56,798 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:05:56,801 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:05:56,801 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3683
+2022-08-09 22:05:56,802 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3683 has been updated
+2022-08-09 22:05:56,802 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:05:56,805 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:05:56,806 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:05:56,806 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3683 has been updated
+2022-08-09 22:06:15,163 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:06:15,163 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:06:15,166 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:06:15,167 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:06:15,168 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:06:16,490 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:06:16,490 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3683
+2022-08-09 22:06:16,491 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3683 has been updated
+2022-08-09 22:06:16,491 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:06:16,495 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:06:16,496 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:06:16,496 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User with the osu id 2553166 has been authentificated
+2022-08-09 22:15:39,745 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,745 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:15:39,746 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,747 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,748 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,752 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,753 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:15:39,754 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,754 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,755 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,758 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,759 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:15:39,760 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,760 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,761 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,763 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,764 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:15:39,764 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,765 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,766 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,768 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,769 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:15:39,769 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,770 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,771 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,771 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,771 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:15:39,772 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,772 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,773 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,779 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,779 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 22:15:39,780 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,780 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,782 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,787 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,788 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE id = %s
+2022-08-09 22:15:39,788 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,789 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,790 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,792 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:15:39,792 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE guild SET guild_id = %s, guild_id_snowflake = %s, verified_role_id = %s, admin_role_id = %s, last_notification_date = %s, language = %s, created_at = %s, updated_at = %s WHERE id = 2
+2022-08-09 22:15:39,793 - INFO - encrypted_mysqldb <database.py:234>: Object guild with id 2 has been updated
+2022-08-09 22:15:39,793 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:15:39,797 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:15:39,798 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:15:39,798 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] Guild 2 has been updated
+2022-08-09 22:23:48,496 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:48,496 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:23:48,499 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:48,499 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:48,500 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,466 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,466 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:23:49,467 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,467 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,468 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,474 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,474 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:23:49,475 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,475 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,476 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,478 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,478 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,479 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,479 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,480 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,482 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,482 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,483 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,483 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,484 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,486 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,486 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,487 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,487 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,488 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,488 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,489 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,489 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,489 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,490 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,496 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,496 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:23:49,497 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,497 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,498 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,502 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,503 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:23:49,503 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,503 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,504 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,506 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,506 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,507 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,507 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,508 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,510 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,510 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,511 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,511 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,512 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,515 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,515 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,515 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,516 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,516 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,517 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,517 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,518 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,518 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,519 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,525 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,525 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:23:49,526 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,526 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,527 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,532 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,532 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:23:49,533 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,533 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,534 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,536 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,537 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,537 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,537 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,538 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,540 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,541 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,541 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,542 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,542 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,545 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,545 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,545 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,546 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,546 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,547 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,547 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,548 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,548 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,549 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,554 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,554 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM allowed_reschedule WHERE tournament_id = %s
+2022-08-09 22:23:49,555 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,555 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,556 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,560 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,560 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:23:49,561 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,561 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,562 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,566 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,567 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:23:49,567 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,567 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,568 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,570 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,570 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,571 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,571 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,572 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,574 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,574 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,575 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,575 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,576 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,579 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,579 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,580 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,580 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,581 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,582 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,582 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:23:49,583 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,583 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,584 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:23:49,589 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:23:49,590 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 22:23:49,590 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:23:49,591 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:23:49,591 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:36,925 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:36,926 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:26:36,932 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:36,933 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:36,934 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:36,941 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:36,941 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: INSERT INTO user (discord_id, discord_id_snowflake, osu_id, verified, code, osu_name, osu_name_hash, osu_previous_name, osu_std_rank, osu_taiko_rank, osu_ctb_rank, osu_mania_rank, country) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2022-08-09 22:26:36,942 - INFO - encrypted_mysqldb <database.py:218>: Object user with id 3684 has been added
+2022-08-09 22:26:36,943 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:36,946 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:36,947 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:36,947 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3684 has been created
+2022-08-09 22:26:37,572 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,572 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:26:37,573 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,574 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,575 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,581 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,581 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:26:37,582 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,582 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,584 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,586 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,587 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,587 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,588 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,589 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,591 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,592 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,592 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,593 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,594 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,597 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,597 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,598 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,598 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,599 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,600 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,601 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,601 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,602 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,603 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,610 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,610 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:26:37,611 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,611 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,613 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,617 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,617 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:26:37,618 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,619 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,620 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,622 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,623 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,623 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,624 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,625 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,627 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,628 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,628 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,629 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,630 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,633 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,634 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,635 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,635 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,636 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,637 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,637 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,638 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,638 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,639 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,646 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,647 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:26:37,648 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,648 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,649 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,654 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,654 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:26:37,655 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,656 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,657 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,659 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,659 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,660 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,661 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,662 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,665 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,665 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,666 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,666 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,667 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,670 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,671 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,672 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,672 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,673 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,674 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,674 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,674 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,675 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,676 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,682 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,683 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM allowed_reschedule WHERE tournament_id = %s
+2022-08-09 22:26:37,683 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,684 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,685 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,689 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,690 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM tournament WHERE guild_id = %s
+2022-08-09 22:26:37,690 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,691 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,692 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,696 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,697 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM bracket WHERE tournament_id = %s
+2022-08-09 22:26:37,698 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,698 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,699 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,702 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,702 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM players_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,703 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,703 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,704 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,707 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,707 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM schedules_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,708 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,708 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,709 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,712 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,713 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,713 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,714 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,715 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,715 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,715 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM qualifiers_results_spreadsheet WHERE id = %s
+2022-08-09 22:26:37,716 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,717 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,718 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:26:37,724 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:26:37,725 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM guild WHERE guild_id = %s
+2022-08-09 22:26:37,725 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:26:37,726 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:26:37,727 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:27:11,524 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:27:11,525 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE code = %s
+2022-08-09 22:27:11,527 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:27:11,528 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:27:11,529 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:27:12,739 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:27:12,739 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: UPDATE user SET discord_id = %s, discord_id_snowflake = %s, osu_id = %s, verified = %s, code = %s, osu_name = %s, osu_name_hash = %s, osu_previous_name = %s, osu_std_rank = %s, osu_taiko_rank = %s, osu_ctb_rank = %s, osu_mania_rank = %s, country = %s WHERE id = 3684
+2022-08-09 22:27:12,740 - INFO - encrypted_mysqldb <database.py:234>: Object user with id 3684 has been updated
+2022-08-09 22:27:12,740 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:27:12,743 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:27:12,744 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed
+2022-08-09 22:27:13,015 - DEBUG - tosurnament-api <logger.py:14>: [session: BOT] User 3684 with the osu id 2553166 has been authentificated
+2022-08-09 22:27:24,713 - DEBUG - encrypted_mysqldb <connection_pool.py:73>: Connection retrieved from pool
+2022-08-09 22:27:24,713 - DEBUG - encrypted_mysqldb <connection_pool.py:41>: Executing query: SELECT * FROM user WHERE discord_id = %s
+2022-08-09 22:27:24,716 - DEBUG - encrypted_mysqldb <connection_pool.py:26>: Cursor closed
+2022-08-09 22:27:24,717 - DEBUG - encrypted_mysqldb <connection_pool.py:31>: Connection committed
+2022-08-09 22:27:24,718 - DEBUG - encrypted_mysqldb <connection_pool.py:36>: Connection closed

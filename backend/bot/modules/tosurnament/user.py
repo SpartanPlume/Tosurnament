@@ -23,7 +23,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
             players_spreadsheet.range_team, previous_name, new_name
         )
         if changed_name:
-            self.add_update_spreadsheet_background_task(players_spreadsheet)
+            await self.add_update_spreadsheet_background_task(players_spreadsheet)
 
     async def change_name_in_schedules_spreadsheet(self, ctx, bracket, previous_name, new_name, user_details):
         schedules_spreadsheet = await bracket.get_schedules_spreadsheet()
@@ -45,7 +45,7 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
                 new_name,
             )
         if changed_name:
-            self.add_update_spreadsheet_background_task(schedules_spreadsheet)
+            await self.add_update_spreadsheet_background_task(schedules_spreadsheet)
 
     @commands.command(aliases=["nc", "change_name", "cn"])
     @commands.guild_only()
@@ -193,11 +193,6 @@ class TosurnamentUserCog(tosurnament.TosurnamentBaseModule, name="user"):
         )
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentUserCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentUserCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentUserCog(bot))

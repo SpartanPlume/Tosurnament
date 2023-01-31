@@ -7,6 +7,7 @@ from common.databases.tosurnament.guild import Guild
 from common.databases.tosurnament_message.guild_verify_message import GuildVerifyMessage
 from common.databases.tosurnament_message.base_message import with_corresponding_message, on_raw_reaction_with_context
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class GuildCog(base.BaseModule, name="guild"):
@@ -52,7 +53,7 @@ class GuildCog(base.BaseModule, name="guild"):
             setattr(guild, key, value)
         tosurnament_api.update_guild(guild)
         await self.send_reply(ctx, "success", value)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     @commands.command(aliases=["svc"])
     async def setup_verification_channel(self, ctx, channel: discord.TextChannel):
@@ -112,11 +113,6 @@ class GuildCog(base.BaseModule, name="guild"):
                 self.bot.info("Missing manage_roles permission or error while changing the role of the user")
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return GuildCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(GuildCog(bot))
+    await bot.add_cog(GuildCog(bot))

@@ -302,7 +302,7 @@ class TosurnamentBaseModule(BaseModule):
             self.bot.info_exception(e)
             self.bot.tasks.append(self.bot.loop.create_task(self.update_spreadsheet_background_task(spreadsheet_id)))
 
-    def add_update_spreadsheet_background_task(self, spreadsheet):
+    async def add_update_spreadsheet_background_task(self, spreadsheet):
         spreadsheet.spreadsheet.update_pickle()
         spreadsheet_id = spreadsheet.spreadsheet.id
         spreadsheet_ids = self.get_spreadsheet_ids_to_update_pickle()

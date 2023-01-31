@@ -11,6 +11,7 @@ from common.databases.tosurnament_message.post_result_message import PostResultM
 from common.databases.tosurnament_message.match_notification import MatchNotification
 from common.databases.tosurnament_message.base_message import on_raw_reaction_with_context, with_corresponding_message
 from common.api import tosurnament as tosurnament_api
+from common.config import constants
 
 
 class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_owner"):
@@ -39,7 +40,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             tournament.current_bracket.name = bracket_name
             tosurnament_api.update_bracket(tournament.id, tournament.current_bracket)
         await self.send_reply(ctx, "success", acronym, name, bracket_name)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     @create_tournament.error
     async def create_tournament_handler(self, ctx, error):
@@ -56,7 +57,7 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             message_id=message.id, author_id=str(ctx.author.id), tournament_id=tournament.id
         )
         self.bot.session.add(end_tournament_message)
-        await self.send_reply(ctx, "use_dashboard", ctx.guild.id)
+        await self.send_reply(ctx, "use_dashboard", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
     @on_raw_reaction_with_context("add", valid_emojis=["✅", "❎"])
     @with_corresponding_message(EndTournamentMessage)
@@ -85,11 +86,6 @@ class TosurnamentGuildOwnerCog(tosurnament.TosurnamentBaseModule, name="guild_ow
             await self.send_reply(ctx, "refused")
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentGuildOwnerCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentGuildOwnerCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentGuildOwnerCog(bot))

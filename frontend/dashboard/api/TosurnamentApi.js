@@ -11,7 +11,7 @@ function redirectToLoginIfNeeded(error) {
 }
 
 export default class TosurnamentApi {
-  static baseApiPath = "https://api.tosurnament.com/api/v1";
+  static baseApiPath = process.env.NEXT_PUBLIC_TOSURNAMENT_API_PATH;
 
   static async doMethod(method, uri, body = null) {
     const sessionToken = Cookies.get("session_token");
@@ -111,6 +111,21 @@ export function queryTournamentFromDiscordGuildId(guildId) {
       if (data && "tournaments" in data) {
         data = data["tournaments"][0];
       }
+      return data;
+    }
+  };
+}
+
+export function queryTournament(tournamentId) {
+  return {
+    queryKey: ["tournament", { tournament_id: tournamentId }],
+    queryFn: async () => {
+      if (!tournamentId) {
+        return null;
+      }
+      let { data } = await TosurnamentApi.get(
+        `/tosurnament/tournaments/${tournamentId}?include_brackets=true&include_spreadsheets=true`
+      );
       return data;
     }
   };

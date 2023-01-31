@@ -2,10 +2,10 @@ echo "Installing necessary packages... (Your sudo password might be needed)"
 sudo pacman -S jq --needed
 echo "Installing necessary packages... DONE"
 
-DB_NAME=$(jq -r '.DB_NAME' constants.json)
-DB_MESSAGE_NAME=$(jq -r '.DB_MESSAGE_NAME' constants.json)
-DB_USERNAME=$(jq -r '.DB_USERNAME' constants.json)
-DB_PASSWORD=$(jq -r '.DB_PASSWORD' constants.json)
+DB_NAME=$(jq -r '.MYSQL_DATABASE' constants.json)
+DB_MESSAGE_NAME=$(jq -r '.MYSQL_MESSAGE_DATABASE' constants.json)
+DB_USERNAME=$(jq -r '.MYSQL_USER' constants.json)
+DB_PASSWORD=$(jq -r '.MYSQL_PASSWORD' constants.json)
 
 echo "Setting up mysql database... (Your mysql root user's password might be needed)"
 sudo mysql <<EOF

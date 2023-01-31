@@ -3,6 +3,7 @@
 import discord
 from discord.ext import commands
 from bot.modules import module as base
+from common.config import constants
 
 
 class AdminCog(base.BaseModule, name="admin"):
@@ -32,14 +33,9 @@ class AdminCog(base.BaseModule, name="admin"):
 
     @commands.command(aliases=["setting", "settings"])
     async def dashboard(self, ctx):
-        await self.send_reply(ctx, "success", ctx.guild.id)
+        await self.send_reply(ctx, "success", constants.TOSURNAMENT_DASHBOARD_URI, ctx.guild.id)
 
 
-def get_class(bot):
-    """Returns the main class of the module."""
-    return AdminCog(bot)
-
-
-def setup(bot):
+async def setup(bot):
     """Setups the cog."""
-    bot.add_cog(AdminCog(bot))
+    await bot.add_cog(AdminCog(bot))

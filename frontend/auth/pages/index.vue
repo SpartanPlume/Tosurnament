@@ -16,8 +16,8 @@ export default {
   methods: {
     goToOsuAuthorize: async function (event) {
       const parameters = {
-        client_id: "7694",
-        redirect_uri: window.location.origin + "/redirect",
+        client_id: process.env.OSU_CLIENT_ID,
+        redirect_uri: process.env.OSU_REDIRECT_URI,
         response_type: "code",
         scope: "identify",
         state: this.$route.query.code

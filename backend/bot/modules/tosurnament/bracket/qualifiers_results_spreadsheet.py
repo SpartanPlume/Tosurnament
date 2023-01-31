@@ -82,11 +82,6 @@ class TosurnamentQualifiersResultsSpreadsheetCog(
         await self.show_spreadsheet_settings(ctx, "qualifiers_results")
 
 
-def get_class(bot):
-    """Returns the main class of the module"""
-    return TosurnamentQualifiersResultsSpreadsheetCog(bot)
-
-
-def setup(bot):
-    """Setups the cog"""
-    bot.add_cog(TosurnamentQualifiersResultsSpreadsheetCog(bot))
+async def setup(bot):
+    """Setup the cog"""
+    await bot.add_cog(TosurnamentQualifiersResultsSpreadsheetCog(bot))

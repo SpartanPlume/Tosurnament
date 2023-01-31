@@ -7,7 +7,7 @@
   },
   "dashboard": {
     "help": "Sends the dashboard link of the guild",
-    "success": "Dashboard link for this guild: https://dashboard.tosurnament.com/guilds/%1"
+    "success": "Dashboard link for this guild: %1/guilds/%2"
   }
 }
   

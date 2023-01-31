@@ -12,13 +12,14 @@ export default function Login() {
     sessionStorage.setItem("redirect_after_login", redirectToPath);
   }, [redirect]);
 
+  const encodedRedirectUriPath = encodeURI(process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI);
+
   return (
     <Container fluid style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
       <Button
         variant="primary"
         onClick={() =>
-          (window.location =
-            "https://discord.com/api/v9/oauth2/authorize?client_id=378433574602539019&redirect_uri=https%3A%2F%2Fdashboard.tosurnament.com%2Fredirect&response_type=code&scope=guilds%20identify")
+          (window.location = `https://discord.com/api/v9/oauth2/authorize?client_id=378433574602539019&redirect_uri=${encodedRedirectUriPath}&response_type=code&scope=guilds%20identify`)
         }
         style={{ display: "block", margin: "0 auto" }}
       >
