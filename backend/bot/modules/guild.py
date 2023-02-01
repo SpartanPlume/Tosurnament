@@ -92,7 +92,7 @@ class GuildCog(base.BaseModule, name="guild"):
             dm_channel = await ctx.author.create_dm()
             await self.on_cog_command_error(ctx, e, channel=dm_channel)
             return
-        await self.bot.on_verified_user(ctx.guild, ctx.author)
+        await self.on_verified_user(ctx.guild, ctx.author)
 
     async def on_verified_user(self, guild, user):
         verified_user = self.get_verified_user(user.id)

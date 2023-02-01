@@ -79,12 +79,13 @@ def on_raw_reaction_with_context(reaction_type, valid_emojis=[]):
             message = await channel.fetch_message(int(payload.message_id))
             ctx = commands.Context(
                 bot=bot,
-                channel=channel,
-                guild=guild,
                 message=message,
+                view=None,
                 prefix=bot.command_prefix,
                 command=ReactionCommand(),
             )
+            ctx.channel = channel
+            ctx.guild = guild
             # Author needs to be changed after creation as it reassigns it during creation
             ctx.author = user
             ctx.command.cog_name = args[0].qualified_name
