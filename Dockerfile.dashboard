@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y git
 
 COPY ./frontend/dashboard ./dashboard
 COPY ./frontend/fields ./fields
+COPY ./.env.production ./dashboard/.env.production
 
 WORKDIR /app/dashboard
 RUN corepack enable \
@@ -13,5 +14,4 @@ RUN corepack enable \
     && yarn install
 RUN yarn
 
-COPY ./.env.production ./dashboard/.env.production
 RUN yarn build
