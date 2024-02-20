@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16
+    restart: always
+    ports:
+      - 5432:5432
+    secrets:
+      - db_password
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - PGUSER=${DB_USERNAME}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./migrations/20240215193936_create_tournaments_table.sql:/docker-entrypoint-initdb.d/create_tournaments_table.tosurnament.sql
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    secrets:
+      - db_password
+    environment:
+      - APP_ENVIRONMENT=development
+      - APP_DATABASE__USERNAME=${DB_USERNAME}
+      - APP_DATABASE__PASSWORD_FILE=/run/secrets/db_password
+      - APP_DATABASE__DATABASE_NAME=${DB_NAME}
+      - APP_DATABASE__HOST=db
+
+secrets:
+  db_password:
+    file: secrets/db_password.txt

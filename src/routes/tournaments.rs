@@ -11,7 +11,7 @@ struct Tournament {
 }
 
 #[allow(clippy::async_yields_async)]
-#[post("/tournament")]
+#[post("/tournaments")]
 #[tracing::instrument(skip_all, fields(%tournament.name))]
 async fn create_tournament(
     tournament: web::Json<Tournament>,

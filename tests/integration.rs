@@ -1,7 +1,6 @@
 use std::{collections::HashMap, net::TcpListener};
 
 use once_cell::sync::Lazy;
-use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -44,16 +43,15 @@ async fn spawn_app() -> TestApp {
 }
 
 async fn configure_database(db_config: &DatabaseSettings) -> PgPool {
-    let mut db_connection =
-        PgConnection::connect(db_config.connection_string_without_db().expose_secret())
-            .await
-            .expect("Failed to connect to Postgres");
+    let mut db_connection = PgConnection::connect_with(&db_config.without_db())
+        .await
+        .expect("Failed to connect to Postgres");
     db_connection
         .execute(format!(r#"CREATE DATABASE "{}";"#, db_config.database_name).as_str())
         .await
         .expect("Failed to create database");
 
-    let db_pool = PgPool::connect(db_config.connection_string().expose_secret())
+    let db_pool = PgPool::connect_with(db_config.with_db())
         .await
         .expect("Failed to connect to Postgres");
     sqlx::migrate!("./migrations")
@@ -88,7 +86,7 @@ async fn create_tournament_returns_200_for_valid_data() {
     body.insert("acronym", "TN");
 
     let response = client
-        .post(&format!("{}/tournament", &app.address))
+        .post(&format!("{}/tournaments", &app.address))
         .header("Content-Type", "application/json")
         .json(&body)
         .send()
@@ -119,7 +117,7 @@ async fn create_tournament_returns_400_when_data_is_missing() {
         invalid_body.insert(field_name, field_value);
 
         let response = client
-            .post(&format!("{}/tournament", &app.address))
+            .post(&format!("{}/tournaments", &app.address))
             .header("Content-Type", "application/json")
             .json(&invalid_body)
             .send()
