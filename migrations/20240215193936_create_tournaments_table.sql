@@ -1,4 +1,4 @@
-CREATE TABLE tournaments(
+CREATE TABLE IF NOT EXISTS tournaments(
     id uuid NOT NULL,
     PRIMARY KEY(id),
     name TEXT NOT NULL UNIQUE,

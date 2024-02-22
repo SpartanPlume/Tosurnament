@@ -107,19 +107,52 @@ async fn create_tournament_returns_400_when_data_is_missing() {
     let app = spawn_app().await;
     let client = reqwest::Client::new();
     let test_cases = vec![
-        (("name", "Tournament name"), "missing acronym"),
-        (("acronym", "TN"), "missing name"),
-        (("", ""), "missing name and acronym"),
+        (
+            HashMap::from([("name", "Tournament name")]),
+            "missing acronym",
+        ),
+        (HashMap::from([("acronym", "TN")]), "missing name"),
+        (HashMap::new(), "missing name and acronym"),
     ];
-    for (body_fields, error_message) in test_cases {
-        let (field_name, field_value) = body_fields;
-        let mut invalid_body = HashMap::new();
-        invalid_body.insert(field_name, field_value);
 
+    for (body, error_message) in test_cases {
         let response = client
             .post(&format!("{}/tournaments", &app.address))
             .header("Content-Type", "application/json")
-            .json(&invalid_body)
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request");
+
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "The API did not fail with error 400 Bad Request when the payload was {}",
+            error_message
+        );
+    }
+}
+
+#[tokio::test]
+async fn create_tournament_returns_400_for_invalid_data() {
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+    let test_cases = vec![
+        (
+            HashMap::from([("name", "Tournament name"), ("acronym", " ")]),
+            "invalid acronym",
+        ),
+        (
+            HashMap::from([("name", " "), ("acronym", "TN")]),
+            "invalid name",
+        ),
+    ];
+
+    for (body, error_message) in test_cases {
+        let response = client
+            .post(&format!("{}/tournaments", &app.address))
+            .header("Content-Type", "application/json")
+            .json(&body)
             .send()
             .await
             .expect("Failed to execute request");
