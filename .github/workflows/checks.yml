@@ -1,4 +1,4 @@
-name: Rust
+name: Code checks
 
 on: [push, pull_request]
 
@@ -28,15 +28,3 @@ jobs:
           components: clippy
       - name: Linting
         run: cargo clippy -- -D warnings
-
-  coverage:
-    name: Code coverage
-    runs-on: ubuntu-latest
-    container:
-      image: xd009642/tarpaulin:develop-nightly
-      options: --security-opt seccomp=unconfined
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Generate code coverage
-        run: cargo tarpaulin --verbose --workspace
