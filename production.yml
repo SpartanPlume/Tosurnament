@@ -1,4 +1,7 @@
 services:
+  db:
+    restart: always
   server:
+    restart: always
     environment:
       - APP_ENVIRONMENT=production

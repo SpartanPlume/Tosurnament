@@ -1,0 +1,11 @@
+[package]
+name = "tosurnament-secret-env"
+version = "0.1.0"
+authors = ["Spartan Plume <spartan.plume@gmail.com>"]
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+config = "0.14"
