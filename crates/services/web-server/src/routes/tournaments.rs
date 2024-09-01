@@ -1,16 +1,15 @@
 use axum::extract::State;
 use axum::http::StatusCode;
+use ormlite::model::*;
 
-use crate::extractor::Json;
+use crate::extractor::{FormOrJson, Json};
 use crate::prelude::*;
 use tosurnament_core::domain::tournament::*;
-
-use ormlite::model::*;
 
 #[tracing::instrument(skip_all, fields(?body_data.name))]
 pub async fn create_tournament(
     State(context): State<Context>,
-    Json(body_data): Json<InsertTournament>,
+    FormOrJson(body_data): FormOrJson<InsertTournament>,
 ) -> Result<(StatusCode, Json<Tournament>)> {
     let result = body_data.insert(&context.db.pool).await?;
     Ok((StatusCode::CREATED, Json(result)))

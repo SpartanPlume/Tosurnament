@@ -6,13 +6,38 @@ use tosurnament_core::domain::tournament::*;
 use crate::helpers::spawn_app;
 
 #[tokio::test]
-async fn create_tournament_returns_201_for_valid_data() {
+async fn create_tournament_with_json_returns_201_for_valid_data() {
     let app = spawn_app().await;
     let mut body = HashMap::new();
     body.insert("name", "Tournament name");
     body.insert("acronym", "TN");
 
-    let response = app.post_tournaments(body).await;
+    let response = app.post_tournament(body).await;
+
+    assert_eq!(201, response.status().as_u16());
+    let created = response
+        .json::<Tournament>()
+        .await
+        .expect("Invalid tournament object returned by the API");
+    assert_eq!(created.name, "Tournament name");
+    assert_eq!(created.acronym, "TN");
+    let saved = Tournament::select()
+        .where_("id = ?")
+        .bind(created.id)
+        .fetch_one(&app.context.db.pool)
+        .await
+        .expect("Could not retrieve tournament from db");
+    assert_eq!(created, saved);
+}
+
+#[tokio::test]
+async fn create_tournament_with_form_returns_201_for_valid_data() {
+    let app = spawn_app().await;
+    let mut body = HashMap::new();
+    body.insert("name", "Tournament name");
+    body.insert("acronym", "TN");
+
+    let response = app.post_tournament_with_form(body).await;
 
     assert_eq!(201, response.status().as_u16());
     let created = response
@@ -43,7 +68,7 @@ async fn create_tournament_returns_422_when_data_is_missing() {
     ];
 
     for (body, error_message) in test_cases {
-        let response = app.post_tournaments(body).await;
+        let response = app.post_tournament(body).await;
 
         assert_eq!(
             422,
@@ -69,7 +94,7 @@ async fn create_tournament_returns_422_for_invalid_data() {
     ];
 
     for (body, error_message) in test_cases {
-        let response = app.post_tournaments(body).await;
+        let response = app.post_tournament(body).await;
 
         assert_eq!(
             422,

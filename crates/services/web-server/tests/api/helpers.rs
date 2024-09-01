@@ -18,11 +18,19 @@ pub struct TestApp {
 }
 
 impl TestApp {
-    pub async fn post_tournaments(&self, body: HashMap<&str, &str>) -> reqwest::Response {
+    pub async fn post_tournament(&self, body: HashMap<&str, &str>) -> reqwest::Response {
         reqwest::Client::new()
             .post(&format!("{}/tournaments", &self.address))
-            .header("Content-Type", "application/json")
             .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn post_tournament_with_form(&self, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&format!("{}/tournaments", &self.address))
+            .form(&body)
             .send()
             .await
             .expect("Failed to execute request")

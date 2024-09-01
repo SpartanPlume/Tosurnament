@@ -10,7 +10,19 @@ pub enum Error {
     #[error(transparent)]
     DatabaseError(#[from] ormlite::Error),
     #[error(transparent)]
-    DecodeError(#[from] axum::extract::rejection::JsonRejection),
+    InvalidHeader(#[from] axum::http::header::ToStrError),
+    #[error("A header is not supported")]
+    UnsupportedHeader,
+    #[error(transparent)]
+    DecodeError(#[from] DecodeError),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum DecodeError {
+    #[error(transparent)]
+    Json(#[from] axum::extract::rejection::JsonRejection),
+    #[error(transparent)]
+    Form(#[from] axum::extract::rejection::FormRejection),
 }
 
 impl std::fmt::Debug for Error {
@@ -40,6 +52,8 @@ impl IntoResponse for Error {
         let server_error = match self {
             Self::ServerError(_) => ServerError::InternalServerError,
             Self::DatabaseError(error) => error.into_server_error(),
+            Self::InvalidHeader(_) => ServerError::InvalidHeader,
+            Self::UnsupportedHeader => ServerError::InvalidHeader,
             Self::DecodeError(error) => error.into_server_error(),
         };
         server_error.into_response()
@@ -53,7 +67,7 @@ trait IntoServerError {
 impl IntoServerError for ormlite::Error {
     fn into_server_error(&self) -> ServerError {
         match self {
-            Self::SqlxError(sqlx_error) => sqlx_error.into_server_error(),
+            Self::SqlxError(error) => error.into_server_error(),
             _ => ServerError::InternalDatabaseError,
         }
     }
@@ -62,8 +76,8 @@ impl IntoServerError for ormlite::Error {
 impl IntoServerError for ormlite::SqlxError {
     fn into_server_error(&self) -> ServerError {
         match self {
-            Self::Database(database_error) => {
-                if database_error.is_unique_violation() {
+            Self::Database(error) => {
+                if error.is_unique_violation() {
                     ServerError::DuplicateEntry
                 } else {
                     ServerError::InternalDatabaseError
@@ -74,10 +88,30 @@ impl IntoServerError for ormlite::SqlxError {
     }
 }
 
+impl IntoServerError for DecodeError {
+    fn into_server_error(&self) -> ServerError {
+        match self {
+            Self::Json(error) => error.into_server_error(),
+            Self::Form(error) => error.into_server_error(),
+        }
+    }
+}
+
 impl IntoServerError for axum::extract::rejection::JsonRejection {
     fn into_server_error(&self) -> ServerError {
         match self {
             Self::JsonDataError(_) => ServerError::InvalidData,
+            _ => ServerError::InvalidRequest,
+        }
+    }
+}
+
+impl IntoServerError for axum::extract::rejection::FormRejection {
+    fn into_server_error(&self) -> ServerError {
+        match self {
+            Self::FailedToDeserializeForm(_) | Self::FailedToDeserializeFormBody(_) => {
+                ServerError::InvalidData
+            }
             _ => ServerError::InvalidRequest,
         }
     }

@@ -11,6 +11,8 @@ pub enum ServerError {
     InternalServerError,
     #[error("An unexpected database error occurred")]
     InternalDatabaseError,
+    #[error("Invalid header")]
+    InvalidHeader,
     #[error("A duplicate entry already exists")]
     DuplicateEntry,
     #[error("Invalid request")]
@@ -29,6 +31,7 @@ impl IntoResponse for ServerError {
         let status_code = match self {
             Self::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             Self::InternalDatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::InvalidHeader => StatusCode::BAD_REQUEST,
             Self::DuplicateEntry => StatusCode::CONFLICT,
             Self::InvalidRequest => StatusCode::BAD_REQUEST,
             Self::InvalidData => StatusCode::UNPROCESSABLE_ENTITY,
