@@ -1,3 +1,4 @@
+use ormlite::model::*;
 use std::collections::HashMap;
 
 use tosurnament_core::domain::tournament::*;
@@ -20,7 +21,10 @@ async fn create_tournament_returns_201_for_valid_data() {
         .expect("Invalid tournament object returned by the API");
     assert_eq!(created.name, "Tournament name");
     assert_eq!(created.acronym, "TN");
-    let saved = Tournament::get_by_id(&app.context.db.pool, created.id)
+    let saved = Tournament::select()
+        .where_("id = ?")
+        .bind(created.id)
+        .fetch_one(&app.context.db.pool)
         .await
         .expect("Could not retrieve tournament from db");
     assert_eq!(created, saved);

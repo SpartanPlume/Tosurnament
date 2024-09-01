@@ -1,5 +1,5 @@
 -- Add migration script here
-CREATE TABLE IF NOT EXISTS tournaments(
+CREATE TABLE IF NOT EXISTS tournament(
     id SERIAL NOT NULL,
     name TEXT NOT NULL UNIQUE,
     acronym TEXT NOT NULL,

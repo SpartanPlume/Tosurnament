@@ -9,6 +9,8 @@ use serde::Serialize;
 pub enum Error {
     #[error(transparent)]
     ServerError(#[from] anyhow::Error),
+    #[error(transparent)]
+    DatabaseError(#[from] ormlite::Error),
 }
 
 impl std::fmt::Debug for Error {
@@ -41,6 +43,10 @@ impl IntoResponse for Error {
             Error::ServerError(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred".to_string(),
+            ),
+            Error::DatabaseError(_) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "An unexpected database error occurred".to_string(),
             ),
         };
 

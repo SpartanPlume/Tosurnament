@@ -1,1 +1,1 @@
-DROP DATABASE IF EXISTS tournaments
+DROP DATABASE IF EXISTS tournament
