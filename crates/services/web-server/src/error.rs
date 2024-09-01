@@ -1,7 +1,7 @@
 use axum::response::{IntoResponse, Response};
 use tracing::error;
 
-use crate::server_error::ServerError;
+use crate::server_error::{IntoServerError, ServerError};
 
 #[derive(thiserror::Error)]
 pub enum Error {
@@ -60,12 +60,8 @@ impl IntoResponse for Error {
     }
 }
 
-trait IntoServerError {
-    fn into_server_error(&self) -> ServerError;
-}
-
 impl IntoServerError for ormlite::Error {
-    fn into_server_error(&self) -> ServerError {
+    fn into_server_error(self) -> ServerError {
         match self {
             Self::SqlxError(error) => error.into_server_error(),
             _ => ServerError::InternalDatabaseError,
@@ -74,7 +70,7 @@ impl IntoServerError for ormlite::Error {
 }
 
 impl IntoServerError for ormlite::SqlxError {
-    fn into_server_error(&self) -> ServerError {
+    fn into_server_error(self) -> ServerError {
         match self {
             Self::Database(error) => {
                 if error.is_unique_violation() {
@@ -89,7 +85,7 @@ impl IntoServerError for ormlite::SqlxError {
 }
 
 impl IntoServerError for DecodeError {
-    fn into_server_error(&self) -> ServerError {
+    fn into_server_error(self) -> ServerError {
         match self {
             Self::Json(error) => error.into_server_error(),
             Self::Form(error) => error.into_server_error(),
@@ -98,7 +94,7 @@ impl IntoServerError for DecodeError {
 }
 
 impl IntoServerError for axum::extract::rejection::JsonRejection {
-    fn into_server_error(&self) -> ServerError {
+    fn into_server_error(self) -> ServerError {
         match self {
             Self::JsonDataError(_) => ServerError::InvalidData,
             _ => ServerError::InvalidRequest,
@@ -107,7 +103,7 @@ impl IntoServerError for axum::extract::rejection::JsonRejection {
 }
 
 impl IntoServerError for axum::extract::rejection::FormRejection {
-    fn into_server_error(&self) -> ServerError {
+    fn into_server_error(self) -> ServerError {
         match self {
             Self::FailedToDeserializeForm(_) | Self::FailedToDeserializeFormBody(_) => {
                 ServerError::InvalidData

@@ -21,6 +21,10 @@ pub enum ServerError {
     InvalidData,
 }
 
+pub trait IntoServerError {
+    fn into_server_error(self) -> ServerError;
+}
+
 #[derive(Serialize)]
 struct ErrorResponse {
     message: String,
