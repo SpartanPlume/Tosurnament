@@ -37,8 +37,8 @@ impl Application {
 
 pub fn create_server(context: Context) -> Router {
     Router::new()
+        .layer(tower_http::trace::TraceLayer::new_for_http())
         .route("/health_check", get(health_check))
         .route("/tournaments", get(get_tournaments).post(create_tournament))
         .with_state(context.clone())
-        .layer(tower_http::trace::TraceLayer::new_for_http())
 }
