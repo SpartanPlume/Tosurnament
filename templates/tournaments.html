@@ -1,0 +1,5 @@
+<ul>
+    {% for tournament in tournaments %}
+    <li><a href="/tournaments2/{{ tournament.id }}">{{ tournament.name }}</a> | {{ tournament.acronym }}</li>
+    {% endfor %}
+</ul>

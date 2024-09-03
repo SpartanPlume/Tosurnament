@@ -15,6 +15,8 @@ pub enum Error {
     UnsupportedHeader,
     #[error(transparent)]
     DecodeError(#[from] DecodeError),
+    #[error(transparent)]
+    TeraError(#[from] tera::Error),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -55,6 +57,7 @@ impl IntoResponse for Error {
             Self::InvalidHeader(_) => ServerError::InvalidHeader,
             Self::UnsupportedHeader => ServerError::InvalidHeader,
             Self::DecodeError(error) => error.into_server_error(),
+            Self::TeraError(_) => ServerError::InternalServerError,
         };
         server_error.into_response()
     }

@@ -1,6 +1,6 @@
-use tokio::net::TcpListener;
-
 use axum::{routing::get, Router};
+use tokio::net::TcpListener;
+use tower_http::services::ServeDir;
 
 use crate::config::Config;
 use crate::context::Context;
@@ -38,7 +38,14 @@ impl Application {
 pub fn create_server(context: Context) -> Router {
     Router::new()
         .layer(tower_http::trace::TraceLayer::new_for_http())
+        .nest_service("/static", ServeDir::new("static"))
         .route("/health_check", get(health_check))
+        // Json/Form routes
         .route("/tournaments", get(get_tournaments).post(create_tournament))
+        .route("/tournaments/:id", get(get_tournament))
+        // Html routes
+        .route("/", get(index))
+        .route("/tournaments2", get(show_tournaments))
+        .route("/tournaments2/:id", get(show_tournament))
         .with_state(context.clone())
 }
