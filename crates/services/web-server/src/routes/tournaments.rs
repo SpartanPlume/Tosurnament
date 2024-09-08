@@ -1,9 +1,9 @@
-use axum::extract::{Path, State};
+use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::Html;
 use ormlite::model::*;
 
-use crate::extractor::{FormOrJson, Json};
+use crate::extractor::{FormOrJson, Json, TeraContext};
 use crate::prelude::*;
 use crate::TEMPLATES;
 use tosurnament_core::domain::tournament::*;
@@ -24,30 +24,11 @@ pub async fn get_tournaments(State(context): State<Context>) -> Result<Json<Vec<
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn get_tournament(
+pub async fn show_tournaments(
     State(context): State<Context>,
-    Path(id): Path<i32>,
-) -> Result<Json<Tournament>> {
-    let result = Tournament::fetch_one(id, &context.db.pool).await?;
-    Ok(Json(result))
-}
-
-#[tracing::instrument(skip_all)]
-pub async fn show_tournaments(State(context): State<Context>) -> Result<Html<String>> {
+    TeraContext(mut tera_context): TeraContext,
+) -> Result<Html<String>> {
     let results = Tournament::select().fetch_all(&context.db.pool).await?;
-    let mut tera_context = tera::Context::new();
     tera_context.insert("tournaments", &results);
     Ok(Html(TEMPLATES.render("tournaments.html", &tera_context)?))
-}
-
-#[tracing::instrument(skip_all)]
-pub async fn show_tournament(
-    State(context): State<Context>,
-    Path(id): Path<i32>,
-) -> Result<Html<String>> {
-    let result = Tournament::fetch_one(id, &context.db.pool).await?;
-    Ok(Html(TEMPLATES.render(
-        "tournament.html",
-        &tera::Context::from_serialize(result)?,
-    )?))
 }

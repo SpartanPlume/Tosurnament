@@ -1,0 +1,11 @@
+<div id="header">
+    <a href="/">
+        <div id="tosurnament">Tosurnament</div>
+    </a>
+    <div id="navigation">
+        {% if uri and uri is containing("tournaments") %}
+        {% include "header_navigation.html" %}
+        {% endif %}
+    </div>
+    <div id="login" class="header_text header_nav">Login</div>
+</div>

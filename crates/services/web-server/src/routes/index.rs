@@ -1,7 +1,9 @@
 use axum::response::Html;
 
-pub async fn index() -> crate::prelude::Result<Html<String>> {
-    Ok(Html(
-        crate::TEMPLATES.render("index.html", &tera::Context::new())?,
-    ))
+use crate::extractor::TeraContext;
+use crate::prelude::*;
+use crate::TEMPLATES;
+
+pub async fn index(TeraContext(tera_context): TeraContext) -> Result<Html<String>> {
+    Ok(Html(TEMPLATES.render("index.html", &tera_context)?))
 }
