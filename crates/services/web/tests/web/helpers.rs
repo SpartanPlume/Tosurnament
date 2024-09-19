@@ -1,9 +1,9 @@
 use once_cell::sync::Lazy;
 
 use tosurnament_config::get_config;
+use tosurnament_telemetry::{get_subscriber, init_subscriber};
 use tosurnament_web::config::Config;
 use tosurnament_web::startup::Application;
-use tosurnament_web::telemetry::{get_subscriber, init_subscriber};
 
 pub struct TestApp {
     pub address: String,
@@ -14,10 +14,10 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     let subscriber_name = "tosurnament".to_string();
     if std::env::var("TEST_LOG").is_ok() {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
-        init_subscriber(subscriber);
+        init_subscriber(subscriber).expect("Failed to initialize subscriber");
     } else {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
-        init_subscriber(subscriber);
+        init_subscriber(subscriber).expect("Failed to initialize subscriber");
     }
 });
 

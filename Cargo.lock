@@ -2977,12 +2977,10 @@ dependencies = [
  "tokio",
  "tosurnament-config",
  "tosurnament-core",
+ "tosurnament-telemetry",
  "tower",
  "tower-http",
  "tracing",
- "tracing-bunyan-formatter",
- "tracing-log 0.2.0",
- "tracing-subscriber",
  "uuid",
 ]
 
@@ -3016,6 +3014,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tosurnament-telemetry"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tracing",
+ "tracing-bunyan-formatter",
+ "tracing-log 0.2.0",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "tosurnament-web"
 version = "0.1.0"
 dependencies = [
@@ -3032,12 +3041,10 @@ dependencies = [
  "tokio",
  "tosurnament-config",
  "tosurnament-core",
+ "tosurnament-telemetry",
  "tower",
  "tower-http",
  "tracing",
- "tracing-bunyan-formatter",
- "tracing-log 0.2.0",
- "tracing-subscriber",
  "uuid",
 ]
 

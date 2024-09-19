@@ -3,6 +3,7 @@
 members = [
     "crates/libs/core",
     "crates/libs/config",
+    "crates/libs/telemetry",
     "crates/services/api",
     "crates/services/web",
 ]

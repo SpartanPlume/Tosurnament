@@ -1,0 +1,15 @@
+[package]
+name = "tosurnament-telemetry"
+version = "0.1.0"
+authors = ["Spartan Plume <spartan.plume@gmail.com>"]
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
+tracing-bunyan-formatter = "0.3"
+tracing-log = "0.2"
+thiserror = "1.0"

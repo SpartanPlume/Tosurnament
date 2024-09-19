@@ -7,9 +7,9 @@ use sqlx::{Connection, Executor, PgConnection, PgPool};
 use tosurnament_api::config::{Config, DatabaseConfig};
 use tosurnament_api::context::Context;
 use tosurnament_api::startup::Application;
-use tosurnament_api::telemetry::{get_subscriber, init_subscriber};
 use tosurnament_config::get_config;
 use tosurnament_core::MIGRATOR;
+use tosurnament_telemetry::{get_subscriber, init_subscriber};
 
 pub struct TestApp {
     pub address: String,
@@ -41,10 +41,10 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     let subscriber_name = "tosurnament".to_string();
     if std::env::var("TEST_LOG").is_ok() {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
-        init_subscriber(subscriber);
+        init_subscriber(subscriber).expect("Failed to initialize subscriber");
     } else {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
-        init_subscriber(subscriber);
+        init_subscriber(subscriber).expect("Failed to initialize subscriber");
     }
 });
 

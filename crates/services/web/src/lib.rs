@@ -6,7 +6,6 @@ pub mod prelude;
 pub mod routes;
 pub mod server_error;
 pub mod startup;
-pub mod telemetry;
 
 use once_cell::sync::Lazy;
 

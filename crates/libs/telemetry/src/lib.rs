@@ -1,8 +1,12 @@
+mod error;
+
 use tracing::subscriber::set_global_default;
 use tracing::Subscriber;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_log::LogTracer;
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt, EnvFilter, Registry};
+
+pub use error::TelemetryError;
 
 pub fn get_subscriber<Sink>(
     name: String,
@@ -21,7 +25,8 @@ where
         .with(formatting_layer)
 }
 
-pub fn init_subscriber(subscriber: impl Subscriber + Send + Sync) {
-    LogTracer::init().expect("Failed to set logger");
-    set_global_default(subscriber).expect("Failed to set subscriber");
+pub fn init_subscriber(subscriber: impl Subscriber + Send + Sync) -> Result<(), TelemetryError> {
+    LogTracer::init()?;
+    set_global_default(subscriber)?;
+    Ok(())
 }
