@@ -12,26 +12,18 @@ services:
       - PGUSER=${DB_USERNAME}
       - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
       - POSTGRES_DB=${DB_NAME}
-    command:
-      [
-        "-c",
-        "ssl=on",
-        "-c",
-        "ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem",
-        "-c",
-        "ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key"
-      ]
+    command: [ "-c", "ssl=on", "-c", "ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem", "-c", "ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key" ]
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5
-  server:
+  api:
     build:
       context: .
-      dockerfile: web-server.Dockerfile
+      dockerfile: api.Dockerfile
     ports:
-      - ${SERVER_PORT}:8080
+      - ${API_PORT}:8080
     depends_on:
       db:
         condition: service_healthy
@@ -44,7 +36,16 @@ services:
       - APP_DATABASE__DATABASE_NAME=${DB_NAME}
       - APP_DATABASE__HOST=db
       - APP_DATABASE__PORT=5432
-
+  web:
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    ports:
+      - ${WEB_PORT}:8080
+    depends_on:
+      - api
+    environment:
+      - APP_ENVIRONMENT=development
 secrets:
   db_password:
     file: secrets/db_password.txt

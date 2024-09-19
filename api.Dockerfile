@@ -12,7 +12,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY . .
 ENV SQLX_OFFLINE true
-RUN cargo build --release --bin tosurnament-web-server
+RUN cargo build --release --bin tosurnament-api
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -21,6 +21,6 @@ RUN apt-get update -y \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/tosurnament-web-server tosurnament-web-server
-COPY crates/services/web-server/config config
-ENTRYPOINT ["./tosurnament-web-server"]
+COPY --from=builder /app/target/release/tosurnament-api tosurnament-api
+COPY crates/services/api/config config
+ENTRYPOINT ["./tosurnament-api"]

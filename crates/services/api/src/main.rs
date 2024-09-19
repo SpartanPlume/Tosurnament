@@ -1,6 +1,6 @@
+use tosurnament_api::startup::Application;
+use tosurnament_api::telemetry::{get_subscriber, init_subscriber};
 use tosurnament_config::get_config;
-use tosurnament_web_server::startup::Application;
-use tosurnament_web_server::telemetry::{get_subscriber, init_subscriber};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {

@@ -1,5 +1,5 @@
 [package]
-name = "tosurnament-web-server"
+name = "tosurnament-web"
 version = "0.1.0"
 authors = ["Spartan Plume <spartan.plume@gmail.com>"]
 edition = "2021"
@@ -9,7 +9,7 @@ path = "src/lib.rs"
 
 [[bin]]
 path = "src/main.rs"
-name = "tosurnament-web-server"
+name = "tosurnament-web"
 
 [dependencies]
 anyhow = "1.0"
@@ -18,9 +18,8 @@ chrono = { version = "0.4", default-features = false, features = [
     "clock",
     "serde",
 ] }
-lazy_static = "1.4"
-ormlite = "0.19"
-secrecy = { version = "0.8", features = ["serde"] }
+once_cell = "1.19"
+reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
 serde-aux = "4"
 tera = "1"
@@ -37,6 +36,5 @@ tosurnament-config = { path = "../../libs/config" }
 
 [dev-dependencies]
 once_cell = "1"
-reqwest = { version = "0.11", features = ["json"] }
 uuid = { version = "1", features = ["v4"] }
 sqlx = { version = "0.8", features = ["runtime-tokio", "postgres"] }

@@ -1,7 +1,11 @@
 services:
   db:
     restart: always
-  server:
+  api:
+    restart: always
+    environment:
+      - APP_ENVIRONMENT=production
+  web:
     restart: always
     environment:
       - APP_ENVIRONMENT=production

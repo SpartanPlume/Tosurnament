@@ -4,6 +4,7 @@ members = [
     "crates/libs/core",
     "crates/libs/config",
     "crates/libs/secret-env",
-    "crates/services/web-server",
+    "crates/services/api",
+    "crates/services/web",
 ]
 resolver = "2"

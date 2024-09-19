@@ -3,14 +3,13 @@ use std::collections::HashMap;
 use once_cell::sync::Lazy;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use uuid::Uuid;
 
+use tosurnament_api::config::{Config, DatabaseConfig};
+use tosurnament_api::context::Context;
+use tosurnament_api::startup::Application;
+use tosurnament_api::telemetry::{get_subscriber, init_subscriber};
 use tosurnament_config::get_config;
 use tosurnament_core::MIGRATOR;
-use tosurnament_web_server::config::{Config, DatabaseConfig};
-use tosurnament_web_server::context::Context;
-use tosurnament_web_server::startup::Application;
-use tosurnament_web_server::telemetry::{get_subscriber, init_subscriber};
 
 pub struct TestApp {
     pub address: String,
@@ -54,7 +53,7 @@ pub async fn spawn_app() -> TestApp {
 
     let config = {
         let mut c: Config = get_config().expect("Failed to read config");
-        c.database.database_name = Uuid::new_v4().to_string();
+        c.database.database_name = uuid::Uuid::new_v4().to_string();
         c.application.port = 0;
         c
     };

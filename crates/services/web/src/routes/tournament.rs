@@ -1,20 +1,10 @@
 use axum::extract::{Path, State};
 use axum::response::Html;
-use ormlite::model::*;
 
-use crate::extractor::{Json, TeraContext};
+use crate::extractor::TeraContext;
 use crate::prelude::*;
 use crate::TEMPLATES;
 use tosurnament_core::domain::tournament::*;
-
-#[tracing::instrument(skip_all)]
-pub async fn get_tournament(
-    State(context): State<Context>,
-    Path(id): Path<i32>,
-) -> Result<Json<Tournament>> {
-    let result = Tournament::fetch_one(id, &context.db.pool).await?;
-    Ok(Json(result))
-}
 
 #[tracing::instrument(skip_all)]
 pub async fn show_tournament(
@@ -22,7 +12,11 @@ pub async fn show_tournament(
     TeraContext(mut tera_context): TeraContext,
     Path(id): Path<i32>,
 ) -> Result<Html<String>> {
-    let result = Tournament::fetch_one(id, &context.db.pool).await?;
+    let path = format!("/tournaments/{}", id);
+    let result: Tournament = reqwest::get(context.api.build_uri(&path))
+        .await?
+        .json()
+        .await?;
     tera_context.insert("tournament", &result);
     Ok(Html(TEMPLATES.render("tournament.html", &tera_context)?))
 }

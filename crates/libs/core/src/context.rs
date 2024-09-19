@@ -12,7 +12,7 @@ impl DatabaseContext {
     pub async fn from_connection_string(connection_string: &str) -> DatabaseContext {
         let pool = PgPool::connect(connection_string)
             .await
-            .expect("Could not connect to database");
+            .expect("Could not connect to database. Is it up and running?");
 
         DatabaseContext { pool }
     }
