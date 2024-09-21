@@ -4,7 +4,7 @@
 
 ### Secrets
 
-Create a `secrets` folder and add the following files in it:
+Create a `secrets` folder in the `docker` folder and add the following files in it:
 - `db_password.txt`: Password for your db
 
 Example of content for any file:

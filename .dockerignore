@@ -1,6 +1,17 @@
-.env
-target/
-tests/
-Dockerfile*
+# Folders
+.git/
+.github/
+docker/
 scripts/
+target/
+
+# Files
+.dockerignore
+.env
+.gitignore
+README.md
+tosurnament.sh
+
+# Subfolders
+tests/
 migrations/

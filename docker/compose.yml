@@ -1,8 +1,8 @@
 services:
   db:
     build:
-      context: .
-      dockerfile: db.Dockerfile
+      context: ..
+      dockerfile: docker/db.Dockerfile
     secrets:
       - db_password
     environment:
@@ -18,8 +18,8 @@ services:
       retries: 5
   api:
     build:
-      context: .
-      dockerfile: api.Dockerfile
+      context: ..
+      dockerfile: docker/api.Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -34,8 +34,8 @@ services:
       - APP_DATABASE__PORT=5432
   web:
     build:
-      context: .
-      dockerfile: web.Dockerfile
+      context: ..
+      dockerfile: docker/web.Dockerfile
     depends_on:
       - api
     environment:

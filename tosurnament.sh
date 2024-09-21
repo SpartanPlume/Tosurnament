@@ -10,19 +10,19 @@ if [ $# -lt 1 ]; then
 fi
 
 if [ $# -eq 1 ] && [ "$1" = "build" ]; then
-    docker compose build
+    docker compose -f docker/compose.yml build
     exit 0
 fi
 
 if [ "$1" = "DEV" ]; then
     shift 1
-    docker compose -f compose.yml -f development.yml $@
+    docker compose -f docker/compose.yml -f docker/development.yml $@
 elif [ "$1" = "TST" ]; then
     shift 1
-    docker compose -f compose.yml -f testing.yml $@
+    docker compose -f docker/compose.yml -f docker/testing.yml $@
 elif [ "$1" = "PRD" ]; then
     shift 1
-    docker compose -f compose.yml -f production.yml $@
+    docker compose -f docker/compose.yml -f docker/production.yml $@
 else
     helpFunction
 fi
