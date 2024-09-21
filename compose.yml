@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: db.Dockerfile
-    ports:
-      - ${DB_PORT}:5432
     secrets:
       - db_password
     environment:
@@ -22,8 +20,6 @@ services:
     build:
       context: .
       dockerfile: api.Dockerfile
-    ports:
-      - ${API_PORT}:8080
     depends_on:
       db:
         condition: service_healthy
@@ -40,8 +36,6 @@ services:
     build:
       context: .
       dockerfile: web.Dockerfile
-    ports:
-      - ${WEB_PORT}:8080
     depends_on:
       - api
     environment:

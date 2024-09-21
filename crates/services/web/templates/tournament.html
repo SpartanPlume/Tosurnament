@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Index
+{% endblock %}
+
+{% block content %}
+<h1>Index</h1>
+<h2 id="tournament_name">{{ tournament.name }}</h2>
+
+Acronym: <span id="tournament_acronym">{{ tournament.acronym }}</span>
+
+{% endblock %}

@@ -3,3 +3,10 @@ application:
 api:
   host: "127.0.0.1"
   port: 8081
+database:
+  host: "127.0.0.1"
+  port: 5432
+  username: "postgres"
+  password: "password"
+  database_name: "tosurnament"
+  require_ssl: false

@@ -9,7 +9,7 @@ async fn main() -> Result<(), std::io::Error> {
     init_subscriber(subscriber).expect("Failed to initialize subscriber");
 
     let template_names: Vec<&str> = TEMPLATES.get_template_names().collect();
-    tracing::debug!("Loaded templates: {:?}", template_names);
+    tracing::info!("Loaded templates: {:?}", template_names);
 
     let config = get_config().expect("Failed to read config");
     let application = Application::build(config).await?;

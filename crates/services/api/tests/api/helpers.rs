@@ -1,38 +1,35 @@
 use std::collections::HashMap;
 
 use once_cell::sync::Lazy;
-use secrecy::ExposeSecret;
-use sqlx::{Connection, Executor, PgConnection, PgPool};
 
-use tosurnament_api::config::{Config, DatabaseConfig};
-use tosurnament_api::context::Context;
-use tosurnament_api::startup::Application;
-use tosurnament_config::get_config;
-use tosurnament_core::MIGRATOR;
+use tosurnament_api::test_utils;
 use tosurnament_telemetry::{get_subscriber, init_subscriber};
 
-pub struct TestApp {
-    pub address: String,
-    pub context: Context,
-}
+pub trait Routes {
+    fn build_uri(&self, path: &str) -> String;
 
-impl TestApp {
-    pub async fn post_tournament(&self, body: HashMap<&str, &str>) -> reqwest::Response {
+    async fn post_tournament(&self, body: HashMap<&str, &str>) -> reqwest::Response {
         reqwest::Client::new()
-            .post(&format!("{}/tournaments", &self.address))
+            .post(&self.build_uri("/tournaments"))
             .json(&body)
             .send()
             .await
             .expect("Failed to execute request")
     }
 
-    pub async fn post_tournament_with_form(&self, body: HashMap<&str, &str>) -> reqwest::Response {
+    async fn post_tournament_with_form(&self, body: HashMap<&str, &str>) -> reqwest::Response {
         reqwest::Client::new()
-            .post(&format!("{}/tournaments", &self.address))
+            .post(&self.build_uri("/tournaments"))
             .form(&body)
             .send()
             .await
             .expect("Failed to execute request")
+    }
+}
+
+impl Routes for test_utils::TestApp {
+    fn build_uri(&self, path: &str) -> String {
+        self.get_uri() + path
     }
 }
 
@@ -48,43 +45,8 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     }
 });
 
-pub async fn spawn_app() -> TestApp {
+pub async fn spawn_app() -> test_utils::TestApp {
     Lazy::force(&TRACING);
 
-    let config = {
-        let mut c: Config = get_config().expect("Failed to read config");
-        c.database.database_name = uuid::Uuid::new_v4().to_string();
-        c.application.port = 0;
-        c
-    };
-    configure_database(&config.database).await;
-
-    let application = Application::build(config.clone())
-        .await
-        .expect("Failed to build application");
-    let address = format!("http://127.0.0.1:{}", application.port());
-    let _ = tokio::spawn(application.run_until_stopped());
-
-    TestApp {
-        address,
-        context: Context::from_config(&config).await,
-    }
-}
-
-async fn configure_database(db_config: &DatabaseConfig) {
-    let mut db_connection = PgConnection::connect(&db_config.without_db().expose_secret())
-        .await
-        .expect("Failed to connect to Postgres");
-    db_connection
-        .execute(format!(r#"CREATE DATABASE "{}";"#, db_config.database_name).as_str())
-        .await
-        .expect("Failed to create database");
-
-    let db_pool = PgPool::connect(db_config.with_db().expose_secret())
-        .await
-        .expect("Failed to connect to Postgres");
-    MIGRATOR
-        .run(&db_pool)
-        .await
-        .expect("Failed to migrate the database");
+    test_utils::spawn_app().await
 }

@@ -36,9 +36,15 @@ impl Application {
 }
 
 pub fn create_server(context: Context) -> Router {
+    let base_path = match std::env::var("CARGO_MANIFEST_DIR") {
+        Ok(path) => std::path::PathBuf::from(path),
+        Err(_) => std::env::current_dir().expect("Failed to determine the current directory"),
+    };
+    let static_dir = base_path.join("static");
+
     Router::new()
         .layer(tower_http::trace::TraceLayer::new_for_http())
-        .nest_service("/static", ServeDir::new("static"))
+        .nest_service("/static", ServeDir::new(static_dir))
         .route("/health_check", get(health_check))
         // Html routes
         .route("/", get(index))

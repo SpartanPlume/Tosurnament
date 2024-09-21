@@ -6,3 +6,5 @@ pub mod prelude;
 pub mod routes;
 pub mod server_error;
 pub mod startup;
+#[cfg(feature = "test-utils")]
+pub mod test_utils;

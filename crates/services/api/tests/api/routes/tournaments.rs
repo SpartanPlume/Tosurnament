@@ -3,14 +3,12 @@ use std::collections::HashMap;
 
 use tosurnament_core::domain::tournament::*;
 
-use crate::helpers::spawn_app;
+use crate::helpers::*;
 
 #[tokio::test]
 async fn create_tournament_with_json_returns_201_for_valid_data() {
     let app = spawn_app().await;
-    let mut body = HashMap::new();
-    body.insert("name", "Tournament name");
-    body.insert("acronym", "TN");
+    let body = HashMap::from([("name", "Tournament name"), ("acronym", "TN")]);
 
     let response = app.post_tournament(body).await;
 
@@ -33,9 +31,7 @@ async fn create_tournament_with_json_returns_201_for_valid_data() {
 #[tokio::test]
 async fn create_tournament_with_form_returns_201_for_valid_data() {
     let app = spawn_app().await;
-    let mut body = HashMap::new();
-    body.insert("name", "Tournament name");
-    body.insert("acronym", "TN");
+    let body = HashMap::from([("name", "Tournament name"), ("acronym", "TN")]);
 
     let response = app.post_tournament_with_form(body).await;
 

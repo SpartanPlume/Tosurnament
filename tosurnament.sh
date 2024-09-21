@@ -16,7 +16,7 @@ fi
 
 if [ "$1" = "DEV" ]; then
     shift 1
-    docker compose -f compose.yml $@
+    docker compose -f compose.yml -f development.yml $@
 elif [ "$1" = "TST" ]; then
     shift 1
     docker compose -f compose.yml -f testing.yml $@

@@ -11,6 +11,9 @@ path = "src/lib.rs"
 path = "src/main.rs"
 name = "tosurnament-api"
 
+[features]
+test-utils = ["sqlx", "uuid", "reqwest"]
+
 [dependencies]
 anyhow = "1.0"
 axum = { version = "0.7", features = ["macros"] }
@@ -20,9 +23,14 @@ chrono = { version = "0.4", default-features = false, features = [
 ] }
 lazy_static = "1.4"
 ormlite = "0.19"
+reqwest = { version = "0.11", features = ["json"], optional = true }
 secrecy = { version = "0.8", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 serde-aux = "4"
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "postgres",
+], optional = true }
 tera = "1"
 thiserror = "1.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
@@ -32,9 +40,10 @@ tracing = { version = "0.1", features = ["log"] }
 tosurnament-core = { path = "../../libs/core" }
 tosurnament-config = { path = "../../libs/config" }
 tosurnament-telemetry = { path = "../../libs/telemetry" }
+uuid = { version = "1", features = ["v4"], optional = true }
 
 [dev-dependencies]
 once_cell = "1"
-reqwest = { version = "0.11", features = ["json"] }
-uuid = { version = "1", features = ["v4"] }
-sqlx = { version = "0.8", features = ["runtime-tokio", "postgres"] }
+tosurnament-api = { path = ".", default-features = false, features = [
+    "test-utils",
+] }

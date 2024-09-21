@@ -22,6 +22,6 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/tosurnament-web tosurnament-web
 COPY crates/services/web/config config
-COPY templates templates
-COPY static static
+COPY crates/services/web/templates templates
+COPY crates/services/web/static static
 ENTRYPOINT ["./tosurnament-web"]

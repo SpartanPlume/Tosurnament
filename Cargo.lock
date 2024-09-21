@@ -2884,6 +2884,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
+name = "tl"
+version = "0.7.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b130bd8a58c163224b44e217b4239ca7b927d82bf6cc2fea1fc561d15056e3f7"
+
+[[package]]
 name = "tokio"
 version = "1.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2975,6 +2981,7 @@ dependencies = [
  "tera",
  "thiserror",
  "tokio",
+ "tosurnament-api",
  "tosurnament-config",
  "tosurnament-core",
  "tosurnament-telemetry",
@@ -3035,17 +3042,17 @@ dependencies = [
  "reqwest 0.12.7",
  "serde",
  "serde-aux",
- "sqlx",
  "tera",
  "thiserror",
+ "tl",
  "tokio",
+ "tosurnament-api",
  "tosurnament-config",
  "tosurnament-core",
  "tosurnament-telemetry",
  "tower",
  "tower-http",
  "tracing",
- "uuid",
 ]
 
 [[package]]
