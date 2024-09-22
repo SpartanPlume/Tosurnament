@@ -1,7 +1,8 @@
-use axum::response::{IntoResponse, Response};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 use tracing::error;
-
-use crate::server_error::{IntoServerError, ServerError};
 
 #[derive(thiserror::Error)]
 pub enum Error {
@@ -51,68 +52,72 @@ impl IntoResponse for Error {
         let _error_details = self.to_string();
         error!(error = ?self);
 
-        let server_error = match self {
-            Self::ServerError(_) => ServerError::InternalServerError,
-            Self::DatabaseError(error) => error.into_server_error(),
-            Self::InvalidHeader(_) => ServerError::InvalidHeader,
-            Self::UnsupportedHeader => ServerError::InvalidHeader,
-            Self::DecodeError(error) => error.into_server_error(),
-            Self::TeraError(_) => ServerError::InternalServerError,
+        let status_code = match self {
+            Self::ServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::DatabaseError(error) => error.into_status_code(),
+            Self::InvalidHeader(_) => StatusCode::BAD_REQUEST,
+            Self::UnsupportedHeader => StatusCode::BAD_REQUEST,
+            Self::DecodeError(error) => error.into_status_code(),
+            Self::TeraError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
-        server_error.into_response()
+        status_code.into_response()
     }
 }
 
-impl IntoServerError for ormlite::Error {
-    fn into_server_error(self) -> ServerError {
+trait IntoStatusCode {
+    fn into_status_code(self) -> StatusCode;
+}
+
+impl IntoStatusCode for ormlite::Error {
+    fn into_status_code(self) -> StatusCode {
         match self {
-            Self::SqlxError(error) => error.into_server_error(),
-            _ => ServerError::InternalDatabaseError,
+            Self::SqlxError(error) => error.into_status_code(),
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
-impl IntoServerError for ormlite::SqlxError {
-    fn into_server_error(self) -> ServerError {
+impl IntoStatusCode for ormlite::SqlxError {
+    fn into_status_code(self) -> StatusCode {
         match self {
             Self::Database(error) => {
                 if error.is_unique_violation() {
-                    ServerError::DuplicateEntry
+                    StatusCode::CONFLICT
                 } else {
-                    ServerError::InternalDatabaseError
+                    StatusCode::INTERNAL_SERVER_ERROR
                 }
             }
-            Self::RowNotFound => ServerError::NotFoundError,
-            _ => ServerError::InternalDatabaseError,
+            Self::RowNotFound => StatusCode::NOT_FOUND,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
 
-impl IntoServerError for DecodeError {
-    fn into_server_error(self) -> ServerError {
+impl IntoStatusCode for DecodeError {
+    fn into_status_code(self) -> StatusCode {
         match self {
-            Self::Json(error) => error.into_server_error(),
-            Self::Form(error) => error.into_server_error(),
+            Self::Json(error) => error.into_status_code(),
+            Self::Form(error) => error.into_status_code(),
         }
     }
 }
 
-impl IntoServerError for axum::extract::rejection::JsonRejection {
-    fn into_server_error(self) -> ServerError {
+impl IntoStatusCode for axum::extract::rejection::JsonRejection {
+    fn into_status_code(self) -> StatusCode {
         match self {
-            Self::JsonDataError(_) => ServerError::InvalidData,
-            _ => ServerError::InvalidRequest,
+            Self::JsonDataError(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            _ => StatusCode::BAD_REQUEST,
         }
     }
 }
 
-impl IntoServerError for axum::extract::rejection::FormRejection {
-    fn into_server_error(self) -> ServerError {
+impl IntoStatusCode for axum::extract::rejection::FormRejection {
+    fn into_status_code(self) -> StatusCode {
         match self {
             Self::FailedToDeserializeForm(_) | Self::FailedToDeserializeFormBody(_) => {
-                ServerError::InvalidData
+                StatusCode::UNPROCESSABLE_ENTITY
             }
-            _ => ServerError::InvalidRequest,
+            _ => StatusCode::BAD_REQUEST,
         }
     }
 }
