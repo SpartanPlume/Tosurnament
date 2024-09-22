@@ -82,6 +82,7 @@ impl IntoServerError for ormlite::SqlxError {
                     ServerError::InternalDatabaseError
                 }
             }
+            Self::RowNotFound => ServerError::NotFoundError,
             _ => ServerError::InternalDatabaseError,
         }
     }

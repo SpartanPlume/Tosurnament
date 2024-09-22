@@ -1,0 +1,11 @@
+[package]
+name = "tosurnament-tmpenv"
+version = "0.1.0"
+authors = ["Spartan Plume <spartan.plume@gmail.com>"]
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+rand = "0.8"

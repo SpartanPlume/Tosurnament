@@ -12,16 +12,60 @@ pub struct TestApp {
 }
 
 impl TestApp {
-    pub fn get_uri(&self) -> String {
-        format!("http://127.0.0.1:{}", self.port)
-    }
-
-    pub async fn show_tournament(&self, id: i32) -> reqwest::Response {
+    pub async fn http_get(&self, path: &str) -> reqwest::Response {
         reqwest::Client::new()
-            .get(&format!("{}/tournaments/{}", self.get_uri(), id))
+            .get(&self.build_uri(path))
             .send()
             .await
             .expect("Failed to execute request")
+    }
+
+    pub async fn _http_post(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn _http_post_form(
+        &self,
+        path: &str,
+        body: HashMap<&str, &str>,
+    ) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&self.build_uri(path))
+            .form(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn _http_put(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .put(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn _http_delete(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .delete(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    fn build_uri(&self, path: &str) -> String {
+        self.get_uri() + path
+    }
+
+    pub fn get_uri(&self) -> String {
+        format!("http://127.0.0.1:{}", self.port)
     }
 }
 

@@ -1,3 +1,4 @@
+#[derive(PartialEq, Eq, Debug)]
 pub enum Environment {
     Local,
     Development,
@@ -27,5 +28,67 @@ impl TryFrom<String> for Environment {
             "production" => Ok(Self::Production),
             other => Err(format!("{} is not a supported environment", other)),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Environment;
+
+    #[test]
+    fn environment_local_to_str() {
+        assert_eq!("local", Environment::Local.as_str());
+    }
+
+    #[test]
+    fn environment_development_to_str() {
+        assert_eq!("development", Environment::Development.as_str());
+    }
+
+    #[test]
+    fn environment_testing_to_str() {
+        assert_eq!("testing", Environment::Testing.as_str());
+    }
+
+    #[test]
+    fn environment_production_to_str() {
+        assert_eq!("production", Environment::Production.as_str());
+    }
+
+    #[test]
+    fn environment_from_local() {
+        assert_eq!(
+            Ok(Environment::Local),
+            Environment::try_from("local".to_owned())
+        );
+    }
+
+    #[test]
+    fn environment_from_development() {
+        assert_eq!(
+            Ok(Environment::Development),
+            Environment::try_from("development".to_owned())
+        );
+    }
+
+    #[test]
+    fn environment_from_testing() {
+        assert_eq!(
+            Ok(Environment::Testing),
+            Environment::try_from("testing".to_owned())
+        );
+    }
+
+    #[test]
+    fn environment_from_production() {
+        assert_eq!(
+            Ok(Environment::Production),
+            Environment::try_from("production".to_owned())
+        );
+    }
+
+    #[test]
+    fn environment_from_other_returns_error() {
+        assert!(Environment::try_from("other".to_owned()).is_err());
     }
 }

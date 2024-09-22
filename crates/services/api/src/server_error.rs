@@ -19,6 +19,8 @@ pub enum ServerError {
     InvalidRequest,
     #[error("Invalid data")]
     InvalidData,
+    #[error("Not found")]
+    NotFoundError,
 }
 
 pub trait IntoServerError {
@@ -39,6 +41,7 @@ impl IntoResponse for ServerError {
             Self::DuplicateEntry => StatusCode::CONFLICT,
             Self::InvalidRequest => StatusCode::BAD_REQUEST,
             Self::InvalidData => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::NotFoundError => StatusCode::NOT_FOUND,
         };
         (
             status_code,

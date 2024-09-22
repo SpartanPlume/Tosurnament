@@ -6,7 +6,7 @@ use crate::helpers::{assert_ids, spawn_app};
 async fn show_tournament_contains_tournament_data() {
     let app = spawn_app().await;
 
-    let response = app.show_tournament(1).await;
+    let response = app.http_get(&format!("/tournaments/{}", 1)).await;
 
     assert_eq!(200, response.status().as_u16());
     let html = response

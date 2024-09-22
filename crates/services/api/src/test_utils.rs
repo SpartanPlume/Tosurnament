@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use secrecy::ExposeSecret;
 use sqlx::migrate::Migrator;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
@@ -15,6 +17,54 @@ pub struct TestApp {
 }
 
 impl TestApp {
+    pub async fn http_get(&self, path: &str) -> reqwest::Response {
+        reqwest::Client::new()
+            .get(&self.build_uri(path))
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn http_post(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn http_post_form(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .post(&self.build_uri(path))
+            .form(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn http_put(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .put(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn http_delete(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+        reqwest::Client::new()
+            .delete(&self.build_uri(path))
+            .json(&body)
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    fn build_uri(&self, path: &str) -> String {
+        self.get_uri() + path
+    }
+
     pub fn get_uri(&self) -> String {
         format!("http://127.0.0.1:{}", self.port)
     }

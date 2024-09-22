@@ -1,5 +1,4 @@
 use axum::response::{IntoResponse, Response};
-use tracing::error;
 
 use crate::server_error::{IntoServerError, ServerError};
 
@@ -49,7 +48,7 @@ pub fn error_chain_fmt(
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let _error_details = self.to_string();
-        error!(error = ?self);
+        tracing::error!(error = ?self);
 
         let server_error = match self {
             Self::ServerError(_) => ServerError::InternalServerError,

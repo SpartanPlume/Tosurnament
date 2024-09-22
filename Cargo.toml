@@ -4,6 +4,7 @@ members = [
     "crates/libs/core",
     "crates/libs/config",
     "crates/libs/telemetry",
+    "crates/libs/tmpenv",
     "crates/services/api",
     "crates/services/web",
 ]
