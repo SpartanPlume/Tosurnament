@@ -1,3 +1,4 @@
+use axum::response::Redirect;
 use axum::{routing::get, Router};
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
@@ -47,7 +48,7 @@ pub fn create_server(context: Context) -> Router {
         .nest_service("/static", ServeDir::new(static_dir))
         .route("/health_check", get(health_check))
         // Html routes
-        .route("/", get(index))
+        .route("/", get(|| async { Redirect::temporary("/tournaments") }))
         .route("/tournaments", get(show_tournaments))
         .route("/tournaments/:id", get(show_tournament))
         .with_state(context.clone())

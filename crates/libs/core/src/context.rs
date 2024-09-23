@@ -1,9 +1,12 @@
 use core::time::Duration;
 
+use secrecy::ExposeSecret;
 use sqlx::{
     postgres::{PgConnectOptions, PgPoolOptions},
     ConnectOptions, PgPool,
 };
+
+use crate::config::DatabaseConfig;
 
 pub type DbPool = PgPool;
 
@@ -14,7 +17,7 @@ pub struct DatabaseContext {
 }
 
 impl DatabaseContext {
-    pub async fn from_connection_string(connection_string: &str) -> DatabaseContext {
+    async fn from_connection_string(connection_string: &str) -> DatabaseContext {
         let url =
             url::Url::parse(connection_string).expect("Could not parse connection string into url");
         let connect_options = PgConnectOptions::from_url(&url).expect("Could not parse url");
@@ -28,6 +31,10 @@ impl DatabaseContext {
             .expect("Could not connect to database. Is it up and running?");
 
         DatabaseContext { pool }
+    }
+
+    pub async fn from_database_config(database_config: &DatabaseConfig) -> DatabaseContext {
+        DatabaseContext::from_connection_string(database_config.with_db().expose_secret()).await
     }
 }
 

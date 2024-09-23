@@ -1,5 +1,3 @@
-use secrecy::ExposeSecret;
-
 use crate::config::Config;
 use tosurnament_core::context::DatabaseContext;
 
@@ -11,9 +9,7 @@ pub struct Context {
 
 impl Context {
     pub async fn from_config(config: &Config) -> Context {
-        let db_context =
-            DatabaseContext::from_connection_string(config.database.with_db().expose_secret())
-                .await;
+        let db_context = DatabaseContext::from_database_config(&config.database).await;
         Context { db: db_context }
     }
 }

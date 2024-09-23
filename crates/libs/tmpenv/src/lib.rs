@@ -151,19 +151,19 @@ mod tests {
 
     #[test]
     fn test_remove_env() {
-        let _tmp_env = remove_var("TEST_TMP_ENV");
-        assert!(std::env::var("TEST_TMP_ENV").is_err());
+        let _tmp_env = remove_var("TEST_TMP_REMOVE_ENV");
+        assert!(std::env::var("TEST_TMP_REMOVE_ENV").is_err());
     }
 
     #[test]
     fn test_remove_env_with_previous_value() {
-        std::env::set_var("TEST_TMP_ENV_PREVIOUS", "previous_value");
+        std::env::set_var("TEST_TMP_REMOVE_ENV_PREVIOUS", "previous_value");
         {
-            let _tmp_env = remove_var("TEST_TMP_ENV_PREVIOUS");
-            assert!(std::env::var("TEST_TMP_ENV_PREVIOUS").is_err());
+            let _tmp_env = remove_var("TEST_TMP_REMOVE_ENV_PREVIOUS");
+            assert!(std::env::var("TEST_TMP_REMOVE_ENV_PREVIOUS").is_err());
         }
         assert_eq!(
-            std::env::var("TEST_TMP_ENV_PREVIOUS"),
+            std::env::var("TEST_TMP_REMOVE_ENV_PREVIOUS"),
             Ok(String::from("previous_value"))
         );
     }

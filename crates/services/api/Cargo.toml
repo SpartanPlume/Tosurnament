@@ -24,7 +24,6 @@ chrono = { version = "0.4", default-features = false, features = [
 lazy_static = "1.4"
 ormlite = "0.19"
 reqwest = { version = "0.11", features = ["json"], optional = true }
-secrecy = { version = "0.8", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 serde-aux = "4"
 sqlx = { version = "0.8", features = [
@@ -44,6 +43,5 @@ uuid = { version = "1", features = ["v4"], optional = true }
 
 [dev-dependencies]
 once_cell = "1"
-tosurnament-api = { path = ".", default-features = false, features = [
-    "test-utils",
-] }
+tosurnament-api = { path = ".", features = ["test-utils"] }
+tosurnament-core = { path = "../../libs/core", features = ["test-utils"] }
