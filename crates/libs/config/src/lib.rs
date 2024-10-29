@@ -24,7 +24,7 @@ fn get_environment_filename() -> Result<String, ConfigError> {
     let environment: Environment = std::env::var("APP_ENVIRONMENT")
         .unwrap_or_else(|_| "local".into())
         .try_into()
-        .map_err(|e| ConfigError::InvalidEnvironment(e))?;
+        .map_err(ConfigError::InvalidEnvironment)?;
     let environment_filename = format!("{}.yml", environment.as_str());
     Ok(environment_filename)
 }

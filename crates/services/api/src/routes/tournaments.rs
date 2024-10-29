@@ -27,10 +27,7 @@ pub async fn get_tournaments(
         let per_page = pagination.per_page.unwrap();
         query_builder = query_builder.limit(per_page);
         if pagination.page.is_some() {
-            let mut page = pagination.page.unwrap();
-            if page > 0 {
-                page -= 1;
-            }
+            let page = pagination.page.unwrap().saturating_sub(1);
             query_builder = query_builder.offset(page * per_page);
         }
     }
