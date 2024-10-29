@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/bash
 
 helpFunction() {
     echo "No container name given or invalid container name."

@@ -8,7 +8,7 @@ use tosurnament_core::domain::tournament::*;
 
 #[tracing::instrument(skip_all)]
 pub async fn show_tournament(
-    State(context): State<Context>,
+    State(context): State<WebContext>,
     TeraContext(mut tera_context): TeraContext,
     Path(id): Path<i32>,
 ) -> Result<Html<String>> {

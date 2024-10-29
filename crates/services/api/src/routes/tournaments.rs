@@ -1,10 +1,12 @@
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use ormlite::model::*;
 
+use tosurnament_core::domain::tournament::*;
+
 use crate::extractor::{FormOrJson, Json};
 use crate::prelude::*;
-use tosurnament_core::domain::tournament::*;
+use crate::routes::Pagination;
 
 #[tracing::instrument(skip_all, fields(?body_data.name))]
 pub async fn create_tournament(
@@ -16,8 +18,23 @@ pub async fn create_tournament(
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn get_tournaments(State(context): State<Context>) -> Result<Json<Vec<Tournament>>> {
-    let results = Tournament::select().fetch_all(&context.db.pool).await?;
+pub async fn get_tournaments(
+    State(context): State<Context>,
+    Query(pagination): Query<Pagination>,
+) -> Result<Json<Vec<Tournament>>> {
+    let mut query_builder = Tournament::select();
+    if pagination.per_page.is_some() {
+        let per_page = pagination.per_page.unwrap();
+        query_builder = query_builder.limit(per_page);
+        if pagination.page.is_some() {
+            let mut page = pagination.page.unwrap();
+            if page > 0 {
+                page -= 1;
+            }
+            query_builder = query_builder.offset(page * per_page);
+        }
+    }
+    let results = query_builder.fetch_all(&context.db.pool).await?;
     Ok(Json(results))
 }
 

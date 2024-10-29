@@ -8,7 +8,10 @@ Index
 <h1>Index</h1>
 <h2>Tournaments</h2>
 
-<div hx-get="/tournaments" hx-trigger="load">
+<div class="tournament_list">
+    <ul>
+        {% include 'tournaments_panels.html' %}
+    </ul>
 </div>
 
 {% endblock %}

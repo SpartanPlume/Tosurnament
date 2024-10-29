@@ -112,7 +112,75 @@ async fn get_tournaments_returns_tournaments() {
         .json::<Vec<Tournament>>()
         .await
         .expect("Invalid tournament objects returned by the API");
-    assert_eq!(1, tournaments.len());
+    assert_eq!(11, tournaments.len());
+}
+
+#[tokio::test]
+async fn get_tournaments_with_per_page_pagination_returns_fixed_number_of_tournaments() {
+    let app = spawn_app().await;
+
+    let response = app.http_get("/tournaments?per_page=5").await;
+
+    assert_eq!(200, response.status().as_u16());
+    let tournaments = response
+        .json::<Vec<Tournament>>()
+        .await
+        .expect("Invalid tournament objects returned by the API");
+    assert_eq!(5, tournaments.len());
+    assert_eq!(1, tournaments.first().unwrap().id)
+}
+
+#[tokio::test]
+async fn get_tournaments_with_page_pagination_returns_fixed_number_of_tournaments_with_offset() {
+    let app = spawn_app().await;
+
+    let response = app.http_get("/tournaments?per_page=5&page=2").await;
+
+    assert_eq!(200, response.status().as_u16());
+    let tournaments = response
+        .json::<Vec<Tournament>>()
+        .await
+        .expect("Invalid tournament objects returned by the API");
+    assert_eq!(5, tournaments.len());
+    assert_eq!(6, tournaments.first().unwrap().id)
+}
+
+#[tokio::test]
+async fn get_tournaments_with_exceeding_page_pagination_returns_no_tournament() {
+    let app = spawn_app().await;
+
+    let response = app.http_get("/tournaments?per_page=5&page=100").await;
+
+    assert_eq!(200, response.status().as_u16());
+    let tournaments = response
+        .json::<Vec<Tournament>>()
+        .await
+        .expect("Invalid tournament objects returned by the API");
+    assert_eq!(0, tournaments.len());
+}
+
+#[tokio::test]
+async fn get_tournaments_with_exceeding_number_per_page_pagination_returns_as_most_tournaments_as_possible(
+) {
+    let app = spawn_app().await;
+
+    let response = app.http_get("/tournaments?per_page=100").await;
+
+    assert_eq!(200, response.status().as_u16());
+    let tournaments = response
+        .json::<Vec<Tournament>>()
+        .await
+        .expect("Invalid tournament objects returned by the API");
+    assert_eq!(11, tournaments.len());
+}
+
+#[tokio::test]
+async fn get_tournaments_with_invalid_pagination_returns_400() {
+    let app = spawn_app().await;
+
+    let response = app.http_get("/tournaments?per_page=-2").await;
+
+    assert_eq!(400, response.status().as_u16());
 }
 
 #[tokio::test]
@@ -126,8 +194,8 @@ async fn get_tournament_returns_200_for_existing_tournament() {
         .json::<Tournament>()
         .await
         .expect("Invalid tournament objects returned by the API");
-    assert_eq!(tournament.name, "First Tournament");
-    assert_eq!(tournament.acronym, "FT");
+    assert_eq!(tournament.name, "Basic Tournament RO64");
+    assert_eq!(tournament.acronym, "BT64");
 }
 
 #[tokio::test]

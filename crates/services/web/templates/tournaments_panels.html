@@ -1,0 +1,13 @@
+{% if not new_page %}
+<li hx-get="/tournaments?page=1&per_page=5" hx-trigger="load" hx-swap="outerHTML">
+{% else %}
+{% for tournament in tournaments %}
+{% if loop.last %}
+<li class="tournament_panel" hx-get="/tournaments?page={{ new_page }}&per_page=5" hx-trigger="revealed" hx-swap="afterend">
+{% else %}
+<li class="tournament_panel">
+{% endif %}
+    <a href="/tournaments/{{ tournament.id }}">{{ tournament.name }}</a> | {{ tournament.acronym }}
+</li>
+{% endfor %}
+{% endif %}

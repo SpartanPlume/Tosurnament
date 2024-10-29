@@ -14,8 +14,8 @@ async fn show_tournament_contains_tournament_data() {
         .await
         .expect("Invalid response returned by the web server");
     let expected_ids = HashMap::from([
-        ("tournament_name", "First Tournament"),
-        ("tournament_acronym", "FT"),
+        ("tournament_name", "Basic Tournament RO64"),
+        ("tournament_acronym", "BT64"),
     ]);
     assert_ids(html, expected_ids);
 }
