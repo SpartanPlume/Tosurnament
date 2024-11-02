@@ -23,11 +23,11 @@ reqwest = { version = "0.12", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-aux = "4.5"
 serde_qs = "0.13"
-tera = "1"
+tera = "1.20"
 thiserror = "1.0"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-tower = "0.4"
-tower-http = { version = "0.5", features = ["fs", "trace"] }
+tokio = { version = "1.41", features = ["macros", "rt-multi-thread"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["fs", "trace"] }
 tracing = { version = "0.1", features = ["log"] }
 tosurnament-core = { path = "../../libs/core" }
 tosurnament-config = { path = "../../libs/config" }
