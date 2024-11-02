@@ -23,12 +23,10 @@ pub async fn get_tournaments(
     Query(pagination): Query<Pagination>,
 ) -> Result<Json<Vec<Tournament>>> {
     let mut query_builder = Tournament::select();
-    if pagination.per_page.is_some() {
-        let per_page = pagination.per_page.unwrap();
+    if let Some(per_page) = pagination.per_page {
         query_builder = query_builder.limit(per_page);
-        if pagination.page.is_some() {
-            let page = pagination.page.unwrap().saturating_sub(1);
-            query_builder = query_builder.offset(page * per_page);
+        if let Some(page) = pagination.page {
+            query_builder = query_builder.offset(page.saturating_sub(1) * per_page);
         }
     }
     let results = query_builder.fetch_all(&context.db.pool).await?;

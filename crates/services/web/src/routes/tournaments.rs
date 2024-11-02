@@ -17,15 +17,12 @@ pub async fn show_more_tournaments(
     if pagination.page.is_none() {
         pagination.page = Some(1);
     }
-    let mut url_parameters =
+    let url_parameters =
         serde_qs::to_string(&pagination).context("Could not transform pagination to string")?;
-    if !url_parameters.is_empty() {
-        url_parameters = format!("?{}", url_parameters);
-    }
     let results: Vec<Tournament> = reqwest::get(
         context
             .api
-            .build_uri(&format!("/tournaments{}", url_parameters)),
+            .build_uri(&format!("/tournaments?{}", url_parameters)),
     )
     .await?
     .json()
