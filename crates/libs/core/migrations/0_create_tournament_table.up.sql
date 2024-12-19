@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS tournament(
-    id SERIAL NOT NULL,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     acronym TEXT NOT NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

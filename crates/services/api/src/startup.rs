@@ -43,5 +43,6 @@ pub fn create_server(context: Context) -> Router {
         // Json/Form routes
         .route("/tournaments", get(get_tournaments).post(create_tournament))
         .route("/tournaments/:id", get(get_tournament))
+        .route("/brackets", get(get_brackets).post(create_bracket))
         .with_state(context.clone())
 }

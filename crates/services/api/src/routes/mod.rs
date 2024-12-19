@@ -1,6 +1,8 @@
+mod brackets;
 mod health_check;
 mod tournaments;
 
+pub use brackets::*;
 pub use health_check::*;
 pub use tournaments::*;
 

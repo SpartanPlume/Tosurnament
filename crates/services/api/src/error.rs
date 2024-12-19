@@ -2,7 +2,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use tracing::error;
+use tracing::{error, info};
 
 #[derive(thiserror::Error)]
 pub enum Error {
@@ -34,6 +34,15 @@ impl std::fmt::Debug for Error {
     }
 }
 
+fn log_unhandled_error<T: std::fmt::Debug>(error: &T) -> StatusCode {
+    error!(
+        "Unhandled error of type {} occurred: {:?}",
+        std::any::type_name::<T>(),
+        error
+    );
+    StatusCode::INTERNAL_SERVER_ERROR
+}
+
 pub fn error_chain_fmt(
     e: &impl std::error::Error,
     f: &mut std::fmt::Formatter<'_>,
@@ -50,7 +59,7 @@ pub fn error_chain_fmt(
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let _error_details = self.to_string();
-        error!(error = ?self);
+        info!(error = ?self);
 
         let status_code = match self {
             Self::ServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -72,23 +81,24 @@ impl IntoStatusCode for ormlite::Error {
     fn into_status_code(self) -> StatusCode {
         match self {
             Self::SqlxError(error) => error.into_status_code(),
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
+            _ => log_unhandled_error(&self),
         }
     }
 }
 
 impl IntoStatusCode for ormlite::SqlxError {
     fn into_status_code(self) -> StatusCode {
+        info!(error = ?self);
         match self {
             Self::Database(error) => {
                 if error.is_unique_violation() {
                     StatusCode::CONFLICT
                 } else {
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    log_unhandled_error(&error)
                 }
             }
             Self::RowNotFound => StatusCode::NOT_FOUND,
-            _ => StatusCode::INTERNAL_SERVER_ERROR,
+            _ => log_unhandled_error(&self),
         }
     }
 }

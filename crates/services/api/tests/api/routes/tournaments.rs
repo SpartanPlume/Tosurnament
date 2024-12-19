@@ -1,5 +1,5 @@
 use ormlite::model::*;
-use std::collections::HashMap;
+use serde_json::json;
 
 use tosurnament_core::domain::tournament::*;
 
@@ -8,7 +8,7 @@ use crate::helpers::*;
 #[tokio::test]
 async fn create_tournament_with_json_returns_201_for_valid_data() {
     let app = spawn_app().await;
-    let body = HashMap::from([("name", "Tournament name"), ("acronym", "TN")]);
+    let body = json!({"name": "Tournament name", "acronym": "TN"});
 
     let response = app.http_post("/tournaments", body).await;
 
@@ -31,7 +31,7 @@ async fn create_tournament_with_json_returns_201_for_valid_data() {
 #[tokio::test]
 async fn create_tournament_with_form_returns_201_for_valid_data() {
     let app = spawn_app().await;
-    let body = HashMap::from([("name", "Tournament name"), ("acronym", "TN")]);
+    let body = json!({"name": "Tournament name", "acronym": "TN"});
 
     let response = app.http_post_form("/tournaments", body).await;
 
@@ -55,12 +55,9 @@ async fn create_tournament_with_form_returns_201_for_valid_data() {
 async fn create_tournament_returns_422_when_data_is_missing() {
     let app = spawn_app().await;
     let test_cases = vec![
-        (
-            HashMap::from([("name", "Tournament name")]),
-            "missing acronym",
-        ),
-        (HashMap::from([("acronym", "TN")]), "missing name"),
-        (HashMap::new(), "missing name and acronym"),
+        (json!({"name": "Tournament name"}), "missing acronym"),
+        (json!({"acronym": "TN"}), "missing name"),
+        (json!({}), "missing name and acronym"),
     ];
 
     for (body, error_message) in test_cases {
@@ -80,13 +77,10 @@ async fn create_tournament_returns_422_for_invalid_data() {
     let app = spawn_app().await;
     let test_cases = vec![
         (
-            HashMap::from([("name", "Tournament name"), ("acronym", " ")]),
+            json!({"name": "Tournament name", "acronym": " "}),
             "invalid acronym",
         ),
-        (
-            HashMap::from([("name", ""), ("acronym", "TN")]),
-            "invalid name",
-        ),
+        (json!({"name": "", "acronym": "TN"}), "invalid name"),
     ];
 
     for (body, error_message) in test_cases {
@@ -112,7 +106,7 @@ async fn get_tournaments_returns_tournaments() {
         .json::<Vec<Tournament>>()
         .await
         .expect("Invalid tournament objects returned by the API");
-    assert_eq!(11, tournaments.len());
+    assert_eq!(12, tournaments.len());
 }
 
 #[tokio::test]
@@ -160,7 +154,7 @@ async fn get_tournaments_with_exceeding_page_pagination_returns_no_tournament() 
 }
 
 #[tokio::test]
-async fn get_tournaments_with_exceeding_number_per_page_pagination_returns_as_most_tournaments_as_possible(
+async fn get_tournaments_with_exceeding_number_per_page_pagination_returns_the_most_tournaments_possible(
 ) {
     let app = spawn_app().await;
 
@@ -171,7 +165,7 @@ async fn get_tournaments_with_exceeding_number_per_page_pagination_returns_as_mo
         .json::<Vec<Tournament>>()
         .await
         .expect("Invalid tournament objects returned by the API");
-    assert_eq!(11, tournaments.len());
+    assert_eq!(12, tournaments.len());
 }
 
 #[tokio::test]

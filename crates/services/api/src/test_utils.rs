@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use serde_json::Value;
 
 use tosurnament_config::get_config;
 use tosurnament_core::test_utils::configure_database;
@@ -21,7 +21,7 @@ impl TestApp {
             .expect("Failed to execute request")
     }
 
-    pub async fn http_post(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+    pub async fn http_post(&self, path: &str, body: Value) -> reqwest::Response {
         reqwest::Client::new()
             .post(&self.build_uri(path))
             .json(&body)
@@ -30,7 +30,7 @@ impl TestApp {
             .expect("Failed to execute request")
     }
 
-    pub async fn http_post_form(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+    pub async fn http_post_form(&self, path: &str, body: Value) -> reqwest::Response {
         reqwest::Client::new()
             .post(&self.build_uri(path))
             .form(&body)
@@ -39,7 +39,7 @@ impl TestApp {
             .expect("Failed to execute request")
     }
 
-    pub async fn http_put(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+    pub async fn http_put(&self, path: &str, body: Value) -> reqwest::Response {
         reqwest::Client::new()
             .put(&self.build_uri(path))
             .json(&body)
@@ -48,7 +48,7 @@ impl TestApp {
             .expect("Failed to execute request")
     }
 
-    pub async fn http_delete(&self, path: &str, body: HashMap<&str, &str>) -> reqwest::Response {
+    pub async fn http_delete(&self, path: &str, body: Value) -> reqwest::Response {
         reqwest::Client::new()
             .delete(&self.build_uri(path))
             .json(&body)

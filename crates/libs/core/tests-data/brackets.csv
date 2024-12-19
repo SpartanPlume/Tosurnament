@@ -1,0 +1,29 @@
+-- tournament_id, name, current_round, qualifiers_type, group_stage_type, main_stage_type
+-- Basic Tournament RO64
+1,,NotStarted,,,DoubleElimination
+-- Tournament with Two Brackets
+2,10k-50k,NotStarted,,,SingleElimination
+2,50k-100k,NotStarted,,,SingleElimination
+-- Tournament with Four Brackets
+3,10k-30k,NotStarted,,,SingleElimination
+3,30k-50k,NotStarted,,,SingleElimination
+3,50k-70k,NotStarted,,,SingleElimination
+3,70k-90k,NotStarted,,,SingleElimination
+-- Tournament with Qualifiers
+4,,NotStarted,Seeding,,DoubleElimination
+-- Tournament with Group Stage
+5,,NotStarted,,RoundRobin,DoubleElimination
+-- Tournament with Round Swiss Qualifiers
+6,,NotStarted,RoundSwiss,,SingleElimination
+-- Round Swiss Tournament
+7,,NotStarted,,,RoundSwiss
+-- Round Robin Tournament
+8,,NotStarted,,,RoundRobin
+-- Poker style Tournament
+9,,NotStarted,,,PokerStyle
+-- Tournament RO128
+10,,NotStarted,,,DoubleElimination
+-- Tournament RO16
+11,,NotStarted,,,DoubleElimination
+-- Rapid Tournament
+12,,NotStarted,,,SingleElimination

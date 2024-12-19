@@ -1,17 +1,18 @@
-mod acronym;
-mod name;
+mod round;
+mod stage;
 
-use acronym::TournamentAcronym;
-use name::TournamentName;
+pub use round::Round;
+pub use stage::Stage;
 
 use ormlite::model::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Model, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Tournament {
+pub struct StageRound {
     pub id: i32,
-    pub name: String,
-    pub acronym: String,
+    pub bracket_id: i32,
+    pub stage: Stage,
+    pub round: Round,
     #[ormlite(default)]
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[ormlite(default)]
@@ -19,8 +20,9 @@ pub struct Tournament {
 }
 
 #[derive(Insert, Debug, Deserialize, Clone)]
-#[ormlite(returns = "Tournament")]
-pub struct InsertTournament {
-    pub name: TournamentName,
-    pub acronym: TournamentAcronym,
+#[ormlite(returns = "StageRound")]
+pub struct InsertStageRound {
+    pub bracket_id: i32,
+    pub stage: Stage,
+    pub round: Round,
 }

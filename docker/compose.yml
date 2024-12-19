@@ -1,9 +1,7 @@
 name: tosurnament
 services:
   db:
-    build:
-      context: ..
-      dockerfile: docker/db.Dockerfile
+    image: postgres:16
     secrets:
       - db_password
     environment:
