@@ -15,4 +15,4 @@ jobs:
       - name: Install the Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run tests
-        run: ./tosurnament --test
+        run: ./tosurnament.sh --test
