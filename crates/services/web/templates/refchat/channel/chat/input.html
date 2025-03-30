@@ -1,0 +1,8 @@
+<div id="refchat_input_div">
+    <form class="flex_row" hx-vals='{"event_type": "NewMessage"}' ws-send>
+        <input id="refchat_input" class="full_width" name="text" value='{{ input_text | default(value="") }}' autofocus hx-trigger="change" ws-send hx-vals='{"event_type": "ChangeChatInput"}' />
+        <script>moveCursorToEnd()</script>
+        <span hx-trigger="keydown[keyCode==40] from:#refchat_input" ws-send hx-vals='{"event_type": "ShowPreviousHistoryMessage"}'></span>
+        <span hx-trigger="keydown[keyCode==38] from:#refchat_input" ws-send hx-vals='{"event_type": "ShowNextHistoryMessage"}'></span>
+    </form>
+</div>

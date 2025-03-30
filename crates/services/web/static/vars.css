@@ -1,0 +1,20 @@
+:root {
+    /* Font related sizes */
+    --text-font-size: 1rem;
+    --text-line-height: 1.5rem;
+
+    --h1-font-size: 1.5rem;
+    --h1-line-height: 3rem;
+
+    --h2-font-size: 1.2rem;
+    --h2-line-height: 1.8rem;
+
+    --header-height: var(--h1-line-height);
+
+    /* Spacing related sizes */
+    --vertical-paragraph-padding: 0.5em;
+    --horizontal-paragraph-padding: 0.8em;
+    --paragraph-padding: var(--vertical-paragraph-padding) var(--horizontal-paragraph-padding);
+
+    --separator-size: 0.15rem;
+}

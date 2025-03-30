@@ -1,5 +1,4 @@
 use axum::{
-    async_trait,
     extract::{Extension, FromRequestParts},
     http::request::Parts,
 };
@@ -8,7 +7,6 @@ use std::convert::Infallible;
 #[derive(Debug, Clone)]
 pub struct TeraContext(pub tera::Context);
 
-#[async_trait]
 impl<S> FromRequestParts<S> for TeraContext
 where
     S: Send + Sync,

@@ -1,0 +1,5 @@
+{% if previous_tab %}
+{% set active_tab = false %}
+{% set tab = previous_tab %}
+{% include 'refchat/channel/tab/tab.html' %}
+{% endif %}

@@ -1,0 +1,32 @@
+{# Set channel as active #}
+{% set active_channel = true %}
+{% include 'refchat/channel/channel.html' %}
+
+{# Update chat input #}
+{% set input_text = channel.current_input %}
+{% include 'refchat/channel/chat/input.html' %}
+
+{# Show current messages #}
+{% include 'refchat/channel/chat/show_messages.html' %}
+
+{# Show helper tabs #}
+{% set tabs = channel.tabs %}
+{% set current_tab_name = "" %}
+{% if tabs | length != 0 %}
+{% set tab = tabs[channel.current_tab_index] | default(value=undefined) %}
+{% set current_tab_name = tab.name | default(value="") %}
+{% endif %}
+{% include 'refchat/channel/tab/show_tabs.html' %}
+{% include 'refchat/channel/tab/show_tab_content.html' %}
+
+{# Reset previous channel #}
+{% include 'refchat/channel/unselect_previous_channel.html' %}
+
+{% if hide_new_channel_selection %}
+{# Hide new channel selection #}
+{% include 'refchat/channel/hide_new_channel_selection.html' %}
+
+{# Reset add new channel #}
+{% set active_channel = false %}
+{% include 'refchat/channel/add_new_channel.html' %}
+{% endif %}

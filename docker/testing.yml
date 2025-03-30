@@ -1,3 +1,4 @@
+name: tosurnament-tst
 services:
   db:
     ports:

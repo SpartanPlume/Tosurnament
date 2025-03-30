@@ -1,0 +1,21 @@
+<div id="refchat_helper_content" class="flex_row full_height">
+    <div id="refchat_room_player_slots_wrapper" class="flex_column full_height flex1">
+        <div id="refchat_player_slots" class="flex_column scrollable_y full_height">
+            {% for player_slot in tab.player_slots %}
+            {% include 'refchat/channel/tab/room_player_slot.html' %}
+            {% endfor %}
+        </div>
+    </div>
+    <div id="refchat_room_others" class="flex_column full_height flex1">
+        {% set map = tab.current_map %}
+        {% include 'refchat/channel/tab/room_map.html' %}
+        <div id="refchat_room_buttons" class="flex_column scrollable_y full_height">
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "SyncRoom"}'>Sync</button>
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "InvitePlayers"}'>Invite players</button>
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "PickBanTimer"}'>Pick/Ban timer</button>
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "ReadyUpTimer"}'>Ready up timer</button>
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "StartMatch"}'>Start match</button>
+            <button class="primary_button refchat_room_button" ws-send hx-vals='{"event_type": "Abort"}'>Abort</button>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 use tosurnament_api::startup::Application;
 use tosurnament_config::get_config;
+use tosurnament_core::MIGRATOR;
 use tosurnament_telemetry::{get_subscriber, init_subscriber};
 
 #[tokio::main]
@@ -9,6 +10,10 @@ async fn main() -> Result<(), std::io::Error> {
 
     let config = get_config().expect("Failed to read config");
     let application = Application::build(config).await?;
+    MIGRATOR
+        .run(&application.context().db.pool)
+        .await
+        .expect("Failed to run database migration");
     let _ = tokio::spawn(application.run_until_stopped()).await?;
     Ok(())
 }

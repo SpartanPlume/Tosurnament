@@ -1,0 +1,8 @@
+<div id="refchat_channels" hx-swap-oob="innerHTML">
+    {% for channel in channels %}
+    {% set active_channel = channel.real_name == current_channel_name %}
+    {% include 'refchat/channel/channel.html' %}
+    {% endfor %}
+
+    {% include 'refchat/channel/add_new_channel.html' %}
+</div>

@@ -1,14 +1,10 @@
-use axum::{
-    async_trait,
-    extract::{FromRequest, Request},
-};
+use axum::extract::{FromRequest, Request};
 use serde::de::DeserializeOwned;
 
 use crate::error::{DecodeError, Error};
 
 pub struct FormOrJson<T>(pub T);
 
-#[async_trait]
 impl<S, T> FromRequest<S> for FormOrJson<T>
 where
     T: DeserializeOwned,

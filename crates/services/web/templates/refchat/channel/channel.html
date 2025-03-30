@@ -1,0 +1,7 @@
+{% set is_default_channel = channel.category == "System" %}
+<div id="refchat_channel_{{ channel.display_name }}" class='{% if is_default_channel %}tab{% else %}closeable_tab{% endif %} {% if active_channel %}active_tab{% endif %}' hx-trigger="click" ws-send hx-vals='{"event_type": "SelectChannel", "channel_name": "{{ channel.real_name }}"}'>
+    <span class="refchat_channel_name">{% include 'refchat/channel/channel_icon.html' %}{{ channel.display_name }}</span>
+    {% if not is_default_channel %}
+    <input type="image" src="/static/close_button.svg" class="close_button" hx-trigger="click" onClick="event.stopPropagation();" ws-send hx-vals='{"event_type": "PartChannel", "channel_name": "{{ channel.real_name }}"}' />
+    {% endif %}
+</div>

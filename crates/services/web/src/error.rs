@@ -6,17 +6,17 @@ use axum::{
 #[derive(thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
-    ServerError(#[from] anyhow::Error),
+    Server(#[from] anyhow::Error),
     #[error(transparent)]
     InvalidHeader(#[from] axum::http::header::ToStrError),
     #[error("A header is not supported")]
     UnsupportedHeader,
     #[error(transparent)]
-    DecodeError(#[from] DecodeError),
+    Decode(#[from] DecodeError),
     #[error(transparent)]
-    TeraError(#[from] tera::Error),
+    Tera(#[from] tera::Error),
     #[error(transparent)]
-    ReqwestError(#[from] reqwest::Error),
+    Reqwest(#[from] reqwest::Error),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -52,12 +52,12 @@ impl IntoResponse for Error {
         tracing::error!(error = ?self);
 
         let status_code = match self {
-            Self::ServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Server(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::InvalidHeader(_) => StatusCode::BAD_REQUEST,
             Self::UnsupportedHeader => StatusCode::BAD_REQUEST,
-            Self::DecodeError(error) => error.into_status_code(),
-            Self::TeraError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::ReqwestError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Decode(error) => error.into_status_code(),
+            Self::Tera(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
         status_code.into_response()
     }

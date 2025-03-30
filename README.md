@@ -16,7 +16,7 @@ mysuperpassword123
 
 To start Tosurnament, you will need to run 2 commands:
 ```shell
-./tosurnament.sh build
+./tosurnament.sh PRD build
 ./tosurnament.sh PRD up -d
 ```
 
@@ -38,6 +38,7 @@ If you want to remove the containers running Tosurnament, you can run this comma
 
 If you want to test Tosurnament in real conditions without impacting your deployed instance, you can start a test instance with:
 ```shell
+./tosurnament.sh TST build
 ./tosurnament.sh TST up -d
 ```
 
@@ -47,8 +48,11 @@ Then the commands to stop, restart and delete the containers are the same but wi
 
 ### Unit tests
 
-To be able to run the tests, a running database is needed. The script for to initialize it is `scripts/init_db.sh`.  
-On WSL2 on Windows, you will need to run Docker Desktop with the WSL2 based engine.
+To be able to run the tests, a running database and IRC server are needed. 
+To create them, just run:
+- `scripts/init_db.sh`
+- `scripts/init_irc.sh`
+On WSL2 on Windows, you will need to run Docker Desktop with the WSL2 based engine first.
 
 After that, you can run `cargo test` to run all tests except the expensive ones.  
 To also run the expensive tests, use `cargo test -- --include-ignored` instead.

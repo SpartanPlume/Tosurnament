@@ -1,0 +1,19 @@
+{% set active_channel = true %}
+{% include 'refchat/channel/add_new_channel.html' %}
+
+<div id="refchat_new_channel_selection" class="flex_row full_height full_width">
+    <div id="refchat_new_channel_selection_content" class="flex_column">
+        <h1>Join a new channel:</h1>
+        <form hx-vals='{"event_type": "JoinChannel"}' ws-send>
+            <input name="channel_name"/>
+            <button class="primary_button" type="submit">Join</button>
+        </form>
+        <h1>Contact a user:</h1>
+        <form hx-vals='{"event_type": "QueryUser"}' ws-send>
+            <input name="user"/>
+            <button class="primary_button" type="submit">Contact</button>
+        </form>
+    </div>
+</div>
+
+{% include 'refchat/channel/unselect_previous_channel.html' %}

@@ -1,0 +1,9 @@
+<a id="refchat_room_map" class="full_width" {% if map %}href="https://osu.ppy.sh/beatmapsets/{{ map.set_id }}#osu/{{ map.id }}"{% endif %} target="_blank" rel="noopener noreferrer">
+    {% if map %}
+    <img id="refchat_room_map_image" class="full_width" src="https://assets.ppy.sh/beatmaps/{{ map.set_id }}/covers/cover.jpg" onerror='this.src="https://osu.ppy.sh/assets/images/default-bg.7594e945.png"'/>
+    <span id="refchat_room_map_name">{{ map.name }}</span>
+    {% else %}
+    <img id="refchat_room_map_image" class="full_width" src="https://osu.ppy.sh/assets/images/default-bg.7594e945.png"/>
+    <span id="refchat_room_map_name">unknown - unknown</span>
+    {% endif %}
+</a>

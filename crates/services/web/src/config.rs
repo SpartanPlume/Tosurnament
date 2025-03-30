@@ -5,6 +5,8 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 pub struct Config {
     pub application: ApplicationConfig,
     pub api: ApiConfig,
+    pub refchat: RefchatConfig,
+    pub log_level: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -16,6 +18,13 @@ pub struct ApplicationConfig {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ApiConfig {
+    pub host: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub port: u16,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct RefchatConfig {
     pub host: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,

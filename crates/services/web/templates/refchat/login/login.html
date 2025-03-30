@@ -1,0 +1,19 @@
+{% if able_state is undefined %}
+{% set able_state = "" %}
+{% endif %}
+
+<div id="refchat_login">
+    <div id="refchat_login_opacity"></div>
+    <div id="refchat_login_disable" class="invisible"></div>
+    <div id="refchat_login_popup" class="box_container">
+        <h2 id="refchat_login_title">Refchat Login (IRC)</h2>
+        <div id="refchat_login_error"></div>
+        <form id="refchat_event_login" hx-vals='{"event_type": "Login"}' ws-send>
+            <span>Username:</span>
+            <input name="username" value="{{ username }}" {{ able_state }}/>
+            <span>Password:</span>
+            <input name="password" type="password" autofocus {{ able_state }}/>
+            <button class="primary_button" type="submit" {{ able_state }}>Login</button>
+        </form>
+    </div>
+</div>

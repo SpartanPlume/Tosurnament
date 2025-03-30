@@ -40,19 +40,20 @@ impl DatabaseContext {
 
 #[cfg(test)]
 mod tests {
+    use super::DatabaseConfig;
     use super::DatabaseContext;
+    use secrecy::ExposeSecret;
+    use tosurnament_config::get_config;
 
-    use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-    use sqlx::ConnectOptions;
+    #[derive(Debug, serde::Deserialize)]
+    struct Config {
+        database: DatabaseConfig,
+    }
 
-    #[sqlx::test]
-    #[ignore]
-    async fn init_database_context_with_valid_connection_string_is_ok(
-        _pool_options: PgPoolOptions,
-        connect_options: PgConnectOptions,
-    ) -> sqlx::Result<()> {
-        DatabaseContext::from_connection_string(connect_options.to_url_lossy().as_str()).await;
-        Ok(())
+    #[tokio::test]
+    async fn init_database_context_with_valid_connection_string_is_ok() {
+        let config: Config = get_config().expect("Failed to read config");
+        DatabaseContext::from_connection_string(config.database.without_db().expose_secret()).await;
     }
 
     #[tokio::test]

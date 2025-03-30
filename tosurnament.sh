@@ -5,6 +5,7 @@ cd $basedir
 
 helpFunction() {
     echo "Invalid or no phase selected. Please provide LOCAL, DEV, TST or PRD as argument."
+    echo "For test, provide --test instead."
     exit 1
 }
 
@@ -45,13 +46,13 @@ if [ "$phase" = "LOCAL" ]; then
     }
 
     echo "Build all crates"
-    cargo build
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
+    if ! cargo build; then exit 1; fi
 
     echo "Create local database"
-    ./scripts/init_db.sh
+    if ! ./scripts/init_db.sh; then exit 1; fi
+
+    echo "Create local IRC"
+    if ! ./scripts/init_irc.sh; then exit 1; fi
 
     echo "Run binaries (Use CTRL+C to stop the program)"
     # Start handling SIGTERM
@@ -63,6 +64,9 @@ if [ "$phase" = "LOCAL" ]; then
     wait_term
     # Kill other processes
     kill $tosurnament_web_pid
+    # Delete local IRC
+    docker stop tosurnament-local-irc > /dev/null
+    docker rm tosurnament-local-irc > /dev/null
     # Delete local database
     docker stop tosurnament-local-db > /dev/null
     docker rm tosurnament-local-db > /dev/null
@@ -72,6 +76,11 @@ elif [ "$phase" = "TST" ]; then
     docker compose -f docker/compose.yml -f docker/testing.yml $@
 elif [ "$phase" = "PRD" ]; then
     docker compose -f docker/compose.yml -f docker/production.yml $@
+elif [ "$phase" = "--test" ]; then
+    docker compose -f docker/test-compose.yml down
+    docker compose -f docker/test-compose.yml up --build --exit-code-from test
+    docker images --quiet --filter=dangling=true | xargs --no-run-if-empty docker rmi > /dev/null
+    docker volume ls --quiet --filter=dangling=true | xargs --no-run-if-empty docker volume rm > /dev/null
 else
     helpFunction
 fi

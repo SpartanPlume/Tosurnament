@@ -1,0 +1,5 @@
+<div id="refchat_chat_box" hx-swap-oob="innerHTML">
+    {% for message in channel.messages %}
+    {% include 'refchat/channel/chat/message.html' %}
+    {% endfor %}
+</div>

@@ -1,5 +1,41 @@
+html {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+body {
+    margin: 0;
+}
+
+main {
+    margin: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    font-size: var(--text-font-size);
+    line-height: var(--text-line-height);
+}
+
+h1,
+h2 {
+    margin: 0;
+    padding-bottom: 0.5em;
+}
+
 h1 {
-    color: red;
+    font-size: var(--h1-font-size);
+    line-height: var(--h1-line-height);
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+h2 {
+    font-size: var(--h2-font-size);
+    line-height: var(--h2-line-height);
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
 a {
@@ -7,23 +43,45 @@ a {
     text-decoration: none;
 }
 
+span {
+    display: inline-block;
+}
+
+input {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin-top: 0.2rem;
+    margin-bottom: 1.2rem;
+    border-radius: 0.2rem;
+}
+
+/* */
+
 #header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    height: var(--header-height);
+    line-height: var(--header-height);
+    border-bottom: var(--separator-size) solid var(--background-separator-color);
 }
 
 #tosurnament {
-    padding: 5px;
-    font-size: 1.5em;
-}
-
-.header_text {
-    font-size: 1.2em;
+    padding-left: 15px;
+    padding-right: 5px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
 .header_nav {
-    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.header_text {
+    line-height: var(--header-height);
 }
 
 .tournament_panel {

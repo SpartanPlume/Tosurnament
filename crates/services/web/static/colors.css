@@ -1,0 +1,32 @@
+:root {
+    --black-color: #131515;
+    --black-color-lighter: #272B2B;
+    --black-color-lightest: #3A4040;
+    --black-color-lightest-plus: #4E5656;
+
+    --white-color: #E8EBED;
+    --white-color-darker: #D1D7DB;
+    --white-color-darkest: #BAC3C9;
+
+    --primary-color: #FFA90A;
+    --primary-color-darker: #CC8500;
+    --primary-color-darkest: #8F5D00;
+    --primary-color-lighter: #FFBF47;
+    --primary-color-lightest: #FFD485;
+    --primary-color-hover: var(--primary-color-lighter);
+    --primary-color-clicked: var(--primary-color-darker);
+    --primary-color-disabled: var(--primary-color-darkest);
+
+    --background-color: var(--black-color);
+    --background-separator-color: var(--black-color-lightest);
+    --background-hover-color: var(--black-color-lighter);
+    --background-active-color: var(--black-color-lightest);
+    --background-hover-on-active-color: var(--black-color-lightest-plus);
+
+    --border-color: var(--white-color);
+
+    --scrollbar-color: var(--white-color);
+
+    --text-color: var(--white-color);
+    --text-color-on-primary-color: var(--black-color);
+}

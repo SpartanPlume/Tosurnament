@@ -14,6 +14,18 @@ if ! [ -x "$(command -v sqlx)" ]; then
     exit 1
 fi
 
+if ! [ -x "$(command -v docker)" ]; then
+    echo >&2 "Error: docker is not installed."
+    echo >&2 "If you are on WSL, start Docker Desktop."
+    exit 1
+fi
+
+if ! docker --help > /dev/null; then
+    echo >&2 "Error: docker is not started."
+    echo >&2 "If you are on WSL, start Docker Desktop."
+    exit 1
+fi
+
 DB_USER=${POSTGRES_USER:=postgres}
 DB_PASSWORD=${POSTGRES_PASSWORD:=password}
 DB_NAME=${POSTGRES_DB:=tosurnament}

@@ -1,0 +1,26 @@
+<div id="refchat_login"></div>
+<div id="refchat_channels_wrapper" class="scrollable_x">
+    <div id="refchat_channels">
+        {% include 'refchat/channel/add_new_channel.html' %}
+    </div>
+</div>
+<div id="refchat_channel_interface" class="flex_column full_height">
+    {% include 'refchat/channel/hide_new_channel_selection.html' %}
+    <div id="refchat_channel_interface_top" class="flex_row">
+        <div id="refchat_chat" class="full_height flex1">
+            <script>
+                document.addEventListener("htmx:wsAfterMessage", e => {
+                const to_scroll = document.getElementById("refchat_chat_box");
+                to_scroll.scrollTop = to_scroll.scrollHeight;
+                })
+            </script>
+            <div id="refchat_chat_box" class="box_container scrollable_y full_height"></div>
+            {% include 'refchat/channel/chat/input.html' %}
+        </div>
+        <div id="refchat_helper" class="flex_column box_container full_height flex1">
+            <div id="refchat_helper_tabs" class="flex_row"></div>
+            <div id="refchat_helper_content" class="full_height"></div>
+        </div>
+    </div>
+    <div id="refchat_channel_interface_bottom" class="flex_row"></div>
+</div>

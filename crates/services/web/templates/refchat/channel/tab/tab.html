@@ -1,0 +1,3 @@
+<div id="refchat_helper_tab_{{ tab.name }}" class="tab {% if active_tab %}active_tab{% endif %} flex1" hx-trigger="click" ws-send hx-vals='{"event_type": "SelectHelperTab", "tab_name": "{{ tab.name }}"}'>
+    <span class="refchat_helper_tab_name">{{ tab.name }}</span>
+</div>

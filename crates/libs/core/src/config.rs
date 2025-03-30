@@ -2,7 +2,7 @@ use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 
-#[derive(Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct DatabaseConfig {
     pub username: String,
     pub password: SecretString,

@@ -1,3 +1,6 @@
+use std::net::SocketAddr;
+
+use axum::routing::any;
 use axum::{routing::get, Router};
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
@@ -31,7 +34,12 @@ impl Application {
     }
 
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
-        axum::serve(self.listener, self.server).await
+        axum::serve(
+            self.listener,
+            self.server
+                .into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .await
     }
 }
 
@@ -50,6 +58,8 @@ pub fn create_server(context: WebContext) -> Router {
         //.route("/", get(|| async { Redirect::temporary("/tournaments") }))
         .route("/", get(index))
         .route("/tournaments", get(show_more_tournaments))
-        .route("/tournaments/:id", get(show_tournament))
+        .route("/tournaments/{id}", get(show_tournament))
+        .route("/refchat", get(show_refchat))
+        .route("/refchat-ws", any(handle_refchat_ws))
         .with_state(context.clone())
 }

@@ -9,21 +9,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: tosurnament
-        ports:
-          - 5432:5432
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install the Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-      - name: Install postgresql-client
-        run: sudo apt-get update && sudo apt-get install postgresql-client -y
       - name: Run tests
-        run: cargo test -- --include-ignored
+        run: ./tosurnament --test

@@ -1,0 +1,228 @@
+body {
+    height: 100vh;
+}
+
+main {
+    margin: 0;
+    height: calc(100vh - var(--header-height));
+}
+
+#refchat {
+    display: flex;
+    flex-direction: column;
+}
+
+#refchat_channels_wrapper {
+    display: flex;
+    border-bottom: var(--separator-size) solid var(--background-separator-color);
+}
+
+#refchat_channels {
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
+}
+
+.refchat_channel_name {
+    margin-right: 0.3em;
+}
+
+.close_button {
+    background: none;
+    color: inherit;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    margin: 0;
+    padding: 0;
+    height: var(--text-line-height);
+    padding: calc(var(--text-line-height) / 6);
+}
+
+.close_button:hover {
+    background-color: var(--background-active-color);
+}
+
+.active_tab>.close_button:hover {
+    background-color: var(--background-hover-on-active-color);
+}
+
+#refchat_new_channel_selection {
+    position: absolute;
+    align-items: center;
+    background-color: var(--background-color);
+    opacity: 1;
+    z-index: 98;
+}
+
+#refchat_new_channel_selection_content {
+    align-items: center;
+}
+
+#refchat_chat_box {
+    padding: var(--paragraph-padding);
+}
+
+#refchat_input {
+    margin: 0;
+}
+
+.refchat_message_map_highlight {
+    display: inline-block;
+    background-color: red;
+    cursor: pointer;
+    text-indent: 0;
+}
+
+.refchat_message_map {
+    display: none;
+    position: absolute;
+    border: 0.1rem solid;
+}
+
+.refchat_message_map_highlight:hover .refchat_message_map {
+    display: block;
+}
+
+#refchat_login_opacity {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--header-height);
+    bottom: 0;
+    margin: auto;
+    background-color: var(--background-color);
+    opacity: 1;
+}
+
+#refchat_login_disable {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--header-height);
+    bottom: 0;
+    margin: auto;
+    z-index: 100;
+    background-color: var(--background-color);
+    opacity: 0.8;
+}
+
+#refchat_login_popup {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    background-color: var(--background-color);
+}
+
+#refchat_login_title {
+    text-align: center;
+    font-weight: bold;
+}
+
+#refchat_event_login {
+    display: flex;
+    flex-direction: column;
+}
+
+#refchat_chat {
+    display: flex;
+    flex-direction: column;
+    max-width: 45%;
+    margin: auto;
+}
+
+#refchat_login {
+    z-index: 99;
+}
+
+#refchat_helper {
+    max-width: 45%;
+    margin: auto;
+    padding: 0;
+}
+
+#refchat_channel_interface {
+    position: relative;
+}
+
+#refchat_channel_interface_top,
+#refchat_channel_interface_bottom {
+    min-height: 0px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+#refchat_channel_interface_top {
+    flex: 6;
+}
+
+#refchat_channel_interface_bottom {
+    flex: 4;
+}
+
+#refchat_helper_content {
+    margin: 1rem 0;
+}
+
+#refchat_room_player_slots_wrapper,
+#refchat_room_others {
+    align-items: center;
+}
+
+#refchat_player_slots,
+#refchat_room_buttons {
+    align-items: center;
+    width: 80%;
+}
+
+.refchat_player_slot {
+    width: 95%;
+    min-height: var(--text-line-height);
+    border: var(--separator-size) solid var(--background-separator-color);
+    border-radius: 0.2rem;
+    margin: 0.2rem 0;
+    padding: 0.2rem 0;
+    box-sizing: content-box;
+}
+
+.refchat_room_button {
+    width: 95%;
+    margin: 0.4rem 0;
+}
+
+#refchat_helper_tabs {
+    border-bottom: var(--separator-size) solid var(--background-separator-color);
+}
+
+.refchat_helper_tab_name {
+    margin: auto;
+}
+
+#refchat_room_map {
+    position: relative;
+    display: flex;
+    width: 90%;
+    height: 4rem;
+    border: var(--separator-size) solid var(--background-separator-color);
+    border-radius: 0.2rem;
+    margin-bottom: 1rem;
+}
+
+#refchat_room_map_image {
+    object-fit: cover;
+}
+
+#refchat_room_map_name {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}

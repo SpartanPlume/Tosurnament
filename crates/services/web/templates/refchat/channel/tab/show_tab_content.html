@@ -1,0 +1,11 @@
+{% if tab %}
+{% if tab.name == "Room" %}
+{% include 'refchat/channel/tab/room.html' %}
+{% elif tab.name == "Maps" %}
+{% include 'refchat/channel/tab/maps.html' %}
+{% elif tab.name == "Rules" %}
+{% include 'refchat/channel/tab/rules.html' %}
+{% endif %}
+{% else %}
+<div id="refchat_helper_content" class="flex_row full_height"></div>
+{% endif %}

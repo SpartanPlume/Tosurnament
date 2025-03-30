@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block additional_head %}
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
+<link rel="stylesheet" href="/static/refchat_style.css">
+{% endblock %}
+
+{% block title %}
+Refchat
+{% endblock %}
+
+{% block content %}
+<script>
+    function moveCursorToEnd() {
+        let input = document.getElementById('refchat_input');
+        let length = input.value.length;
+        input.focus();
+        input.setSelectionRange(length, length);
+    }
+</script>
+<div id="refchat" class="full_height" hx-ext="ws" ws-connect="/refchat-ws">
+    {% include 'refchat/start_refchat.html' %}
+</div>
+{% endblock %}

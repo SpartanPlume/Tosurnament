@@ -1,0 +1,5 @@
+{% if previous_channel %}
+{% set active_channel = false %}
+{% set channel = previous_channel %}
+{% include 'refchat/channel/channel.html' %}
+{% endif %}

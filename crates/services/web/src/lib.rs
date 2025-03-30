@@ -3,6 +3,7 @@ pub mod context;
 pub mod error;
 pub mod extractor;
 pub mod prelude;
+pub mod refchat;
 pub mod routes;
 pub mod startup;
 

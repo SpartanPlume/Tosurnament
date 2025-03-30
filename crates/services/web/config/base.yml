@@ -1,5 +1,9 @@
+log_level: "info"
 application:
   port: 8080
 api:
   host: api
   port: 8080
+refchat:
+  host: "127.0.0.1"
+  port: 6667

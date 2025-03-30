@@ -1,0 +1,13 @@
+# Folders
+.git/
+.github/
+docker/
+scripts/
+target/
+
+# Files
+.dockerignore
+.env
+.gitignore
+*.md
+tosurnament.sh

@@ -1,8 +1,11 @@
+log_level: "debug"
 application:
   host: "127.0.0.1"
 api:
   host: "127.0.0.1"
   port: 8081
+refchat:
+  host: "127.0.0.1"
 database:
   host: "127.0.0.1"
   port: 5432

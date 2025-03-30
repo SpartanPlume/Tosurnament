@@ -1,0 +1,8 @@
+<div class="flex_row refchat_player_slot">
+    {% if player_slot.player %}
+    <div class="refchat_team{{ player_slot.team }}"></div>
+    <div class="refchat_player_name">{{ player_slot.player.name | default(value="") }}</div>
+    {% else %}
+    <div class="refchat_player_slot_empty"></div>
+    {% endif %}
+</div>

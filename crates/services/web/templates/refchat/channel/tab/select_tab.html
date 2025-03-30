@@ -1,0 +1,9 @@
+{# Set tab as active #}
+{% set active_tab = true %}
+{% include 'refchat/channel/tab/tab.html' %}
+
+{# Reset previous tab #}
+{% include 'refchat/channel/tab/unselect_previous_tab.html' %}
+
+{# Show content #}
+{% include 'refchat/channel/tab/show_tab_content.html' %}

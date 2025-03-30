@@ -12,8 +12,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::distr::Alphanumeric;
+use rand::{rng, Rng};
 
 /// A helper datastructure for ensuring that we switch back to the current folder before the
 /// end of the current scope.
@@ -108,7 +108,7 @@ impl Drop for TmpDir {
 }
 
 fn random_path() -> PathBuf {
-    let rand_string: String = thread_rng()
+    let rand_string: String = rng()
         .sample_iter(&Alphanumeric)
         .take(10)
         .map(char::from)

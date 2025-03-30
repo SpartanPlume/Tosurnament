@@ -1,0 +1,45 @@
+name: tosurnament-test
+services:
+  db:
+    build:
+      context: ..
+      dockerfile: docker/test-db.Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=tosurnament
+    command: [ "-c", "ssl=on", "-c", "ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem", "-c", "ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+  irc:
+    build:
+      context: ..
+      dockerfile: docker/test-irc.Dockerfile
+    ports:
+      - 6667:6667
+  test:
+    build:
+      context: ..
+      dockerfile: docker/test.Dockerfile
+    command: ["cargo", "test", "--", "--include-ignored"]
+    depends_on:
+        db:
+          condition: service_healthy
+        irc:
+          condition: service_started
+    environment:
+      - APP_DATABASE__USERNAME=postgres
+      - APP_DATABASE__PASSWORD=password
+      - APP_DATABASE__DATABASE_NAME=tosurnament
+      - APP_DATABASE__HOST=db
+      - APP_DATABASE__PORT=5432
+      - APP_REFCHAT__HOST=irc
+      - APP_REFCHAT__PORT=6667
+      - DATABASE_URL=postgres://postgres:password@localhost:5432/tosurnament
+      - TEST_LOG=0

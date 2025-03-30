@@ -10,6 +10,7 @@ pub struct Application {
     port: u16,
     server: Router,
     listener: TcpListener,
+    context: Context,
 }
 
 impl Application {
@@ -18,12 +19,17 @@ impl Application {
         let address = format!("{}:{}", config.application.host, config.application.port);
         let listener = TcpListener::bind(address).await?;
         let port = listener.local_addr().expect("Failed to bind port").port();
-        let server = create_server(context);
+        let server = create_server(&context);
         Ok(Self {
             port,
             server,
             listener,
+            context,
         })
+    }
+
+    pub fn context(&self) -> &Context {
+        &self.context
     }
 
     pub fn port(&self) -> u16 {
@@ -35,14 +41,14 @@ impl Application {
     }
 }
 
-pub fn create_server(context: Context) -> Router {
+pub fn create_server(context: &Context) -> Router {
     Router::new()
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .nest_service("/static", ServeDir::new("static"))
         .route("/health_check", get(health_check))
         // Json/Form routes
         .route("/tournaments", get(get_tournaments).post(create_tournament))
-        .route("/tournaments/:id", get(get_tournament))
+        .route("/tournaments/{id}", get(get_tournament))
         .route("/brackets", get(get_brackets).post(create_bracket))
         .with_state(context.clone())
 }

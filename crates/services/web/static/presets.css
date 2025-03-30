@@ -1,0 +1,130 @@
+.primary_button {
+    color: var(--text-color-on-primary-color);
+    background-color: var(--primary-color);
+    border-radius: 0.2em;
+    border: 0.15rem solid var(--primary-color-darkest);
+    line-height: var(--text-line-height);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.primary_button:hover {
+    background-color: var(--primary-color-hover);
+}
+
+.primary_button:focus {
+    background-color: var(--primary-color-clicked);
+}
+
+.primary_button:disabled {
+    background-color: var(--primary-color-disabled);
+}
+
+.tab,
+.closeable_tab {
+    display: flex;
+    flex-direction: row;
+    padding: var(--paragraph-padding);
+    background: none;
+    color: inherit;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: left;
+    user-select: none;
+    white-space: nowrap;
+    background-color: var(--background-color);
+}
+
+.tab:hover,
+.closeable_tab:hover {
+    background-color: var(--background-hover-color);
+}
+
+.closeable_tab {
+    padding-right: 0.3em;
+}
+
+.active_tab {
+    background-color: var(--background-active-color) !important;
+}
+
+.box_container {
+    display: flex;
+    flex-direction: column;
+    padding: 1.2em 1em;
+    border: 0.15rem solid var(--border-color);
+}
+
+.text {
+    display: inline-block;
+    overflow-wrap: break-word;
+    line-height: var(--text-line-height);
+}
+
+.scrollable_y {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-color);
+}
+
+.scrollable_x {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-color);
+}
+
+.full_width {
+    width: 100%;
+}
+
+.full_height {
+    height: 100%;
+    min-height: 0px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.invisible {
+    display: none;
+}
+
+.flex_column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex_row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex1 {
+    flex: 1;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--white-color);
+    border-bottom-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

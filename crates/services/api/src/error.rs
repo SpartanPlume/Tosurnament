@@ -7,17 +7,17 @@ use tracing::{error, info};
 #[derive(thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
-    ServerError(#[from] anyhow::Error),
+    Server(#[from] anyhow::Error),
     #[error(transparent)]
-    DatabaseError(#[from] ormlite::Error),
+    Database(#[from] ormlite::Error),
     #[error(transparent)]
     InvalidHeader(#[from] axum::http::header::ToStrError),
     #[error("A header is not supported")]
     UnsupportedHeader,
     #[error(transparent)]
-    DecodeError(#[from] DecodeError),
+    Decode(#[from] DecodeError),
     #[error(transparent)]
-    TeraError(#[from] tera::Error),
+    Tera(#[from] tera::Error),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -62,12 +62,12 @@ impl IntoResponse for Error {
         info!(error = ?self);
 
         let status_code = match self {
-            Self::ServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::DatabaseError(error) => error.into_status_code(),
+            Self::Server(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Database(error) => error.into_status_code(),
             Self::InvalidHeader(_) => StatusCode::BAD_REQUEST,
             Self::UnsupportedHeader => StatusCode::BAD_REQUEST,
-            Self::DecodeError(error) => error.into_status_code(),
-            Self::TeraError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Decode(error) => error.into_status_code(),
+            Self::Tera(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
         status_code.into_response()
     }

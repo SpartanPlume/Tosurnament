@@ -1,0 +1,6 @@
+<div id="refchat_helper_tabs" hx-swap-oob="innerHTML">
+    {% for tab in tabs %}
+    {% set active_tab = tab.name == current_tab_name %}
+    {% include 'refchat/channel/tab/tab.html' %}
+    {% endfor %}
+</div>
