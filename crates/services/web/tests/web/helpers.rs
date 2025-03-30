@@ -72,7 +72,7 @@ impl TestApp {
 pub static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "debug".to_string();
     let subscriber_name = "tosurnament".to_string();
-    if std::env::var("TEST_LOG").is_ok() {
+    if std::env::var("TEST_LOG").is_ok_and(|v| v == "1") {
         let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
         init_subscriber(subscriber).expect("Failed to initialize subscriber");
     } else {

@@ -52,6 +52,7 @@ To be able to run the tests, a running database and IRC server are needed.
 To create them, just run:
 - `scripts/init_db.sh`
 - `scripts/init_irc.sh`
+
 On WSL2 on Windows, you will need to run Docker Desktop with the WSL2 based engine first.
 
 After that, you can run `cargo test` to run all tests except the expensive ones.  

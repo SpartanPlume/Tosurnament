@@ -6,6 +6,7 @@ cd $basedir
 helpFunction() {
     echo "Invalid or no phase selected. Please provide LOCAL, DEV, TST or PRD as argument."
     echo "For test, provide --test instead."
+    echo "For coverage, provide --coverage instead."
     exit 1
 }
 
@@ -79,6 +80,11 @@ elif [ "$phase" = "PRD" ]; then
 elif [ "$phase" = "--test" ]; then
     docker compose -f docker/test-compose.yml down
     docker compose -f docker/test-compose.yml up --build --exit-code-from test
+    docker images --quiet --filter=dangling=true | xargs --no-run-if-empty docker rmi > /dev/null
+    docker volume ls --quiet --filter=dangling=true | xargs --no-run-if-empty docker volume rm > /dev/null
+elif [ "$phase" = "--coverage" ]; then
+    docker compose -f docker/test-compose.yml -f docker/coverage-compose.yml down
+    docker compose -f docker/test-compose.yml -f docker/coverage-compose.yml up --build --exit-code-from test
     docker images --quiet --filter=dangling=true | xargs --no-run-if-empty docker rmi > /dev/null
     docker volume ls --quiet --filter=dangling=true | xargs --no-run-if-empty docker volume rm > /dev/null
 else

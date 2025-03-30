@@ -1,0 +1,4 @@
+name: tosurnament-coverage
+services:
+  test:
+    command: ["cargo", "tarpaulin", "--", "--include-ignored"]

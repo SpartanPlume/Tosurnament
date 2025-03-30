@@ -6,5 +6,6 @@ RUN apt-get update -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
+RUN cargo install cargo-tarpaulin
+
 COPY . .
-RUN cargo build --tests
