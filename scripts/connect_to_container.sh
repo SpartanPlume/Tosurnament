@@ -1,8 +1,16 @@
 #! /bin/bash
 
+set -eo pipefail
+
+basedir=$(dirname "$0")
+cd $basedir/..
+
+# Check if docker is installed and running
+./scripts/utils/check_docker.sh
+
 helpFunction() {
-    echo "No container name given or invalid container name."
-    echo "Available containers:"
+    echo >&2 "No container name given or invalid container name."
+    echo >&2 "Available containers:"
     docker ps --format '{{.Names}}'
     exit 1
 }

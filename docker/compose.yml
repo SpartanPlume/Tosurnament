@@ -2,6 +2,8 @@ name: tosurnament
 services:
   db:
     image: postgres:16
+    ports:
+      - ${DB_PORT}:5432
     secrets:
       - db_password
     environment:
@@ -22,6 +24,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ports:
+      - ${API_PORT}:8080
     secrets:
       - db_password
     environment:
@@ -37,6 +41,8 @@ services:
       dockerfile: docker/web.Dockerfile
     depends_on:
       - api
+    ports:
+      - ${WEB_PORT}:8080
     environment:
       - APP_ENVIRONMENT=development
 secrets:

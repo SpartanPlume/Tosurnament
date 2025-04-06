@@ -44,6 +44,18 @@ If you want to test Tosurnament in real conditions without impacting your deploy
 
 Then the commands to stop, restart and delete the containers are the same but with the `TST` parameter instead of `PRD`.
 
+## Backup / Restore
+
+### Backup
+
+To backup the database, use `./scripts/backup_db.sh`.  
+It will create a `bak.sql` file at the root of the repository.
+
+## Restore
+
+To restore the database, use `./scripts/restore_db <sql_file>`.  
+To correctly restore a database, you need to only start the `db` part of tosurnament first with: `./tosurnament.sh <phase> up db -d`.
+
 ## Tests
 
 ### Unit tests
@@ -65,3 +77,10 @@ To debug a test, you can run this command:
 TEST_LOG=1 cargo test <test_name> -- --nocapture | bunyan
 ```
 `bunyan` is a program to parse the generated output. You might need to install it, but it is not necessary for the debugging.
+
+### Adding tests data
+
+You can add tests data in `crates/libs/core/tests-data`.  
+Every table has a corresponding `.csv` file containing its tests data.
+
+If you are adding a new `.csv` file, you need to run the script `./crates/libs/core/tests-data/generate_tests_data_sql.sh`.

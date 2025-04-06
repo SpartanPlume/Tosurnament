@@ -1,20 +1,12 @@
-name: tosurnament-dev
+name: tosurnament-development
 services:
   irc:
     build:
       context: ..
-      dockerfile: docker/test-irc.Dockerfile
+      dockerfile: docker/test/test-irc.Dockerfile
     ports:
       - 6667:6667
-  db:
-    ports:
-      - ${DB_PORT}:5432
-  api:
-    ports:
-      - ${API_PORT}:8080
   web:
-    ports:
-      - ${WEB_PORT}:8080
     environment:
       - APP_REFCHAT__HOST=irc
     depends_on:
