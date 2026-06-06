@@ -1,0 +1,9 @@
+{
+    "editor.formatOnSave": true,
+    "[toml]": {
+        "editor.defaultFormatter": "tombi-toml.tombi"
+    },
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    }
+}

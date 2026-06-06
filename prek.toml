@@ -1,0 +1,40 @@
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "check-added-large-files" },
+  { id = "check-toml" },
+  { id = "check-yaml" },
+  { id = "end-of-file-fixer" },
+  { id = "trailing-whitespace" },
+]
+
+[[repos]]
+repo = "https://github.com/zizmorcore/zizmor-pre-commit"
+rev = "9257c6050c0261b8c57e712f632dc4a8010109a9"  # frozen: v1.25.2
+hooks = [{ id = "zizmor" }]
+
+[[repos]]
+repo = "https://github.com/tombi-toml/tombi-pre-commit"
+rev = "508f918710363b5684342a0c001c44986d825f1e"  # frozen: v1.1.1
+hooks = [{ id = "tombi-format", files = "\\.toml$" }, { id = "tombi-lint" }]
+
+[[repos]]
+repo = "local"
+hooks = [
+  {
+    id = "rust-fmt",
+    name = "rust-fmt",
+    language = "system",
+    entry = "cargo fmt --check -- ",
+    types = ["file", "rust"],
+    pass_filenames = false
+  },
+  {
+    id = "rust-clippy",
+    name = "rust-clippy",
+    language = "system",
+    entry = "cargo clippy -- -D warnings",
+    types = ["file", "rust"],
+    pass_filenames = false
+  }
+]

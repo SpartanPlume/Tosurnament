@@ -4,27 +4,23 @@ on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
-  SQLX_OFFLINE: true
+
+permissions: {}
 
 jobs:
-  fmt:
+  checks:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # frozen: v6.0.3
         with:
-          components: rustfmt
-      - name: Enforce formatting
-        run: cargo fmt --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9  # frozen: master
         with:
-          components: clippy
-      - name: Linting
-        run: cargo clippy -- -D warnings
+          toolchain: stable
+          components: rustfmt, clippy
+      - uses: j178/prek-action@bdca6f102f98e2b4c7029491a53dfd366469e33d # frozen: v2.0.4
+      - name: Run tests
+        run: ./tosurnament.sh --test
+      - name: Generate code coverage
+        run: ./tosurnament.sh --coverage

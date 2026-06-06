@@ -13,7 +13,7 @@ use std::{
 };
 
 use rand::distr::Alphanumeric;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 
 /// A helper datastructure for ensuring that we switch back to the current folder before the
 /// end of the current scope.

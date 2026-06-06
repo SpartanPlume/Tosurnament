@@ -25,7 +25,7 @@ impl sqlx::Encode<'_, Postgres> for TournamentName {
     fn encode_by_ref(
         &self,
         buf: &mut PgArgumentBuffer,
-    ) -> Result<sqlx::encode::IsNull, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
+    ) -> Result<sqlx::encode::IsNull, Box<dyn std::error::Error + Send + Sync + 'static>> {
         let s = serde_json::to_value(self)?;
         let s = s.as_str().unwrap();
         <&'_ str as sqlx::Encode<Postgres>>::encode(s, buf)

@@ -45,6 +45,7 @@ impl ChatError {
     }
 }
 
+#[expect(dead_code)]
 #[derive(Debug)]
 pub struct InvalidLoginError;
 

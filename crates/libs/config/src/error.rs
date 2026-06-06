@@ -5,5 +5,11 @@ pub enum ConfigError {
     #[error("{0}")]
     InvalidEnvironment(String),
     #[error(transparent)]
-    InvalidConfig(#[from] figment::Error),
+    InvalidConfig(#[from] Box<figment::Error>),
+}
+
+impl From<figment::Error> for ConfigError {
+    fn from(e: figment::Error) -> Self {
+        ConfigError::InvalidConfig(Box::new(e))
+    }
 }

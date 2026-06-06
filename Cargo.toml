@@ -1,11 +1,14 @@
 [workspace]
-
-members = [
-    "crates/libs/core",
-    "crates/libs/config",
-    "crates/libs/telemetry",
-    "crates/libs/tmpenv",
-    "crates/services/api",
-    "crates/services/web",
-]
 resolver = "2"
+members = [
+  "crates/libs/config",
+  "crates/libs/core",
+  "crates/libs/telemetry",
+  "crates/libs/tmpenv",
+  "crates/services/api",
+  "crates/services/web",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
